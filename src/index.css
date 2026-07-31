@@ -1,11 +1,16 @@
 @import 'tailwindcss';
 
+/*
+ * The purple is Fast Pool's own, #403374 from fastpool.org. The rest of the
+ * palette stays the guide's: this is a Fast Pool project, not a Fast Pool
+ * advertisement, and it lists Fast Pool's pools beside everyone else's.
+ */
 @theme {
   --color-cream: #fdf8f3;
   --color-ink: #2c2a35;
   --color-muted: #6b6577;
-  --color-grape: #5b4b8a;
-  --color-grape-soft: #efeaf8;
+  --color-grape: #403374;
+  --color-grape-soft: #ebe8f6;
   --color-mint: #2f7d62;
   --color-mint-soft: #e3f3ec;
   --color-amber-warm: #8a5a2b;
@@ -18,6 +23,11 @@ html {
 
 body {
   color: var(--color-ink);
-  font-family: ui-rounded, 'SF Pro Rounded', system-ui, -apple-system, 'Segoe UI',
+  font-family:
+    ui-rounded,
+    'SF Pro Rounded',
+    system-ui,
+    -apple-system,
+    'Segoe UI',
     sans-serif;
 }

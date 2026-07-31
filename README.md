@@ -1,6 +1,12 @@
 # Signer Guide
 
-A plain-language guide for people choosing where to stake their STX.
+A plain-language guide for people choosing where to stake their STX, at
+[signer-guide.fastpool.org](https://signer-guide.fastpool.org).
+
+Made by [Fast Pool](https://fastpool.org), which runs some of the pools it
+lists. They get the same treatment as everyone else's — described by the same
+detectors, ranked by the same size — and the page says so in its footer. That
+is what all of this being public is for.
 
 The 23 pools registered on pox-5 run only six distinct **signer contracts**
 between them, so the guide leads with those: one page per contract explaining

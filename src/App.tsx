@@ -21,6 +21,31 @@ const totals = totalsData as LockedTotals;
 const LOW_FEE_BIPS = 500; // 5%
 
 const REPO_URL = 'https://github.com/fastpool/signer-guide';
+const FASTPOOL_URL = 'https://fastpool.org';
+
+/**
+ * When the data was last read from the chain, in words.
+ *
+ * To the minute, and said in the middle of the page rather than only at the
+ * bottom: the fees and amounts above are facts with a shelf life, and the
+ * refresh runs hourly. A reader deciding where to put their STX should be
+ * able to see how old the numbers are without hunting for it.
+ */
+const lastUpdate = (() => {
+  const at = new Date(signerData.generatedAt);
+  const day = at.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'UTC',
+  });
+  // The clock is built by hand rather than left to toLocaleString, which
+  // words the join differently between ICU versions ("at 15:11" here, ",
+  // 15:11" on another machine) — not something the page should vary by.
+  const hh = String(at.getUTCHours()).padStart(2, '0');
+  const mm = String(at.getUTCMinutes()).padStart(2, '0');
+  return `${day}, ${hh}:${mm} UTC`;
+})();
 
 export type FilterId =
   'bitcoin' | 'lowFee' | 'cappedFee' | 'feeNotice' | 'open';
@@ -118,6 +143,19 @@ export default function App() {
   return (
     <main className='mx-auto max-w-3xl px-5 py-12 md:py-20'>
       <header className='flex flex-col gap-4'>
+        <a
+          href={FASTPOOL_URL}
+          className='flex items-center gap-2 self-start text-sm font-semibold text-muted transition-colors hover:text-grape'
+        >
+          <img
+            src='/fastpool-logo.svg'
+            alt=''
+            width='36'
+            height='36'
+            className='rounded-xl bg-grape'
+          />
+          Fast Pool
+        </a>
         <h1 className='text-4xl font-extrabold md:text-5xl'>
           Where can you stake your STX?
         </h1>
@@ -169,6 +207,14 @@ export default function App() {
           ))}
         </ul>
       </section>
+
+      <p className='mt-10 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted'>
+        <span className='inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 font-bold text-ink shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
+          <span className='h-2 w-2 rounded-full bg-mint' aria-hidden='true' />
+          Last update: {lastUpdate}
+        </span>
+        <span>Fees and amounts are read from the chain again every hour.</span>
+      </p>
 
       <section className='mt-12' aria-labelledby='filters-heading'>
         <h2 id='filters-heading' className='text-2xl font-bold'>
@@ -251,15 +297,8 @@ export default function App() {
           Every pool here is registered on Stacks and identified by what its
           code adds up to, not by its name — so two pools running the same
           signer contract are shown as such. Fees were read from each
-          contract&rsquo;s own storage on{' '}
-          {new Date(signerData.generatedAt).toLocaleDateString('en-GB', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-            timeZone: 'UTC',
-          })}
-          , and the amounts staked are for cycle {totals.cycle}. Both are read
-          again every hour.
+          contract&rsquo;s own storage on {lastUpdate}, and the amounts staked
+          are for cycle {totals.cycle}.
         </p>
         <p>
           Nothing here is taken on trust, and neither should this page be:{' '}
@@ -273,6 +312,19 @@ export default function App() {
           </a>{' '}
           — every claim above comes from a line of Clarity you can check
           yourself.
+        </p>
+        <p>
+          Made by{' '}
+          <a
+            className='font-semibold text-grape underline underline-offset-2'
+            href={FASTPOOL_URL}
+          >
+            Fast Pool
+          </a>
+          , which runs some of the pools listed above. They are described by the
+          same code as everyone else&rsquo;s and ranked by size like everyone
+          else&rsquo;s — the reason all of this is public is so you do not have
+          to take that on trust either.
         </p>
       </footer>
     </main>

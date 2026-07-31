@@ -79,4 +79,23 @@ describe('the page as a reader sees it', () => {
     const html = renderToStaticMarkup(<App />);
     expect(html).toContain('https://github.com/fastpool/signer-guide');
   });
+
+  it('says when the data was last read, above the pool list', () => {
+    // The fees and amounts have a shelf life, so how old they are belongs
+    // where someone is still deciding — not only in the footer.
+    const html = renderToStaticMarkup(<App />);
+    expect(html).toContain('Last update:');
+    expect(html).toMatch(/Last update: \d+ \w+ \d{4}, \d{2}:\d{2} UTC/);
+    expect(html.indexOf('Last update:')).toBeLessThan(
+      html.indexOf('All pools'),
+    );
+  });
+
+  it('says who made it and that they run some of the pools listed', () => {
+    // The guide ranks pools by size and Fast Pool operates several. Saying so
+    // is the difference between a guide and an advertisement.
+    const html = renderToStaticMarkup(<App />);
+    expect(html).toContain('https://fastpool.org');
+    expect(html).toContain('runs some of the pools listed above');
+  });
 });
