@@ -1,0 +1,117 @@
+import Badge, { feeLabel } from './Badge';
+import type { Template } from '../lib/templates';
+
+const EXPLORER = 'https://explorer.hiro.so';
+
+export default function ContractPage({ template }: { template: Template }) {
+  const { profile, signers } = template;
+
+  return (
+    <main className='mx-auto max-w-3xl px-5 py-12 md:py-20'>
+      <a
+        href='#/'
+        className='text-sm font-semibold text-grape underline underline-offset-2'
+      >
+        ← All signer contracts
+      </a>
+
+      <h1 className='mt-6 text-4xl font-extrabold md:text-5xl'>
+        {profile.name} signer contract
+      </h1>
+
+      <p className='mt-4 text-lg text-muted'>{profile.detail}</p>
+
+      <div className='mt-6 flex flex-wrap gap-2'>
+        {template.openToAnyone ? (
+          <Badge tone='good'>Anyone can join</Badge>
+        ) : (
+          <Badge tone='warm'>Invite only</Badge>
+        )}
+        {template.bitcoinRewards ? (
+          <Badge tone='good'>Rewards in Bitcoin</Badge>
+        ) : (
+          <Badge tone='neutral'>Rewards in sBTC</Badge>
+        )}
+      </div>
+
+      <section className='mt-10'>
+        <h2 className='text-2xl font-bold'>
+          {signers.length === 1
+            ? 'One pool runs this contract'
+            : `${signers.length} pools run this contract`}
+        </h2>
+        <p className='mt-2 text-muted'>
+          They run the same code, so they behave the same way. What differs is
+          who operates them and what they charge.
+        </p>
+
+        <ul className='mt-4 space-y-3'>
+          {signers.map((signer) => (
+            <li
+              key={signer.contractId}
+              className='flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 rounded-3xl bg-white p-5 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'
+            >
+              <a
+                className='text-lg font-bold underline underline-offset-2'
+                href={`${EXPLORER}/txid/${signer.contractId}?chain=mainnet`}
+                target='_blank'
+                rel='noreferrer'
+              >
+                {signer.displayName}
+              </a>
+              <Badge tone='neutral'>Fee: {feeLabel(signer.feeBips)}</Badge>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className='mt-10 rounded-3xl bg-white p-6 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
+        <h2 className='text-lg font-bold'>How we checked</h2>
+        <dl className='mt-3 space-y-3 text-sm'>
+          <div>
+            <dt className='font-semibold'>Code fingerprint</dt>
+            <dd className='mt-0.5 break-all font-mono text-xs text-muted'>
+              {template.canonicalSha256}
+            </dd>
+            <dd className='mt-1 text-muted'>
+              Every pool above hashes to this, which is how we know they run the
+              same code.
+            </dd>
+          </div>
+
+          <div>
+            <dt className='font-semibold'>Who may join</dt>
+            <dd className='mt-0.5 text-muted'>
+              {template.evidence.openToAnyone ? (
+                <>
+                  Staking is refused unless this holds:{' '}
+                  <code className='break-all font-mono text-xs'>
+                    {template.evidence.openToAnyone}
+                  </code>
+                </>
+              ) : (
+                'Nothing in the contract tests who you are, so nobody is turned away.'
+              )}
+            </dd>
+          </div>
+
+          <div>
+            <dt className='font-semibold'>Rewards in Bitcoin</dt>
+            <dd className='mt-0.5 text-muted'>
+              {template.evidence.bitcoinRewards ? (
+                <>
+                  It records a Bitcoin address for you:{' '}
+                  <code className='break-all font-mono text-xs'>
+                    {template.evidence.bitcoinRewards}
+                  </code>
+                </>
+              ) : (
+                'The contract never handles a Bitcoin address, so rewards arrive as sBTC on Stacks.'
+              )}
+            </dd>
+          </div>
+        </dl>
+      </section>
+    </main>
+  );
+}

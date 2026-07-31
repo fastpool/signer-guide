@@ -1,35 +1,9 @@
 import { useState } from 'react';
+import { contractHref } from '../lib/route';
 import type { Signer } from '../lib/types';
+import Badge, { feeLabel } from './Badge';
 
 const EXPLORER = 'https://explorer.hiro.so';
-
-function Badge({
-  tone,
-  children,
-}: {
-  tone: 'good' | 'neutral' | 'warm';
-  children: React.ReactNode;
-}) {
-  const tones = {
-    good: 'bg-mint-soft text-mint',
-    neutral: 'bg-grape-soft text-grape',
-    warm: 'bg-amber-soft text-amber-warm',
-  };
-  return (
-    <span
-      className={`${tones[tone]} rounded-full px-3 py-1 text-sm font-semibold`}
-    >
-      {children}
-    </span>
-  );
-}
-
-/** "0%", "2.5%" — bips are a unit nobody outside finance should have to meet. */
-function feeLabel(feeBips: number | null): string {
-  if (feeBips === null) return 'Not set in this contract';
-  if (feeBips === 0) return 'No fee right now';
-  return `${(feeBips / 100).toFixed(feeBips % 100 === 0 ? 0 : 2)}% right now`;
-}
 
 export default function SignerCard({
   signer,
@@ -48,9 +22,15 @@ export default function SignerCard({
         <p className='font-mono text-xs text-muted'>{name}</p>
       </div>
 
-      {signer.implementationName ? (
-        <p className='mt-1 text-sm font-semibold text-grape'>
-          Runs the {signer.implementationName.toLowerCase()}
+      {signer.profileId && signer.implementationName ? (
+        <p className='mt-1 text-sm font-semibold'>
+          Runs the{' '}
+          <a
+            className='text-grape underline underline-offset-2'
+            href={contractHref(signer.profileId)}
+          >
+            {signer.implementationName} signer contract
+          </a>
         </p>
       ) : (
         <p className='mt-1 text-sm font-semibold text-amber-warm'>
@@ -107,24 +87,6 @@ export default function SignerCard({
               Pools sharing this fingerprint run the same code.
             </dd>
           </div>
-
-          {signer.evidence.openToAnyone && (
-            <div>
-              <dt className='font-semibold'>Who may join, in the code</dt>
-              <dd className='mt-0.5 break-all font-mono text-xs text-muted'>
-                {signer.evidence.openToAnyone}
-              </dd>
-            </div>
-          )}
-
-          {signer.evidence.bitcoinRewards && (
-            <div>
-              <dt className='font-semibold'>Bitcoin payouts, in the code</dt>
-              <dd className='mt-0.5 break-all font-mono text-xs text-muted'>
-                {signer.evidence.bitcoinRewards}
-              </dd>
-            </div>
-          )}
         </dl>
       )}
     </li>

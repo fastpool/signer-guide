@@ -1,8 +1,11 @@
 # Signer Guide
 
-A plain-language page for people choosing where to stake their STX. It lists
-the signer pools registered on pox-5 and lets you filter by what actually
-matters to you.
+A plain-language guide for people choosing where to stake their STX.
+
+The 21 pools registered on pox-5 run only six distinct **signer contracts**
+between them, so the guide leads with those: one page per contract explaining
+what it does and which pools run it, then the full pool list with filters for
+what actually matters to you.
 
 ```bash
 pnpm install
@@ -26,11 +29,12 @@ there. Two hashes are kept:
 | `sourceSha256` | the raw bytes as deployed, reproducible with `curl … \| jq -r .source \| sha256sum` |
 | `canonicalSha256` | the same code ignoring comments and formatting |
 
-That distinction earns its keep: of 21 registered pools there are only **five**
-distinct implementations, and two of them differ solely in their comments.
-Reviewed implementations live in `src/lib/profiles.ts`, keyed by canonical
-hash. A pool whose hash is not listed is shown as *not reviewed yet* rather
-than being given badges it has not earned.
+That distinction earns its keep: of 21 registered pools there are only six
+distinct signer contracts, and two implementations differ solely in their
+comments. Reviewed contracts live in `src/lib/profiles.ts`, keyed by canonical
+hash, and each gets its own page at `#/contract/<id>`. A pool whose hash is not
+listed is shown as *not reviewed yet* rather than being given badges it has not
+earned.
 
 The canonicalisation is lexical, not semantic — a newline before a closing
 paren survives as a space, so functionally identical contracts can still hash

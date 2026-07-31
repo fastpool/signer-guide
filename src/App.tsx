@@ -1,7 +1,10 @@
 import { useMemo, useState } from 'react';
+import ContractPage from './components/ContractPage';
 import SignerCard from './components/SignerCard';
 import data from './data/signers.json';
 import { PROFILES } from './lib/profiles';
+import { contractHref, useRoute } from './lib/route';
+import { buildTemplates, templateFor } from './lib/templates';
 import type { SignerData } from './lib/types';
 
 const signerData = data as SignerData;
@@ -44,12 +47,23 @@ function matches(
 }
 
 export default function App() {
+  const route = useRoute();
   const [active, setActive] = useState<Set<FilterId>>(new Set());
+
+  const templates = useMemo(
+    () => buildTemplates(signerData.signers),
+    [],
+  );
 
   const shown = useMemo(
     () => signerData.signers.filter((s) => matches(s, active)),
     [active],
   );
+
+  if (route.name === 'contract') {
+    const template = templateFor(templates, route.profileId);
+    if (template) return <ContractPage template={template} />;
+  }
 
   const toggle = (id: FilterId) =>
     setActive((current) => {
@@ -70,15 +84,52 @@ export default function App() {
         <p className='text-lg text-muted'>
           When you stake, you pick a pool to look after it for you. There are{' '}
           <strong className='text-ink'>{total} pools</strong> to choose from
-          today. They work in different ways — this page lets you compare them
-          in plain words.
+          today, but between them they run only{' '}
+          <strong className='text-ink'>
+            {templates.length} signer contracts
+          </strong>{' '}
+          — so there is less to learn than it looks.
         </p>
       </header>
 
-      <section className='mt-10' aria-labelledby='filters-heading'>
-        <h2 id='filters-heading' className='text-sm font-bold text-muted'>
-          What matters to you?
+      <section className='mt-10' aria-labelledby='contracts-heading'>
+        <h2 id='contracts-heading' className='text-2xl font-bold'>
+          The signer contracts
         </h2>
+        <p className='mt-1 text-muted'>
+          Each one behaves differently. Tap a contract to see what it does and
+          who runs it.
+        </p>
+        <ul className='mt-4 grid gap-3 sm:grid-cols-2'>
+          {templates.map((template) => (
+            <li key={template.profile.id}>
+              <a
+                href={contractHref(template.profile.id)}
+                className='flex h-full flex-col rounded-3xl bg-white p-5 shadow-[0_1px_3px_rgba(44,42,53,0.08)] transition-colors hover:bg-grape-soft'
+              >
+                <span className='text-lg font-bold'>
+                  {template.profile.name}
+                </span>
+                <span className='text-sm text-muted'>
+                  {template.signers.length}{' '}
+                  {template.signers.length === 1 ? 'pool' : 'pools'}
+                </span>
+                <span className='mt-2 text-sm text-muted'>
+                  {template.profile.summary}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className='mt-12' aria-labelledby='filters-heading'>
+        <h2 id='filters-heading' className='text-2xl font-bold'>
+          All pools
+        </h2>
+        <p className='mt-1 text-sm font-bold text-muted'>
+          What matters to you?
+        </p>
         <div className='mt-3 flex flex-wrap gap-2'>
           {FILTERS.map((filter) => {
             const on = active.has(filter.id);
@@ -146,9 +197,9 @@ export default function App() {
         </p>
         <p>
           Every pool here is registered on Stacks and identified by what its
-          code adds up to, not by its name — so two pools running the same code
-          are shown as such. Checked for cycle {signerData.feeCycle}, last
-          updated{' '}
+          code adds up to, not by its name — so two pools running the same
+          signer contract are shown as such. Checked for cycle{' '}
+          {signerData.feeCycle}, last updated{' '}
           {new Date(signerData.generatedAt).toLocaleDateString('en-GB', {
             day: 'numeric',
             month: 'long',
