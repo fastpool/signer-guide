@@ -2,7 +2,7 @@
 
 A plain-language guide for people choosing where to stake their STX.
 
-The 22 pools registered on pox-5 run only five distinct **signer contracts**
+The 23 pools registered on pox-5 run only six distinct **signer contracts**
 between them, so the guide leads with those: one page per contract explaining
 what it does and which pools run it, then the full pool list with filters for
 what actually matters to you.
@@ -89,14 +89,23 @@ The Standard contract's `MAX_BIPS u10000` only stops a fee of 100% or more,
 which promises a staker nothing, so it is reported as no ceiling at all.
 
 **Notice before a change** is the other promise: a contract that makes a new fee
-wait gives you time to move your STX before it applies. Juice Pool asserts
-`(>= burn-block-height (+ (var-get pending-fee-height) FEE_COOLDOWN))` with
-`FEE_COOLDOWN u144`, about a day. The detector matches that *shape* — a fee
-function refusing to act until the chain passes a stored height plus a delay —
-rather than the function names, so the Fast Pool contract still to be published
-is picked up on the day it deploys, whatever it calls its steps. The delay may
-be a named constant or written inline; both are resolved and shown in blocks and
-in hours.
+wait gives you time to move your STX before it applies. Two contracts do it, and
+they do not agree on the unit, so the unit travels with the number:
+
+- Juice Pool waits out **burn blocks** —
+  `(asserts! (>= burn-block-height (+ (var-get pending-fee-height) FEE_COOLDOWN)))`
+  with `FEE_COOLDOWN u144`, about a day.
+- Fast Pool's `max500` queues by **reward cycle** —
+  `(var-set pending-fees-cycle (+ cycle FEE_ACTIVATION_DELAY_CYCLES))` with
+  `FEE_ACTIVATION_DELAY_CYCLES u2`, about a month, and
+  `(if (>= (current-cycle) (var-get pending-fees-cycle)) ...)` deciding which
+  rate is live. A cut applies at once; only a rise waits.
+
+Both are matched on shape rather than on function names, so a contract that
+calls its steps something else is still picked up. The queued form additionally
+requires the contract to *read the stored point back* before applying the new
+rate — storing a number proves nothing on its own, and a contract that only
+pretends to queue should not earn the badge.
 
 A pool with no fee code of its own is not counted as low-fee: the fee may simply
 be taken elsewhere, as with `native-pool-signer-manager`, which routes through

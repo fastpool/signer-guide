@@ -218,6 +218,19 @@ describe('feeReading', () => {
     });
   });
 
+  it('prefers the getter that reports the rate actually in force', () => {
+    // max500 keeps `fees-bips` at the old rate while a rise is queued, so the
+    // var is not the live number — `get-active-fee-bips` is.
+    const src = `
+(define-data-var fees-bips uint u0)
+(define-read-only (get-active-fee-bips) (var-get fees-bips))
+`;
+    expect(detectFeatures(src).feeReading).toEqual({
+      kind: 'read-only',
+      name: 'get-active-fee-bips',
+    });
+  });
+
   it('prefers a no-argument getter, which may compute rather than store', () => {
     // Juice Pool's shape.
     const src = `
@@ -238,8 +251,8 @@ describe('feeReading', () => {
   });
 });
 
-describe('feeChangeDelayBlocks', () => {
-  it('finds the wait Juice Pool puts on a fee change', () => {
+describe('feeChangeNotice', () => {
+  it('finds the wait Juice Pool puts on a fee change, in blocks', () => {
     const src = `
 (define-constant FEE_COOLDOWN u144)
 (define-data-var pending-fee (optional uint) none)
@@ -252,8 +265,11 @@ describe('feeChangeDelayBlocks', () => {
     (ok new-fee)))
 `;
     const features = detectFeatures(src);
-    expect(features.feeChangeDelayBlocks).toBe(144);
-    expect(features.feeChangeDelayEvidence).toContain('FEE_COOLDOWN');
+    expect(features.feeChangeNotice).toMatchObject({
+      amount: 144,
+      unit: 'blocks',
+    });
+    expect(features.feeChangeNotice?.evidence).toContain('FEE_COOLDOWN');
   });
 
   it('reads the guard, not the names, so a differently written contract counts', () => {
@@ -268,7 +284,10 @@ describe('feeChangeDelayBlocks', () => {
     (asserts! (>= burn-block-height (+ (var-get pending-fee-at) u288)) ERR_TOO_EARLY)
     (ok true)))
 `;
-    expect(detectFeatures(src).feeChangeDelayBlocks).toBe(288);
+    expect(detectFeatures(src).feeChangeNotice).toMatchObject({
+      amount: 288,
+      unit: 'blocks',
+    });
   });
 
   it('reports no wait when a new fee applies immediately', () => {
@@ -279,8 +298,46 @@ describe('feeChangeDelayBlocks', () => {
     (var-set fee-bips new-fee)
     (ok new-fee)))
 `;
+    expect(detectFeatures(src).feeChangeNotice).toBeNull();
+  });
+
+  it('finds a rise queued by reward cycle, as max500 does it', () => {
+    // Fast Pool's max500 has no height assertion at all: it queues the new
+    // rate for a cycle two ahead, and the getter decides which rate is live.
+    const src = `
+(define-constant FEE_ACTIVATION_DELAY_CYCLES u2)
+(define-data-var fees-bips uint u0)
+(define-data-var pending-fees-bips uint u0)
+(define-data-var pending-fees-cycle uint u0)
+(define-read-only (get-active-fee-bips)
+  (if (>= (current-cycle) (var-get pending-fees-cycle))
+    (var-get pending-fees-bips)
+    (var-get fees-bips)))
+(define-public (update-fees (new-fees uint))
+  (let ((cycle (current-cycle)))
+    (var-set pending-fees-bips new-fees)
+    (var-set pending-fees-cycle (+ cycle FEE_ACTIVATION_DELAY_CYCLES))
+    (ok true)))
+`;
     const features = detectFeatures(src);
-    expect(features.feeChangeDelayBlocks).toBeNull();
-    expect(features.feeChangeDelayEvidence).toBeNull();
+    expect(features.feeChangeNotice).toMatchObject({
+      amount: 2,
+      unit: 'cycles',
+    });
+    expect(features.feeChangeNotice?.evidence).toContain('pending-fees-cycle');
+  });
+
+  it('ignores a queued cycle the contract never reads back', () => {
+    // Storing an activation point proves nothing if nothing honours it.
+    const src = `
+(define-constant FEE_ACTIVATION_DELAY_CYCLES u2)
+(define-data-var pending-fees-cycle uint u0)
+(define-public (update-fees (new-fees uint))
+  (begin
+    (var-set fees-bips new-fees)
+    (var-set pending-fees-cycle (+ (current-cycle) FEE_ACTIVATION_DELAY_CYCLES))
+    (ok true)))
+`;
+    expect(detectFeatures(src).feeChangeNotice).toBeNull();
   });
 });

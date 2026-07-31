@@ -60,9 +60,7 @@ export function matches(
       return false;
     }
   }
-  if (active.has('feeNotice') && signer.feeChangeDelayBlocks === null) {
-    return false;
-  }
+  if (active.has('feeNotice') && !signer.feeChangeNotice) return false;
   if (active.has('lowFee')) {
     // A pool with no fee in its own contract is not counted as low: the fee
     // may simply live somewhere else. Better to leave it out than to promise.

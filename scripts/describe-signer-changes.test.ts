@@ -16,12 +16,11 @@ const signer = (overrides: Partial<Signer> = {}): Signer => ({
   openToAnyone: true,
   feeBips: 0,
   maxFeeBips: null,
-  feeChangeDelayBlocks: null,
+  feeChangeNotice: null,
   evidence: {
     bitcoinRewards: null,
     openToAnyone: null,
     maxFee: null,
-    feeChangeDelay: null,
   },
   ...overrides,
 });

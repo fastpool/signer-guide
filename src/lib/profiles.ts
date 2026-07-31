@@ -65,6 +65,14 @@ export const PROFILES: Record<string, ManagerProfile> = {
     detail:
       'This signer only accepts you if you have already joined through the Native Pool contract, so you sign up there rather than staking with the signer directly. Rewards arrive as sBTC on Stacks. It carries no fee of its own; any fee is handled by the Native Pool contract it works with.',
   },
+  d6c5e82af733250d80b38be57d02c5ff6677ec2712e31d00381899e3fecc6874: {
+    id: 'capped-fee',
+    name: 'Capped Fee',
+    summary:
+      'Open to everyone, can pay rewards to a Bitcoin address, and the fee can never go above 5% — with a month\u2019s warning before any rise.',
+    detail:
+      'Open to everyone, with no invitation needed, and it can pay your rewards to a Bitcoin address rather than as sBTC on Stacks. What sets it apart is that it ties the operator\u2019s hands about money. The fee can never exceed 5% however the operator behaves, because the contract refuses a higher one. A rise in the fee has to be queued two reward cycles ahead, roughly a month, so you have time to move before it applies — a cut takes effect at once. You can also change where your Bitcoin goes, and the smallest payout you will accept, without staking again.',
+  },
   '2aea99cfe42ccb9b9dd541d34c21cd852c5726f1c0933f4cc15c77202fcd30ac': {
     id: 'juice-pool',
     name: 'Juice Pool',

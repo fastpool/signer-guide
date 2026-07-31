@@ -27,12 +27,11 @@ const base: Signer = {
   openToAnyone: false,
   feeBips: null,
   maxFeeBips: null,
-  feeChangeDelayBlocks: null,
+  feeChangeNotice: null,
   evidence: {
     bitcoinRewards: null,
     openToAnyone: null,
     maxFee: null,
-    feeChangeDelay: null,
   },
 };
 
@@ -44,11 +43,19 @@ describe('filters', () => {
   it('keeps only pools whose contract delays a fee change', () => {
     const shown = withFilter('feeNotice');
     expect(shown.length).toBeGreaterThan(0);
-    expect(shown.every((s) => s.feeChangeDelayBlocks !== null)).toBe(true);
-    // Juice Pool is the one contract that does this today.
-    expect(shown.map((s) => s.contractId)).toContain(
+    expect(shown.every((s) => s.feeChangeNotice)).toBe(true);
+    // Both shapes: Juice Pool counts in blocks, Fast Pool's max500 in cycles.
+    const ids = shown.map((s) => s.contractId);
+    expect(ids).toContain(
       'SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer',
     );
+    expect(ids).toContain(
+      'SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager',
+    );
+    expect(shown.map((s) => s.feeChangeNotice?.unit).sort()).toEqual([
+      'blocks',
+      'cycles',
+    ]);
   });
 
   it('does not let a fee ceiling stand in for notice of a change', () => {
@@ -57,7 +64,13 @@ describe('filters', () => {
       false,
     );
     expect(
-      matches({ ...base, feeChangeDelayBlocks: 144 }, new Set(['cappedFee'])),
+      matches(
+        {
+          ...base,
+          feeChangeNotice: { amount: 144, unit: 'blocks', evidence: '…' },
+        },
+        new Set(['cappedFee']),
+      ),
     ).toBe(false);
   });
 

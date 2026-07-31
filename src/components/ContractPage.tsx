@@ -47,10 +47,9 @@ export default function ContractPage({
         {template.maxFeeBips !== null && (
           <Badge tone='good'>Fee capped at {template.maxFeeBips / 100}%</Badge>
         )}
-        {template.feeChangeDelayBlocks !== null && (
+        {template.feeChangeNotice && (
           <Badge tone='good'>
-            Fee changes announced {noticeLabel(template.feeChangeDelayBlocks)}{' '}
-            ahead
+            Fee changes announced {noticeLabel(template.feeChangeNotice)} ahead
           </Badge>
         )}
       </div>
@@ -152,14 +151,17 @@ export default function ContractPage({
           <div>
             <dt className='font-semibold'>Warning before a fee change</dt>
             <dd className='mt-0.5 text-muted'>
-              {template.evidence.feeChangeDelay ? (
+              {template.feeChangeNotice ? (
                 <>
                   A new fee has to be announced and then wait{' '}
-                  {template.feeChangeDelayBlocks} Bitcoin blocks —{' '}
-                  {noticeLabel(template.feeChangeDelayBlocks ?? 0)} — before it
-                  can take effect:{' '}
+                  {template.feeChangeNotice.amount}{' '}
+                  {template.feeChangeNotice.unit === 'cycles'
+                    ? 'reward cycles'
+                    : 'Bitcoin blocks'}{' '}
+                  — {noticeLabel(template.feeChangeNotice)} — before it can take
+                  effect:{' '}
                   <code className='break-all font-mono text-xs'>
-                    {template.evidence.feeChangeDelay}
+                    {template.feeChangeNotice.evidence}
                   </code>
                 </>
               ) : (

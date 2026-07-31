@@ -22,6 +22,14 @@ export interface FeatureEvidence {
   evidence: string | null;
 }
 
+export interface FeeChangeNotice {
+  amount: number;
+  /** Burn blocks (~10 minutes) or reward cycles (~2 weeks). */
+  unit: 'blocks' | 'cycles';
+  /** The Clarity that enforces the wait. */
+  evidence: string;
+}
+
 export interface SourceFeatures {
   /** Rewards can be paid to a Bitcoin address on L1. */
   bitcoinRewards: FeatureEvidence;
@@ -52,12 +60,11 @@ export interface SourceFeatures {
   /** The assertion that enforces the ceiling. */
   maxFeeEvidence: string | null;
   /**
-   * Burn blocks a fee change must be announced in advance, or null when the
-   * contract lets a new fee take effect immediately.
+   * How much warning the contract makes a pool give before a fee change
+   * applies, or null when a new fee can take effect at once. Contracts count
+   * in different units, so the unit travels with the number.
    */
-  feeChangeDelayBlocks: number | null;
-  /** The assertion that enforces the wait. */
-  feeChangeDelayEvidence: string | null;
+  feeChangeNotice: FeeChangeNotice | null;
 }
 
 /** Pull one top-level `define-public` form out by balancing parentheses. */
@@ -130,22 +137,26 @@ function detectMaxFeeBips(source: string): {
 }
 
 /**
- * How far ahead a fee change has to be announced, in burn blocks.
+ * How much warning a pool has to give before a fee change bites.
  *
- * The shape, not the names: a fee function that refuses to act until the
- * chain has passed a stored height plus a delay. Juice Pool writes it as
- *   (asserts! (>= burn-block-height (+ (var-get pending-fee-height) FEE_COOLDOWN)))
- * with `FEE_COOLDOWN u144`, about a day.
+ * Two shapes in the wild, and the unit differs:
  *
- * Matching on the guard rather than on function names means a contract that
- * calls its steps something else — a future Fast Pool one, say — is picked up
- * without this needing an edit. The delay may be a named constant or written
- * inline; both are resolved.
+ *   Juice Pool waits out burn blocks —
+ *     (asserts! (>= burn-block-height (+ (var-get pending-fee-height) FEE_COOLDOWN)))
+ *     with FEE_COOLDOWN u144, about a day.
+ *
+ *   Fast Pool's max500 queues by reward cycle —
+ *     (var-set pending-fees-cycle (+ cycle FEE_ACTIVATION_DELAY_CYCLES))
+ *     with FEE_ACTIVATION_DELAY_CYCLES u2, about a month, and
+ *     (if (>= (current-cycle) (var-get pending-fees-cycle)) ...) deciding
+ *     which rate is live.
+ *
+ * Matched on the shape rather than on names, so a contract that calls its
+ * steps something else is still picked up. The queued form additionally
+ * requires the contract to read the stored point back before applying the new
+ * rate: storing a number proves nothing on its own.
  */
-function detectFeeChangeDelayBlocks(source: string): {
-  blocks: number | null;
-  evidence: string | null;
-} {
+function detectFeeChangeNotice(source: string): FeeChangeNotice | null {
   const constants = new Map<string, number>();
   for (const m of source.matchAll(
     /\(define-constant\s+([A-Z0-9_]+)\s+u(\d+)\)/g,
@@ -153,31 +164,62 @@ function detectFeeChangeDelayBlocks(source: string): {
     constants.set(m[1], Number(m[2]));
   }
 
-  for (const fn of source.matchAll(
-    /\(define-public \(([a-z0-9!-]*fee[a-z0-9!-]*)/gi,
+  /** A named constant or an inline `uN` from a fragment of Clarity. */
+  const resolve = (fragment: string): number | undefined => {
+    const named = /\b([A-Z0-9_]+)\b/.exec(fragment);
+    if (named) return constants.get(named[1]);
+    const inline = /\bu(\d+)\b/.exec(fragment);
+    return inline ? Number(inline[1]) : undefined;
+  };
+
+  const clean = stripComments(source);
+
+  for (const fn of clean.matchAll(
+    /\(define-public \(([a-z0-9!-]*fees?[a-z0-9!-]*)/gi,
   )) {
-    const body = extractPublicFunction(source, fn[1]);
+    const body = extractPublicFunction(clean, fn[1]);
     if (!body) continue;
 
+    // Waits out blocks before the change may be applied.
     const guard =
       /\(asserts!\s+\(>=?\s+(?:burn-block-height|stacks-block-height)\s+\(\+\s+([\s\S]{0,120}?)\)\s*\)/.exec(
-        stripComments(body),
+        body,
       );
-    if (!guard) continue;
+    if (guard) {
+      const amount = resolve(guard[1]);
+      if (amount !== undefined && amount > 0) {
+        return {
+          amount,
+          unit: 'blocks',
+          evidence: guard[0].replace(/\s+/g, ' ').trim(),
+        };
+      }
+    }
 
-    const named = /\b([A-Z0-9_]+)\b/.exec(guard[1]);
-    const inline = /\bu(\d+)\b/.exec(guard[1]);
-    const blocks = named
-      ? constants.get(named[1])
-      : inline
-        ? Number(inline[1])
-        : undefined;
-    if (blocks === undefined || blocks <= 0) continue;
+    // Queues the change for a cycle some way off.
+    const queued =
+      /\(var-set\s+([a-z0-9-]*(?:pending|activation)[a-z0-9-]*)\s+\(\+\s+([\s\S]{0,80}?)\)\s*\)/.exec(
+        body,
+      );
+    if (!queued) continue;
 
-    return { blocks, evidence: guard[0].replace(/\s+/g, ' ').trim() };
+    const amount = resolve(queued[2]);
+    if (amount === undefined || amount <= 0) continue;
+
+    // The stored point has to be read back, or it is decoration.
+    const honoured = new RegExp(
+      `\\(>=?\\s+\\(current-cycle\\)\\s+\\(var-get\\s+${queued[1]}\\)`,
+    ).test(clean);
+    if (!honoured) continue;
+
+    return {
+      amount,
+      unit: 'cycles',
+      evidence: queued[0].replace(/\s+/g, ' ').trim(),
+    };
   }
 
-  return { blocks: null, evidence: null };
+  return null;
 }
 
 /**
@@ -192,7 +234,11 @@ function detectFeeChangeDelayBlocks(source: string): {
  * `native-pool-signer-manager` really does take its fee elsewhere.
  */
 function detectFeeReading(source: string): SourceFeatures['feeReading'] {
-  const getter = /\(define-read-only \((get-fees?-bips)\s*\)/.exec(source);
+  // `get-active-fee-bips` in max500: the rate in force once a queued change
+  // has matured, which is not always what the `fees-bips` var still says.
+  const getter = /\(define-read-only \((get-(?:active-)?fees?-bips)\s*\)/.exec(
+    source,
+  );
   if (getter) return { kind: 'read-only', name: getter[1] };
 
   const variable = /\(define-data-var\s+([a-z0-9-]*fees?-bips)\s+uint/i.exec(
@@ -205,7 +251,7 @@ function detectFeeReading(source: string): SourceFeatures['feeReading'] {
 
 export function detectFeatures(source: string): SourceFeatures {
   const maxFee = detectMaxFeeBips(source);
-  const feeDelay = detectFeeChangeDelayBlocks(source);
+  const feeChangeNotice = detectFeeChangeNotice(source);
   const validateStake = stripComments(
     extractPublicFunction(source, 'validate-stake!') ?? '',
   );
@@ -244,7 +290,6 @@ export function detectFeatures(source: string): SourceFeatures {
     feeReading: detectFeeReading(source),
     maxFeeBips: maxFee.bips,
     maxFeeEvidence: maxFee.evidence,
-    feeChangeDelayBlocks: feeDelay.blocks,
-    feeChangeDelayEvidence: feeDelay.evidence,
+    feeChangeNotice,
   };
 }

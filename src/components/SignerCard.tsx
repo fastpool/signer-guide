@@ -70,10 +70,9 @@ export default function SignerCard({
         {signer.maxFeeBips !== null && (
           <Badge tone='good'>Fee capped at {signer.maxFeeBips / 100}%</Badge>
         )}
-        {signer.feeChangeDelayBlocks !== null && (
+        {signer.feeChangeNotice && (
           <Badge tone='good'>
-            Fee changes announced {noticeLabel(signer.feeChangeDelayBlocks)}{' '}
-            ahead
+            Fee changes announced {noticeLabel(signer.feeChangeNotice)} ahead
           </Badge>
         )}
       </div>

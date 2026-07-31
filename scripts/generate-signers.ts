@@ -170,9 +170,7 @@ async function main() {
   console.log(`Reading registered signers from ${API_URL} ...`);
   const registered = await fetchRegisteredSigners();
   const cycle = await fetchCurrentCycle();
-  console.log(
-    `  ${registered.size} registered, cycle ${cycle} is current`,
-  );
+  console.log(`  ${registered.size} registered, cycle ${cycle} is current`);
 
   const signers: Signer[] = [];
   const unmatched: string[] = [];
@@ -216,12 +214,11 @@ async function main() {
       openToAnyone: features.openToAnyone.value,
       feeBips,
       maxFeeBips: features.maxFeeBips,
-      feeChangeDelayBlocks: features.feeChangeDelayBlocks,
+      feeChangeNotice: features.feeChangeNotice,
       evidence: {
         bitcoinRewards: features.bitcoinRewards.evidence,
         openToAnyone: features.openToAnyone.evidence,
         maxFee: features.maxFeeEvidence,
-        feeChangeDelay: features.feeChangeDelayEvidence,
       },
     });
 

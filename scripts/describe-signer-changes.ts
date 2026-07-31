@@ -28,6 +28,12 @@ export interface Changes {
 const fee = (bips: number | null) =>
   bips === null ? 'no fee of its own' : `${bips / 100}%`;
 
+/** "2 cycles", "144 blocks", or "none" — comparable across generations. */
+const noticeOf = (signer: Signer) =>
+  signer.feeChangeNotice
+    ? `${signer.feeChangeNotice.amount} ${signer.feeChangeNotice.unit}`
+    : 'none';
+
 /** "fee 2.5%", but "no fee of its own" reads badly with "fee" in front. */
 const feePhrase = (bips: number | null) =>
   bips === null ? fee(bips) : `fee ${fee(bips)}`;
@@ -74,11 +80,15 @@ export function describeChanges(
       'bitcoinRewards',
       'openToAnyone',
       'maxFeeBips',
-      'feeChangeDelayBlocks',
     ] as const) {
       if (was[key] !== now[key]) {
         lines.push(`~ ${key}  ${id}  ${was[key]} -> ${now[key]}`);
       }
+    }
+    if (noticeOf(was) !== noticeOf(now)) {
+      lines.push(
+        `~ feeChangeNotice  ${id}  ${noticeOf(was)} -> ${noticeOf(now)}`,
+      );
     }
   }
 

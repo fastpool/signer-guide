@@ -1,4 +1,5 @@
 import type { SourceMatch } from './canonical';
+import type { FeeChangeNotice } from './features';
 
 /** One deployed signer contract, as the generator records it. */
 export interface Signer {
@@ -25,15 +26,14 @@ export interface Signer {
   feeBips: number | null;
   /** Ceiling the contract enforces on its fee, in bips; null when it has none. */
   maxFeeBips: number | null;
-  /** Burn blocks a fee change must wait; null when a new fee is immediate. */
-  feeChangeDelayBlocks: number | null;
+  /** Warning a fee change must give; null when a new fee is immediate. */
+  feeChangeNotice: FeeChangeNotice | null;
 
   /** Contract text the feature decisions came from. */
   evidence: {
     bitcoinRewards: string | null;
     openToAnyone: string | null;
     maxFee: string | null;
-    feeChangeDelay: string | null;
   };
 }
 
