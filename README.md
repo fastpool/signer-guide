@@ -96,3 +96,23 @@ be taken elsewhere, as with `native-pool-signer-manager`, which routes through
 `pnpm generate:signers` rewrites `src/data/signers.json`. Any pool whose
 canonical hash matches no profile is printed at the end — read its code, then
 add it to `src/lib/profiles.ts`.
+
+`.github/workflows/refresh-signers.yml` does that daily and commits the result,
+so the guide does not quietly go stale between releases. Three things make the
+commits worth reading:
+
+- **The timestamp alone is not a change.** `scripts/describe-signer-changes.ts`
+  compares the new file with the old and skips the commit unless a pool, a fee
+  or a feature actually moved. Otherwise the history would be one commit a day
+  saying nothing.
+- **The tests run against the new data before it is committed.** They assert
+  that filters still match something and that the pools they name are still
+  registered, so a refresh that breaks a claim on the page fails the run
+  instead of shipping.
+- **Code nobody has read opens an issue.** A newly registered pool matching no
+  profile gets one issue, once, naming the contract. Until someone reads it the
+  page says so rather than guessing.
+
+The commit message is the list of what moved — a fee going from 0% to 2.5%, a
+pool registering, a feature reading that changed under us (which can only mean
+a detector here changed, since a deployed contract cannot).

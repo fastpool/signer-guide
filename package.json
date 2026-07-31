@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b tsconfig.json tsconfig.scripts.json && vite build",
     "preview": "vite preview",
-    "generate:signers": "npx tsx scripts/generate-signers.ts",
+    "generate:signers": "tsx scripts/generate-signers.ts",
     "test": "vitest run"
   },
   "dependencies": {
@@ -25,5 +25,6 @@
     "vite": "^7.1.12",
     "vitest": "^4.1.6",
     "@types/node": "^25.8.0"
-  }
+  },
+  "packageManager": "pnpm@11.9.0"
 }
