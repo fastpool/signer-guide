@@ -75,6 +75,9 @@ export default function SignerCard({
             Fee changes announced {noticeLabel(signer.feeChangeNotice)} ahead
           </Badge>
         )}
+        {signer.feeExemption && (
+          <Badge tone='good'>Some stakers pay no fee</Badge>
+        )}
       </div>
 
       <button

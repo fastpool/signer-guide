@@ -1,17 +1,9 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  CACHE_KEY,
-  isFresh,
-  readCache,
-  readLockedTotals,
-  TTL_MS,
-  writeCache,
-  type LockedTotals,
-} from './locked';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { readLockedTotals } from './locked.js';
 
 /*
- * These decide whether a reader sees a real number, a stale one, or nothing.
- * The node is faked so the rules can be checked without asking Hiro.
+ * These decide whether a reader sees a real number or nothing. The node is
+ * faked so the rules can be checked without asking Hiro.
  */
 
 const POOL_A = 'SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer';
@@ -51,28 +43,6 @@ function fakeNode(
   });
 }
 
-/**
- * Enough localStorage to test against, rather than pulling in a whole DOM
- * for one key.
- */
-function memoryStorage(): Storage {
-  const store = new Map<string, string>();
-  return {
-    get length() {
-      return store.size;
-    },
-    clear: () => store.clear(),
-    getItem: (key: string) => store.get(key) ?? null,
-    key: (index: number) => [...store.keys()][index] ?? null,
-    removeItem: (key: string) => store.delete(key),
-    setItem: (key: string, value: string) => void store.set(key, value),
-  } satisfies Storage;
-}
-
-beforeEach(() => {
-  vi.stubGlobal('localStorage', memoryStorage());
-});
-
 afterEach(() => {
   vi.unstubAllGlobals();
 });
@@ -84,11 +54,12 @@ describe('readLockedTotals', () => {
       fakeNode(141, { 141: { [POOL_A]: 500n, [POOL_B]: 0n } }),
     );
 
-    const totals = await readLockedTotals([POOL_A, POOL_B], 1000);
+    const totals = await readLockedTotals([POOL_A, POOL_B]);
+    // No timestamp: this is committed, and one that moved every hour would be
+    // an hourly commit saying nothing.
     expect(totals).toEqual({
       cycle: 141,
       ustx: { [POOL_A]: '500', [POOL_B]: '0' },
-      readAt: 1000,
     });
   });
 
@@ -103,7 +74,7 @@ describe('readLockedTotals', () => {
       }),
     );
 
-    const totals = await readLockedTotals([POOL_A, POOL_B], 1000);
+    const totals = await readLockedTotals([POOL_A, POOL_B]);
     expect(totals?.cycle).toBe(141);
     expect(totals?.ustx[POOL_B]).toBe('1171575');
   });
@@ -111,7 +82,7 @@ describe('readLockedTotals', () => {
   it('marks a pool it could not read as unknown, never as zero', async () => {
     vi.stubGlobal('fetch', fakeNode(141, { 141: { [POOL_A]: 500n } }));
 
-    const totals = await readLockedTotals([POOL_A, POOL_B], 1000);
+    const totals = await readLockedTotals([POOL_A, POOL_B]);
     expect(totals?.ustx[POOL_B]).toBeNull();
   });
 
@@ -120,44 +91,14 @@ describe('readLockedTotals', () => {
       'fetch',
       vi.fn(async () => ({ ok: false, json: async () => ({}) })),
     );
-    expect(await readLockedTotals([POOL_A], 1000)).toBeNull();
-  });
-});
-
-describe('the hour-long cache', () => {
-  const totals: LockedTotals = {
-    cycle: 141,
-    ustx: { [POOL_A]: '500' },
-    readAt: 10_000_000,
-  };
-
-  it('survives a round trip through storage', () => {
-    writeCache(totals);
-    expect(readCache()).toEqual(totals);
-  });
-
-  it('is fresh within the hour and stale after it', () => {
-    expect(isFresh(totals, totals.readAt + TTL_MS - 1)).toBe(true);
-    expect(isFresh(totals, totals.readAt + TTL_MS)).toBe(false);
-  });
-
-  it('treats a clock that has gone backwards as stale', () => {
-    // Otherwise a reader whose clock jumps could sit on one reading for good.
-    expect(isFresh(totals, totals.readAt - 1)).toBe(false);
-  });
-
-  it('ignores anything else that has been written to the key', () => {
-    localStorage.setItem(CACHE_KEY, 'not json');
-    expect(readCache()).toBeNull();
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ cycle: 'soon' }));
-    expect(readCache()).toBeNull();
+    expect(await readLockedTotals([POOL_A])).toBeNull();
   });
 });
 
 describe('being told to slow down', () => {
   it('waits and asks again rather than reporting the pool as unknown', async () => {
-    // A first visit asks about every pool at once, which is exactly when the
-    // node starts answering 429. Giving up there would blank the page.
+    // Reading every pool in one run is exactly when the node starts answering
+    // 429. Giving up there would report a rate limit as an unknown amount.
     vi.useFakeTimers();
     let calls = 0;
     vi.stubGlobal(
@@ -182,7 +123,7 @@ describe('being told to slow down', () => {
       }),
     );
 
-    const pending = readLockedTotals([POOL_A], 1000);
+    const pending = readLockedTotals([POOL_A]);
     await vi.runAllTimersAsync();
     const totals = await pending;
 

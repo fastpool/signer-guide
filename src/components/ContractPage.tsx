@@ -52,6 +52,9 @@ export default function ContractPage({
             Fee changes announced {noticeLabel(template.feeChangeNotice)} ahead
           </Badge>
         )}
+        {template.feeExemption && (
+          <Badge tone='good'>Some stakers pay no fee</Badge>
+        )}
       </div>
 
       <section className='mt-10'>
@@ -144,6 +147,25 @@ export default function ContractPage({
                 </>
               ) : (
                 'Nothing in the contract limits the fee to anything meaningful, so the pool can set it as it likes.'
+              )}
+            </dd>
+          </div>
+
+          <div>
+            <dt className='font-semibold'>Stakers who pay no fee</dt>
+            <dd className='mt-0.5 text-muted'>
+              {template.feeExemption ? (
+                <>
+                  Some stakers are charged nothing, whatever the fee is set to:{' '}
+                  <code className='break-all font-mono text-xs'>
+                    {template.feeExemption.evidence}
+                  </code>{' '}
+                  {template.feeExemption.operatorChooses
+                    ? `Who counts is kept in “${template.feeExemption.source}”, which the pool writes — so the pool picks, and can change its mind.`
+                    : `Who counts is kept in “${template.feeExemption.source}”, which no public function writes.`}
+                </>
+              ) : (
+                'Every staker pays the same fee; the contract makes no exceptions.'
               )}
             </dd>
           </div>

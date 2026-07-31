@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-31T12:38:25.234Z",
+  "generatedAt": "2026-07-31T15:11:34.021Z",
   "cycle": 140,
   "signers": [
     {
@@ -18,6 +18,7 @@
       "feeBips": 0,
       "maxFeeBips": null,
       "feeChangeNotice": null,
+      "feeExemption": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
         "openToAnyone": null,
@@ -40,6 +41,7 @@
       "feeBips": 0,
       "maxFeeBips": null,
       "feeChangeNotice": null,
+      "feeExemption": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
         "openToAnyone": null,
@@ -62,6 +64,7 @@
       "feeBips": 0,
       "maxFeeBips": null,
       "feeChangeNotice": null,
+      "feeExemption": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
         "openToAnyone": null,
@@ -84,6 +87,7 @@
       "feeBips": 0,
       "maxFeeBips": null,
       "feeChangeNotice": null,
+      "feeExemption": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
         "openToAnyone": null,
@@ -106,6 +110,7 @@
       "feeBips": 0,
       "maxFeeBips": null,
       "feeChangeNotice": null,
+      "feeExemption": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
         "openToAnyone": null,
@@ -128,6 +133,7 @@
       "feeBips": 1000,
       "maxFeeBips": null,
       "feeChangeNotice": null,
+      "feeExemption": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
         "openToAnyone": null,
@@ -150,6 +156,7 @@
       "feeBips": 0,
       "maxFeeBips": null,
       "feeChangeNotice": null,
+      "feeExemption": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
         "openToAnyone": null,
@@ -172,6 +179,7 @@
       "feeBips": 0,
       "maxFeeBips": null,
       "feeChangeNotice": null,
+      "feeExemption": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
         "openToAnyone": null,
@@ -194,6 +202,7 @@
       "feeBips": 0,
       "maxFeeBips": null,
       "feeChangeNotice": null,
+      "feeExemption": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
         "openToAnyone": null,
@@ -216,6 +225,7 @@
       "feeBips": null,
       "maxFeeBips": null,
       "feeChangeNotice": null,
+      "feeExemption": null,
       "evidence": {
         "bitcoinRewards": null,
         "openToAnyone": "(contract-call? .native-pool-v1 is-delegating staker current-contract) ERR_STAKER_NOT_ALLOWED)",
@@ -238,6 +248,7 @@
       "feeBips": null,
       "maxFeeBips": null,
       "feeChangeNotice": null,
+      "feeExemption": null,
       "evidence": {
         "bitcoinRewards": null,
         "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)",
@@ -260,6 +271,7 @@
       "feeBips": null,
       "maxFeeBips": null,
       "feeChangeNotice": null,
+      "feeExemption": null,
       "evidence": {
         "bitcoinRewards": null,
         "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)",
@@ -282,6 +294,7 @@
       "feeBips": null,
       "maxFeeBips": null,
       "feeChangeNotice": null,
+      "feeExemption": null,
       "evidence": {
         "bitcoinRewards": null,
         "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)",
@@ -304,6 +317,7 @@
       "feeBips": null,
       "maxFeeBips": null,
       "feeChangeNotice": null,
+      "feeExemption": null,
       "evidence": {
         "bitcoinRewards": null,
         "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)",
@@ -326,6 +340,7 @@
       "feeBips": null,
       "maxFeeBips": null,
       "feeChangeNotice": null,
+      "feeExemption": null,
       "evidence": {
         "bitcoinRewards": null,
         "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)",
@@ -348,6 +363,7 @@
       "feeBips": null,
       "maxFeeBips": null,
       "feeChangeNotice": null,
+      "feeExemption": null,
       "evidence": {
         "bitcoinRewards": null,
         "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)",
@@ -370,6 +386,7 @@
       "feeBips": null,
       "maxFeeBips": null,
       "feeChangeNotice": null,
+      "feeExemption": null,
       "evidence": {
         "bitcoinRewards": null,
         "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)",
@@ -392,6 +409,7 @@
       "feeBips": 0,
       "maxFeeBips": null,
       "feeChangeNotice": null,
+      "feeExemption": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
         "openToAnyone": null,
@@ -414,6 +432,7 @@
       "feeBips": 0,
       "maxFeeBips": null,
       "feeChangeNotice": null,
+      "feeExemption": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
         "openToAnyone": null,
@@ -436,6 +455,7 @@
       "feeBips": 0,
       "maxFeeBips": null,
       "feeChangeNotice": null,
+      "feeExemption": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
         "openToAnyone": null,
@@ -462,6 +482,7 @@
         "unit": "cycles",
         "evidence": "(var-set pending-fees-cycle (+ cycle FEE_ACTIVATION_DELAY_CYCLES))"
       },
+      "feeExemption": null,
       "evidence": {
         "bitcoinRewards": null,
         "openToAnyone": null,
@@ -488,6 +509,12 @@
         "unit": "blocks",
         "evidence": "(asserts! (>= burn-block-height (+ (var-get pending-fee-height) FEE_COOLDOWN))"
       },
+      "feeExemption": {
+        "test": "is-og",
+        "source": "og-stakers",
+        "operatorChooses": true,
+        "evidence": "(if (is-og staker) u0 (var-get fee-bips))"
+      },
       "evidence": {
         "bitcoinRewards": null,
         "openToAnyone": null,
@@ -510,6 +537,7 @@
       "feeBips": 0,
       "maxFeeBips": null,
       "feeChangeNotice": null,
+      "feeExemption": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
         "openToAnyone": null,

@@ -30,6 +30,22 @@ export interface FeeChangeNotice {
   evidence: string;
 }
 
+/** A group of stakers the contract charges nothing, however the fee is set. */
+export interface FeeExemption {
+  /** The check that decides, e.g. `is-og`. */
+  test: string;
+  /** The map the answer is looked up in, e.g. `og-stakers`. */
+  source: string;
+  /**
+   * True when a public function writes that map — so the pool picks who is
+   * exempt, and can unpick it. False would mean the contract itself decides,
+   * which would be a much stronger thing to tell a reader.
+   */
+  operatorChooses: boolean;
+  /** The Clarity that zeroes the fee. */
+  evidence: string;
+}
+
 export interface SourceFeatures {
   /** Rewards can be paid to a Bitcoin address on L1. */
   bitcoinRewards: FeatureEvidence;
@@ -65,6 +81,12 @@ export interface SourceFeatures {
    * in different units, so the unit travels with the number.
    */
   feeChangeNotice: FeeChangeNotice | null;
+  /**
+   * Stakers the contract charges nothing at all, or null when everyone pays
+   * the same. Separate from the fee itself: Juice Pool's fee can be anything
+   * up to 20%, and an "OG" staker still pays none of it.
+   */
+  feeExemption: FeeExemption | null;
 }
 
 /** Pull one top-level `define-public` form out by balancing parentheses. */
@@ -222,6 +244,64 @@ function detectFeeChangeNotice(source: string): FeeChangeNotice | null {
   return null;
 }
 
+/** Every top-level `define-public` in a contract, by name. */
+function publicFunctionNames(source: string): string[] {
+  return [...source.matchAll(/\(define-public \(([a-z0-9!?-]+)/g)].map(
+    (m) => m[1],
+  );
+}
+
+/**
+ * A group of stakers who are charged nothing whatever the fee is set to.
+ *
+ * Juice Pool has one, and calls them OG:
+ *   (define-read-only (get-effective-fee-bips (staker principal))
+ *     (if (is-og staker) u0 (var-get fee-bips)))
+ *   (define-read-only (is-og (staker principal))
+ *     (default-to false (map-get? og-stakers staker)))
+ *
+ * Matched on the shape — a test on one staker choosing between no fee and the
+ * fee — rather than on the word "og", so a contract that calls its favoured
+ * stakers something else is still picked up.
+ *
+ * Two things have to hold before this is reported at all. The branch that is
+ * *not* taken has to be about the fee, or a zero could be anything; and the
+ * test has to resolve to a map this contract keeps, so the page can say where
+ * the answer comes from. A test we cannot trace is left unreported rather than
+ * guessed at — an exemption is a claim about somebody's money.
+ */
+function detectFeeExemption(source: string): FeeExemption | null {
+  const clean = stripComments(source);
+
+  for (const branch of clean.matchAll(
+    /\(if\s+\(([a-z0-9-]+)\s+([a-z0-9-]+)\)\s+u0\s+([\s\S]{0,160}?)\)\s*\)/g,
+  )) {
+    const [, test, , otherwise] = branch;
+    if (!/fee/.test(otherwise)) continue;
+
+    // The test has to read a map, and that map is what we name on the page.
+    const lookup = new RegExp(
+      `\\(define-read-only \\(${test}\\b[\\s\\S]{0,200}?\\(map-get\\?\\s+([a-z0-9-]+)`,
+    ).exec(clean);
+    if (!lookup) continue;
+    const map = lookup[1];
+
+    const written = new RegExp(`\\(map-(?:set|delete)\\s+${map}\\b`);
+    const operatorChooses = publicFunctionNames(clean).some((name) =>
+      written.test(extractPublicFunction(clean, name) ?? ''),
+    );
+
+    return {
+      test,
+      source: map,
+      operatorChooses,
+      evidence: branch[0].replace(/\s+/g, ' ').trim(),
+    };
+  }
+
+  return null;
+}
+
 /**
  * Where to read the fee a pool charges today.
  *
@@ -291,5 +371,6 @@ export function detectFeatures(source: string): SourceFeatures {
     maxFeeBips: maxFee.bips,
     maxFeeEvidence: maxFee.evidence,
     feeChangeNotice,
+    feeExemption: detectFeeExemption(source),
   };
 }

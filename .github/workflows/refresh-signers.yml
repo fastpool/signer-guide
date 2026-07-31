@@ -1,24 +1,32 @@
-# Reads the registered signers off the chain and updates src/data/signers.json.
+# Reads the chain and updates the two committed data files:
+#   src/data/signers.json — the pools, what their code allows, and their fees
+#   src/data/totals.json  — how much STX each one is looking after
 #
-# The guide ships its data as a committed file, so it is only ever as current
-# as the last run of `pnpm generate:signers`. This does that run daily.
+# The guide ships both as committed files, so the page is only ever as current
+# as the last run. That is why this runs hourly rather than daily: a pool can
+# change its fee at any moment, and until this has run again the page states
+# the old one as fact. An hour is also what the amounts are worth — this is
+# the whole of the guide's "backend", and it costs one read for every reader
+# instead of one per reader.
 #
 # Two things it deliberately does not do:
 #   - commit on the timestamp alone. Most runs find the same pools with the
-#     same fees; committing those would bury the runs that matter.
+#     same fees; committing those would bury the runs that matter. The amounts
+#     carry no timestamp for the same reason, so a change there is always real.
 #   - commit data the guide cannot stand behind. The tests run against the new
-#     file first, so a refresh that breaks a claim on the page fails here
+#     files first, so a refresh that breaks a claim on the page fails here
 #     instead of shipping.
 #
 # Pushes made with GITHUB_TOKEN do not start other workflows, so if a deploy is
-# ever wired up it will need its own schedule or a PAT.
+# ever wired up it will need its own schedule or a PAT. Until then the site is
+# only as fresh as its last deploy, however often this runs.
 
 name: Refresh signer data
 
 on:
   schedule:
-    # Daily, off the hour: the whole of GitHub aims at :00 and cron slips.
-    - cron: '17 6 * * *'
+    # Hourly, off the hour: the whole of GitHub aims at :00 and cron slips.
+    - cron: '17 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -52,9 +60,17 @@ jobs:
         run: cp src/data/signers.json "$RUNNER_TEMP/previous-signers.json"
 
       - name: Read the registered signers from the chain
-        # Hiro allows about 50 requests a minute. The script paces itself and
-        # retries a 429, and skips a contract it cannot read rather than
-        # failing, so a bad day upstream costs a line in the summary.
+        # Anonymous, Hiro allows about 50 requests a minute, and the script
+        # paces itself to suit. Set the HIRO_API_KEY secret and it paces
+        # itself far less: the runs get quicker and stop competing with every
+        # other anonymous caller on the runner's IP. It is optional — without
+        # it the scripts simply take the slow road.
+        #
+        # Either way the script retries a 429 and skips a contract it cannot
+        # read rather than failing, so a bad day upstream costs a line in the
+        # summary.
+        env:
+          HIRO_API_KEY: ${{ secrets.HIRO_API_KEY }}
         run: pnpm generate:signers
 
       - name: Work out what changed
@@ -65,21 +81,66 @@ jobs:
           pnpm exec tsx scripts/describe-signer-changes.ts \
             "$RUNNER_TEMP/previous-signers.json" src/data/signers.json
 
+      - name: Read what each pool is looking after
+        # Reads the pools out of the file the step above just wrote, so the
+        # two always agree. Allowed to fail: the amounts are the softest thing
+        # on the page, the script leaves the last ones in place rather than
+        # blanking them, and losing an hour of them should not stop a fee
+        # change reaching the page.
+        continue-on-error: true
+        env:
+          HIRO_API_KEY: ${{ secrets.HIRO_API_KEY }}
+        run: pnpm generate:totals
+
+      - name: Decide whether there is anything worth committing
+        id: commit
+        env:
+          COMMIT_MESSAGE_FILE: ${{ runner.temp }}/commit-message.txt
+          # Through the environment rather than interpolated into the script,
+          # as with the contract ids below.
+          SIGNERS_CHANGED: ${{ steps.changes.outputs.changed }}
+        run: |
+          if git diff --quiet -- src/data/totals.json; then
+            amounts=false
+          else
+            amounts=true
+          fi
+
+          if [ "$SIGNERS_CHANGED" != 'true' ] && [ "$amounts" != 'true' ]; then
+            echo 'Same pools, same fees, same amounts — nothing to commit.'
+            # Only the timestamp moved. Put it back so the tree is clean.
+            git checkout -- src/data/signers.json
+            echo 'commit=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # The amounts moved but nothing else did, so there is no description
+          # of the change to commit under — write a plain one.
+          if [ "$SIGNERS_CHANGED" != 'true' ]; then
+            {
+              echo 'Refresh the amounts staked'
+              echo
+              echo 'Read from pox-5 by the scheduled refresh.'
+            } > "$COMMIT_MESSAGE_FILE"
+          fi
+          echo 'commit=true' >> "$GITHUB_OUTPUT"
+
       - name: Check the guide still holds with the new data
-        if: steps.changes.outputs.changed == 'true'
+        if: steps.commit.outputs.commit == 'true'
         # The tests assert against the real data — that a filter still matches
-        # something, that the pools it names are still there. A refresh that
-        # breaks one of those is exactly when a person should look.
+        # something, that the pools it names are still there, that every pool
+        # has an amount beside it. A refresh that breaks one of those is
+        # exactly when a person should look.
         run: |
           pnpm test
           pnpm build
 
       - name: Commit the new data
-        if: steps.changes.outputs.changed == 'true'
+        if: steps.commit.outputs.commit == 'true'
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add src/data/signers.json
+          git add src/data/signers.json src/data/totals.json
           git commit --file "$RUNNER_TEMP/commit-message.txt"
           git push
 

@@ -17,6 +17,7 @@ const signer = (overrides: Partial<Signer> = {}): Signer => ({
   feeBips: 0,
   maxFeeBips: null,
   feeChangeNotice: null,
+  feeExemption: null,
   evidence: {
     bitcoinRewards: null,
     openToAnyone: null,
@@ -81,6 +82,23 @@ describe('describeChanges', () => {
     );
     expect(lines).toEqual([
       '~ openToAnyone  SP000.signer-manager  true -> false',
+    ]);
+  });
+
+  it('flags stakers who stop being exempt from the fee', () => {
+    // The pool can take somebody off that list, and the page would quietly
+    // start telling a different story about who pays. Worth a line.
+    const exempt = signer({
+      feeExemption: {
+        test: 'is-og',
+        source: 'og-stakers',
+        operatorChooses: true,
+        evidence: '(if (is-og staker) u0 (var-get fee-bips))',
+      },
+    });
+    const { lines } = describeChanges(data([exempt]), data([signer()]));
+    expect(lines).toEqual([
+      '~ feeExemption  SP000.signer-manager  is-og via og-stakers -> none',
     ]);
   });
 

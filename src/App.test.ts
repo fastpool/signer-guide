@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { matches, type FilterId } from './App';
 import data from './data/signers.json';
+import totals from './data/totals.json';
 import type { Signer, SignerData } from './lib/types';
 
 /*
@@ -28,6 +29,7 @@ const base: Signer = {
   feeBips: null,
   maxFeeBips: null,
   feeChangeNotice: null,
+  feeExemption: null,
   evidence: {
     bitcoinRewards: null,
     openToAnyone: null,
@@ -82,5 +84,29 @@ describe('filters', () => {
 
   it('leaves out a pool with no fee of its own rather than calling it cheap', () => {
     expect(matches(base, new Set(['lowFee']))).toBe(false);
+  });
+});
+
+/*
+ * The amounts are generated from the signer list, in the same run, so the two
+ * files should always agree. If they ever do not, the page shows a pool with
+ * no amount beside it for an hour, and this says so first.
+ */
+describe('the committed amounts', () => {
+  it('covers every pool the page will list', () => {
+    const missing = signers
+      .map((s) => s.contractId)
+      .filter((id) => !(id in totals.ustx));
+    expect(missing).toEqual([]);
+  });
+
+  it('holds a cycle and uSTX counts, never a number a reader cannot trust', () => {
+    expect(totals.cycle).toBeGreaterThan(0);
+    const amounts: (string | null)[] = Object.values(totals.ustx);
+    for (const amount of amounts) {
+      // Null is "we could not read it" and is allowed. Anything else has to
+      // be a plain uSTX count: the page does BigInt arithmetic on these.
+      if (amount !== null) expect(amount).toMatch(/^\d+$/);
+    }
   });
 });

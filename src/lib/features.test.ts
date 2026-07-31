@@ -341,3 +341,71 @@ describe('feeChangeNotice', () => {
     expect(detectFeatures(src).feeChangeNotice).toBeNull();
   });
 });
+
+describe('feeExemption', () => {
+  /** Juice Pool's OG stakers, as the contract writes it. */
+  const juiceOg = `
+(define-data-var fee-bips uint u0)
+(define-map og-stakers principal bool)
+(define-read-only (is-og (staker principal))
+  (default-to false (map-get? og-stakers staker)))
+(define-read-only (get-effective-fee-bips (staker principal))
+  (if (is-og staker) u0 (var-get fee-bips)))
+(define-public (set-og (staker principal) (og bool))
+  (begin
+    (try! (assert-admin))
+    (if og (map-set og-stakers staker true) (map-delete og-stakers staker))
+    (ok og)))
+`;
+
+  it('finds the stakers Juice Pool charges nothing', () => {
+    const exemption = detectFeatures(juiceOg).feeExemption;
+    expect(exemption).toMatchObject({ test: 'is-og', source: 'og-stakers' });
+    expect(exemption?.evidence).toContain('u0');
+  });
+
+  it('says the pool picks who, because a public function writes the list', () => {
+    // The difference between a rule and a favour, and the page says which.
+    expect(detectFeatures(juiceOg).feeExemption?.operatorChooses).toBe(true);
+  });
+
+  it('does not call it operator-chosen when nothing public writes the list', () => {
+    const src = juiceOg.replace(
+      /\(define-public \(set-og[\s\S]*?\(ok og\)\)\)/,
+      '',
+    );
+    expect(detectFeatures(src).feeExemption?.operatorChooses).toBe(false);
+  });
+
+  it('reports none when every staker pays the same', () => {
+    const src = `
+(define-data-var fee-bips uint u0)
+(define-read-only (get-fee-bips) (var-get fee-bips))
+`;
+    expect(detectFeatures(src).feeExemption).toBeNull();
+  });
+
+  it('ignores a zero that has nothing to do with the fee', () => {
+    // Contracts are full of `u0` branches. Only one that stands in for the
+    // fee is an exemption; the rest are arithmetic.
+    const src = `
+(define-map paused-stakers principal bool)
+(define-read-only (is-paused (staker principal))
+  (default-to false (map-get? paused-stakers staker)))
+(define-read-only (get-shares (staker principal))
+  (if (is-paused staker) u0 (get-staker-shares staker)))
+`;
+    expect(detectFeatures(src).feeExemption).toBeNull();
+  });
+
+  it('leaves a test it cannot trace to a list unreported', () => {
+    // An exemption is a claim about somebody's money; if the page cannot say
+    // where the answer comes from, it should not make the claim.
+    const src = `
+(define-data-var fee-bips uint u0)
+(define-read-only (get-effective-fee-bips (staker principal))
+  (if (is-favoured staker) u0 (var-get fee-bips)))
+`;
+    expect(detectFeatures(src).feeExemption).toBeNull();
+  });
+});

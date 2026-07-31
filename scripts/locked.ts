@@ -1,11 +1,13 @@
 /**
- * How much STX each pool is looking after, read from pox-5 in the browser.
+ * How much STX each pool is looking after, read from pox-5.
  *
- * The rest of the guide is a committed file, refreshed daily. This one number
- * moves with every stake, so it is read live — but a couple of dozen
- * read-only calls per visit is not something a public node should be asked
- * for, so the answers are kept in localStorage for an hour. A reader who
- * comes back within the hour costs the node nothing.
+ * This runs in the refresh, not in the browser: `scripts/generate-totals.ts`
+ * asks pox-5 once an hour and commits the answers as `src/data/totals.json`,
+ * which the page then imports like any other data. The alternative — every
+ * visitor asking the node about every pool — puts the guide's whole readership
+ * on a public endpoint to fetch a number that barely moves between blocks, and
+ * needs a proxy and a key the moment more than a few people read it. One read
+ * an hour for everyone costs nothing and needs nothing.
  *
  * Anything that fails reads as "not known" rather than as zero. A pool shown
  * as empty when it is not would be a lie about somebody's money.
@@ -15,34 +17,16 @@ import {
   parseUint,
   serializeContractPrincipal,
   serializeUint,
-} from './clarity';
+} from '../src/lib/clarity.js';
+import type { LockedTotals } from '../src/lib/types.js';
+import { API_URL, nodeHeaders, SPACING_MS } from './node.js';
 
-const API_URL = 'https://api.hiro.so';
 const POX5 = 'SP000000000000000000002Q6VF78.pox-5';
 
-export const CACHE_KEY = 'signer-guide:locked:v1';
-export const TTL_MS = 60 * 60 * 1000;
-
-/**
- * A burst of read-only calls from one address earns a 429 — the node allows
- * roughly 50 a minute per IP, and one page load asks about every pool. Two at
- * a time, with a retry, keeps a first visit inside that.
- */
-const READ_CONCURRENCY = 2;
-
-/** Waits before a retry. A 429 answers again in well under a second. */
-const RETRY_DELAYS_MS = [700, 2_000];
+/** Waits before a retry, growing: a limit that bites needs more than a blink. */
+const RETRY_DELAYS_MS = [1_000, 5_000, 15_000];
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-export interface LockedTotals {
-  /** Reward cycle the amounts are for. */
-  cycle: number;
-  /** uSTX per contract id as a string; null for a pool we could not read. */
-  ustx: Record<string, string | null>;
-  /** Epoch ms of the read, so we know when it goes stale. */
-  readAt: number;
-}
 
 async function callReadOnly(
   functionName: string,
@@ -56,7 +40,7 @@ async function callReadOnly(
         `${API_URL}/v2/contracts/call-read/${address}/${name}/${functionName}`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: nodeHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({ sender: address, arguments: args }),
         },
       );
@@ -102,7 +86,9 @@ export async function fetchAmountDelegated(
 
 async function fetchCurrentCycle(): Promise<number | null> {
   try {
-    const response = await fetch(`${API_URL}/v2/pox`);
+    const response = await fetch(`${API_URL}/v2/pox`, {
+      headers: nodeHeaders(),
+    });
     if (!response.ok) return null;
     const body = (await response.json()) as {
       current_cycle?: { id?: number };
@@ -113,26 +99,24 @@ async function fetchCurrentCycle(): Promise<number | null> {
   }
 }
 
+/**
+ * One pool at a time, spaced out. Asking two at once with no gap got nine
+ * pools in and then earned a 429 for the remaining fourteen, which the page
+ * would have shown as "amount not known" for an hour — a rate limit reported
+ * as ignorance about somebody's money. How long the gap is depends on whether
+ * we are anonymous; see `SPACING_MS` in node.ts.
+ */
 async function readCycle(
   contractIds: string[],
   rewardCycle: number,
 ): Promise<Record<string, string | null>> {
   const ustx: Record<string, string | null> = {};
-  let cursor = 0;
 
-  const worker = async () => {
-    while (cursor < contractIds.length) {
-      const contractId = contractIds[cursor++];
-      const amount = await fetchAmountDelegated(contractId, rewardCycle);
-      ustx[contractId] = amount === null ? null : amount.toString();
-    }
-  };
-
-  await Promise.all(
-    Array.from({ length: Math.min(READ_CONCURRENCY, contractIds.length) }, () =>
-      worker(),
-    ),
-  );
+  for (const contractId of contractIds) {
+    const amount = await fetchAmountDelegated(contractId, rewardCycle);
+    ustx[contractId] = amount === null ? null : amount.toString();
+    await sleep(SPACING_MS);
+  }
 
   return ustx;
 }
@@ -148,7 +132,6 @@ async function readCycle(
  */
 export async function readLockedTotals(
   contractIds: string[],
-  now: number = Date.now(),
 ): Promise<LockedTotals | null> {
   const currentCycle = await fetchCurrentCycle();
   if (currentCycle === null) return null;
@@ -163,38 +146,5 @@ export async function readLockedTotals(
     ustx = await readCycle(contractIds, cycle);
   }
 
-  return { cycle, ustx, readAt: now };
-}
-
-export function readCache(): LockedTotals | null {
-  try {
-    const raw = localStorage.getItem(CACHE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as LockedTotals;
-    if (
-      typeof parsed?.cycle !== 'number' ||
-      typeof parsed?.readAt !== 'number'
-    ) {
-      return null;
-    }
-    return parsed;
-  } catch {
-    // Private mode, a full disk, or something else wrote to this key.
-    return null;
-  }
-}
-
-export function isFresh(totals: LockedTotals, now: number = Date.now()) {
-  // A clock that has jumped backwards should mean a re-read, not an hour of
-  // trusting whatever is in storage.
-  const age = now - totals.readAt;
-  return age >= 0 && age < TTL_MS;
-}
-
-export function writeCache(totals: LockedTotals) {
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify(totals));
-  } catch {
-    // Not being able to remember is survivable; it just means reading again.
-  }
+  return { cycle, ustx };
 }

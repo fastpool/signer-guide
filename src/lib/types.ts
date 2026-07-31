@@ -1,5 +1,5 @@
 import type { SourceMatch } from './canonical';
-import type { FeeChangeNotice } from './features';
+import type { FeeChangeNotice, FeeExemption } from './features';
 
 /** One deployed signer contract, as the generator records it. */
 export interface Signer {
@@ -28,6 +28,8 @@ export interface Signer {
   maxFeeBips: number | null;
   /** Warning a fee change must give; null when a new fee is immediate. */
   feeChangeNotice: FeeChangeNotice | null;
+  /** Stakers charged nothing whatever the fee is; null when all pay alike. */
+  feeExemption: FeeExemption | null;
 
   /** Contract text the feature decisions came from. */
   evidence: {
@@ -42,4 +44,19 @@ export interface SignerData {
   /** Reward cycle current when this was generated. */
   cycle: number;
   signers: Signer[];
+}
+
+/**
+ * What each pool is looking after, as `src/data/totals.json` holds it.
+ *
+ * Deliberately no timestamp. The refresh commits this file, so a "read at"
+ * that moved every hour would be a commit every hour saying nothing — the
+ * same noise `describe-signer-changes.ts` exists to keep out of the history.
+ * The cycle is what a reader needs, and it is in here.
+ */
+export interface LockedTotals {
+  /** Reward cycle the amounts are for. */
+  cycle: number;
+  /** uSTX per contract id as a string; null for a pool we could not read. */
+  ustx: Record<string, string | null>;
 }

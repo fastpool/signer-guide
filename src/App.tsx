@@ -2,17 +2,25 @@ import { useMemo, useState } from 'react';
 import ContractPage from './components/ContractPage';
 import SignerCard from './components/SignerCard';
 import data from './data/signers.json';
+import totalsData from './data/totals.json';
 import { stxLabel, sumUstx } from './lib/amounts';
 import { PROFILES } from './lib/profiles';
 import { contractHref, useRoute } from './lib/route';
 import { buildTemplates, templateFor } from './lib/templates';
-import type { SignerData } from './lib/types';
-import { useLockedTotals } from './lib/useLockedTotals';
+import type { LockedTotals, SignerData } from './lib/types';
 
 const signerData = data as SignerData;
 
+/**
+ * What each pool holds, read from pox-5 by the hourly refresh rather than by
+ * every visitor. See the note at the top of scripts/locked.ts.
+ */
+const totals = totalsData as LockedTotals;
+
 /** A fee we would call low. Not a promise — see the note under the filters. */
 const LOW_FEE_BIPS = 500; // 5%
+
+const REPO_URL = 'https://github.com/fastpool/signer-guide';
 
 export type FilterId =
   'bitcoin' | 'lowFee' | 'cappedFee' | 'feeNotice' | 'open';
@@ -74,29 +82,26 @@ const CONTRACT_IDS = signerData.signers.map((s) => s.contractId);
 export default function App() {
   const route = useRoute();
   const [active, setActive] = useState<Set<FilterId>>(new Set());
-  const { totals } = useLockedTotals(CONTRACT_IDS);
 
   const templates = useMemo(() => buildTemplates(signerData.signers), []);
 
   const shown = useMemo(() => {
     const matching = signerData.signers.filter((s) => matches(s, active));
-    if (!totals) return matching;
-    // Biggest first once the amounts are in: the list is easier to read when
-    // the pools people actually use are at the top. Until then it keeps the
-    // order it was generated in rather than jumping about.
+    // Biggest first: the list is easier to read when the pools people
+    // actually use are at the top.
     return [...matching].sort((a, b) => {
       const left = BigInt(totals.ustx[a.contractId] ?? 0);
       const right = BigInt(totals.ustx[b.contractId] ?? 0);
       return right > left ? 1 : right < left ? -1 : 0;
     });
-  }, [active, totals]);
+  }, [active]);
 
-  const staked = sumUstx(CONTRACT_IDS, totals?.ustx);
+  const staked = sumUstx(CONTRACT_IDS, totals.ustx);
 
   if (route.name === 'contract') {
     const template = templateFor(templates, route.profileId);
     if (template) {
-      return <ContractPage template={template} lockedUstx={totals?.ustx} />;
+      return <ContractPage template={template} lockedUstx={totals.ustx} />;
     }
   }
 
@@ -129,7 +134,7 @@ export default function App() {
           <p className='text-lg text-muted'>
             Between them they are looking after{' '}
             <strong className='text-ink'>{stxLabel(staked.toString())}</strong>{' '}
-            for cycle {totals?.cycle}.
+            for cycle {totals.cycle}.
           </p>
         )}
       </header>
@@ -218,7 +223,7 @@ export default function App() {
           <SignerCard
             key={signer.contractId}
             signer={signer}
-            lockedUstx={totals?.ustx[signer.contractId]}
+            lockedUstx={totals.ustx[signer.contractId]}
             summary={
               signer.profileId
                 ? (Object.values(PROFILES).find(
@@ -253,7 +258,21 @@ export default function App() {
             year: 'numeric',
             timeZone: 'UTC',
           })}
-          .
+          , and the amounts staked are for cycle {totals.cycle}. Both are read
+          again every hour.
+        </p>
+        <p>
+          Nothing here is taken on trust, and neither should this page be:{' '}
+          <a
+            className='font-semibold text-grape underline underline-offset-2'
+            href={REPO_URL}
+            target='_blank'
+            rel='noreferrer'
+          >
+            read the code on GitHub
+          </a>{' '}
+          — every claim above comes from a line of Clarity you can check
+          yourself.
         </p>
       </footer>
     </main>

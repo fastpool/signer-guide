@@ -2,5 +2,8 @@ node_modules
 dist
 *.local
 
+# STACKS_API_URL and HIRO_API_KEY, for `node --env-file=.env`
+.env
+
 # build artefacts
 *.tsbuildinfo

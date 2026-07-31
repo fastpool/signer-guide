@@ -1,7 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
-import { CACHE_KEY } from './lib/locked';
 
 /*
  * Renders the real page to HTML and reads it the way a visitor would. Enough
@@ -9,44 +8,37 @@ import { CACHE_KEY } from './lib/locked';
  * because the point is what the markup says, not how it behaves.
  */
 
-/** Seeded cache, so the first render already has the amounts. */
-const CACHED = {
-  cycle: 141,
-  readAt: Date.now(),
-  ustx: {
-    'SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager':
-      '8215865483722',
-    'SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer':
-      '253000000',
-    // Read, and the node would not answer for it.
-    'SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85.signer-manager-hiro': null,
+/**
+ * Stands in for src/data/totals.json, so these can assert on exact numbers
+ * without breaking every time somebody stakes. What the real file is worth
+ * saying about is that it parses and covers the pools, which App.test.ts
+ * checks against the committed data.
+ */
+vi.mock('./data/totals.json', () => ({
+  default: {
+    cycle: 141,
+    ustx: {
+      'SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager':
+        '8215865483722',
+      'SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer':
+        '253000000',
+      // Read, and the node would not answer for it.
+      'SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85.signer-manager-hiro': null,
+    },
   },
-};
+}));
 
 beforeEach(() => {
-  const store = new Map<string, string>([[CACHE_KEY, JSON.stringify(CACHED)]]);
-  vi.stubGlobal('localStorage', {
-    getItem: (k: string) => store.get(k) ?? null,
-    setItem: (k: string, v: string) => void store.set(k, v),
-    removeItem: (k: string) => store.delete(k),
-    clear: () => store.clear(),
-    key: () => null,
-    length: store.size,
-  });
   vi.stubGlobal('window', {
     location: { hash: '#/' },
     addEventListener: () => {},
     removeEventListener: () => {},
     scrollTo: () => {},
   });
-  vi.stubGlobal(
-    'fetch',
-    vi.fn(async () => ({ ok: false, json: async () => ({}) })),
-  );
 });
 
 describe('the page as a reader sees it', () => {
-  it('shows the amounts it already has, without waiting for the node', () => {
+  it('shows the amounts from the last refresh, asking the node for nothing', () => {
     const html = renderToStaticMarkup(<App />);
     expect(html).toContain('8.2 million STX');
     expect(html).toContain('253 STX');
@@ -62,10 +54,10 @@ describe('the page as a reader sees it', () => {
     expect(html).not.toContain('nothing staked yet');
   });
 
-  it('shows no amount at all for a pool the cache predates', () => {
-    // A pool that registered after the last read is absent from the cache
+  it('shows no amount at all for a pool the last refresh predates', () => {
+    // A pool that registered after the last read is absent from the file
     // rather than null. Claiming it is unknown would be a guess; the next
-    // read, within the hour, has it.
+    // refresh, within the hour, has it.
     const html = renderToStaticMarkup(<App />);
     const cards = html.split('rounded-3xl bg-white').length - 1;
     const amounts =
@@ -81,5 +73,10 @@ describe('the page as a reader sees it', () => {
     expect(html.indexOf('8.2 million STX')).toBeLessThan(
       html.indexOf('253 STX'),
     );
+  });
+
+  it('points a reader at the code behind every claim', () => {
+    const html = renderToStaticMarkup(<App />);
+    expect(html).toContain('https://github.com/fastpool/signer-guide');
   });
 });

@@ -10,8 +10,12 @@ what actually matters to you.
 ```bash
 pnpm install
 pnpm generate:signers   # refresh src/data/signers.json from mainnet
+pnpm generate:totals    # refresh src/data/totals.json — what each pool holds
 pnpm dev
 ```
+
+Both generators read `STACKS_API_URL` and `HIRO_API_KEY` — see
+[Which node it asks](#which-node-it-asks).
 
 ## How a pool is identified
 
@@ -111,26 +115,62 @@ A pool with no fee code of its own is not counted as low-fee: the fee may simply
 be taken elsewhere, as with `native-pool-signer-manager`, which routes through
 `.native-pool-v1`.
 
+**Stakers who pay nothing** are the third thing, and Juice Pool is the only
+contract with any: it keeps an `og-stakers` map and charges them no fee at all,
+whatever the rate is for everyone else.
+
+```clarity
+(define-read-only (get-effective-fee-bips (staker principal))
+  (if (is-og staker) u0 (var-get fee-bips)))
+```
+
+Detected on shape — a test on one `staker` choosing between no fee and the fee —
+so a contract that calls its favoured stakers something else is picked up too.
+Two things must hold before the page says anything: the branch *not* taken has
+to be about the fee, since contracts are full of `u0` branches that are just
+arithmetic; and the test has to resolve to a map the contract keeps, so the page
+can say where the answer comes from. A test that cannot be traced is left
+unreported rather than guessed at.
+
+The page also records **who decides**. `set-og` is a public, admin-gated
+function, so the pool picks who is exempt and can take someone off the list
+again. That makes it a discount in the pool's gift, not a promise the contract
+holds it to — a real difference to anyone choosing on the strength of it, and
+the contract page says which it is.
+
 ## What each pool is looking after
 
 The amount staked with each pool is the one number here that moves by the
-minute, so it is not baked into `signers.json` — it is read from pox-5
-(`get-amount-delegated-for-signer`) in the reader's own browser and kept in
-`localStorage` for an hour. Come back within the hour and it costs the node
-nothing.
+minute. It lives in its own file, `src/data/totals.json`, read from pox-5
+(`get-amount-delegated-for-signer`) by `pnpm generate:totals` and committed
+alongside `signers.json`.
 
-Two consequences worth knowing:
+It used to be read in the reader's own browser and cached in `localStorage` for
+an hour. Moving it into the refresh is the whole of the guide's "backend":
+**one read an hour for every reader, rather than one per reader.** Read it in
+the browser and the guide's entire readership lands on a public endpoint to
+fetch a number that barely moves between blocks — which needs a proxy, an API
+key on a server, and something to run it, all to serve an hour-stale number
+either way. A committed file needs none of that, and the page makes no network
+requests at all.
+
+Three consequences worth knowing:
 
 - **No `@stacks/*` dependency.** The node wants its arguments hex-encoded, which
   is a contract principal and a uint — a few dozen lines in `src/lib/clarity.ts`
   against about half a megabyte of library, on a page people open on a phone.
   Those encodings are pinned in `clarity.test.ts` against output from the real
   library, and checked against all 22 registered signers.
-- **A first visit asks about every pool**, and the node allows roughly 50
-  requests a minute per IP. Reads go two at a time and retry a 429 rather than
-  giving up, because the alternative is telling someone we do not know what a
-  pool holds when we do. A pool that still cannot be read shows as *amount not
-  known* — never as zero, which would be a lie about somebody's money.
+- **Reads are paced**, one at a time and 300ms apart, because the node allows
+  roughly 50 requests a minute per IP. Two at a time with no gap got nine pools
+  in and earned a 429 for the remaining fourteen — a rate limit the page would
+  have shown as *amount not known*, which is a rate limit dressed up as
+  ignorance about somebody's money. A pool that genuinely cannot be read after
+  its retries shows as *amount not known* — never as zero.
+- **The file carries no timestamp.** A "read at" that moved every hour would be
+  an hourly commit saying nothing, which is exactly what
+  `describe-signer-changes.ts` exists to keep out of the history. Any diff to
+  `totals.json` is a real change in what a pool holds.
 
 Amounts are shown for the current reward cycle, falling back to the cycle being
 filled while the current one is empty — during the pox-5 changeover, cycle 140
@@ -138,18 +178,58 @@ read as zero for every pool, which tells a reader nothing.
 
 ## Refreshing
 
+### Which node it asks
+
+Both generators take their endpoint from the environment, in `scripts/node.ts`:
+
+| variable | default | meaning |
+| --- | --- | --- |
+| `STACKS_API_URL` | `https://api.hiro.so` | the node to read |
+| `HIRO_API_KEY` | *(none)* | sent as `x-api-key` when set, omitted when not |
+
+```bash
+STACKS_API_URL=http://localhost:3999 pnpm generate:signers   # your own node
+HIRO_API_KEY=… pnpm generate:totals                          # or a key
+```
+
+Both also decide **how fast to go** from that. Anonymous against Hiro the
+requests are 300ms apart, because the limit is roughly 50 a minute per IP and a
+refresh asks about every pool twice over. With a key, or against a node of your
+own, there is nothing to wait for and the gap drops to 50ms — a full signer
+refresh takes about ten seconds instead of a minute.
+
+The key is optional and the workflow treats it as such: set a `HIRO_API_KEY`
+repository secret and the hourly runs get quicker and stop competing with every
+other anonymous caller sharing the runner's IP; leave it unset and they take the
+slow road. Nothing else changes, and the data comes out byte-identical either
+way.
+
+`.env` is gitignored, for `node --env-file=.env`.
+
+**The key never reaches the browser.** Everything that talks to a node lives
+under `scripts/`, which is why `locked.ts` sits there rather than in `src/lib/`
+despite the page using its output — the page ships two committed JSON files and
+makes no requests at all. `src/lib/types.ts` holds the shape they share, so
+nothing in `src/` needs to import anything that knows an endpoint from a key.
+
+### The refresh
+
 `pnpm generate:signers` rewrites `src/data/signers.json`. Any pool whose
 canonical hash matches no profile is printed at the end — read its code, then
-add it to `src/lib/profiles.ts`.
+add it to `src/lib/profiles.ts`. `pnpm generate:totals` then rewrites
+`src/data/totals.json` for exactly the pools that file lists.
 
-`.github/workflows/refresh-signers.yml` does that daily and commits the result,
-so the guide does not quietly go stale between releases. Three things make the
-commits worth reading:
+`.github/workflows/refresh-signers.yml` does both **hourly** and commits the
+result, so the guide does not quietly go stale between releases. Hourly rather
+than daily because a pool can change its fee at any moment, and until the
+refresh has run again the page states the old one as fact. Three things make
+the commits worth reading:
 
 - **The timestamp alone is not a change.** `scripts/describe-signer-changes.ts`
   compares the new file with the old and skips the commit unless a pool, a fee
-  or a feature actually moved. Otherwise the history would be one commit a day
-  saying nothing.
+  or a feature actually moved. Otherwise the history would be one commit an
+  hour saying nothing. The amounts are committed whenever they differ, which,
+  having no timestamp of their own, means whenever they really differ.
 - **The tests run against the new data before it is committed.** They assert
   that filters still match something and that the pools they name are still
   registered, so a refresh that breaks a claim on the page fails the run

@@ -13,6 +13,8 @@
  * does not guarantee is not presented as a guarantee.
  *
  * Usage: npx tsx scripts/generate-signers.ts
+ *
+ * Reads STACKS_API_URL and HIRO_API_KEY — see scripts/node.ts.
  */
 
 import * as fs from 'node:fs';
@@ -26,8 +28,8 @@ import {
 import { detectFeatures } from '../src/lib/features.js';
 import { profileFor } from '../src/lib/profiles.js';
 import type { Signer, SignerData } from '../src/lib/types.js';
+import { API_URL, describeNode, nodeHeaders, SPACING_MS } from './node.js';
 
-const API_URL = process.env.STACKS_API_URL ?? 'https://api.hiro.so';
 const OUTPUT = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
   '..',
@@ -36,14 +38,13 @@ const OUTPUT = path.join(
   'signers.json',
 );
 
-// The node allows roughly 50 requests a minute per IP.
-const SPACING_MS = 300;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function getJson<T>(url: string, attempts = 5): Promise<T | null> {
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     try {
       const response = await fetch(url, {
+        headers: nodeHeaders(),
         signal: AbortSignal.timeout(30_000),
       });
       if (response.ok) return (await response.json()) as T;
@@ -153,7 +154,7 @@ async function fetchFeeBips(
       `${API_URL}/v2/contracts/call-read/${address}/${name}/${reading.name}`,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: nodeHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ sender: address, arguments: [] }),
         signal: AbortSignal.timeout(30_000),
       },
@@ -167,7 +168,7 @@ async function fetchFeeBips(
 }
 
 async function main() {
-  console.log(`Reading registered signers from ${API_URL} ...`);
+  console.log(`Reading registered signers from ${describeNode()} ...`);
   const registered = await fetchRegisteredSigners();
   const cycle = await fetchCurrentCycle();
   console.log(`  ${registered.size} registered, cycle ${cycle} is current`);
@@ -215,6 +216,7 @@ async function main() {
       feeBips,
       maxFeeBips: features.maxFeeBips,
       feeChangeNotice: features.feeChangeNotice,
+      feeExemption: features.feeExemption,
       evidence: {
         bitcoinRewards: features.bitcoinRewards.evidence,
         openToAnyone: features.openToAnyone.evidence,

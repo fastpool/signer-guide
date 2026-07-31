@@ -34,6 +34,12 @@ const noticeOf = (signer: Signer) =>
     ? `${signer.feeChangeNotice.amount} ${signer.feeChangeNotice.unit}`
     : 'none';
 
+/** "is-og via og-stakers", or "none" — comparable across generations. */
+const exemptionOf = (signer: Signer) =>
+  signer.feeExemption
+    ? `${signer.feeExemption.test} via ${signer.feeExemption.source}`
+    : 'none';
+
 /** "fee 2.5%", but "no fee of its own" reads badly with "fee" in front. */
 const feePhrase = (bips: number | null) =>
   bips === null ? fee(bips) : `fee ${fee(bips)}`;
@@ -88,6 +94,11 @@ export function describeChanges(
     if (noticeOf(was) !== noticeOf(now)) {
       lines.push(
         `~ feeChangeNotice  ${id}  ${noticeOf(was)} -> ${noticeOf(now)}`,
+      );
+    }
+    if (exemptionOf(was) !== exemptionOf(now)) {
+      lines.push(
+        `~ feeExemption  ${id}  ${exemptionOf(was)} -> ${exemptionOf(now)}`,
       );
     }
   }

@@ -16,6 +16,7 @@ export interface Template {
   openToAnyone: boolean;
   maxFeeBips: number | null;
   feeChangeNotice: Signer['feeChangeNotice'];
+  feeExemption: Signer['feeExemption'];
   evidence: Signer['evidence'];
   groupSha256: string;
 }
@@ -42,6 +43,7 @@ export function buildTemplates(signers: Signer[]): Template[] {
       openToAnyone: first.openToAnyone,
       maxFeeBips: first.maxFeeBips,
       feeChangeNotice: first.feeChangeNotice,
+      feeExemption: first.feeExemption,
       evidence: first.evidence,
       groupSha256: first.groupSha256,
     });

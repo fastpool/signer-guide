@@ -77,9 +77,9 @@ export const PROFILES: Record<string, ManagerProfile> = {
     id: 'juice-pool',
     name: 'Juice Pool',
     summary:
-      'Open to everyone and pays rewards as sBTC on Stacks. Fee changes have to be announced before they take effect.',
+      'Open to everyone and pays rewards as sBTC on Stacks. Fee changes have to be announced before they take effect, and stakers the pool marks as OG pay no fee at all.',
     detail:
-      'Open to everyone, with no invitation needed. Rewards arrive as sBTC on Stacks rather than to a Bitcoin address. Two things set it apart: the operator can pause new staking, and a change of fee has to be proposed first and confirmed in a second step, so it cannot change without warning.',
+      'Open to everyone, with no invitation needed. Rewards arrive as sBTC on Stacks rather than to a Bitcoin address. Two things set it apart: the operator can pause new staking, and a change of fee has to be proposed first and confirmed in a second step, so it cannot change without warning. It also keeps a list of stakers it calls OG, who are charged no fee at all however high the fee goes for everyone else. The pool decides who is on that list and can take someone off it again, so being OG is a discount in the pool’s gift rather than something the contract promises you.',
   },
 };
 
