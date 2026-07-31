@@ -125,9 +125,7 @@ export interface SourceHashes {
   groupSha256: string;
 }
 
-export async function hashClaritySource(
-  source: string,
-): Promise<SourceHashes> {
+export async function hashClaritySource(source: string): Promise<SourceHashes> {
   return {
     sourceSha256: await claritySourceSha256(source),
     canonicalSha256: await claritySourceSha256(

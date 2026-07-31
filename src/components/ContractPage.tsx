@@ -1,4 +1,4 @@
-import Badge, { feeLabel } from './Badge';
+import Badge, { feeLabel, noticeLabel } from './Badge';
 import type { Template } from '../lib/templates';
 
 const EXPLORER = 'https://explorer.hiro.so';
@@ -34,6 +34,12 @@ export default function ContractPage({ template }: { template: Template }) {
         )}
         {template.maxFeeBips !== null && (
           <Badge tone='good'>Fee capped at {template.maxFeeBips / 100}%</Badge>
+        )}
+        {template.feeChangeDelayBlocks !== null && (
+          <Badge tone='good'>
+            Fee changes announced {noticeLabel(template.feeChangeDelayBlocks)}{' '}
+            ahead
+          </Badge>
         )}
       </div>
 
@@ -110,6 +116,25 @@ export default function ContractPage({ template }: { template: Template }) {
                 </>
               ) : (
                 'Nothing in the contract limits the fee to anything meaningful, so the pool can set it as it likes.'
+              )}
+            </dd>
+          </div>
+
+          <div>
+            <dt className='font-semibold'>Warning before a fee change</dt>
+            <dd className='mt-0.5 text-muted'>
+              {template.evidence.feeChangeDelay ? (
+                <>
+                  A new fee has to be announced and then wait{' '}
+                  {template.feeChangeDelayBlocks} Bitcoin blocks —{' '}
+                  {noticeLabel(template.feeChangeDelayBlocks ?? 0)} — before it
+                  can take effect:{' '}
+                  <code className='break-all font-mono text-xs'>
+                    {template.evidence.feeChangeDelay}
+                  </code>
+                </>
+              ) : (
+                'A new fee can take effect as soon as the pool sets it, with no warning.'
               )}
             </dd>
           </div>

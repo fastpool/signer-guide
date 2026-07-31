@@ -42,6 +42,13 @@ export interface SourceFeatures {
   maxFeeBips: number | null;
   /** The assertion that enforces the ceiling. */
   maxFeeEvidence: string | null;
+  /**
+   * Burn blocks a fee change must be announced in advance, or null when the
+   * contract lets a new fee take effect immediately.
+   */
+  feeChangeDelayBlocks: number | null;
+  /** The assertion that enforces the wait. */
+  feeChangeDelayEvidence: string | null;
 }
 
 /** Pull one top-level `define-public` form out by balancing parentheses. */
@@ -85,13 +92,17 @@ function detectMaxFeeBips(source: string): {
   evidence: string | null;
 } {
   const constants = new Map<string, number>();
-  for (const m of source.matchAll(/\(define-constant\s+([A-Z0-9_]+)\s+u(\d+)\)/g)) {
+  for (const m of source.matchAll(
+    /\(define-constant\s+([A-Z0-9_]+)\s+u(\d+)\)/g,
+  )) {
     constants.set(m[1], Number(m[2]));
   }
 
   let best: { bips: number; evidence: string } | null = null;
 
-  for (const fn of source.matchAll(/\(define-public \(([a-z0-9!-]*fee[a-z0-9!-]*)/gi)) {
+  for (const fn of source.matchAll(
+    /\(define-public \(([a-z0-9!-]*fee[a-z0-9!-]*)/gi,
+  )) {
     const body = extractPublicFunction(source, fn[1]);
     if (!body) continue;
 
@@ -109,8 +120,60 @@ function detectMaxFeeBips(source: string): {
   return { bips: best?.bips ?? null, evidence: best?.evidence ?? null };
 }
 
+/**
+ * How far ahead a fee change has to be announced, in burn blocks.
+ *
+ * The shape, not the names: a fee function that refuses to act until the
+ * chain has passed a stored height plus a delay. Juice Pool writes it as
+ *   (asserts! (>= burn-block-height (+ (var-get pending-fee-height) FEE_COOLDOWN)))
+ * with `FEE_COOLDOWN u144`, about a day.
+ *
+ * Matching on the guard rather than on function names means a contract that
+ * calls its steps something else — a future Fast Pool one, say — is picked up
+ * without this needing an edit. The delay may be a named constant or written
+ * inline; both are resolved.
+ */
+function detectFeeChangeDelayBlocks(source: string): {
+  blocks: number | null;
+  evidence: string | null;
+} {
+  const constants = new Map<string, number>();
+  for (const m of source.matchAll(
+    /\(define-constant\s+([A-Z0-9_]+)\s+u(\d+)\)/g,
+  )) {
+    constants.set(m[1], Number(m[2]));
+  }
+
+  for (const fn of source.matchAll(
+    /\(define-public \(([a-z0-9!-]*fee[a-z0-9!-]*)/gi,
+  )) {
+    const body = extractPublicFunction(source, fn[1]);
+    if (!body) continue;
+
+    const guard =
+      /\(asserts!\s+\(>=?\s+(?:burn-block-height|stacks-block-height)\s+\(\+\s+([\s\S]{0,120}?)\)\s*\)/.exec(
+        stripComments(body),
+      );
+    if (!guard) continue;
+
+    const named = /\b([A-Z0-9_]+)\b/.exec(guard[1]);
+    const inline = /\bu(\d+)\b/.exec(guard[1]);
+    const blocks = named
+      ? constants.get(named[1])
+      : inline
+        ? Number(inline[1])
+        : undefined;
+    if (blocks === undefined || blocks <= 0) continue;
+
+    return { blocks, evidence: guard[0].replace(/\s+/g, ' ').trim() };
+  }
+
+  return { blocks: null, evidence: null };
+}
+
 export function detectFeatures(source: string): SourceFeatures {
   const maxFee = detectMaxFeeBips(source);
+  const feeDelay = detectFeeChangeDelayBlocks(source);
   const validateStake = stripComments(
     extractPublicFunction(source, 'validate-stake!') ?? '',
   );
@@ -153,5 +216,7 @@ export function detectFeatures(source: string): SourceFeatures {
         : null,
     maxFeeBips: maxFee.bips,
     maxFeeEvidence: maxFee.evidence,
+    feeChangeDelayBlocks: feeDelay.blocks,
+    feeChangeDelayEvidence: feeDelay.evidence,
   };
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { contractHref } from '../lib/route';
 import type { Signer } from '../lib/types';
-import Badge, { feeLabel } from './Badge';
+import Badge, { feeLabel, noticeLabel } from './Badge';
 
 const EXPLORER = 'https://explorer.hiro.so';
 
@@ -53,8 +53,12 @@ export default function SignerCard({
         )}
         <Badge tone='neutral'>Fee: {feeLabel(signer.feeBips)}</Badge>
         {signer.maxFeeBips !== null && (
+          <Badge tone='good'>Fee capped at {signer.maxFeeBips / 100}%</Badge>
+        )}
+        {signer.feeChangeDelayBlocks !== null && (
           <Badge tone='good'>
-            Fee capped at {signer.maxFeeBips / 100}%
+            Fee changes announced {noticeLabel(signer.feeChangeDelayBlocks)}{' '}
+            ahead
           </Badge>
         )}
       </div>

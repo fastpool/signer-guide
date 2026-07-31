@@ -43,7 +43,9 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 async function getJson<T>(url: string, attempts = 5): Promise<T | null> {
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     try {
-      const response = await fetch(url, { signal: AbortSignal.timeout(30_000) });
+      const response = await fetch(url, {
+        signal: AbortSignal.timeout(30_000),
+      });
       if (response.ok) return (await response.json()) as T;
       if (response.status === 429 || response.status >= 500) {
         await sleep(5_000 * (attempt + 1));
@@ -165,7 +167,9 @@ async function main() {
   console.log(`Reading registered signers from ${API_URL} ...`);
   const registered = await fetchRegisteredSigners();
   const feeCycle = await fetchCurrentCycle();
-  console.log(`  ${registered.size} registered, reading fees for cycle ${feeCycle}`);
+  console.log(
+    `  ${registered.size} registered, reading fees for cycle ${feeCycle}`,
+  );
 
   const signers: Signer[] = [];
   const unmatched: string[] = [];
@@ -209,10 +213,12 @@ async function main() {
       openToAnyone: features.openToAnyone.value,
       feeBips,
       maxFeeBips: features.maxFeeBips,
+      feeChangeDelayBlocks: features.feeChangeDelayBlocks,
       evidence: {
         bitcoinRewards: features.bitcoinRewards.evidence,
         openToAnyone: features.openToAnyone.evidence,
         maxFee: features.maxFeeEvidence,
+        feeChangeDelay: features.feeChangeDelayEvidence,
       },
     });
 

@@ -2,7 +2,7 @@
 
 A plain-language guide for people choosing where to stake their STX.
 
-The 21 pools registered on pox-5 run only six distinct **signer contracts**
+The 22 pools registered on pox-5 run only five distinct **signer contracts**
 between them, so the guide leads with those: one page per contract explaining
 what it does and which pools run it, then the full pool list with filters for
 what actually matters to you.
@@ -76,6 +76,16 @@ Assuming one name reported Juice Pool's real fee as "not set in this contract".
 exceed 20% whatever the operator does. Those pools get a *fee capped* badge.
 The Standard contract's `MAX_BIPS u10000` only stops a fee of 100% or more,
 which promises a staker nothing, so it is reported as no ceiling at all.
+
+**Notice before a change** is the other promise: a contract that makes a new fee
+wait gives you time to move your STX before it applies. Juice Pool asserts
+`(>= burn-block-height (+ (var-get pending-fee-height) FEE_COOLDOWN))` with
+`FEE_COOLDOWN u144`, about a day. The detector matches that *shape* — a fee
+function refusing to act until the chain passes a stored height plus a delay —
+rather than the function names, so the Fast Pool contract still to be published
+is picked up on the day it deploys, whatever it calls its steps. The delay may
+be a named constant or written inline; both are resolved and shown in blocks and
+in hours.
 
 A pool with no fee code of its own is not counted as low-fee: the fee may simply
 be taken elsewhere, as with `native-pool-signer-manager`, which routes through

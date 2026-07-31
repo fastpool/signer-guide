@@ -50,7 +50,9 @@ describe('openToAnyone', () => {
       (ok true))`);
     const features = detectFeatures(src);
     expect(features.openToAnyone.value).toBe(false);
-    expect(features.openToAnyone.evidence).toContain('is-allowed-staker staker');
+    expect(features.openToAnyone.evidence).toContain(
+      'is-allowed-staker staker',
+    );
   });
 
   it('is closed when joining requires membership of a pool', () => {
@@ -111,7 +113,9 @@ describe('canonicalizeClaritySource', () => {
   });
 
   it('refuses an unterminated string rather than hashing nonsense', () => {
-    expect(() => canonicalizeClaritySource('(define-constant A "oops')).toThrow();
+    expect(() =>
+      canonicalizeClaritySource('(define-constant A "oops'),
+    ).toThrow();
   });
 });
 
@@ -188,6 +192,55 @@ ${constants}
   });
 
   it('reports no ceiling when the contract has no fee function', () => {
-    expect(detectFeatures('(define-public (validate-stake!) (ok true))').maxFeeBips).toBeNull();
+    expect(
+      detectFeatures('(define-public (validate-stake!) (ok true))').maxFeeBips,
+    ).toBeNull();
+  });
+});
+
+describe('feeChangeDelayBlocks', () => {
+  it('finds the wait Juice Pool puts on a fee change', () => {
+    const src = `
+(define-constant FEE_COOLDOWN u144)
+(define-data-var pending-fee (optional uint) none)
+(define-data-var pending-fee-height uint u0)
+(define-public (confirm-fee-bips)
+  (let ((new-fee (unwrap! (var-get pending-fee) ERR_NO_PENDING_FEE)))
+    (try! (assert-admin))
+    (asserts! (>= burn-block-height (+ (var-get pending-fee-height) FEE_COOLDOWN))
+      ERR_COOLDOWN)
+    (ok new-fee)))
+`;
+    const features = detectFeatures(src);
+    expect(features.feeChangeDelayBlocks).toBe(144);
+    expect(features.feeChangeDelayEvidence).toContain('FEE_COOLDOWN');
+  });
+
+  it('reads the guard, not the names, so a differently written contract counts', () => {
+    // Fast Pool's next signer is not written yet. Matching the shape means it
+    // is picked up on the day it deploys, without a change here.
+    const src = `
+(define-data-var pending-fee-at uint u0)
+(define-public (announce-fee (bips uint))
+  (begin (var-set pending-fee-at burn-block-height) (ok bips)))
+(define-public (apply-fee-change)
+  (begin
+    (asserts! (>= burn-block-height (+ (var-get pending-fee-at) u288)) ERR_TOO_EARLY)
+    (ok true)))
+`;
+    expect(detectFeatures(src).feeChangeDelayBlocks).toBe(288);
+  });
+
+  it('reports no wait when a new fee applies immediately', () => {
+    const src = `
+(define-public (set-fee-bips (new-fee uint))
+  (begin
+    (try! (assert-admin))
+    (var-set fee-bips new-fee)
+    (ok new-fee)))
+`;
+    const features = detectFeatures(src);
+    expect(features.feeChangeDelayBlocks).toBeNull();
+    expect(features.feeChangeDelayEvidence).toBeNull();
   });
 });

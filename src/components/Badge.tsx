@@ -22,6 +22,21 @@ export default function Badge({
   );
 }
 
+/**
+ * "about a day" — how long a fee change has to sit before it can bite.
+ *
+ * Contracts count in Bitcoin blocks, which arrive about every ten minutes.
+ * Nobody budgets in blocks, so this is deliberately rounded and hedged rather
+ * than precise: the point is whether you get meaningful warning, not the exact
+ * minute.
+ */
+export function noticeLabel(blocks: number): string {
+  const hours = Math.round((blocks * 10) / 60);
+  if (hours < 2) return 'about an hour';
+  if (hours < 36) return hours < 24 ? `about ${hours} hours` : 'about a day';
+  return `about ${Math.round(hours / 24)} days`;
+}
+
 /** "0%", "2.5%" — basis points are a unit nobody should have to meet. */
 export function feeLabel(feeBips: number | null): string {
   if (feeBips === null) return 'Not set in this contract';

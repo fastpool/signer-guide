@@ -6,9 +6,7 @@ import { useEffect, useState } from 'react';
  *   #/                     the list
  *   #/contract/<profileId> one signer contract
  */
-export type Route =
-  | { name: 'list' }
-  | { name: 'contract'; profileId: string };
+export type Route = { name: 'list' } | { name: 'contract'; profileId: string };
 
 export function parseHash(hash: string): Route {
   const match = /^#\/contract\/([a-z0-9-]+)$/.exec(hash);

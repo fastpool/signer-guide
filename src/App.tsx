@@ -12,7 +12,8 @@ const signerData = data as SignerData;
 /** A fee we would call low. Not a promise — see the note under the filters. */
 const LOW_FEE_BIPS = 500; // 5%
 
-type FilterId = 'bitcoin' | 'lowFee' | 'cappedFee' | 'open';
+export type FilterId =
+  'bitcoin' | 'lowFee' | 'cappedFee' | 'feeNotice' | 'open';
 
 /** A ceiling we would call reassuring. Juice Pool enforces exactly this. */
 const CAPPED_FEE_BIPS = 2000; // 20%
@@ -34,13 +35,18 @@ const FILTERS: { id: FilterId; label: string; help: string }[] = [
     help: 'The contract itself refuses to let the fee go above 20%, whatever the pool decides. Most contracts have no such limit.',
   },
   {
+    id: 'feeNotice',
+    label: 'Fee changes announced first',
+    help: 'A new fee cannot take effect the moment the pool decides on it — the contract makes it wait, so you have time to notice and move.',
+  },
+  {
     id: 'open',
     label: 'Anyone can join',
     help: 'No invitation or membership needed — you can stake with this pool yourself.',
   },
 ];
 
-function matches(
+export function matches(
   signer: SignerData['signers'][number],
   active: Set<FilterId>,
 ): boolean {
@@ -51,6 +57,9 @@ function matches(
     if (signer.maxFeeBips === null || signer.maxFeeBips > CAPPED_FEE_BIPS) {
       return false;
     }
+  }
+  if (active.has('feeNotice') && signer.feeChangeDelayBlocks === null) {
+    return false;
   }
   if (active.has('lowFee')) {
     // A pool with no fee in its own contract is not counted as low: the fee
@@ -64,10 +73,7 @@ export default function App() {
   const route = useRoute();
   const [active, setActive] = useState<Set<FilterId>>(new Set());
 
-  const templates = useMemo(
-    () => buildTemplates(signerData.signers),
-    [],
-  );
+  const templates = useMemo(() => buildTemplates(signerData.signers), []);
 
   const shown = useMemo(
     () => signerData.signers.filter((s) => matches(s, active)),
@@ -208,8 +214,10 @@ export default function App() {
           Most pools do not lock their fee in, so they can change it later. A
           few contracts do set a ceiling in code — those carry a{' '}
           <em>fee capped</em> badge, and that limit holds whatever the pool
-          decides. Some pools have no fee in this contract at all, which does
-          not always mean free, because the fee may be taken elsewhere.
+          decides. Fewer still make a fee change wait before it applies, which
+          gives you time to move — those carry a <em>fee changes announced</em>{' '}
+          badge. Some pools have no fee in this contract at all, which does not
+          always mean free, because the fee may be taken elsewhere.
         </p>
         <p>
           Every pool here is registered on Stacks and identified by what its

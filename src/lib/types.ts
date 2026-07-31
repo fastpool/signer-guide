@@ -25,12 +25,15 @@ export interface Signer {
   feeBips: number | null;
   /** Ceiling the contract enforces on its fee, in bips; null when it has none. */
   maxFeeBips: number | null;
+  /** Burn blocks a fee change must wait; null when a new fee is immediate. */
+  feeChangeDelayBlocks: number | null;
 
   /** Contract text the feature decisions came from. */
   evidence: {
     bitcoinRewards: string | null;
     openToAnyone: string | null;
     maxFee: string | null;
+    feeChangeDelay: string | null;
   };
 }
 
