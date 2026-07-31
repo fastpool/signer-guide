@@ -2,10 +2,12 @@ import { useMemo, useState } from 'react';
 import ContractPage from './components/ContractPage';
 import SignerCard from './components/SignerCard';
 import data from './data/signers.json';
+import { stxLabel, sumUstx } from './lib/amounts';
 import { PROFILES } from './lib/profiles';
 import { contractHref, useRoute } from './lib/route';
 import { buildTemplates, templateFor } from './lib/templates';
 import type { SignerData } from './lib/types';
+import { useLockedTotals } from './lib/useLockedTotals';
 
 const signerData = data as SignerData;
 
@@ -69,20 +71,35 @@ export function matches(
   return true;
 }
 
+const CONTRACT_IDS = signerData.signers.map((s) => s.contractId);
+
 export default function App() {
   const route = useRoute();
   const [active, setActive] = useState<Set<FilterId>>(new Set());
+  const { totals } = useLockedTotals(CONTRACT_IDS);
 
   const templates = useMemo(() => buildTemplates(signerData.signers), []);
 
-  const shown = useMemo(
-    () => signerData.signers.filter((s) => matches(s, active)),
-    [active],
-  );
+  const shown = useMemo(() => {
+    const matching = signerData.signers.filter((s) => matches(s, active));
+    if (!totals) return matching;
+    // Biggest first once the amounts are in: the list is easier to read when
+    // the pools people actually use are at the top. Until then it keeps the
+    // order it was generated in rather than jumping about.
+    return [...matching].sort((a, b) => {
+      const left = BigInt(totals.ustx[a.contractId] ?? 0);
+      const right = BigInt(totals.ustx[b.contractId] ?? 0);
+      return right > left ? 1 : right < left ? -1 : 0;
+    });
+  }, [active, totals]);
+
+  const staked = sumUstx(CONTRACT_IDS, totals?.ustx);
 
   if (route.name === 'contract') {
     const template = templateFor(templates, route.profileId);
-    if (template) return <ContractPage template={template} />;
+    if (template) {
+      return <ContractPage template={template} lockedUstx={totals?.ustx} />;
+    }
   }
 
   const toggle = (id: FilterId) =>
@@ -110,6 +127,13 @@ export default function App() {
           </strong>{' '}
           — so there is less to learn than it looks.
         </p>
+        {staked !== null && (
+          <p className='text-lg text-muted'>
+            Between them they are looking after{' '}
+            <strong className='text-ink'>{stxLabel(staked.toString())}</strong>{' '}
+            for cycle {totals?.cycle}.
+          </p>
+        )}
       </header>
 
       <section className='mt-10' aria-labelledby='contracts-heading'>
@@ -196,6 +220,7 @@ export default function App() {
           <SignerCard
             key={signer.contractId}
             signer={signer}
+            lockedUstx={totals?.ustx[signer.contractId]}
             summary={
               signer.profileId
                 ? (Object.values(PROFILES).find(
@@ -222,8 +247,8 @@ export default function App() {
         <p>
           Every pool here is registered on Stacks and identified by what its
           code adds up to, not by its name — so two pools running the same
-          signer contract are shown as such. Checked for cycle{' '}
-          {signerData.feeCycle}, last updated{' '}
+          signer contract are shown as such. Fees were read from each
+          contract&rsquo;s own storage on{' '}
           {new Date(signerData.generatedAt).toLocaleDateString('en-GB', {
             day: 'numeric',
             month: 'long',

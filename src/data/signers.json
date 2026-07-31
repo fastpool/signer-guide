@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-07-31T09:02:40.102Z",
-  "feeCycle": 140,
+  "generatedAt": "2026-07-31T10:22:18.240Z",
+  "cycle": 140,
   "signers": [
     {
       "contractId": "SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85.signer-manager-hiro",
@@ -130,7 +130,7 @@
       "profileId": "standard",
       "bitcoinRewards": true,
       "openToAnyone": true,
-      "feeBips": 0,
+      "feeBips": 1000,
       "maxFeeBips": null,
       "feeChangeDelayBlocks": null,
       "evidence": {

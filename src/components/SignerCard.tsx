@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { stxLabel } from '../lib/amounts';
 import { contractHref } from '../lib/route';
 import type { Signer } from '../lib/types';
 import Badge, { feeLabel, noticeLabel } from './Badge';
@@ -8,9 +9,12 @@ const EXPLORER = 'https://explorer.hiro.so';
 export default function SignerCard({
   signer,
   summary,
+  lockedUstx,
 }: {
   signer: Signer;
   summary: string | null;
+  /** uSTX staked with this pool right now; undefined until it is read. */
+  lockedUstx?: string | null;
 }) {
   const [showDetails, setShowDetails] = useState(false);
   const [, name] = signer.contractId.split('.');
@@ -39,6 +43,17 @@ export default function SignerCard({
       )}
 
       {summary && <p className='mt-2 text-muted'>{summary}</p>}
+
+      {lockedUstx !== undefined && (
+        <p className='mt-3 text-lg font-bold'>
+          {stxLabel(lockedUstx)}
+          {lockedUstx !== null && lockedUstx !== '0' && (
+            <span className='ml-1.5 text-sm font-semibold text-muted'>
+              staked here
+            </span>
+          )}
+        </p>
+      )}
 
       <div className='mt-4 flex flex-wrap gap-2'>
         {signer.openToAnyone ? (

@@ -26,9 +26,9 @@ const signer = (overrides: Partial<Signer> = {}): Signer => ({
   ...overrides,
 });
 
-const data = (signers: Signer[], feeCycle = 141): SignerData => ({
+const data = (signers: Signer[], cycle = 141): SignerData => ({
   generatedAt: '2026-07-31T00:00:00.000Z',
-  feeCycle,
+  cycle,
   signers,
 });
 

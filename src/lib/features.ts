@@ -28,12 +28,21 @@ export interface SourceFeatures {
   /** Anyone may stake with this signer; no allowlist or pool membership. */
   openToAnyone: FeatureEvidence;
   /**
-   * Name of the read-only that reports the current fee, when there is one.
-   * Contracts differ: the Standard one takes a cycle and a bond index,
-   * Juice Pool takes nothing. Assuming a single name reported a real fee as
-   * "not set in this contract", so the name is detected rather than guessed.
+   * Where the fee in force *right now* is kept, or null when this contract
+   * does not hold one.
+   *
+   * Not `get-fee-bips-for-cycle`, which is the trap here: in the Standard
+   * contract that reads a map written only when a cycle's rewards are
+   * crystallised, and it is `(default-to u0 ...)`. No pox-5 cycle has settled
+   * yet, so it answers "0%" for every pool no matter what the operator has
+   * set — which the guide then printed as "no fee right now". The live rate
+   * is the `fees-bips` data var; Juice Pool exposes its own through a
+   * no-argument read-only instead.
    */
-  feeFunction: 'get-fee-bips-for-cycle' | 'get-fee-bips' | null;
+  feeReading:
+    | { kind: 'read-only'; name: string }
+    | { kind: 'data-var'; name: string }
+    | null;
   /**
    * Ceiling the contract itself puts on its fee, in basis points, or null
    * when it has none worth the name. A limit of 100% is not a limit, so it is
@@ -171,6 +180,29 @@ function detectFeeChangeDelayBlocks(source: string): {
   return { blocks: null, evidence: null };
 }
 
+/**
+ * Where to read the fee a pool charges today.
+ *
+ * A no-argument read-only getter wins when there is one — Juice Pool has
+ * `get-fee-bips`, and a getter may compute rather than simply store. Failing
+ * that, the fee lives in a data var, which the node will hand over directly.
+ *
+ * Deliberately not `get-fee-bips-for-cycle`: see the note on `feeReading`.
+ * A pool with neither reads as "not set in this contract", which is honest —
+ * `native-pool-signer-manager` really does take its fee elsewhere.
+ */
+function detectFeeReading(source: string): SourceFeatures['feeReading'] {
+  const getter = /\(define-read-only \((get-fees?-bips)\s*\)/.exec(source);
+  if (getter) return { kind: 'read-only', name: getter[1] };
+
+  const variable = /\(define-data-var\s+([a-z0-9-]*fees?-bips)\s+uint/i.exec(
+    source,
+  );
+  if (variable) return { kind: 'data-var', name: variable[1] };
+
+  return null;
+}
+
 export function detectFeatures(source: string): SourceFeatures {
   const maxFee = detectMaxFeeBips(source);
   const feeDelay = detectFeeChangeDelayBlocks(source);
@@ -209,11 +241,7 @@ export function detectFeatures(source: string): SourceFeatures {
       // For a gated signer the evidence is the gate itself.
       evidence: gates.length > 0 ? gates[0] : null,
     },
-    feeFunction: /define-read-only \(get-fee-bips-for-cycle/.test(source)
-      ? 'get-fee-bips-for-cycle'
-      : /define-read-only \(get-fee-bips[\s)]/.test(source)
-        ? 'get-fee-bips'
-        : null,
+    feeReading: detectFeeReading(source),
     maxFeeBips: maxFee.bips,
     maxFeeEvidence: maxFee.evidence,
     feeChangeDelayBlocks: feeDelay.blocks,

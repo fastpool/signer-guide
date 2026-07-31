@@ -40,8 +40,8 @@ export function describeChanges(
   const after = new Map(current.signers.map((s) => [s.contractId, s]));
   const lines: string[] = [];
 
-  if (previous.feeCycle !== current.feeCycle) {
-    lines.push(`Now reading fees for cycle ${current.feeCycle}`);
+  if (previous.cycle !== current.cycle) {
+    lines.push(`Cycle ${current.cycle} is now the current one`);
   }
 
   for (const [id, signer] of after) {

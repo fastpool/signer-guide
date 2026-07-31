@@ -66,10 +66,21 @@ line of Clarity each decision was made from (visible under *Show the details*):
 Two separate things, deliberately not conflated.
 
 **The fee today** is a stored value the operator can change, so it is read live
-and always shown as *right now*. The contracts do not agree on how to expose
-it — the Standard one takes a cycle and a bond index, Juice Pool takes no
-arguments — so the getter is detected from the source rather than assumed.
-Assuming one name reported Juice Pool's real fee as "not set in this contract".
+and always shown as *right now*. Where it lives differs by contract, so the
+source says which to read rather than the reader assuming:
+
+- a no-argument getter when there is one (`get-fee-bips`, as Juice Pool has),
+- otherwise the `fees-bips` data var, read straight from the node,
+- otherwise nothing, and the pool reads as "not set in this contract" — which
+  for `native-pool-signer-manager` is the truth, since its fee is taken through
+  `.native-pool-v1`.
+
+Explicitly **not** `get-fee-bips-for-cycle`, which is the trap here. It looks
+like the obvious call and is a snapshot: the Standard contract writes that map
+when a cycle's rewards are crystallised, and reads it back with
+`(default-to u0 ...)`. No pox-5 cycle had settled, so it answered 0 for every
+pool and the guide printed "no fee right now" across the board — including for
+one pool charging 10%.
 
 **A ceiling** is a promise, and one contract makes it: Juice Pool asserts
 `(<= new-fee MAX_FEE_BIPS)` with `MAX_FEE_BIPS u2000`, so its fee can never
@@ -90,6 +101,31 @@ in hours.
 A pool with no fee code of its own is not counted as low-fee: the fee may simply
 be taken elsewhere, as with `native-pool-signer-manager`, which routes through
 `.native-pool-v1`.
+
+## What each pool is looking after
+
+The amount staked with each pool is the one number here that moves by the
+minute, so it is not baked into `signers.json` — it is read from pox-5
+(`get-amount-delegated-for-signer`) in the reader's own browser and kept in
+`localStorage` for an hour. Come back within the hour and it costs the node
+nothing.
+
+Two consequences worth knowing:
+
+- **No `@stacks/*` dependency.** The node wants its arguments hex-encoded, which
+  is a contract principal and a uint — a few dozen lines in `src/lib/clarity.ts`
+  against about half a megabyte of library, on a page people open on a phone.
+  Those encodings are pinned in `clarity.test.ts` against output from the real
+  library, and checked against all 22 registered signers.
+- **A first visit asks about every pool**, and the node allows roughly 50
+  requests a minute per IP. Reads go two at a time and retry a 429 rather than
+  giving up, because the alternative is telling someone we do not know what a
+  pool holds when we do. A pool that still cannot be read shows as *amount not
+  known* — never as zero, which would be a lie about somebody's money.
+
+Amounts are shown for the current reward cycle, falling back to the cycle being
+filled while the current one is empty — during the pox-5 changeover, cycle 140
+read as zero for every pool, which tells a reader nothing.
 
 ## Refreshing
 

@@ -39,7 +39,7 @@ export interface Signer {
 
 export interface SignerData {
   generatedAt: string;
-  /** Cycle the fees were read for. */
-  feeCycle: number;
+  /** Reward cycle current when this was generated. */
+  cycle: number;
   signers: Signer[];
 }

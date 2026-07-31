@@ -1,10 +1,22 @@
-import Badge, { feeLabel, noticeLabel } from './Badge';
+import { stxLabel, sumUstx } from '../lib/amounts';
 import type { Template } from '../lib/templates';
+import Badge, { feeLabel, noticeLabel } from './Badge';
 
 const EXPLORER = 'https://explorer.hiro.so';
 
-export default function ContractPage({ template }: { template: Template }) {
+export default function ContractPage({
+  template,
+  lockedUstx,
+}: {
+  template: Template;
+  /** uSTX per pool right now; undefined until the amounts are read. */
+  lockedUstx?: Record<string, string | null>;
+}) {
   const { profile, signers } = template;
+  const staked = sumUstx(
+    signers.map((s) => s.contractId),
+    lockedUstx,
+  );
 
   return (
     <main className='mx-auto max-w-3xl px-5 py-12 md:py-20'>
@@ -52,6 +64,16 @@ export default function ContractPage({ template }: { template: Template }) {
         <p className='mt-2 text-muted'>
           They run the same code, so they behave the same way. What differs is
           who operates them and what they charge.
+          {staked !== null && (
+            <>
+              {' '}
+              Between them they are looking after{' '}
+              <strong className='text-ink'>
+                {stxLabel(staked.toString())}
+              </strong>
+              .
+            </>
+          )}
         </p>
 
         <ul className='mt-4 space-y-3'>
@@ -68,7 +90,14 @@ export default function ContractPage({ template }: { template: Template }) {
               >
                 {signer.displayName}
               </a>
-              <Badge tone='neutral'>Fee: {feeLabel(signer.feeBips)}</Badge>
+              <span className='flex flex-wrap items-baseline gap-2'>
+                {lockedUstx && (
+                  <span className='text-sm font-semibold'>
+                    {stxLabel(lockedUstx[signer.contractId])}
+                  </span>
+                )}
+                <Badge tone='neutral'>Fee: {feeLabel(signer.feeBips)}</Badge>
+              </span>
             </li>
           ))}
         </ul>

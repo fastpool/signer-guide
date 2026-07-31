@@ -118,46 +118,49 @@ export function humanizeContractName(contractId: string): string {
     .join(' ');
 }
 
-/** Hex-encode a Clarity `(uint N)` argument for the read-only call. */
-function uintArg(value: number): string {
-  return `0x01${value.toString(16).padStart(32, '0')}`;
+/** A Clarity `(uint N)` off the wire: 0x01 then 16 bytes big-endian. */
+function parseUintHex(result: string | undefined): number | null {
+  if (!result) return null;
+  const hex = result.replace(/^0x/, '');
+  if (!/^01[0-9a-f]{32}$/i.test(hex)) return null;
+  return Number(BigInt(`0x${hex.slice(2)}`));
 }
 
 /**
- * The fee the signer charges for `cycle`, in basis points (100 = 1%).
- * Returns null when the contract has no fee call at all.
+ * The fee the signer charges right now, in basis points (100 = 1%).
+ * Returns null when the fee is not kept in this contract at all.
+ *
+ * Note this is the *current* rate, not a per-cycle one. The Standard
+ * contract's `get-fee-bips-for-cycle` looks like the right call and is not:
+ * it reads a snapshot map written when a cycle's rewards are crystallised,
+ * defaulting to u0, so before any pox-5 cycle has settled it reports every
+ * pool as free however much they intend to charge.
  */
 async function fetchFeeBips(
   contractId: string,
-  cycle: number,
-  feeFunction: 'get-fee-bips-for-cycle' | 'get-fee-bips',
+  reading: NonNullable<ReturnType<typeof detectFeatures>['feeReading']>,
 ): Promise<number | null> {
   const [address, name] = contractId.split('.');
   try {
+    if (reading.kind === 'data-var') {
+      const body = await getJson<{ data?: string }>(
+        `${API_URL}/v2/data_var/${address}/${name}/${reading.name}?proof=0`,
+      );
+      return parseUintHex(body?.data);
+    }
+
     const response = await fetch(
-      `${API_URL}/v2/contracts/call-read/${address}/${name}/${feeFunction}`,
+      `${API_URL}/v2/contracts/call-read/${address}/${name}/${reading.name}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sender: address,
-          // (uint cycle) + (optional uint) for the per-cycle form; none for
-          // the plain getter, which takes no arguments at all.
-          arguments:
-            feeFunction === 'get-fee-bips-for-cycle'
-              ? [uintArg(cycle), '0x09']
-              : [],
-        }),
+        body: JSON.stringify({ sender: address, arguments: [] }),
         signal: AbortSignal.timeout(30_000),
       },
     );
     if (!response.ok) return null;
     const body = (await response.json()) as { okay?: boolean; result?: string };
-    if (!body.okay || !body.result) return null;
-    // (uint N) -> 0x01 followed by a 16-byte big-endian value
-    const hex = body.result.replace(/^0x/, '');
-    if (!hex.startsWith('01')) return null;
-    return Number(BigInt(`0x${hex.slice(2)}`));
+    return body.okay ? parseUintHex(body.result) : null;
   } catch {
     return null;
   }
@@ -166,9 +169,9 @@ async function fetchFeeBips(
 async function main() {
   console.log(`Reading registered signers from ${API_URL} ...`);
   const registered = await fetchRegisteredSigners();
-  const feeCycle = await fetchCurrentCycle();
+  const cycle = await fetchCurrentCycle();
   console.log(
-    `  ${registered.size} registered, reading fees for cycle ${feeCycle}`,
+    `  ${registered.size} registered, cycle ${cycle} is current`,
   );
 
   const signers: Signer[] = [];
@@ -192,8 +195,8 @@ async function main() {
     );
     const profile = profileFor(groupSha256);
     const features = detectFeatures(source);
-    const feeBips = features.feeFunction
-      ? await fetchFeeBips(contractId, feeCycle, features.feeFunction)
+    const feeBips = features.feeReading
+      ? await fetchFeeBips(contractId, features.feeReading)
       : null;
 
     if (!profile) unmatched.push(`${contractId}  ${groupSha256}`);
@@ -229,7 +232,7 @@ async function main() {
 
   const data: SignerData = {
     generatedAt: new Date().toISOString(),
-    feeCycle,
+    cycle,
     signers,
   };
 

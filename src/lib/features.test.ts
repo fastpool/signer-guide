@@ -198,6 +198,46 @@ ${constants}
   });
 });
 
+describe('feeReading', () => {
+  /*
+   * The trap this exists to avoid: `get-fee-bips-for-cycle` reads a snapshot
+   * map written when a cycle's rewards are crystallised, and defaults to u0.
+   * Before any pox-5 cycle had settled it answered "0%" for every pool, so
+   * the guide told readers that pools charging a fee were free.
+   */
+  it('reads the live data var, not the per-cycle snapshot', () => {
+    const src = `
+(define-data-var fees-bips uint u0)
+(define-map fee-bips-for-cycle { reward-cycle: uint } uint)
+(define-read-only (get-fee-bips-for-cycle (reward-cycle uint) (bond-index (optional uint)))
+  (default-to u0 (map-get? fee-bips-for-cycle { reward-cycle: reward-cycle })))
+`;
+    expect(detectFeatures(src).feeReading).toEqual({
+      kind: 'data-var',
+      name: 'fees-bips',
+    });
+  });
+
+  it('prefers a no-argument getter, which may compute rather than store', () => {
+    // Juice Pool's shape.
+    const src = `
+(define-data-var fee-bips uint u0)
+(define-read-only (get-fee-bips) (var-get fee-bips))
+`;
+    expect(detectFeatures(src).feeReading).toEqual({
+      kind: 'read-only',
+      name: 'get-fee-bips',
+    });
+  });
+
+  it('reports nothing when the fee is not kept in this contract', () => {
+    // native-pool-signer-manager takes its fee through .native-pool-v1.
+    expect(
+      detectFeatures('(define-public (validate-stake!) (ok true))').feeReading,
+    ).toBeNull();
+  });
+});
+
 describe('feeChangeDelayBlocks', () => {
   it('finds the wait Juice Pool puts on a fee change', () => {
     const src = `
