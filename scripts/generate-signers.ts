@@ -18,7 +18,11 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { canonicalizeClaritySource, claritySourceSha256 } from '../src/lib/canonical.js';
+import {
+  canonicalizeClaritySource,
+  claritySourceSha256,
+  strictCanonicalizeClaritySource,
+} from '../src/lib/canonical.js';
 import { detectFeatures } from '../src/lib/features.js';
 import { profileFor } from '../src/lib/profiles.js';
 import type { Signer, SignerData } from '../src/lib/types.js';
@@ -124,18 +128,23 @@ function uintArg(value: number): string {
 async function fetchFeeBips(
   contractId: string,
   cycle: number,
+  feeFunction: 'get-fee-bips-for-cycle' | 'get-fee-bips',
 ): Promise<number | null> {
   const [address, name] = contractId.split('.');
   try {
     const response = await fetch(
-      `${API_URL}/v2/contracts/call-read/${address}/${name}/get-fee-bips-for-cycle`,
+      `${API_URL}/v2/contracts/call-read/${address}/${name}/${feeFunction}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           sender: address,
-          // (uint cycle) and (optional uint) = none
-          arguments: [uintArg(cycle), '0x09'],
+          // (uint cycle) + (optional uint) for the per-cycle form; none for
+          // the plain getter, which takes no arguments at all.
+          arguments:
+            feeFunction === 'get-fee-bips-for-cycle'
+              ? [uintArg(cycle), '0x09']
+              : [],
         }),
         signal: AbortSignal.timeout(30_000),
       },
@@ -172,13 +181,18 @@ async function main() {
     const canonicalSha256 = await claritySourceSha256(
       canonicalizeClaritySource(source),
     );
-    const profile = profileFor(canonicalSha256);
+    // Profiles are keyed by the group hash, so a contract that was only
+    // reformatted still lands in the entry it belongs to.
+    const groupSha256 = await claritySourceSha256(
+      strictCanonicalizeClaritySource(source),
+    );
+    const profile = profileFor(groupSha256);
     const features = detectFeatures(source);
-    const feeBips = features.hasFeeFunction
-      ? await fetchFeeBips(contractId, feeCycle)
+    const feeBips = features.feeFunction
+      ? await fetchFeeBips(contractId, feeCycle, features.feeFunction)
       : null;
 
-    if (!profile) unmatched.push(`${contractId}  ${canonicalSha256}`);
+    if (!profile) unmatched.push(`${contractId}  ${groupSha256}`);
 
     signers.push({
       contractId,
@@ -188,14 +202,17 @@ async function main() {
       signerKey,
       sourceSha256,
       canonicalSha256,
+      groupSha256,
       match: profile ? 'canonical' : 'unknown',
       profileId: profile?.id ?? null,
       bitcoinRewards: features.bitcoinRewards.value,
       openToAnyone: features.openToAnyone.value,
       feeBips,
+      maxFeeBips: features.maxFeeBips,
       evidence: {
         bitcoinRewards: features.bitcoinRewards.evidence,
         openToAnyone: features.openToAnyone.evidence,
+        maxFee: features.maxFeeEvidence,
       },
     });
 

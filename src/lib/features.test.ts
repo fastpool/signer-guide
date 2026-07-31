@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { canonicalizeClaritySource, matchSource } from './canonical';
+import {
+  canonicalizeClaritySource,
+  matchSource,
+  strictCanonicalizeClaritySource,
+} from './canonical';
 import { detectFeatures } from './features';
 
 /*
@@ -112,17 +116,78 @@ describe('canonicalizeClaritySource', () => {
 });
 
 describe('matchSource', () => {
-  const reviewed = { sourceSha256: 'aaa', canonicalSha256: 'bbb' };
+  const h = (source: string, canonical: string, group = 'ggg') => ({
+    sourceSha256: source,
+    canonicalSha256: canonical,
+    groupSha256: group,
+  });
+  const reviewed = h('aaa', 'bbb');
 
   it('reports an exact match on identical bytes', () => {
-    expect(matchSource({ sourceSha256: 'aaa', canonicalSha256: 'bbb' }, reviewed)).toBe('exact');
+    expect(matchSource(h('aaa', 'bbb'), reviewed)).toBe('exact');
   });
 
   it('reports a canonical match when only comments differ', () => {
-    expect(matchSource({ sourceSha256: 'zzz', canonicalSha256: 'bbb' }, reviewed)).toBe('canonical');
+    expect(matchSource(h('zzz', 'bbb'), reviewed)).toBe('canonical');
   });
 
   it('reports unknown otherwise', () => {
-    expect(matchSource({ sourceSha256: 'zzz', canonicalSha256: 'yyy' }, reviewed)).toBe('unknown');
+    expect(matchSource(h('zzz', 'yyy'), reviewed)).toBe('unknown');
+  });
+});
+
+describe('strictCanonicalizeClaritySource', () => {
+  /*
+   * Fast Pool's signer is the Standard contract with three spaces moved. The
+   * sidekick-compatible hash sees two contracts; the group key sees one.
+   */
+  it('ignores whitespace beside a paren, which the canonical form keeps', () => {
+    const a = '(f (ok true)\n)';
+    const b = '(f (ok true))';
+    expect(canonicalizeClaritySource(a)).not.toBe(canonicalizeClaritySource(b));
+    expect(strictCanonicalizeClaritySource(a)).toBe(
+      strictCanonicalizeClaritySource(b),
+    );
+  });
+
+  it('keeps whitespace between tokens, so (a b) never collides with (ab)', () => {
+    expect(strictCanonicalizeClaritySource('(a b)')).not.toBe(
+      strictCanonicalizeClaritySource('(ab)'),
+    );
+  });
+});
+
+describe('maxFeeBips', () => {
+  const feeContract = (constants: string, assertion: string) => `
+${constants}
+(define-public (propose-fee-bips (new-fee uint))
+  (begin
+    ${assertion}
+    (ok new-fee)))
+`;
+
+  it('finds a real ceiling and resolves the constant', () => {
+    // Juice Pool: MAX_FEE_BIPS u2000 asserted in propose-fee-bips
+    const src = feeContract(
+      '(define-constant MAX_FEE_BIPS u2000)',
+      '(asserts! (<= new-fee MAX_FEE_BIPS) ERR_INVALID_FEE)',
+    );
+    const features = detectFeatures(src);
+    expect(features.maxFeeBips).toBe(2000);
+    expect(features.maxFeeEvidence).toContain('MAX_FEE_BIPS');
+  });
+
+  it('treats a 100% limit as no ceiling at all', () => {
+    // The Standard contract only stops a fee of 100% or more, which promises
+    // a staker nothing — reporting it as a cap would be misleading.
+    const src = feeContract(
+      '(define-constant MAX_BIPS u10000)',
+      '(asserts! (< new-fees MAX_BIPS) ERR_INVALID_FEES_BIPS)',
+    );
+    expect(detectFeatures(src).maxFeeBips).toBeNull();
+  });
+
+  it('reports no ceiling when the contract has no fee function', () => {
+    expect(detectFeatures('(define-public (validate-stake!) (ok true))').maxFeeBips).toBeNull();
   });
 });

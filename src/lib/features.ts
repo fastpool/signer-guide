@@ -1,11 +1,16 @@
 /**
  * What a signer contract lets you do, read from its own source.
  *
- * Only two things are decided here, because only two are actually written
- * into the contract. Fees are NOT: every implementation reviewed so far lets
- * the operator change the fee at any time, and the only on-chain limit is
- * `MAX_BIPS = u10000`, i.e. 100%. So the fee is read live per signer instead
- * (see `fetchFeeBips`) and always presented as "right now", never as a cap.
+ * Three things are decided here, all of them written into the contract:
+ * whether rewards can go to Bitcoin, whether anyone may join, and whether the
+ * fee has a real ceiling.
+ *
+ * The fee a pool charges *today* is not decided here — it is a stored value
+ * the operator can change, so it is read live per signer (see `fetchFeeBips`)
+ * and always shown as "right now". A ceiling is different: Juice Pool caps
+ * its fee at 20% in code, so that one is a genuine promise and is detected
+ * from the source. Most contracts only stop a fee of 100% or more, which is
+ * no promise at all and is reported as no ceiling.
  *
  * Each detector returns the snippet it matched on, so a claim on the page can
  * always be traced back to a line of Clarity.
@@ -22,8 +27,21 @@ export interface SourceFeatures {
   bitcoinRewards: FeatureEvidence;
   /** Anyone may stake with this signer; no allowlist or pool membership. */
   openToAnyone: FeatureEvidence;
-  /** The contract exposes a per-cycle fee that can be read. */
-  hasFeeFunction: boolean;
+  /**
+   * Name of the read-only that reports the current fee, when there is one.
+   * Contracts differ: the Standard one takes a cycle and a bond index,
+   * Juice Pool takes nothing. Assuming a single name reported a real fee as
+   * "not set in this contract", so the name is detected rather than guessed.
+   */
+  feeFunction: 'get-fee-bips-for-cycle' | 'get-fee-bips' | null;
+  /**
+   * Ceiling the contract itself puts on its fee, in basis points, or null
+   * when it has none worth the name. A limit of 100% is not a limit, so it is
+   * reported as null.
+   */
+  maxFeeBips: number | null;
+  /** The assertion that enforces the ceiling. */
+  maxFeeEvidence: string | null;
 }
 
 /** Pull one top-level `define-public` form out by balancing parentheses. */
@@ -48,7 +66,51 @@ export function extractPublicFunction(
 
 const stripComments = (source: string) => source.replace(/;;[^\n]*/g, '');
 
+const BIPS_100_PERCENT = 10_000;
+
+/**
+ * The ceiling the contract puts on its own fee, if any.
+ *
+ * Looks in every public function whose name mentions a fee for an assertion
+ * comparing the proposed fee against a named constant, then resolves that
+ * constant. Juice Pool does this with `MAX_FEE_BIPS u2000`, so its fee can
+ * never exceed 20% however the operator behaves.
+ *
+ * A ceiling of 100% is reported as none: `MAX_BIPS u10000` in the Standard
+ * contract stops a fee of 100% or more and nothing else, which is no promise
+ * to a staker.
+ */
+function detectMaxFeeBips(source: string): {
+  bips: number | null;
+  evidence: string | null;
+} {
+  const constants = new Map<string, number>();
+  for (const m of source.matchAll(/\(define-constant\s+([A-Z0-9_]+)\s+u(\d+)\)/g)) {
+    constants.set(m[1], Number(m[2]));
+  }
+
+  let best: { bips: number; evidence: string } | null = null;
+
+  for (const fn of source.matchAll(/\(define-public \(([a-z0-9!-]*fee[a-z0-9!-]*)/gi)) {
+    const body = extractPublicFunction(source, fn[1]);
+    if (!body) continue;
+
+    for (const assertion of stripComments(body).matchAll(
+      /\(asserts!\s+\((<=?)\s+([a-z0-9-]+)\s+([A-Z0-9_]+)\)[^\n]*/g,
+    )) {
+      const limit = constants.get(assertion[3]);
+      if (limit === undefined || limit >= BIPS_100_PERCENT) continue;
+      if (!best || limit < best.bips) {
+        best = { bips: limit, evidence: assertion[0].trim() };
+      }
+    }
+  }
+
+  return { bips: best?.bips ?? null, evidence: best?.evidence ?? null };
+}
+
 export function detectFeatures(source: string): SourceFeatures {
+  const maxFee = detectMaxFeeBips(source);
   const validateStake = stripComments(
     extractPublicFunction(source, 'validate-stake!') ?? '',
   );
@@ -84,6 +146,12 @@ export function detectFeatures(source: string): SourceFeatures {
       // For a gated signer the evidence is the gate itself.
       evidence: gates.length > 0 ? gates[0] : null,
     },
-    hasFeeFunction: /define-read-only \(get-fee-bips-for-cycle/.test(source),
+    feeFunction: /define-read-only \(get-fee-bips-for-cycle/.test(source)
+      ? 'get-fee-bips-for-cycle'
+      : /define-read-only \(get-fee-bips[\s)]/.test(source)
+        ? 'get-fee-bips'
+        : null,
+    maxFeeBips: maxFee.bips,
+    maxFeeEvidence: maxFee.evidence,
   };
 }

@@ -92,9 +92,37 @@ export async function claritySourceSha256(value: string): Promise<string> {
     .join('');
 }
 
+/**
+ * A stricter form used only for grouping contracts in this guide.
+ *
+ * `canonicalizeClaritySource` is kept byte-compatible with signer-sidekick,
+ * which means it is lexical: a newline before a closing paren survives as a
+ * space. Two deployments of the same contract can therefore differ purely in
+ * formatting — Fast Pool's signer and the Standard one differ by exactly three
+ * such spaces, and nothing else.
+ *
+ * Grouping on the sidekick hash would show those as different contracts, which
+ * is misleading. So grouping uses this instead: whitespace touching a paren is
+ * dropped, because a paren is already a delimiter and space beside it can
+ * never be what separates two tokens.
+ *
+ * Whitespace *between* tokens is deliberately kept. Removing all of it would
+ * let `(a b)` collide with `(ab)` — a different contract sharing a group, on a
+ * page about people's money.
+ */
+export function strictCanonicalizeClaritySource(source: string): string {
+  return canonicalizeClaritySource(source)
+    .replace(/\s+(?=[()])/g, '')
+    .replace(/(?<=[()])\s+/g, '');
+}
+
 export interface SourceHashes {
+  /** Raw deployed bytes. */
   sourceSha256: string;
+  /** Sidekick-compatible canonical form — comments and formatting collapsed. */
   canonicalSha256: string;
+  /** Grouping key: canonical, plus whitespace beside parens removed. */
+  groupSha256: string;
 }
 
 export async function hashClaritySource(
@@ -104,6 +132,9 @@ export async function hashClaritySource(
     sourceSha256: await claritySourceSha256(source),
     canonicalSha256: await claritySourceSha256(
       canonicalizeClaritySource(source),
+    ),
+    groupSha256: await claritySourceSha256(
+      strictCanonicalizeClaritySource(source),
     ),
   };
 }

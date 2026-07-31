@@ -5,7 +5,7 @@ import type { Signer } from './types';
  * A signer contract together with every pool running it.
  *
  * Features are read off the first pool rather than each: pools in a group
- * share a canonical hash, which means the same code, which means the same
+ * share a group hash, which means the same code, which means the same
  * answers. Grouping is the point — it turns "21 pools" into the handful of
  * contracts a reader actually has to understand.
  */
@@ -14,8 +14,9 @@ export interface Template {
   signers: Signer[];
   bitcoinRewards: boolean;
   openToAnyone: boolean;
+  maxFeeBips: number | null;
   evidence: Signer['evidence'];
-  canonicalSha256: string;
+  groupSha256: string;
 }
 
 export function buildTemplates(signers: Signer[]): Template[] {
@@ -38,8 +39,9 @@ export function buildTemplates(signers: Signer[]): Template[] {
       signers: group,
       bitcoinRewards: first.bitcoinRewards,
       openToAnyone: first.openToAnyone,
+      maxFeeBips: first.maxFeeBips,
       evidence: first.evidence,
-      canonicalSha256: first.canonicalSha256,
+      groupSha256: first.groupSha256,
     });
   }
 

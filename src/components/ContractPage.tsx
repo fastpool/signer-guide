@@ -32,6 +32,9 @@ export default function ContractPage({ template }: { template: Template }) {
         ) : (
           <Badge tone='neutral'>Rewards in sBTC</Badge>
         )}
+        {template.maxFeeBips !== null && (
+          <Badge tone='good'>Fee capped at {template.maxFeeBips / 100}%</Badge>
+        )}
       </div>
 
       <section className='mt-10'>
@@ -71,7 +74,7 @@ export default function ContractPage({ template }: { template: Template }) {
           <div>
             <dt className='font-semibold'>Code fingerprint</dt>
             <dd className='mt-0.5 break-all font-mono text-xs text-muted'>
-              {template.canonicalSha256}
+              {template.groupSha256}
             </dd>
             <dd className='mt-1 text-muted'>
               Every pool above hashes to this, which is how we know they run the
@@ -91,6 +94,22 @@ export default function ContractPage({ template }: { template: Template }) {
                 </>
               ) : (
                 'Nothing in the contract tests who you are, so nobody is turned away.'
+              )}
+            </dd>
+          </div>
+
+          <div>
+            <dt className='font-semibold'>Fee ceiling</dt>
+            <dd className='mt-0.5 text-muted'>
+              {template.evidence.maxFee ? (
+                <>
+                  The contract refuses a higher fee:{' '}
+                  <code className='break-all font-mono text-xs'>
+                    {template.evidence.maxFee}
+                  </code>
+                </>
+              ) : (
+                'Nothing in the contract limits the fee to anything meaningful, so the pool can set it as it likes.'
               )}
             </dd>
           </div>

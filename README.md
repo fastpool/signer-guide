@@ -29,16 +29,24 @@ there. Two hashes are kept:
 | `sourceSha256` | the raw bytes as deployed, reproducible with `curl … \| jq -r .source \| sha256sum` |
 | `canonicalSha256` | the same code ignoring comments and formatting |
 
-That distinction earns its keep: of 21 registered pools there are only six
-distinct signer contracts, and two implementations differ solely in their
-comments. Reviewed contracts live in `src/lib/profiles.ts`, keyed by canonical
-hash, and each gets its own page at `#/contract/<id>`. A pool whose hash is not
-listed is shown as *not reviewed yet* rather than being given badges it has not
-earned.
+A third hash does the grouping. The canonical form is lexical, not semantic: a
+newline before a closing paren survives as a space, so the same contract
+reformatted still hashes differently — Fast Pool's signer is the Standard
+contract with three spaces moved, and nothing else. Rather than "tidy" the
+canonical form and lose sidekick compatibility, grouping uses `groupSha256`,
+which additionally drops whitespace *beside a paren*. Whitespace between tokens
+is kept, or `(a b)` would collide with `(ab)`.
 
-The canonicalisation is lexical, not semantic — a newline before a closing
-paren survives as a space, so functionally identical contracts can still hash
-differently. That is deliberate, to stay byte-compatible with sidekick.
+| hash | used for |
+| --- | --- |
+| `sourceSha256` | exact identity of the deployed bytes |
+| `canonicalSha256` | sidekick-compatible recognition |
+| `groupSha256` | grouping pools that run the same contract |
+
+That leaves 21 pools running five signer contracts. Reviewed contracts live in
+`src/lib/profiles.ts`, keyed by group hash, and each gets its own page at
+`#/contract/<id>`. A pool whose hash is not listed is shown as *not reviewed
+yet* rather than being given badges it has not earned.
 
 ## Where the badges come from
 
@@ -53,16 +61,25 @@ line of Clarity each decision was made from (visible under *Show the details*):
 - **Rewards in Bitcoin** — `validate-stake!` decodes a `pox-addr` from the
   signer calldata and records it, which is what lets rewards go to L1.
 
-## Why fees are not a badge
+## Fees: what is a promise and what is not
 
-**No implementation caps its fee.** The only on-chain limit is
-`MAX_BIPS = u10000`, i.e. 100%, and the operator can change the fee at any time
-with `update-fees`. So the fee is read live per pool and always shown as
-*right now*, never as a guarantee.
+Two separate things, deliberately not conflated.
 
-A pool with no fee code of its own is not counted as low-fee either: the fee may
-simply be taken elsewhere, as with `native-pool-signer-manager`, which routes
-through `.native-pool-v1`.
+**The fee today** is a stored value the operator can change, so it is read live
+and always shown as *right now*. The contracts do not agree on how to expose
+it — the Standard one takes a cycle and a bond index, Juice Pool takes no
+arguments — so the getter is detected from the source rather than assumed.
+Assuming one name reported Juice Pool's real fee as "not set in this contract".
+
+**A ceiling** is a promise, and one contract makes it: Juice Pool asserts
+`(<= new-fee MAX_FEE_BIPS)` with `MAX_FEE_BIPS u2000`, so its fee can never
+exceed 20% whatever the operator does. Those pools get a *fee capped* badge.
+The Standard contract's `MAX_BIPS u10000` only stops a fee of 100% or more,
+which promises a staker nothing, so it is reported as no ceiling at all.
+
+A pool with no fee code of its own is not counted as low-fee: the fee may simply
+be taken elsewhere, as with `native-pool-signer-manager`, which routes through
+`.native-pool-v1`.
 
 ## Refreshing
 

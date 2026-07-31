@@ -12,6 +12,8 @@ export interface Signer {
 
   sourceSha256: string;
   canonicalSha256: string;
+  /** Grouping key — canonical, ignoring whitespace beside parens. */
+  groupSha256: string;
   /** How it compares to a reviewed implementation. */
   match: SourceMatch;
   /** Reviewed implementation this shares code with, when known. */
@@ -21,11 +23,14 @@ export interface Signer {
   openToAnyone: boolean;
   /** Fee in basis points right now; null when the contract has no fee call. */
   feeBips: number | null;
+  /** Ceiling the contract enforces on its fee, in bips; null when it has none. */
+  maxFeeBips: number | null;
 
   /** Contract text the feature decisions came from. */
   evidence: {
     bitcoinRewards: string | null;
     openToAnyone: string | null;
+    maxFee: string | null;
   };
 }
 

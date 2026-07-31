@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-31T08:36:26.424Z",
+  "generatedAt": "2026-07-31T08:54:42.056Z",
   "feeCycle": 140,
   "signers": [
     {
@@ -10,14 +10,17 @@
       "signerKey": "0x02879477ec9ed8a56c0b26ba4b452246608d6e1b02ae1fa405a2c97ee8af5da202",
       "sourceSha256": "48d22cf832f2b61118327265b6b7f303c911a98bdb5af2a54a931a1cf432e316",
       "canonicalSha256": "004da6bde5f91b9cdf555a020494cab73d29cc75733ad0c05e4f4b32a94e251b",
+      "groupSha256": "09aa95c7bdeb5ba47970ef47eec3122bf1e1c38ac796799622bc9a4a48c0867e",
       "match": "canonical",
       "profileId": "standard",
       "bitcoinRewards": true,
       "openToAnyone": true,
       "feeBips": 0,
+      "maxFeeBips": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
-        "openToAnyone": null
+        "openToAnyone": null,
+        "maxFee": null
       }
     },
     {
@@ -28,14 +31,17 @@
       "signerKey": "0x02844807121921880119fe05ae47fccb4945a4bb2f840fe7de66e6f32640bc8169",
       "sourceSha256": "48d22cf832f2b61118327265b6b7f303c911a98bdb5af2a54a931a1cf432e316",
       "canonicalSha256": "004da6bde5f91b9cdf555a020494cab73d29cc75733ad0c05e4f4b32a94e251b",
+      "groupSha256": "09aa95c7bdeb5ba47970ef47eec3122bf1e1c38ac796799622bc9a4a48c0867e",
       "match": "canonical",
       "profileId": "standard",
       "bitcoinRewards": true,
       "openToAnyone": true,
       "feeBips": 0,
+      "maxFeeBips": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
-        "openToAnyone": null
+        "openToAnyone": null,
+        "maxFee": null
       }
     },
     {
@@ -46,14 +52,17 @@
       "signerKey": "0x0268e6f499fca2912488e89fc8b6734cafbe24a4ecbcd3312e4eb27ed8e5cfb4f3",
       "sourceSha256": "48d22cf832f2b61118327265b6b7f303c911a98bdb5af2a54a931a1cf432e316",
       "canonicalSha256": "004da6bde5f91b9cdf555a020494cab73d29cc75733ad0c05e4f4b32a94e251b",
+      "groupSha256": "09aa95c7bdeb5ba47970ef47eec3122bf1e1c38ac796799622bc9a4a48c0867e",
       "match": "canonical",
       "profileId": "standard",
       "bitcoinRewards": true,
       "openToAnyone": true,
       "feeBips": 0,
+      "maxFeeBips": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
-        "openToAnyone": null
+        "openToAnyone": null,
+        "maxFee": null
       }
     },
     {
@@ -64,14 +73,17 @@
       "signerKey": "0x038cb1e945144ca7669b0f33656b8379bcb3c17795b4d8665e42dea76eb3f86d2f",
       "sourceSha256": "48d22cf832f2b61118327265b6b7f303c911a98bdb5af2a54a931a1cf432e316",
       "canonicalSha256": "004da6bde5f91b9cdf555a020494cab73d29cc75733ad0c05e4f4b32a94e251b",
+      "groupSha256": "09aa95c7bdeb5ba47970ef47eec3122bf1e1c38ac796799622bc9a4a48c0867e",
       "match": "canonical",
       "profileId": "standard",
       "bitcoinRewards": true,
       "openToAnyone": true,
       "feeBips": 0,
+      "maxFeeBips": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
-        "openToAnyone": null
+        "openToAnyone": null,
+        "maxFee": null
       }
     },
     {
@@ -82,14 +94,17 @@
       "signerKey": "0x02879477ec9ed8a56c0b26ba4b452246608d6e1b02ae1fa405a2c97ee8af5da202",
       "sourceSha256": "48d22cf832f2b61118327265b6b7f303c911a98bdb5af2a54a931a1cf432e316",
       "canonicalSha256": "004da6bde5f91b9cdf555a020494cab73d29cc75733ad0c05e4f4b32a94e251b",
+      "groupSha256": "09aa95c7bdeb5ba47970ef47eec3122bf1e1c38ac796799622bc9a4a48c0867e",
       "match": "canonical",
       "profileId": "standard",
       "bitcoinRewards": true,
       "openToAnyone": true,
       "feeBips": 0,
+      "maxFeeBips": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
-        "openToAnyone": null
+        "openToAnyone": null,
+        "maxFee": null
       }
     },
     {
@@ -100,32 +115,38 @@
       "signerKey": "0x024f164c6e73df283d34d7d9cc86553a82dce76045ba7dfbf4de0004f89eabb8e0",
       "sourceSha256": "48d22cf832f2b61118327265b6b7f303c911a98bdb5af2a54a931a1cf432e316",
       "canonicalSha256": "004da6bde5f91b9cdf555a020494cab73d29cc75733ad0c05e4f4b32a94e251b",
+      "groupSha256": "09aa95c7bdeb5ba47970ef47eec3122bf1e1c38ac796799622bc9a4a48c0867e",
       "match": "canonical",
       "profileId": "standard",
       "bitcoinRewards": true,
       "openToAnyone": true,
       "feeBips": 0,
+      "maxFeeBips": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
-        "openToAnyone": null
+        "openToAnyone": null,
+        "maxFee": null
       }
     },
     {
       "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager",
       "displayName": "Fastpool 1",
-      "implementationName": "Fast Pool",
+      "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x023d6ecdc36fa1e1c6a9f116c7f13ae843001ed9d617f66f6c68cabf751bf82555",
       "sourceSha256": "f2473cfb53c3e5284149ec9f1d38f0ad66d70c8b1d04df1a7daa07e715b9bc3d",
       "canonicalSha256": "a8784bc243b75f1c5faf5b6fab08eee8f23bfa294af07f29022398ef636480d9",
+      "groupSha256": "09aa95c7bdeb5ba47970ef47eec3122bf1e1c38ac796799622bc9a4a48c0867e",
       "match": "canonical",
-      "profileId": "fast-pool",
+      "profileId": "standard",
       "bitcoinRewards": true,
       "openToAnyone": true,
       "feeBips": 0,
+      "maxFeeBips": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
-        "openToAnyone": null
+        "openToAnyone": null,
+        "maxFee": null
       }
     },
     {
@@ -136,14 +157,17 @@
       "signerKey": "0x0228a566db9a7b3212d612aa06e34fa981351a4372737849bfcaa1a28e8a044e5d",
       "sourceSha256": "05aaf409ed285f02d8b6d5d540f94feb8baea139a14263b7e7de7ba9f054d3c5",
       "canonicalSha256": "004da6bde5f91b9cdf555a020494cab73d29cc75733ad0c05e4f4b32a94e251b",
+      "groupSha256": "09aa95c7bdeb5ba47970ef47eec3122bf1e1c38ac796799622bc9a4a48c0867e",
       "match": "canonical",
       "profileId": "standard",
       "bitcoinRewards": true,
       "openToAnyone": true,
       "feeBips": 0,
+      "maxFeeBips": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
-        "openToAnyone": null
+        "openToAnyone": null,
+        "maxFee": null
       }
     },
     {
@@ -154,14 +178,17 @@
       "signerKey": "0x0294f4bc505c0afcc4d3b2372e517f73a59523da933c95958107223e1be91e4d13",
       "sourceSha256": "48d22cf832f2b61118327265b6b7f303c911a98bdb5af2a54a931a1cf432e316",
       "canonicalSha256": "004da6bde5f91b9cdf555a020494cab73d29cc75733ad0c05e4f4b32a94e251b",
+      "groupSha256": "09aa95c7bdeb5ba47970ef47eec3122bf1e1c38ac796799622bc9a4a48c0867e",
       "match": "canonical",
       "profileId": "standard",
       "bitcoinRewards": true,
       "openToAnyone": true,
       "feeBips": 0,
+      "maxFeeBips": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
-        "openToAnyone": null
+        "openToAnyone": null,
+        "maxFee": null
       }
     },
     {
@@ -172,14 +199,17 @@
       "signerKey": "0x025588e24e2bf387fe8cc7bccba1aac7fe599b96724892431e992a40d06e8fe220",
       "sourceSha256": "72b3d5ea72f0b8fd7b1dcaa154d5d88d81ee1fe04e955a6c11be4e8c03eb9fa5",
       "canonicalSha256": "06a2f8f322083070486e232724443e37f6136dd6f6922943ba4115ebc6a1a8bd",
+      "groupSha256": "8925fa8554e7d42ccce00f760b26d31d6c672a9a9c5b1d04755971b6c820e62f",
       "match": "canonical",
       "profileId": "native-pool",
       "bitcoinRewards": false,
       "openToAnyone": false,
       "feeBips": null,
+      "maxFeeBips": null,
       "evidence": {
         "bitcoinRewards": null,
-        "openToAnyone": "(contract-call? .native-pool-v1 is-delegating staker current-contract) ERR_STAKER_NOT_ALLOWED)"
+        "openToAnyone": "(contract-call? .native-pool-v1 is-delegating staker current-contract) ERR_STAKER_NOT_ALLOWED)",
+        "maxFee": null
       }
     },
     {
@@ -190,14 +220,17 @@
       "signerKey": "0x03f55a58fc47821147a5f2a7c35723fd4007037aeecfc6c10d7db4321f14b0beb9",
       "sourceSha256": "82b89cbfc6f5a7e3e7e21f078bea02b2313ba8d00246095b228b7d5eacaff9c6",
       "canonicalSha256": "5cb86a1cff402c4f1f22c0121c13a329c5770e9f1d682eb0bda1841b0c7f0d1f",
+      "groupSha256": "d5718c4d8771628da0a24e4345534b4c9ec630f7942cdfd47c5fe3075c69b6b4",
       "match": "canonical",
       "profileId": "invite-only",
       "bitcoinRewards": false,
       "openToAnyone": false,
       "feeBips": null,
+      "maxFeeBips": null,
       "evidence": {
         "bitcoinRewards": null,
-        "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)"
+        "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)",
+        "maxFee": null
       }
     },
     {
@@ -208,14 +241,17 @@
       "signerKey": "0x03c56effa8046803c0fde0ac489cf6fb0b9c8b3119c12059dac349d4f427ecae01",
       "sourceSha256": "82b89cbfc6f5a7e3e7e21f078bea02b2313ba8d00246095b228b7d5eacaff9c6",
       "canonicalSha256": "5cb86a1cff402c4f1f22c0121c13a329c5770e9f1d682eb0bda1841b0c7f0d1f",
+      "groupSha256": "d5718c4d8771628da0a24e4345534b4c9ec630f7942cdfd47c5fe3075c69b6b4",
       "match": "canonical",
       "profileId": "invite-only",
       "bitcoinRewards": false,
       "openToAnyone": false,
       "feeBips": null,
+      "maxFeeBips": null,
       "evidence": {
         "bitcoinRewards": null,
-        "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)"
+        "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)",
+        "maxFee": null
       }
     },
     {
@@ -226,14 +262,17 @@
       "signerKey": "0x026cd54c6d17e25b01a7e54be2d2569ff3cec7aaf22c519edcb161a3ca823c42f1",
       "sourceSha256": "82b89cbfc6f5a7e3e7e21f078bea02b2313ba8d00246095b228b7d5eacaff9c6",
       "canonicalSha256": "5cb86a1cff402c4f1f22c0121c13a329c5770e9f1d682eb0bda1841b0c7f0d1f",
+      "groupSha256": "d5718c4d8771628da0a24e4345534b4c9ec630f7942cdfd47c5fe3075c69b6b4",
       "match": "canonical",
       "profileId": "invite-only",
       "bitcoinRewards": false,
       "openToAnyone": false,
       "feeBips": null,
+      "maxFeeBips": null,
       "evidence": {
         "bitcoinRewards": null,
-        "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)"
+        "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)",
+        "maxFee": null
       }
     },
     {
@@ -244,14 +283,17 @@
       "signerKey": "0x02d086de601ab56f2278b08bddc1ef079d7d2eb1fe2a1042c1db14f29a68b1fcab",
       "sourceSha256": "82b89cbfc6f5a7e3e7e21f078bea02b2313ba8d00246095b228b7d5eacaff9c6",
       "canonicalSha256": "5cb86a1cff402c4f1f22c0121c13a329c5770e9f1d682eb0bda1841b0c7f0d1f",
+      "groupSha256": "d5718c4d8771628da0a24e4345534b4c9ec630f7942cdfd47c5fe3075c69b6b4",
       "match": "canonical",
       "profileId": "invite-only",
       "bitcoinRewards": false,
       "openToAnyone": false,
       "feeBips": null,
+      "maxFeeBips": null,
       "evidence": {
         "bitcoinRewards": null,
-        "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)"
+        "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)",
+        "maxFee": null
       }
     },
     {
@@ -262,14 +304,17 @@
       "signerKey": "0x0258c32ea6e887ff892898eefd68e3a544bf5faaedf2fb81003ecbea880809f9a3",
       "sourceSha256": "82b89cbfc6f5a7e3e7e21f078bea02b2313ba8d00246095b228b7d5eacaff9c6",
       "canonicalSha256": "5cb86a1cff402c4f1f22c0121c13a329c5770e9f1d682eb0bda1841b0c7f0d1f",
+      "groupSha256": "d5718c4d8771628da0a24e4345534b4c9ec630f7942cdfd47c5fe3075c69b6b4",
       "match": "canonical",
       "profileId": "invite-only",
       "bitcoinRewards": false,
       "openToAnyone": false,
       "feeBips": null,
+      "maxFeeBips": null,
       "evidence": {
         "bitcoinRewards": null,
-        "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)"
+        "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)",
+        "maxFee": null
       }
     },
     {
@@ -280,14 +325,17 @@
       "signerKey": "0x028bf8fbf4eb8e7281effa8557e60b725944b12d250870e7824344b328998bb05b",
       "sourceSha256": "82b89cbfc6f5a7e3e7e21f078bea02b2313ba8d00246095b228b7d5eacaff9c6",
       "canonicalSha256": "5cb86a1cff402c4f1f22c0121c13a329c5770e9f1d682eb0bda1841b0c7f0d1f",
+      "groupSha256": "d5718c4d8771628da0a24e4345534b4c9ec630f7942cdfd47c5fe3075c69b6b4",
       "match": "canonical",
       "profileId": "invite-only",
       "bitcoinRewards": false,
       "openToAnyone": false,
       "feeBips": null,
+      "maxFeeBips": null,
       "evidence": {
         "bitcoinRewards": null,
-        "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)"
+        "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)",
+        "maxFee": null
       }
     },
     {
@@ -298,14 +346,17 @@
       "signerKey": "0x02bcfeb0fd2bafa20d865999467d5b9a00d4ef5e37fbaca27d45ee0dbaf13e0596",
       "sourceSha256": "4585077af0601600166bde4843fd780c5916e4fa4d522951fc73841e90eff1f1",
       "canonicalSha256": "5cb86a1cff402c4f1f22c0121c13a329c5770e9f1d682eb0bda1841b0c7f0d1f",
+      "groupSha256": "d5718c4d8771628da0a24e4345534b4c9ec630f7942cdfd47c5fe3075c69b6b4",
       "match": "canonical",
       "profileId": "invite-only",
       "bitcoinRewards": false,
       "openToAnyone": false,
       "feeBips": null,
+      "maxFeeBips": null,
       "evidence": {
         "bitcoinRewards": null,
-        "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)"
+        "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)",
+        "maxFee": null
       }
     },
     {
@@ -316,14 +367,17 @@
       "signerKey": "0x021acd08580abb387c45d44cc742fffe0f61c17db534331495a246f315a0d9404f",
       "sourceSha256": "c0a2cc8e83de2b1bc60e07c5e0f5da8991c6f79eb05d077bba8cb984eee226b3",
       "canonicalSha256": "7fd58a7591ff0ae1643eb7e71ea2867385bcac237a3ea819f52301310c0d2e27",
+      "groupSha256": "1b7c3674ac0dbb5da092b5e2e07684c06c7079cfb0053bd7c8b7e36211bdd74c",
       "match": "canonical",
       "profileId": "xverse",
       "bitcoinRewards": true,
       "openToAnyone": true,
       "feeBips": 0,
+      "maxFeeBips": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
-        "openToAnyone": null
+        "openToAnyone": null,
+        "maxFee": null
       }
     },
     {
@@ -334,14 +388,17 @@
       "signerKey": "0x0285f4c617c4065e429d1666dcfd885c52e223acfc042aa2c2855adc93034e6975",
       "sourceSha256": "c0a2cc8e83de2b1bc60e07c5e0f5da8991c6f79eb05d077bba8cb984eee226b3",
       "canonicalSha256": "7fd58a7591ff0ae1643eb7e71ea2867385bcac237a3ea819f52301310c0d2e27",
+      "groupSha256": "1b7c3674ac0dbb5da092b5e2e07684c06c7079cfb0053bd7c8b7e36211bdd74c",
       "match": "canonical",
       "profileId": "xverse",
       "bitcoinRewards": true,
       "openToAnyone": true,
       "feeBips": 0,
+      "maxFeeBips": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
-        "openToAnyone": null
+        "openToAnyone": null,
+        "maxFee": null
       }
     },
     {
@@ -352,14 +409,17 @@
       "signerKey": "0x02f37e08d25d8a660caf66b9cb3a09b1ce055cbb5f57186d92af43268d722408da",
       "sourceSha256": "c0a2cc8e83de2b1bc60e07c5e0f5da8991c6f79eb05d077bba8cb984eee226b3",
       "canonicalSha256": "7fd58a7591ff0ae1643eb7e71ea2867385bcac237a3ea819f52301310c0d2e27",
+      "groupSha256": "1b7c3674ac0dbb5da092b5e2e07684c06c7079cfb0053bd7c8b7e36211bdd74c",
       "match": "canonical",
       "profileId": "xverse",
       "bitcoinRewards": true,
       "openToAnyone": true,
       "feeBips": 0,
+      "maxFeeBips": null,
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
-        "openToAnyone": null
+        "openToAnyone": null,
+        "maxFee": null
       }
     },
     {
@@ -370,14 +430,17 @@
       "signerKey": "0x038d545b66cc01a93fe405e14d6432432d81ec03e296d55cf3c07b143a4407aa4a",
       "sourceSha256": "c172f3bb339c9a1c04fb9cb976bf77f85622023f060949854f65f0771f1f2eb4",
       "canonicalSha256": "df6c31efb0bb9690cbd1a260e62ce8395f8f150942379835d7c1c4fe12aee7fe",
+      "groupSha256": "2aea99cfe42ccb9b9dd541d34c21cd852c5726f1c0933f4cc15c77202fcd30ac",
       "match": "canonical",
       "profileId": "juice-pool",
       "bitcoinRewards": false,
       "openToAnyone": true,
-      "feeBips": null,
+      "feeBips": 0,
+      "maxFeeBips": 2000,
       "evidence": {
         "bitcoinRewards": null,
-        "openToAnyone": null
+        "openToAnyone": null,
+        "maxFee": "(asserts! (<= new-fee MAX_FEE_BIPS) ERR_INVALID_FEE)"
       }
     }
   ]

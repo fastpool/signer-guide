@@ -52,6 +52,11 @@ export default function SignerCard({
           <Badge tone='neutral'>Rewards in sBTC</Badge>
         )}
         <Badge tone='neutral'>Fee: {feeLabel(signer.feeBips)}</Badge>
+        {signer.maxFeeBips !== null && (
+          <Badge tone='good'>
+            Fee capped at {signer.maxFeeBips / 100}%
+          </Badge>
+        )}
       </div>
 
       <button
