@@ -1,0 +1,29 @@
+{
+  "name": "signer-guide",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b tsconfig.json tsconfig.scripts.json && vite build",
+    "preview": "vite preview",
+    "generate:signers": "npx tsx scripts/generate-signers.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.0",
+    "tailwindcss": "^4.3.0",
+    "tsx": "^4.22.1",
+    "typescript": "5.9.3",
+    "vite": "^7.1.12",
+    "vitest": "^4.1.6",
+    "@types/node": "^25.8.0"
+  }
+}

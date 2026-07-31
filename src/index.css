@@ -1,0 +1,23 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-cream: #fdf8f3;
+  --color-ink: #2c2a35;
+  --color-muted: #6b6577;
+  --color-grape: #5b4b8a;
+  --color-grape-soft: #efeaf8;
+  --color-mint: #2f7d62;
+  --color-mint-soft: #e3f3ec;
+  --color-amber-warm: #8a5a2b;
+  --color-amber-soft: #fbeedd;
+}
+
+html {
+  background: var(--color-cream);
+}
+
+body {
+  color: var(--color-ink);
+  font-family: ui-rounded, 'SF Pro Rounded', system-ui, -apple-system, 'Segoe UI',
+    sans-serif;
+}
