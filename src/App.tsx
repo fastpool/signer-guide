@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ContractPage from './components/ContractPage';
 import SignerCard from './components/SignerCard';
 import data from './data/signers.json';
 import totalsData from './data/totals.json';
 import { stxLabel, sumUstx } from './lib/amounts';
 import { detectLocale, formatLastUpdate, languageName, type Locale } from './lib/i18n';
+import { applyLocaleMetadata } from './lib/metadata';
 import { localizeProfile } from './lib/profile-i18n';
 import { PROFILES } from './lib/profiles';
 import { contractHref, useRoute } from './lib/route';
@@ -142,6 +143,10 @@ export default function App() {
       return right > left ? 1 : right < left ? -1 : 0;
     });
   }, [active]);
+
+  useEffect(() => {
+    applyLocaleMetadata(locale);
+  }, [locale]);
 
   const staked = sumUstx(CONTRACT_IDS, totals.ustx);
 
