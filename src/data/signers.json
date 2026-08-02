@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-02T07:42:09.858Z",
+  "generatedAt": "2026-08-02T10:11:20.675Z",
   "cycle": 140,
   "signers": [
     {
@@ -119,7 +119,7 @@
     },
     {
       "contractId": "SP20XZGWBWSMRE94WDJ6YJ1EKPJ55RGRGK4JDJHNK.signer-manager-pox5",
-      "displayName": "Senseinode",
+      "displayName": "Pox5",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x024f164c6e73df283d34d7d9cc86553a82dce76045ba7dfbf4de0004f89eabb8e0",
@@ -165,7 +165,7 @@
     },
     {
       "contractId": "SP2369QN53586176SYRF4XFGF4E84V0J0EWKRG0ZH.signer-manager",
-      "displayName": "(anonymous)",
+      "displayName": "signer-manager",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x0228a566db9a7b3212d612aa06e34fa981351a4372737849bfcaa1a28e8a044e5d",
@@ -211,7 +211,7 @@
     },
     {
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager",
-      "displayName": "Native Pool (Stacking Dao)",
+      "displayName": "Native Pool",
       "implementationName": "Native Pool",
       "registered": true,
       "signerKey": "0x025588e24e2bf387fe8cc7bccba1aac7fe599b96724892431e992a40d06e8fe220",
@@ -221,14 +221,14 @@
       "match": "canonical",
       "profileId": "native-pool",
       "bitcoinRewards": false,
-      "openToAnyone": true,
+      "openToAnyone": false,
       "feeBips": null,
       "maxFeeBips": null,
       "feeChangeNotice": null,
       "feeExemption": null,
       "evidence": {
         "bitcoinRewards": null,
-        "openToAnyone": null,
+        "openToAnyone": "(contract-call? .native-pool-v1 is-delegating staker current-contract) ERR_STAKER_NOT_ALLOWED)",
         "maxFee": null
       }
     },
@@ -473,7 +473,7 @@
       "groupSha256": "d6c5e82af733250d80b38be57d02c5ff6677ec2712e31d00381899e3fecc6874",
       "match": "canonical",
       "profileId": "capped-fee",
-      "bitcoinRewards": true,
+      "bitcoinRewards": false,
       "openToAnyone": true,
       "feeBips": 0,
       "maxFeeBips": 500,
@@ -484,7 +484,7 @@
       },
       "feeExemption": null,
       "evidence": {
-        "bitcoinRewards": "(try! (check-payout-config config))",
+        "bitcoinRewards": null,
         "openToAnyone": null,
         "maxFee": "(asserts! (<= new-fees MAX_FEE_BIPS) ERR_INVALID_FEES_BIPS)"
       }
@@ -523,7 +523,7 @@
     },
     {
       "contractId": "SPWJG9ZQT7VG8F3YS9TK0YN3VK34M76NYDZMTCWT.signer-manager",
-      "displayName": "(anonymous)",
+      "displayName": "signer-manager",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x037e7c6b6d6b9840beb8dc23c2b25d0b8bc4047a001c8a19c0878a77bbd753780e",
