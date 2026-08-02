@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { stxLabel } from '../lib/amounts';
+import type { Locale } from '../lib/i18n';
 import { contractHref } from '../lib/route';
 import type { Signer } from '../lib/types';
 import Badge, { feeLabel, noticeLabel } from './Badge';
@@ -10,14 +11,17 @@ export default function SignerCard({
   signer,
   summary,
   lockedUstx,
+  locale,
 }: {
   signer: Signer;
   summary: string | null;
   /** uSTX staked with this pool right now; undefined until it is read. */
   lockedUstx?: string | null;
+  locale: Locale;
 }) {
   const [showDetails, setShowDetails] = useState(false);
   const [, name] = signer.contractId.split('.');
+  const ko = locale === 'ko';
 
   return (
     <li className='rounded-3xl bg-white p-6 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
@@ -28,17 +32,21 @@ export default function SignerCard({
 
       {signer.profileId && signer.implementationName ? (
         <p className='mt-1 text-sm font-semibold'>
-          Runs the{' '}
+          {ko ? '다음 서명자 컨트랙트를 사용합니다: ' : 'Runs the '}
           <a
             className='text-grape underline underline-offset-2'
             href={contractHref(signer.profileId)}
           >
-            {signer.implementationName} signer contract
+            {ko
+              ? `${signer.implementationName} 서명자 컨트랙트`
+              : `${signer.implementationName} signer contract`}
           </a>
         </p>
       ) : (
         <p className='mt-1 text-sm font-semibold text-amber-warm'>
-          We have not reviewed this pool&rsquo;s code yet
+          {ko
+            ? '이 풀의 코드는 아직 검토되지 않았습니다'
+            : 'We have not reviewed this pool\'s code yet'}
         </p>
       )}
 
@@ -49,7 +57,7 @@ export default function SignerCard({
           {stxLabel(lockedUstx)}
           {lockedUstx !== null && lockedUstx !== '0' && (
             <span className='ml-1.5 text-sm font-semibold text-muted'>
-              staked here
+              {ko ? '이 풀에 스테이킹됨' : 'staked here'}
             </span>
           )}
         </p>
@@ -57,26 +65,32 @@ export default function SignerCard({
 
       <div className='mt-4 flex flex-wrap gap-2'>
         {signer.openToAnyone ? (
-          <Badge tone='good'>Anyone can join</Badge>
+          <Badge tone='good'>{ko ? '누구나 참여 가능' : 'Anyone can join'}</Badge>
         ) : (
-          <Badge tone='warm'>Invite only</Badge>
+          <Badge tone='warm'>{ko ? '초대 전용' : 'Invite only'}</Badge>
         )}
         {signer.bitcoinRewards ? (
-          <Badge tone='good'>Rewards in Bitcoin</Badge>
+          <Badge tone='good'>{ko ? '보상은 비트코인으로' : 'Rewards in Bitcoin'}</Badge>
         ) : (
-          <Badge tone='neutral'>Rewards in sBTC</Badge>
+          <Badge tone='neutral'>{ko ? '보상은 sBTC로' : 'Rewards in sBTC'}</Badge>
         )}
-        <Badge tone='neutral'>Fee: {feeLabel(signer.feeBips)}</Badge>
+        <Badge tone='neutral'>{ko ? '수수료: ' : 'Fee: '}{feeLabel(signer.feeBips, locale)}</Badge>
         {signer.maxFeeBips !== null && (
-          <Badge tone='good'>Fee capped at {signer.maxFeeBips / 100}%</Badge>
+          <Badge tone='good'>
+            {ko
+              ? `수수료 상한 ${signer.maxFeeBips / 100}%`
+              : `Fee capped at ${signer.maxFeeBips / 100}%`}
+          </Badge>
         )}
         {signer.feeChangeNotice && (
           <Badge tone='good'>
-            Fee changes announced {noticeLabel(signer.feeChangeNotice)} ahead
+            {ko
+              ? `수수료 변경은 ${noticeLabel(signer.feeChangeNotice, locale)} 전에 공지`
+              : `Fee changes announced ${noticeLabel(signer.feeChangeNotice, locale)} ahead`}
           </Badge>
         )}
         {signer.feeExemption && (
-          <Badge tone='good'>Some stakers pay no fee</Badge>
+          <Badge tone='good'>{ko ? '일부 스테이커는 수수료 면제' : 'Some stakers pay no fee'}</Badge>
         )}
       </div>
 
@@ -85,13 +99,19 @@ export default function SignerCard({
         onClick={() => setShowDetails((open) => !open)}
         className='mt-4 text-sm font-semibold text-grape underline underline-offset-2'
       >
-        {showDetails ? 'Hide the details' : 'Show the details'}
+          {showDetails
+            ? ko
+              ? '자세한 내용 숨기기'
+              : 'Hide the details'
+            : ko
+              ? '자세한 내용 보기'
+              : 'Show the details'}
       </button>
 
       {showDetails && (
         <dl className='mt-4 space-y-3 border-t border-black/5 pt-4 text-sm'>
           <div>
-            <dt className='font-semibold'>Contract</dt>
+            <dt className='font-semibold'>{ko ? '컨트랙트' : 'Contract'}</dt>
             <dd className='mt-0.5 break-all font-mono text-xs text-muted'>
               <a
                 className='underline'
@@ -105,12 +125,16 @@ export default function SignerCard({
           </div>
 
           <div>
-            <dt className='font-semibold'>Code fingerprint</dt>
+            <dt className='font-semibold'>
+              {ko ? '코드 지문' : 'Code fingerprint'}
+            </dt>
             <dd className='mt-0.5 break-all font-mono text-xs text-muted'>
               {signer.canonicalSha256}
             </dd>
             <dd className='mt-1 text-muted'>
-              Pools sharing this fingerprint run the same code.
+              {ko
+                ? '이 지문이 같은 풀은 같은 코드를 실행합니다.'
+                : 'Pools sharing this fingerprint run the same code.'}
             </dd>
           </div>
         </dl>
