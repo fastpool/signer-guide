@@ -54,6 +54,13 @@ describe('the page as a reader sees it', () => {
     expect(html).not.toContain('nothing staked yet');
   });
 
+  it('still lists signer-manager-hiro when its amount is null', () => {
+    // A null total means "could not read" for this refresh, not "hide pool".
+    const html = renderToStaticMarkup(<App />);
+    expect(html).toContain('signer-manager-hiro');
+    expect(html).toContain('amount not known');
+  });
+
   it('shows no amount at all for a pool the last refresh predates', () => {
     // A pool that registered after the last read is absent from the file
     // rather than null. Claiming it is unknown would be a guess; the next
