@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { connect, getLocalStorage, request } from '@stacks/connect';
+import {
+  clearLocalStorage,
+  connect,
+  getLocalStorage,
+  isConnected,
+  request,
+} from '@stacks/connect';
 import { transactionToHex } from '@stacks/transactions';
 import type { Locale } from '../lib/i18n';
 import type { Signer } from '../lib/types';
@@ -131,7 +137,7 @@ export default function StakeModal({
     setWalletAddress(stxAddress);
     setWalletPublicKey(stxEntry?.publicKey ?? null);
     setWalletBtcAddress(btc);
-    if (!btcAddress && btc) setBtcAddress(btc);
+    setBtcAddress(btc || '');
 
     const { fetchStakerInfo } = await import('@stacks/bitcoin-staking');
     const stakerInfo = await fetchStakerInfo({
@@ -153,6 +159,7 @@ export default function StakeModal({
     setResult(null);
     setSessionChecking(false);
     try {
+      await clearLocalStorage();
       const connected = (await connect()) as {
         addresses?: WalletAddress[];
       };
