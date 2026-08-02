@@ -23,7 +23,8 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readLockedTotals } from './locked.js';
 import { describeNode } from './node.js';
-import type { SignerData } from '../src/lib/types.js';
+import { preserveKnownTotals } from './totals-merge.js';
+import type { LockedTotals, SignerData } from '../src/lib/types.js';
 
 const DATA = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -33,6 +34,17 @@ const DATA = path.join(
 );
 const SIGNERS = path.join(DATA, 'signers.json');
 const OUTPUT = path.join(DATA, 'totals.json');
+
+function readPreviousTotals(): LockedTotals | null {
+  if (!fs.existsSync(OUTPUT)) return null;
+  try {
+    const parsed = JSON.parse(fs.readFileSync(OUTPUT, 'utf8')) as LockedTotals;
+    if (!parsed || typeof parsed.cycle !== 'number' || !parsed.ustx) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
 
 async function main() {
   const signers = JSON.parse(fs.readFileSync(SIGNERS, 'utf8')) as SignerData;
@@ -49,12 +61,24 @@ async function main() {
         ' place: stale numbers beat a page of blanks.',
     );
     process.exit(1);
+    return;
   }
 
-  const unknown = Object.values(totals.ustx).filter((v) => v === null).length;
-  fs.writeFileSync(OUTPUT, `${JSON.stringify(totals, null, 2)}\n`);
+  const previous = readPreviousTotals();
+  const { totals: merged, carriedForward } = preserveKnownTotals(
+    totals,
+    previous,
+  );
 
-  console.log(`\nWrote cycle ${totals.cycle} amounts to ${OUTPUT}`);
+  const unknown = Object.values(merged.ustx).filter((v) => v === null).length;
+  fs.writeFileSync(OUTPUT, `${JSON.stringify(merged, null, 2)}\n`);
+
+  console.log(`\nWrote cycle ${merged.cycle} amounts to ${OUTPUT}`);
+  if (carriedForward) {
+    console.log(
+      `  ${carriedForward} pool(s) failed this run, kept previous amount`,
+    );
+  }
   if (unknown) {
     console.log(`  ${unknown} pool(s) would not read, recorded as not known`);
   }
