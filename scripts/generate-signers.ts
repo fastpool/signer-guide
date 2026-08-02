@@ -29,6 +29,9 @@ import { detectFeatures } from '../src/lib/features.js';
 import { profileFor } from '../src/lib/profiles.js';
 import type { Signer, SignerData } from '../src/lib/types.js';
 import { API_URL, describeNode, nodeHeaders, SPACING_MS } from './node.js';
+import oldSigners from '../src/data/signers.json';
+
+const oldSignersData = oldSigners as SignerData;
 
 const OUTPUT = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -173,10 +176,14 @@ async function main() {
   const cycle = await fetchCurrentCycle();
   console.log(`  ${registered.size} registered, cycle ${cycle} is current`);
 
-  const signers: Signer[] = [];
+  const signers: Signer[] = oldSignersData.signers;
   const unmatched: string[] = [];
 
   for (const [contractId, signerKey] of registered) {
+    if (signers.some((s) => s.contractId === contractId)) {
+      console.log(`  = skipping ${contractId} (already recorded)`);
+      continue;
+    }
     const source = await fetchSource(contractId);
     if (!source) {
       console.log(`  ! could not read source of ${contractId}`);
