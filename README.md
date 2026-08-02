@@ -192,6 +192,7 @@ Both generators take their endpoint from the environment, in `scripts/node.ts`:
 | --- | --- | --- |
 | `STACKS_API_URL` | `https://api.hiro.so` | the node to read |
 | `HIRO_API_KEY` | *(none)* | sent as `x-api-key` when set, omitted when not |
+| `VITE_SIGNER_UPDATES_FORM_URL` | *(none)* | optional POST endpoint used by the email signup form |
 
 ```bash
 STACKS_API_URL=http://localhost:3999 pnpm generate:signers   # your own node

@@ -22,6 +22,11 @@ const LOW_FEE_BIPS = 500; // 5%
 
 const REPO_URL = 'https://github.com/fastpool/signer-guide';
 const FASTPOOL_URL = 'https://fastpool.org';
+const SIGNUP_FORM_URL =
+  typeof import.meta.env.VITE_SIGNER_UPDATES_FORM_URL === 'string' &&
+  import.meta.env.VITE_SIGNER_UPDATES_FORM_URL.length > 0
+    ? import.meta.env.VITE_SIGNER_UPDATES_FORM_URL
+    : null;
 
 /**
  * When the data was last read from the chain, in words.
@@ -215,6 +220,45 @@ export default function App() {
         </span>
         <span>Fees and amounts are read from the chain again every hour.</span>
       </p>
+
+      <section className='mt-8 rounded-3xl bg-white p-6 shadow-[0_1px_3px_rgba(44,42,53,0.08)]' aria-labelledby='updates-signup-heading'>
+        <h2 id='updates-signup-heading' className='text-xl font-bold'>
+          Get signer updates by email
+        </h2>
+        <p className='mt-1 text-sm text-muted'>
+          Join the list for changes to signers and signer configurations.
+        </p>
+        <form
+          className='mt-4 flex flex-col gap-3 sm:flex-row'
+          action={SIGNUP_FORM_URL ?? undefined}
+          method='post'
+        >
+          <label htmlFor='signup-email' className='sr-only'>
+            Email address
+          </label>
+          <input
+            id='signup-email'
+            name='email'
+            type='email'
+            autoComplete='email'
+            required
+            placeholder='you@example.com'
+            className='w-full rounded-full border border-black/10 px-4 py-2.5 text-ink outline-none transition-colors placeholder:text-muted/80 focus:border-grape'
+          />
+          <button
+            type='submit'
+            disabled={SIGNUP_FORM_URL === null}
+            className='rounded-full bg-grape px-5 py-2.5 font-semibold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50'
+          >
+            Sign up
+          </button>
+        </form>
+        {SIGNUP_FORM_URL === null && (
+          <p className='mt-2 text-xs text-muted'>
+            Signup is not configured yet. Set VITE_SIGNER_UPDATES_FORM_URL to enable it.
+          </p>
+        )}
+      </section>
 
       <section className='mt-12' aria-labelledby='filters-heading'>
         <h2 id='filters-heading' className='text-2xl font-bold'>
