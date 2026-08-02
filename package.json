@@ -12,11 +12,17 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@stacks/bitcoin-staking": "^7.6.0",
+    "@stacks/connect": "^8.2.6",
+    "@stacks/network": "^7.6.0",
+    "@stacks/stacking": "^7.6.0",
+    "@stacks/transactions": "^7.6.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.0",
+    "@types/node": "^25.8.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.0",
@@ -24,8 +30,7 @@
     "tsx": "^4.22.1",
     "typescript": "5.9.3",
     "vite": "^7.1.12",
-    "vitest": "^4.1.6",
-    "@types/node": "^25.8.0"
+    "vitest": "^4.1.6"
   },
   "packageManager": "pnpm@11.9.0"
 }

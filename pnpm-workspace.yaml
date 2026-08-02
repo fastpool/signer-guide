@@ -1,2 +1,4 @@
 allowBuilds:
+  '@reown/appkit': false
   esbuild: false
+  secp256k1: false

@@ -97,7 +97,7 @@ function filterText(
   }
   if (id === 'lowFee') {
     return {
-      label: 'Low fee (under 5%)',
+      label: 'Low fee (5% or less)',
       help: 'The fee the pool charges today is under 5%. Pools can change their fee later.',
     };
   }
@@ -135,7 +135,7 @@ export function matches(
   if (active.has('lowFee')) {
     // A pool with no fee in its own contract is not counted as low: the fee
     // may simply live somewhere else. Better to leave it out than to promise.
-    if (signer.feeBips === null || signer.feeBips >= LOW_FEE_BIPS) return false;
+    if (signer.feeBips === null || signer.feeBips > LOW_FEE_BIPS) return false;
   }
   return true;
 }
@@ -325,54 +325,20 @@ export default function App() {
         </span>
       </p>
 
-      {SIGNUP_FORM_URL !== null && (
-        <section
-          className='mt-8 rounded-3xl bg-white p-6 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'
-          aria-labelledby='updates-signup-heading'
+      <section className='mt-2'>
+        <button
+          type='button'
+          onClick={() =>
+            window.open(
+              'https://steady.page/en/stacks-signer-guide/newsletter/sign_up',
+              '_blank',
+            )
+          }
+          className='rounded-full bg-grape text-white px-4 py-2 font-semibold transition-colors hover:bg-grape-dark'
         >
-          <h2 id='updates-signup-heading' className='text-xl font-bold'>
-            {ko
-              ? '이메일로 서명자 업데이트 받기'
-              : 'Get signer updates by email'}
-          </h2>
-          <p className='mt-1 text-sm text-muted'>
-            {ko
-              ? '서명자와 서명자 구성 변경 소식을 이메일로 받으세요.'
-              : 'Join the list for changes to signers and signer configurations.'}
-          </p>
-          <form
-            className='mt-4 flex flex-col gap-3 sm:flex-row'
-            action={SIGNUP_FORM_URL ?? undefined}
-            method='post'
-          >
-            <label htmlFor='signup-email' className='sr-only'>
-              {ko ? '이메일 주소' : 'Email address'}
-            </label>
-            <input
-              id='signup-email'
-              name='email'
-              type='email'
-              autoComplete='email'
-              required
-              placeholder={ko ? 'name@example.com' : 'you@example.com'}
-              className='w-full rounded-full border border-black/10 px-4 py-2.5 text-ink outline-none transition-colors placeholder:text-muted/80 focus:border-grape'
-            />
-            <button
-              type='submit'
-              disabled={SIGNUP_FORM_URL === null}
-              className='rounded-full bg-grape px-5 py-2.5 font-semibold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50'
-            >
-              {ko ? '구독하기' : 'Sign up'}
-            </button>
-          </form>
-
-          <p className='mt-2 text-xs text-muted'>
-            {ko
-              ? '아직 구독 주소가 설정되지 않았습니다. VITE_SIGNER_UPDATES_FORM_URL을 설정해 활성화하세요.'
-              : 'Signup is not configured yet. Set VITE_SIGNER_UPDATES_FORM_URL to enable it.'}
-          </p>
-        </section>
-      )}
+          {ko ? '뉴스레터 구독' : 'Sign up for our newsletter'}
+        </button>
+      </section>
 
       <section className='mt-12' aria-labelledby='filters-heading'>
         <h2 id='filters-heading' className='text-2xl font-bold'>

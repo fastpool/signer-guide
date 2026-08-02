@@ -37,6 +37,7 @@ export interface Signer {
     openToAnyone: string | null;
     maxFee: string | null;
   };
+  callApi?: "pox5" | "nativePool" ;
 }
 
 export interface SignerData {

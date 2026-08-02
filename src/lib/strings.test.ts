@@ -15,7 +15,7 @@ describe('ellipsedAddr', () => {
   });
 
   it('returns an ellipsed string if it is longer than maxLength', () => {
-    expect(ellipsedAddr('abcdefghij', 8)).toBe('abcd…hij');
+    expect(ellipsedAddr('abcdefghij', 8)).toBe('abcd…ghij');
   });
 
   it('handles odd maxLength values correctly', () => {

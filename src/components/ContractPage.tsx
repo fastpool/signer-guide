@@ -55,22 +55,27 @@ export default function ContractPage({
       </div>
 
       <h1 className='mt-6 text-4xl font-extrabold md:text-5xl'>
-        {ko ? `${profile.name} 서명자 컨트랙트` : `${profile.name} signer contract`}
+        {ko
+          ? `${profile.name} 서명자 컨트랙트`
+          : `${profile.name} signer contract`}
       </h1>
 
       <p className='mt-4 text-lg text-muted'>{profile.detail}</p>
 
       <div className='mt-6 flex flex-wrap gap-2'>
         {template.openToAnyone ? (
-          <Badge tone='good'>{ko ? '누구나 참여 가능' : 'Anyone can join'}</Badge>
+          <Badge tone='good'>
+            {ko ? '누구나 참여 가능' : 'Anyone can join'}
+          </Badge>
         ) : (
           <Badge tone='warm'>{ko ? '초대 전용' : 'Invite only'}</Badge>
         )}
-        {template.bitcoinRewards ? (
-          <Badge tone='good'>{ko ? '보상은 비트코인으로' : 'Rewards in Bitcoin'}</Badge>
-        ) : (
-          <Badge tone='neutral'>{ko ? '보상은 sBTC로' : 'Rewards in sBTC'}</Badge>
+        {template.bitcoinRewards && (
+          <Badge tone='good'>
+            {ko ? '보상은 비트코인으로' : 'Rewards in Bitcoin'}
+          </Badge>
         )}
+        <Badge tone='neutral'>{ko ? '보상은 sBTC로' : 'Rewards in sBTC'}</Badge>
         {template.maxFeeBips !== null && (
           <Badge tone='good'>
             {ko
@@ -86,7 +91,9 @@ export default function ContractPage({
           </Badge>
         )}
         {template.feeExemption && (
-          <Badge tone='good'>{ko ? '일부 스테이커는 수수료 면제' : 'Some stakers pay no fee'}</Badge>
+          <Badge tone='good'>
+            {ko ? '일부 스테이커는 수수료 면제' : 'Some stakers pay no fee'}
+          </Badge>
         )}
       </div>
 
@@ -146,10 +153,14 @@ export default function ContractPage({
       </section>
 
       <section className='mt-10 rounded-3xl bg-white p-6 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
-        <h2 className='text-lg font-bold'>{ko ? '검토 방식' : 'How we checked'}</h2>
+        <h2 className='text-lg font-bold'>
+          {ko ? '검토 방식' : 'How we checked'}
+        </h2>
         <dl className='mt-3 space-y-3 text-sm'>
           <div>
-            <dt className='font-semibold'>{ko ? '코드 지문' : 'Code fingerprint'}</dt>
+            <dt className='font-semibold'>
+              {ko ? '코드 지문' : 'Code fingerprint'}
+            </dt>
             <dd className='mt-0.5 break-all font-mono text-xs text-muted'>
               {template.groupSha256}
             </dd>
@@ -161,7 +172,9 @@ export default function ContractPage({
           </div>
 
           <div>
-            <dt className='font-semibold'>{ko ? '참여 가능 대상' : 'Who may join'}</dt>
+            <dt className='font-semibold'>
+              {ko ? '참여 가능 대상' : 'Who may join'}
+            </dt>
             <dd className='mt-0.5 text-muted'>
               {template.evidence.openToAnyone ? (
                 <>
@@ -172,28 +185,32 @@ export default function ContractPage({
                     {template.evidence.openToAnyone}
                   </code>
                 </>
+              ) : ko ? (
+                '컨트랙트에 참여자를 제한하는 검사 코드가 없어 누구도 배제되지 않습니다.'
               ) : (
-                ko
-                  ? '컨트랙트에 참여자를 제한하는 검사 코드가 없어 누구도 배제되지 않습니다.'
-                  : 'Nothing in the contract tests who you are, so nobody is turned away.'
+                'Nothing in the contract tests who you are, so nobody is turned away.'
               )}
             </dd>
           </div>
 
           <div>
-            <dt className='font-semibold'>{ko ? '수수료 상한' : 'Fee ceiling'}</dt>
+            <dt className='font-semibold'>
+              {ko ? '수수료 상한' : 'Fee ceiling'}
+            </dt>
             <dd className='mt-0.5 text-muted'>
               {template.evidence.maxFee ? (
                 <>
-                  {ko ? '컨트랙트가 더 높은 수수료를 거부합니다: ' : 'The contract refuses a higher fee: '}
+                  {ko
+                    ? '컨트랙트가 더 높은 수수료를 거부합니다: '
+                    : 'The contract refuses a higher fee: '}
                   <code className='break-all font-mono text-xs'>
                     {template.evidence.maxFee}
                   </code>
                 </>
+              ) : ko ? (
+                '의미 있는 상한을 두는 코드가 없으므로 풀은 수수료를 임의로 정할 수 있습니다.'
               ) : (
-                ko
-                  ? '의미 있는 상한을 두는 코드가 없으므로 풀은 수수료를 임의로 정할 수 있습니다.'
-                  : 'Nothing in the contract limits the fee to anything meaningful, so the pool can set it as it likes.'
+                'Nothing in the contract limits the fee to anything meaningful, so the pool can set it as it likes.'
               )}
             </dd>
           </div>
@@ -219,10 +236,10 @@ export default function ContractPage({
                       ? `대상 목록은 “${template.feeExemption.source}”에 저장되며, 이를 쓰는 공개 함수가 없습니다.`
                       : `Who counts is kept in “${template.feeExemption.source}”, which no public function writes.`}
                 </>
+              ) : ko ? (
+                '모든 스테이커가 같은 수수료를 내며, 컨트랙트에 예외 규칙이 없습니다.'
               ) : (
-                ko
-                  ? '모든 스테이커가 같은 수수료를 내며, 컨트랙트에 예외 규칙이 없습니다.'
-                  : 'Every staker pays the same fee; the contract makes no exceptions.'
+                'Every staker pays the same fee; the contract makes no exceptions.'
               )}
             </dd>
           </div>
@@ -252,10 +269,10 @@ export default function ContractPage({
                     {template.feeChangeNotice.evidence}
                   </code>
                 </>
+              ) : ko ? (
+                '새 수수료는 사전 고지 없이 풀에서 설정 즉시 적용될 수 있습니다.'
               ) : (
-                ko
-                  ? '새 수수료는 사전 고지 없이 풀에서 설정 즉시 적용될 수 있습니다.'
-                  : 'A new fee can take effect as soon as the pool sets it, with no warning.'
+                'A new fee can take effect as soon as the pool sets it, with no warning.'
               )}
             </dd>
           </div>
@@ -274,10 +291,10 @@ export default function ContractPage({
                     {template.evidence.bitcoinRewards}
                   </code>
                 </>
+              ) : ko ? (
+                '컨트랙트가 비트코인 주소를 다루지 않으므로 보상은 Stacks의 sBTC로 지급됩니다.'
               ) : (
-                ko
-                  ? '컨트랙트가 비트코인 주소를 다루지 않으므로 보상은 Stacks의 sBTC로 지급됩니다.'
-                  : 'The contract never handles a Bitcoin address, so rewards arrive as sBTC on Stacks.'
+                'The contract never handles a Bitcoin address, so rewards arrive as sBTC on Stacks.'
               )}
             </dd>
           </div>
