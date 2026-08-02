@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { stxLabel } from '../lib/amounts';
+import { ellipsedAddr } from '../lib/strings';
 import type { Locale } from '../lib/i18n';
 import { contractHref } from '../lib/route';
 import type { Signer } from '../lib/types';
@@ -20,14 +21,14 @@ export default function SignerCard({
   locale: Locale;
 }) {
   const [showDetails, setShowDetails] = useState(false);
-  const [, name] = signer.contractId.split('.');
+  const [addr, name] = signer.contractId.split('.');
   const ko = locale === 'ko';
 
   return (
     <li className='rounded-3xl bg-white p-6 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
       <div className='flex flex-wrap items-baseline justify-between gap-2'>
         <h3 className='text-xl font-bold'>{signer.displayName}</h3>
-        <p className='font-mono text-xs text-muted'>{name}</p>
+        <p className='font-mono text-xs text-muted'>{ellipsedAddr(addr)}.{name}</p>
       </div>
 
       {signer.profileId && signer.implementationName ? (
@@ -54,7 +55,7 @@ export default function SignerCard({
 
       {lockedUstx !== undefined && (
         <p className='mt-3 text-lg font-bold'>
-          {stxLabel(lockedUstx)}
+          {stxLabel(lockedUstx, locale)}
           {lockedUstx !== null && lockedUstx !== '0' && (
             <span className='ml-1.5 text-sm font-semibold text-muted'>
               {ko ? '이 풀에 스테이킹됨' : 'staked here'}

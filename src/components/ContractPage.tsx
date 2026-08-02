@@ -108,7 +108,7 @@ export default function ContractPage({
             <>
               {ko ? ' 합쳐서 현재 ' : ' Between them they are looking after '}
               <strong className='text-ink'>
-                {stxLabel(staked.toString())}
+                {stxLabel(staked.toString(), locale)}
               </strong>
               {ko ? '를 맡고 있습니다.' : '.'}
             </>
@@ -132,7 +132,7 @@ export default function ContractPage({
               <span className='flex flex-wrap items-baseline gap-2'>
                 {lockedUstx && (
                   <span className='text-sm font-semibold'>
-                    {stxLabel(lockedUstx[signer.contractId])}
+                    {stxLabel(lockedUstx[signer.contractId], locale)}
                   </span>
                 )}
                 <Badge tone='neutral'>

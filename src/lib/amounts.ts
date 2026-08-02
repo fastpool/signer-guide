@@ -8,6 +8,8 @@
 
 const MICRO_STX = 1_000_000n;
 
+type AmountLocale = 'en' | 'ko';
+
 /** STX, rounded down, as a plain number — safe up to 9 quadrillion STX. */
 export function toStx(ustx: string | bigint): number {
   return Number(BigInt(ustx) / MICRO_STX);
@@ -18,11 +20,26 @@ export function toStx(ustx: string | bigint): number {
  *
  * A pool we could not read is not zero — it is unknown, and says so.
  */
-export function stxLabel(ustx: string | null | undefined): string {
+export function stxLabel(
+  ustx: string | null | undefined,
+  locale: AmountLocale = 'en',
+): string {
   if (ustx === null || ustx === undefined) return 'amount not known';
 
   const stx = toStx(ustx);
   if (stx === 0) return 'nothing staked yet';
+  if (locale === 'ko' && stx >= 1_000_000) {
+    if (stx >= 100_000_000) {
+      const eok = stx / 100_000_000;
+      const rounded = eok < 10 ? eok.toFixed(1).replace(/\.0$/, '') : Math.round(eok);
+      return `${rounded}억 STX`;
+    }
+
+    const man = stx / 10_000;
+    const rounded = man < 1000 ? man.toFixed(1).replace(/\.0$/, '') : Math.round(man);
+    return `${rounded}만 STX`;
+  }
+
   if (stx >= 1_000_000) {
     const millions = stx / 1_000_000;
     // One decimal below 10 million, none above: nobody needs "12.4 million"
@@ -33,7 +50,7 @@ export function stxLabel(ustx: string | null | undefined): string {
         : Math.round(millions);
     return `${rounded} million STX`;
   }
-  return `${stx.toLocaleString('en-GB')} STX`;
+  return `${stx.toLocaleString(locale === 'ko' ? 'ko-KR' : 'en-GB')} STX`;
 }
 
 /** Sum of the amounts we could read; pools we could not are left out. */

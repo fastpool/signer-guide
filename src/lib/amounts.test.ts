@@ -7,6 +7,11 @@ describe('stxLabel', () => {
     expect(stxLabel('1171575000000')).toBe('1.2 million STX');
   });
 
+  it('uses Korean large-number units', () => {
+    expect(stxLabel('8215865483722', 'ko')).toBe('821.6만 STX');
+    expect(stxLabel('100000000000000', 'ko')).toBe('1억 STX');
+  });
+
   it('drops a pointless decimal', () => {
     expect(stxLabel('2000000000000')).toBe('2 million STX');
   });
