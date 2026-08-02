@@ -1,0 +1,38 @@
+{
+  "09aa95c7bdeb5ba47970ef47eec3122bf1e1c38ac796799622bc9a4a48c0867e": {
+    "id": "standard",
+    "name": "Standard",
+    "summary": "The most widely used signer contract. Open to everyone, can pay rewards to a Bitcoin address, and the pool sets its own fee.",
+    "detail": "This is the reference contract most pools run unchanged. It turns nobody away: anyone can stake with a pool using it, without an invitation. If you give it a Bitcoin address when you stake, it remembers it and your rewards go to Bitcoin rather than arriving as sBTC on Stacks. Each pool running it sets its own fee and can change that fee later."
+  },
+  "1b7c3674ac0dbb5da092b5e2e07684c06c7079cfb0053bd7c8b7e36211bdd74c": {
+    "id": "xverse",
+    "name": "Xverse",
+    "summary": "Xverse\u2019s version of the Standard contract. Open to everyone, and can pay rewards to a Bitcoin address.",
+    "detail": "The build used by the Xverse signers. For anyone staking it behaves like the Standard contract: open to everyone, and rewards can go to a Bitcoin address. It is close to the Standard contract but not the same — when it pays a staker out it reports only the amount, where the Standard contract also reports the Bitcoin withdrawal it opened. That is a real difference in the code, not just formatting, so it is listed on its own."
+  },
+  "d5718c4d8771628da0a24e4345534b4c9ec630f7942cdfd47c5fe3075c69b6b4": {
+    "id": "invite-only",
+    "name": "Invite-only",
+    "summary": "A small signer contract where the operator chooses who may join. Rewards arrive as sBTC on Stacks.",
+    "detail": "A short contract that checks you against a list the operator controls before letting you stake. If you are not on it, staking is refused. It has no Bitcoin payout option, so rewards arrive as sBTC on Stacks, and it carries no fee of its own — which does not mean staking is free, because a fee may be taken elsewhere."
+  },
+  "8925fa8554e7d42ccce00f760b26d31d6c672a9a9c5b1d04755971b6c820e62f": {
+    "id": "native-pool",
+    "name": "Native Pool",
+    "summary": "You join through the Native Pool contract rather than staking directly. Rewards arrive as sBTC on Stacks.",
+    "detail": "This signer only accepts you if you have already joined through the Native Pool contract, so you sign up there rather than staking with the signer directly. Rewards arrive as sBTC on Stacks. It carries no fee of its own; any fee is handled by the Native Pool contract it works with."
+  },
+  "d6c5e82af733250d80b38be57d02c5ff6677ec2712e31d00381899e3fecc6874": {
+    "id": "capped-fee",
+    "name": "Capped Fee",
+    "summary": "Open to everyone, can pay rewards to a Bitcoin address, and the fee can never go above 5% — with a month\u2019s warning before any rise.",
+    "detail": "Open to everyone, with no invitation needed, and it can pay your rewards to a Bitcoin address as well as sBTC on Stacks. What sets it apart is that it has advantageous rules for the users. The fee can never exceed 5% however the operator behaves, because the contract refuses a higher one. A rise in the fee has to be queued two reward cycles ahead, roughly a month, so you have time to move before it applies — a cut takes effect at once. You can also change where your Bitcoin goes, and the smallest payout you will accept."
+  },
+  "2aea99cfe42ccb9b9dd541d34c21cd852c5726f1c0933f4cc15c77202fcd30ac": {
+    "id": "juice-pool",
+    "name": "Juice Pool",
+    "summary": "Open to everyone and pays rewards as sBTC on Stacks. Fee changes have to be announced before they take effect, and stakers the pool marks as OG pay no fee at all.",
+    "detail": "Open to everyone, with no invitation needed. Rewards arrive as sBTC on Stacks rather than to a Bitcoin address. Two things set it apart: the operator can pause new staking, and a change of fee has to be proposed first and confirmed in a second step, so it cannot change without warning. It also keeps a list of stakers it calls OG, who are charged no fee at all however high the fee goes for everyone else. The pool decides who is on that list and can take someone off it again, so being OG is a discount in the pool’s gift rather than something the contract promises you."
+  }
+}

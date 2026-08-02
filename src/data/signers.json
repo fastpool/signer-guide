@@ -119,7 +119,7 @@
     },
     {
       "contractId": "SP20XZGWBWSMRE94WDJ6YJ1EKPJ55RGRGK4JDJHNK.signer-manager-pox5",
-      "displayName": "Pox5",
+      "displayName": "Senseinode",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x024f164c6e73df283d34d7d9cc86553a82dce76045ba7dfbf4de0004f89eabb8e0",
@@ -165,7 +165,7 @@
     },
     {
       "contractId": "SP2369QN53586176SYRF4XFGF4E84V0J0EWKRG0ZH.signer-manager",
-      "displayName": "signer-manager",
+      "displayName": "(anonymous)",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x0228a566db9a7b3212d612aa06e34fa981351a4372737849bfcaa1a28e8a044e5d",
@@ -211,7 +211,7 @@
     },
     {
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager",
-      "displayName": "Native Pool",
+      "displayName": "Native Pool (Stacking Dao)",
       "implementationName": "Native Pool",
       "registered": true,
       "signerKey": "0x025588e24e2bf387fe8cc7bccba1aac7fe599b96724892431e992a40d06e8fe220",
@@ -228,7 +228,7 @@
       "feeExemption": null,
       "evidence": {
         "bitcoinRewards": null,
-        "openToAnyone": "(contract-call? .native-pool-v1 is-delegating staker current-contract) ERR_STAKER_NOT_ALLOWED)",
+        "openToAnyone": null,
         "maxFee": null
       }
     },
@@ -484,7 +484,7 @@
       },
       "feeExemption": null,
       "evidence": {
-        "bitcoinRewards": null,
+        "bitcoinRewards": "(try! (check-payout-config config))",
         "openToAnyone": null,
         "maxFee": "(asserts! (<= new-fees MAX_FEE_BIPS) ERR_INVALID_FEES_BIPS)"
       }
@@ -523,7 +523,7 @@
     },
     {
       "contractId": "SPWJG9ZQT7VG8F3YS9TK0YN3VK34M76NYDZMTCWT.signer-manager",
-      "displayName": "signer-manager",
+      "displayName": "(anonymous)",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x037e7c6b6d6b9840beb8dc23c2b25d0b8bc4047a001c8a19c0878a77bbd753780e",
