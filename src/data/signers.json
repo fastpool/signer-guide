@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-31T19:57:03.238Z",
+  "generatedAt": "2026-08-02T07:42:09.858Z",
   "cycle": 140,
   "signers": [
     {
@@ -176,7 +176,7 @@
       "profileId": "standard",
       "bitcoinRewards": true,
       "openToAnyone": true,
-      "feeBips": 0,
+      "feeBips": 500,
       "maxFeeBips": null,
       "feeChangeNotice": null,
       "feeExemption": null,
