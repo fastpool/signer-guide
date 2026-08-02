@@ -20,8 +20,8 @@
   "8925fa8554e7d42ccce00f760b26d31d6c672a9a9c5b1d04755971b6c820e62f": {
     "id": "native-pool",
     "name": "Native Pool",
-    "summary": "You join through the Native Pool contract rather than staking directly. Rewards arrive as sBTC on Stacks.",
-    "detail": "This signer only accepts you if you have already joined through the Native Pool contract, so you sign up there rather than staking with the signer directly. Rewards arrive as sBTC on Stacks. It carries no fee of its own; any fee is handled by the Native Pool contract it works with."
+    "summary": "You join through the Native Pool contract rather than pox-5 staking directly. Rewards arrive as sBTC on Stacks.",
+    "detail": "This signer only accepts you if you join through the Native Pool contract, so you sign up there rather than staking with the signer directly. Rewards arrive as sBTC on Stacks. It carries no fee of its own."
   },
   "d6c5e82af733250d80b38be57d02c5ff6677ec2712e31d00381899e3fecc6874": {
     "id": "capped-fee",
