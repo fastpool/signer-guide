@@ -1,5 +1,5 @@
 import type { FeeChangeNotice } from '../lib/features';
-import type { Locale } from '../lib/i18n';
+import { translator, type Locale } from '../lib/i18n';
 
 export type Tone = 'good' | 'neutral' | 'warm';
 
@@ -38,6 +38,7 @@ export function noticeLabel(
   notice: FeeChangeNotice,
   locale: Locale = 'en',
 ): string {
+  const t = translator(locale);
   const days =
     notice.unit === 'cycles'
       ? notice.amount * 14
@@ -45,33 +46,22 @@ export function noticeLabel(
 
   if (days < 1) {
     const hours = Math.max(1, Math.round((notice.amount * 10) / 60));
-    if (locale === 'ko') {
-      return hours === 1 ? '약 1시간' : `약 ${hours}시간`;
-    }
-    return hours === 1 ? 'about an hour' : `about ${hours} hours`;
+    return t.plural('notice.hour', hours);
   }
-  if (locale === 'ko') {
-    if (days === 1) return '약 1일';
-    if (days < 10) return `약 ${days}일`;
-    if (days < 21) return '약 2주';
-    if (days < 45) return '약 1개월';
-    return `약 ${Math.round(days / 30)}개월`;
-  }
-  if (days === 1) return 'about a day';
-  if (days < 10) return `about ${days} days`;
-  if (days < 21) return 'about two weeks';
-  if (days < 45) return 'about a month';
-  return `about ${Math.round(days / 30)} months`;
+  if (days < 10) return t.plural('notice.day', days);
+  if (days < 21) return t('notice.twoWeeks');
+  if (days < 45) return t.plural('notice.month', 1);
+  return t.plural('notice.month', Math.round(days / 30));
 }
 
 /** "0%", "2.5%" — basis points are a unit nobody should have to meet. */
-export function feeLabel(feeBips: number | null, locale: Locale = 'en'): string {
-  if (feeBips === null) {
-    return locale === 'ko'
-      ? '이 컨트랙트에는 수수료가 설정되어 있지 않습니다'
-      : 'Not set in this contract';
-  }
-  if (feeBips === 0) return locale === 'ko' ? '현재 수수료 없음' : 'No fee right now';
-  const value = (feeBips / 100).toFixed(feeBips % 100 === 0 ? 0 : 2);
-  return locale === 'ko' ? `현재 ${value}%` : `${value}% right now`;
+export function feeLabel(
+  feeBips: number | null,
+  locale: Locale = 'en',
+): string {
+  const t = translator(locale);
+  if (feeBips === null) return t('fee.notSet');
+  if (feeBips === 0) return t('fee.none');
+  const percent = (feeBips / 100).toFixed(feeBips % 100 === 0 ? 0 : 2);
+  return t('fee.current', { percent });
 }

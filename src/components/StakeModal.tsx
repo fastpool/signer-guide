@@ -1,14 +1,23 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import {
   clearLocalStorage,
   connect,
   getLocalStorage,
-  isConnected,
   request,
 } from '@stacks/connect';
 import { transactionToHex } from '@stacks/transactions';
-import type { Locale } from '../lib/i18n';
+import { explorerUrl } from '../lib/explorer';
+import { translator, type Locale, type Translator } from '../lib/i18n';
 import type { Signer } from '../lib/types';
+import {
+  clearWalletSession,
+  isStacksAddress,
+  sessionFromAddresses,
+  setWalletSession,
+  useWalletSession,
+  type WalletAddress,
+  type WalletSession,
+} from '../lib/wallet-session';
 
 const STACKS_API_URL =
   typeof import.meta.env.VITE_STACKS_API_URL === 'string' &&
@@ -42,24 +51,6 @@ export function spendableFromBalance(
   return balanceUstx > ONE_STX_USTX ? balanceUstx - ONE_STX_USTX : 0n;
 }
 
-type WalletAddress = { address: string; publicKey?: string };
-
-function pickAddress(
-  addresses: WalletAddress[],
-  predicate: (addr: string) => boolean,
-): string | null {
-  const found = addresses.find((entry) => predicate(entry.address));
-  return found?.address ?? null;
-}
-
-function isStacksAddress(address: string): boolean {
-  return /^S[PTMN][A-Z0-9]{20,}$/i.test(address);
-}
-
-function isBtcAddress(address: string): boolean {
-  return /^(bc1|tb1|[13mn2])[a-zA-Z0-9]{20,}$/i.test(address);
-}
-
 function signerNameFromContractId(contractId: string): string {
   const [, contractName = contractId] = contractId.split('.');
   return contractName
@@ -69,19 +60,33 @@ function signerNameFromContractId(contractId: string): string {
     .join(' ');
 }
 
-async function fetchBalanceUstx(address: string): Promise<bigint> {
+async function fetchBalanceUstx(
+  address: string,
+  t: Translator,
+): Promise<bigint> {
   const res = await fetch(
     `${STACKS_API_URL}/extended/v1/address/${address}/balances`,
   );
   if (!res.ok) {
-    throw new Error(`Balance lookup failed (${res.status})`);
+    throw new Error(t('stake.error.balanceLookup', { status: res.status }));
   }
   const data = (await res.json()) as { stx?: { balance?: string } };
   const balance = data.stx?.balance;
   if (!balance || !/^\d+$/.test(balance)) {
-    throw new Error('Could not read STX balance');
+    throw new Error(t('stake.error.balanceRead'));
   }
   return BigInt(balance);
+}
+
+/** The STX address localStorage remembers, which never carries a public key. */
+function cachedStxAddress(): string | null {
+  try {
+    const cached = getLocalStorage();
+    const stx = cached?.addresses.stx ?? [];
+    return stx.find((entry) => isStacksAddress(entry.address))?.address ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export default function StakeModal({
@@ -91,10 +96,13 @@ export default function StakeModal({
   signer: Signer;
   locale: Locale;
 }) {
+  const t = translator(locale);
+  const titleId = useId();
+
+  const session = useWalletSession();
   const [open, setOpen] = useState(false);
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
-  const [walletPublicKey, setWalletPublicKey] = useState<string | null>(null);
-  const [walletBtcAddress, setWalletBtcAddress] = useState<string | null>(null);
+  /** Known from localStorage but with no public key behind it yet. */
+  const [cachedAddress, setCachedAddress] = useState<string | null>(null);
   const [currentSignerManager, setCurrentSignerManager] = useState<
     string | null
   >(null);
@@ -104,16 +112,28 @@ export default function StakeModal({
   const [btcAddress, setBtcAddress] = useState('');
   const [maxFeeSats, setMaxFeeSats] = useState('3000');
   const [submitting, setSubmitting] = useState(false);
-  const [sessionChecking, setSessionChecking] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<string | null>(null);
+  const [result, setResult] = useState<{ txid: string | null } | null>(null);
+  /**
+   * Bumped on every reconnect, so reconnecting to the account already shown
+   * reloads its balance instead of leaving the cleared fields empty.
+   */
+  const [reloadNonce, setReloadNonce] = useState(0);
 
-  const ko = locale === 'ko';
+  const walletAddress = session?.stxAddress ?? cachedAddress;
   const canToggleBtc = signer.bitcoinRewards;
 
-  const spendableUstx = useMemo(() => {
-    return spendableFromBalance(balanceUstx);
-  }, [balanceUstx]);
+  /**
+   * Bumped whenever the account changes, so a slow balance lookup for the
+   * account the user has just switched away from cannot overwrite the new one.
+   */
+  const loadId = useRef(0);
+
+  const spendableUstx = useMemo(
+    () => spendableFromBalance(balanceUstx),
+    [balanceUstx],
+  );
 
   const currentSignerName = useMemo(() => {
     if (!currentSignerManager) return null;
@@ -121,76 +141,106 @@ export default function StakeModal({
     return signerNameFromContractId(currentSignerManager);
   }, [currentSignerManager, signer.contractId, signer.displayName]);
 
-  const hydrateWallet = async (addresses: WalletAddress[]) => {
-    const stxAddress = pickAddress(addresses, isStacksAddress);
-    const btc = pickAddress(addresses, isBtcAddress);
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [open]);
 
-    if (!stxAddress) {
+  /**
+   * What the dialog can show without asking the wallet anything: the address
+   * from this visit's session if there is one, otherwise the one localStorage
+   * remembers. Neither opens a wallet popup.
+   */
+  useEffect(() => {
+    if (!open || session || cachedAddress) return;
+    setCachedAddress(cachedStxAddress());
+  }, [open, session, cachedAddress]);
+
+  /** Balance and current signer for whichever address we are showing. */
+  useEffect(() => {
+    if (!open || !walletAddress) return;
+
+    const id = ++loadId.current;
+    const load = async () => {
+      setLoading(true);
+      try {
+        const { fetchStakerInfo } = await import('@stacks/bitcoin-staking');
+        const stakerInfo = await fetchStakerInfo({
+          address: walletAddress,
+          network: 'mainnet',
+        });
+        if (id !== loadId.current) return;
+        setCurrentSignerManager(
+          stakerInfo.staked ? stakerInfo.details.signer : null,
+        );
+
+        const balance = await fetchBalanceUstx(walletAddress, t);
+        if (id !== loadId.current) return;
+        setBalanceUstx(balance);
+        setAmountStx(formatUstxAsStx(spendableFromBalance(balance) ?? 0n));
+      } catch (err) {
+        // Not fatal: the user can still connect, or type an amount by hand.
+        if (id === loadId.current) {
+          setError(err instanceof Error ? err.message : String(err));
+        }
+      } finally {
+        if (id === loadId.current) setLoading(false);
+      }
+    };
+
+    void load();
+  }, [open, walletAddress, reloadNonce, t]);
+
+  useEffect(() => {
+    if (session?.btcAddress) setBtcAddress(session.btcAddress);
+  }, [session?.btcAddress]);
+
+  /** Everything read for the previous account, dropped before the new one loads. */
+  const forgetAccount = () => {
+    loadId.current += 1;
+    setCachedAddress(null);
+    setCurrentSignerManager(null);
+    setBalanceUstx(null);
+    setAmountStx('');
+    setBtcAddress('');
+    setError(null);
+    setResult(null);
+    setReloadNonce((n) => n + 1);
+  };
+
+  /**
+   * The only call that shows the wallet picker. It is also the only place the
+   * public key is obtained, and it goes straight into the session so that
+   * pressing Stake afterwards costs one signature prompt and nothing else.
+   */
+  const openWallet = async (): Promise<WalletSession> => {
+    clearWalletSession();
+    await clearLocalStorage();
+    const { addresses } = await connect();
+    const next = sessionFromAddresses(addresses as WalletAddress[]);
+    if (!next) {
       throw new Error(
-        ko
-          ? '지갑에서 STX 주소를 찾지 못했습니다.'
-          : 'Could not find an STX address in the connected wallet.',
+        addresses.length === 0
+          ? t('stake.error.noStxAddress')
+          : t('stake.error.noPublicKey'),
       );
     }
-
-    const stxEntry = addresses.find((entry) => entry.address === stxAddress);
-    setWalletAddress(stxAddress);
-    setWalletPublicKey(stxEntry?.publicKey ?? null);
-    setWalletBtcAddress(btc);
-    setBtcAddress(btc || '');
-
-    const { fetchStakerInfo } = await import('@stacks/bitcoin-staking');
-    const stakerInfo = await fetchStakerInfo({
-      address: stxAddress,
-      network: 'mainnet',
-    });
-    setCurrentSignerManager(
-      stakerInfo.staked ? stakerInfo.details.signer : null,
-    );
-
-    const balance = await fetchBalanceUstx(stxAddress);
-    setBalanceUstx(balance);
-    const spendable = spendableFromBalance(balance) ?? 0n;
-    setAmountStx(formatUstxAsStx(spendable));
+    setWalletSession(next);
+    return next;
   };
 
   const connectWallet = async () => {
-    setError(null);
-    setResult(null);
-    setSessionChecking(false);
+    forgetAccount();
     try {
-      await clearLocalStorage();
-      const connected = (await connect()) as {
-        addresses?: WalletAddress[];
-      };
-      await hydrateWallet(connected.addresses ?? []);
+      await openWallet();
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
   };
-
-  useEffect(() => {
-    if (!open || walletAddress) return;
-
-    const restoreWalletSession = async () => {
-      setSessionChecking(true);
-      try {
-        const cached = getLocalStorage();
-        const addresses = [
-          ...(cached?.addresses.stx ?? []),
-          ...(cached?.addresses.btc ?? []),
-        ];
-        if (!addresses.length) return;
-        await hydrateWallet(addresses);
-      } catch {
-        // Ignore silent restore failures and allow manual connect.
-      } finally {
-        setSessionChecking(false);
-      }
-    };
-
-    void restoreWalletSession();
-  }, [open, walletAddress]);
 
   const onUseMax = () => {
     if (spendableUstx === null) return;
@@ -201,74 +251,33 @@ export default function StakeModal({
     setError(null);
     setResult(null);
 
-    if (!walletAddress) {
-      setError(ko ? '먼저 지갑을 연결하세요.' : 'Connect your wallet first.');
-      return;
-    }
-
     const amountUstx = parseStxToUstx(amountStx);
     if (amountUstx === null || amountUstx <= 0n) {
-      setError(
-        ko
-          ? '유효한 스테이킹 수량을 입력하세요.'
-          : 'Enter a valid stake amount.',
-      );
+      setError(t('stake.error.amount'));
       return;
     }
 
     if (spendableUstx !== null && amountUstx > spendableUstx) {
-      setError(
-        ko
-          ? '잔액에서 1 STX를 제외한 금액을 초과했습니다.'
-          : 'Amount exceeds your balance minus 1 STX.',
-      );
+      setError(t('stake.error.tooMuch'));
       return;
     }
 
     const rewardBtcAddress = receiveBtc ? btcAddress.trim() : '';
     if (receiveBtc && !rewardBtcAddress) {
-      setError(ko ? 'BTC 주소를 입력하세요.' : 'Enter a BTC reward address.');
+      setError(t('stake.error.btcAddress'));
       return;
     }
 
     if (receiveBtc && !/^\d+$/.test(maxFeeSats.trim())) {
-      setError(
-        ko
-          ? '최대 수수료(sats)는 숫자여야 합니다.'
-          : 'Max fee (sats) must be a number.',
-      );
+      setError(t('stake.error.maxFee'));
       return;
     }
 
     setSubmitting(true);
     try {
-      let stakingAddress = walletAddress;
-      let stakingPublicKey = walletPublicKey;
-
-      // Local storage restore can provide addresses without public keys.
-      // Refresh address details only when user actively submits.
-      if (!stakingPublicKey) {
-        const connected = (await connect()) as {
-          addresses?: WalletAddress[];
-        };
-        const addresses = connected.addresses ?? [];
-        const preferred =
-          addresses.find((entry) => entry.address === stakingAddress) ??
-          addresses.find((entry) => isStacksAddress(entry.address));
-
-        if (!preferred?.address || !preferred.publicKey) {
-          throw new Error(
-            ko
-              ? '계정 전환 후 다시 시도하세요.'
-              : 'Switch accounts and try again.',
-          );
-        }
-
-        stakingAddress = preferred.address;
-        stakingPublicKey = preferred.publicKey;
-        setWalletAddress(preferred.address);
-        setWalletPublicKey(preferred.publicKey);
-      }
+      // Already connected this visit: the public key is in memory, so the only
+      // wallet interaction left is signing. Otherwise connect once, here.
+      const active = session ?? (await openWallet());
 
       const {
         buildSignerCalldata,
@@ -279,7 +288,7 @@ export default function StakeModal({
       } = await import('@stacks/bitcoin-staking');
 
       const account = await fetchAccountStatus({
-        address: stakingAddress,
+        address: active.stxAddress,
         network: 'mainnet',
       });
       const poxInfo = await fetchPoxInfo({ network: 'mainnet' });
@@ -297,7 +306,7 @@ export default function StakeModal({
             oldSignerManager: currentSignerManager,
             amountIncrease: amountUstx,
             signerCalldata,
-            publicKey: stakingPublicKey,
+            publicKey: active.publicKey,
             nonce: account.nonce,
             fee: 10_000n,
             network: 'mainnet',
@@ -308,7 +317,7 @@ export default function StakeModal({
             numCycles: 1,
             startBurnHt: poxInfo.currentBurnchainBlockHeight + 1,
             signerCalldata,
-            publicKey: stakingPublicKey,
+            publicKey: active.publicKey,
             nonce: account.nonce,
             fee: 10_000n,
             network: 'mainnet',
@@ -317,23 +326,21 @@ export default function StakeModal({
       const response = (await request('stx_signTransaction', {
         transaction: transactionToHex(tx),
         broadcast: true,
-      })) as { txid?: string; transaction?: string };
+      })) as { txid?: string };
 
-      if (response?.txid) {
-        setResult(response.txid);
-      } else {
-        setResult(
-          ko
-            ? '트랜잭션 요청이 제출되었습니다.'
-            : 'Transaction request submitted.',
-        );
-      }
+      setResult({ txid: response?.txid ?? null });
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
       setSubmitting(false);
     }
   };
+
+  const connectLabel = loading
+    ? t('stake.checking')
+    : walletAddress
+      ? t('stake.switch')
+      : t('stake.connect');
 
   return (
     <>
@@ -342,7 +349,7 @@ export default function StakeModal({
         onClick={() => setOpen(true)}
         className='rounded-full bg-grape px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-grape/90'
       >
-        {ko ? '지갑으로 스테이킹' : 'Stake with wallet'}
+        {t('stake.open')}
       </button>
 
       {open && (
@@ -350,34 +357,30 @@ export default function StakeModal({
           className='fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-4 md:items-center'
           role='dialog'
           aria-modal='true'
+          aria-labelledby={titleId}
+          onClick={(event) => {
+            if (event.target === event.currentTarget) setOpen(false);
+          }}
         >
           <div className='my-4 w-full max-w-lg rounded-3xl bg-white p-6 shadow-xl md:my-0 md:max-h-[calc(100vh-3rem)] md:overflow-y-auto'>
             <div className='flex items-start justify-between gap-4'>
-              <h4 className='text-xl font-bold'>
-                {ko
-                  ? `${signer.displayName} 스테이킹`
-                  : `Stake with ${signer.displayName}`}
+              <h4 id={titleId} className='text-xl font-bold'>
+                {t('stake.title', { name: signer.displayName })}
               </h4>
               <button
                 type='button'
                 onClick={() => setOpen(false)}
                 className='rounded-full px-2 py-1 text-sm text-muted hover:bg-grape-soft'
               >
-                {ko ? '닫기' : 'Close'}
+                {t('stake.close')}
               </button>
             </div>
 
-            <p className='mt-2 text-sm text-muted'>
-              {ko
-                ? 'bitcoin-staking buildStake 트랜잭션을 만들고 지갑으로 서명해 전송합니다. 안전 여유를 위해 1 STX는 남겨둡니다.'
-                : 'Builds a bitcoin-staking buildStake transaction, then signs and broadcasts with your wallet. Keeps 1 STX as a safety buffer.'}
-            </p>
+            <p className='mt-2 text-sm text-muted'>{t('stake.intro')}</p>
 
             {currentSignerManager && (
               <p className='mt-2 rounded-xl bg-cream px-3 py-2 text-xs text-muted'>
-                {ko
-                  ? '현재 스테이킹 중인 서명자: '
-                  : 'Currently staking with signer: '}
+                {t('stake.currentSigner')}
                 <span className='font-semibold text-ink'>
                   {currentSignerName}
                 </span>
@@ -390,7 +393,7 @@ export default function StakeModal({
                   </>
                 )}
                 {currentSignerManager === signer.contractId &&
-                  (ko ? ' (현재 이 풀 선택됨)' : ' (this pool is selected)')}
+                  t('stake.currentSignerSelected')}
               </p>
             )}
 
@@ -400,46 +403,37 @@ export default function StakeModal({
                 onClick={connectWallet}
                 className='rounded-full bg-grape-soft px-4 py-2 text-sm font-semibold text-grape hover:bg-grape-soft/80'
               >
-                {sessionChecking
-                  ? ko
-                    ? '연결 상태 확인 중...'
-                    : 'Checking wallet...'
-                  : walletAddress
-                    ? ko
-                      ? '계정 전환'
-                      : 'Switch accounts'
-                    : ko
-                      ? '지갑 연결'
-                      : 'Connect wallet'}
+                {connectLabel}
               </button>
               {walletAddress && (
                 <span className='text-xs text-muted'>
-                  {ko ? '연결됨:' : 'Connected:'} {walletAddress}
+                  {t('stake.connected')} {walletAddress}
                 </span>
               )}
             </div>
 
             <div className='mt-4 rounded-2xl bg-cream p-4'>
               <p className='text-sm text-muted'>
-                {ko ? '잔액' : 'Balance'}:{' '}
-                <strong className='text-ink'>
-                  {balanceUstx === null
-                    ? ko
-                      ? '지갑 연결 필요'
-                      : 'Connect wallet to load'
-                    : `${formatUstxAsStx(balanceUstx)} STX`}
-                </strong>
+                {t.rich('stake.balance', {
+                  value: (
+                    <strong className='text-ink'>
+                      {balanceUstx === null
+                        ? t('stake.balanceUnknown')
+                        : `${formatUstxAsStx(balanceUstx)} STX`}
+                    </strong>
+                  ),
+                })}
               </p>
-              {walletBtcAddress && (
+              {session?.btcAddress && (
                 <p className='mt-1 text-xs text-muted'>
-                  BTC: <span className='font-mono'>{walletBtcAddress}</span>
+                  BTC: <span className='font-mono'>{session.btcAddress}</span>
                 </p>
               )}
             </div>
 
             <div className='mt-4'>
               <label className='text-sm font-semibold'>
-                {ko ? '스테이킹 수량 (STX)' : 'Amount to stake (STX)'}
+                {t('stake.amountLabel')}
               </label>
               <div className='mt-1 flex gap-2'>
                 <input
@@ -455,14 +449,10 @@ export default function StakeModal({
                   onClick={onUseMax}
                   className='rounded-xl bg-grape-soft px-3 py-2 text-sm font-semibold text-grape'
                 >
-                  {ko ? '최대' : 'Max'}
+                  {t('stake.max')}
                 </button>
               </div>
-              <p className='mt-1 text-xs text-muted'>
-                {ko
-                  ? '최대 버튼은 잔액 - 1 STX를 자동 입력합니다.'
-                  : 'Max uses your balance minus 1 STX.'}
-              </p>
+              <p className='mt-1 text-xs text-muted'>{t('stake.maxHint')}</p>
             </div>
 
             {canToggleBtc && (
@@ -473,13 +463,13 @@ export default function StakeModal({
                     checked={receiveBtc}
                     onChange={(e) => setReceiveBtc(e.target.checked)}
                   />
-                  {ko ? '보상을 BTC로 받기' : 'Receive rewards in BTC'}
+                  {t('stake.receiveBtc')}
                 </label>
 
                 {receiveBtc && (
                   <>
                     <label className='mt-3 block text-sm font-semibold'>
-                      {ko ? 'BTC 주소' : 'BTC address'}
+                      {t('stake.btcAddress')}
                     </label>
                     <input
                       type='text'
@@ -490,7 +480,7 @@ export default function StakeModal({
                     />
 
                     <label className='mt-3 block text-sm font-semibold'>
-                      {ko ? '최대 수수료 (sats)' : 'Max fee (sats)'}
+                      {t('stake.maxFee')}
                     </label>
                     <input
                       type='text'
@@ -500,9 +490,7 @@ export default function StakeModal({
                       className='mt-1 w-full rounded-xl border border-black/10 px-3 py-2 text-sm'
                     />
                     <p className='mt-1 text-xs text-muted'>
-                      {ko
-                        ? '기본값은 3000 sats입니다.'
-                        : 'Default is 3000 sats.'}
+                      {t('stake.maxFeeHint')}
                     </p>
                   </>
                 )}
@@ -517,8 +505,21 @@ export default function StakeModal({
 
             {result && (
               <p className='mt-4 rounded-xl bg-mint-soft p-3 text-sm text-mint'>
-                {ko ? '요청 완료: ' : 'Submitted: '}
-                <span className='font-mono break-all'>{result}</span>
+                {result.txid ? (
+                  <>
+                    {t('stake.submitted')}
+                    <a
+                      className='font-mono break-all underline underline-offset-2'
+                      href={explorerUrl(result.txid)}
+                      target='_blank'
+                      rel='noreferrer'
+                    >
+                      {result.txid}
+                    </a>
+                  </>
+                ) : (
+                  t('stake.submittedNoTxid')
+                )}
               </p>
             )}
 
@@ -530,16 +531,10 @@ export default function StakeModal({
                 className='rounded-full bg-grape px-5 py-2 text-sm font-semibold text-white disabled:opacity-50'
               >
                 {submitting
-                  ? ko
-                    ? '요청 중...'
-                    : 'Submitting...'
-                  : ko
-                    ? currentSignerManager
-                      ? '스테이킹 업데이트 서명'
-                      : '지금 스테이킹'
-                    : currentSignerManager
-                      ? 'Sign stake update'
-                      : 'Stake now'}
+                  ? t('stake.submitting')
+                  : currentSignerManager
+                    ? t('stake.signUpdate')
+                    : t('stake.stakeNow')}
               </button>
             </div>
           </div>

@@ -4,11 +4,14 @@
  * The chain counts in microSTX, which is a millionth of a STX and of no use
  * to anybody choosing a pool. Big numbers round: "8.2 million STX" says what
  * "8,215,865.483722 STX" says, and says it faster.
+ *
+ * How big is "big" is a question about the language, not about the number:
+ * English groups by millions, Korean by 만 and 억. That lives in each language
+ * file as `amountScale`, so nothing here knows which language it is speaking.
  */
+import { translator, type Locale } from './i18n';
 
 const MICRO_STX = 1_000_000n;
-
-type AmountLocale = 'en' | 'ko';
 
 /** STX, rounded down, as a plain number — safe up to 9 quadrillion STX. */
 export function toStx(ustx: string | bigint): number {
@@ -22,35 +25,28 @@ export function toStx(ustx: string | bigint): number {
  */
 export function stxLabel(
   ustx: string | null | undefined,
-  locale: AmountLocale = 'en',
+  locale: Locale = 'en',
 ): string {
-  if (ustx === null || ustx === undefined) return 'amount not known';
+  const t = translator(locale);
+  if (ustx === null || ustx === undefined) return t('amount.unknown');
 
   const stx = toStx(ustx);
-  if (stx === 0) return 'nothing staked yet';
-  if (locale === 'ko' && stx >= 1_000_000) {
-    if (stx >= 100_000_000) {
-      const eok = stx / 100_000_000;
-      const rounded = eok < 10 ? eok.toFixed(1).replace(/\.0$/, '') : Math.round(eok);
-      return `${rounded}억 STX`;
-    }
+  if (stx === 0) return t('amount.none');
 
-    const man = stx / 10_000;
-    const rounded = man < 1000 ? man.toFixed(1).replace(/\.0$/, '') : Math.round(man);
-    return `${rounded}만 STX`;
-  }
-
-  if (stx >= 1_000_000) {
-    const millions = stx / 1_000_000;
-    // One decimal below 10 million, none above: nobody needs "12.4 million"
-    // to three figures, and "1 million" hides too much.
+  for (const step of t.bundle.amountScale) {
+    if (stx < step.min) continue;
+    const scaled = stx / step.divisor;
+    // One decimal while the number is small enough to need it, none after:
+    // nobody reads "12.4 million" to three figures, and "1 million" on its
+    // own hides too much.
     const rounded =
-      millions < 10
-        ? millions.toFixed(1).replace(/\.0$/, '')
-        : Math.round(millions);
-    return `${rounded} million STX`;
+      scaled < step.decimalBelow
+        ? scaled.toFixed(1).replace(/\.0$/, '')
+        : String(Math.round(scaled));
+    return step.unit.replace('{value}', rounded);
   }
-  return `${stx.toLocaleString(locale === 'ko' ? 'ko-KR' : 'en-GB')} STX`;
+
+  return t('amount.plain', { value: stx.toLocaleString(t.bundle.intlLocale) });
 }
 
 /** Sum of the amounts we could read; pools we could not are left out. */

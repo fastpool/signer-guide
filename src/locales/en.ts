@@ -1,0 +1,256 @@
+/**
+ * English — the source of truth for the message catalogue.
+ *
+ * Every other language file is typed against `Messages`, so a key added here
+ * and forgotten there is a build error rather than a sentence that quietly
+ * shows up in the wrong language.
+ *
+ * Keys are flat and dotted. Placeholders are `{name}`; `t()` fills them with
+ * text and `t.rich()` fills them with elements, so a sentence with a link or a
+ * bold number in the middle of it still lives here as one sentence rather than
+ * being cut into fragments in the JSX.
+ */
+
+/** A profile's copy, when a language has its own. English lives in profiles.json. */
+export type ProfileTranslation = {
+  name?: string;
+  summary: string;
+  detail: string;
+};
+
+/**
+ * How a language says large STX amounts.
+ *
+ * English groups by millions; Korean by 만 (ten thousand) and 억 (hundred
+ * million). Keeping this per language means `stxLabel` has no idea which
+ * language it is formatting for, and a new one only touches its own file.
+ */
+export type AmountScaleStep = {
+  /** Smallest amount in STX this step applies to. */
+  min: number;
+  /** What to divide by to get the number that is spoken. */
+  divisor: number;
+  /** Show one decimal below this, round above it. */
+  decimalBelow: number;
+  /** Template for the result; `{value}` is the divided number. */
+  unit: string;
+};
+
+const messages = {
+  'meta.title': 'Signer Guide - who can you stake your STX with?',
+  'meta.description':
+    'A plain-language guide to the Stacks signer pools you can stake your STX with.',
+  'meta.ogTitle': 'Signer Guide - who can you stake your STX with?',
+  'meta.ogDescription':
+    "A plain-language guide to the Stacks signer pools you can stake your STX with. Fees, ceilings and who may join, read from each contract's own code.",
+
+  'app.heading': 'Where can you stake your STX?',
+  'app.intro':
+    'When you stake, you pick a pool to look after it for you. There are {pools} to choose from today, but between them they run only {contracts} — so there is less to learn than it looks.',
+  'app.introPools': '{count} pools',
+  'app.introContracts': '{count} signer contracts',
+  'app.staked':
+    'Between them they are looking after {amount} for cycle {cycle}.',
+  'app.contractsHeading': 'The signer contracts',
+  'app.contractsIntro':
+    'Each one behaves differently. Tap a contract to see what it does and who runs it.',
+  'app.poolCount.one': '{count} pool',
+  'app.poolCount.other': '{count} pools',
+  'app.lastUpdate': 'Last update: {at}',
+  'app.refreshNote':
+    'Fees and amounts are read from the chain again every hour.',
+  'app.newsletter': 'Sign up for our newsletter',
+  'app.allPools': 'All pools',
+  'app.whatMatters': 'What matters to you?',
+  'app.showingAll': 'Showing all {total} pools',
+  'app.showingSome': '{shown} of {total} pools match',
+  'app.noMatch': 'No pool matches everything you picked. Try turning one off.',
+  'app.footer.feesTitle': 'About the fees.',
+  'app.footer.fees':
+    'The fee shown is the one in force right now, read from the pool’s own contract. Most pools do not lock their fee in, so they can change it later. A few contracts do set a ceiling in code — those carry a {capped} badge, and that limit holds whatever the pool decides. Fewer still make a fee change wait before it applies, which gives you time to move — those carry a {notice} badge. Some pools have no fee in this contract at all, which does not always mean free, because the fee may be taken elsewhere.',
+  'app.footer.feesCappedBadge': 'fee capped',
+  'app.footer.feesNoticeBadge': 'fee changes announced',
+  'app.footer.identity':
+    'Every pool here is registered on Stacks and identified by what its code adds up to, not by its name — so two pools running the same signer contract are shown as such. Fees were read from each contract’s own storage on {at}, and the amounts staked are for cycle {cycle}.',
+  'app.footer.trust':
+    'Nothing here is taken on trust, and neither should this page be: {link} — every claim above comes from a line of Clarity you can check yourself.',
+  'app.footer.trustLink': 'read the code on GitHub',
+  'app.footer.madeBy':
+    'Made by {link}, which runs some of the pools listed above. They are described by the same code as everyone else’s and ranked by size like everyone else’s — the reason all of this is public is so you do not have to take that on trust either.',
+
+  'filter.bitcoin.label': 'Rewards in Bitcoin',
+  'filter.bitcoin.help':
+    'Pays your rewards to a Bitcoin address, instead of as sBTC on Stacks.',
+  'filter.lowFee.label': 'Low fee (5% or less)',
+  'filter.lowFee.help':
+    'The fee the pool charges today is under 5%. Pools can change their fee later.',
+  'filter.cappedFee.label': 'Fee capped at 20%',
+  'filter.cappedFee.help':
+    'The contract itself refuses to let the fee go above 20%, whatever the pool decides. Most contracts have no such limit.',
+  'filter.feeNotice.label': 'Fee changes announced first',
+  'filter.feeNotice.help':
+    'A new fee cannot take effect the moment the pool decides on it — the contract makes it wait, so you have time to notice and move.',
+  'filter.open.label': 'Anyone can join',
+  'filter.open.help':
+    'No invitation or membership needed — you can stake with this pool yourself.',
+
+  'badge.anyoneCanJoin': 'Anyone can join',
+  'badge.inviteOnly': 'Invite only',
+  'badge.bitcoinRewards': 'Rewards in Bitcoin',
+  'badge.sbtcRewards': 'Rewards in sBTC',
+  'badge.fee': 'Fee: {fee}',
+  'badge.feeCapped': 'Fee capped at {percent}%',
+  'badge.feeNotice': 'Fee changes announced {notice} ahead',
+  'badge.feeExemption': 'Some stakers pay no fee',
+
+  'fee.notSet': 'Not set in this contract',
+  'fee.none': 'No fee right now',
+  'fee.current': '{percent}% right now',
+
+  'notice.hour.one': 'about an hour',
+  'notice.hour.other': 'about {count} hours',
+  'notice.day.one': 'about a day',
+  'notice.day.other': 'about {count} days',
+  'notice.twoWeeks': 'about two weeks',
+  'notice.month.one': 'about a month',
+  'notice.month.other': 'about {count} months',
+
+  'amount.unknown': 'amount not known',
+  'amount.none': 'nothing staked yet',
+  'amount.plain': '{value} STX',
+
+  'signer.runsContract': 'Runs the {link}',
+  'signer.contractLink': '{name} signer contract',
+  'signer.notReviewed': "We have not reviewed this pool's code yet",
+  'signer.stakedHere': 'staked here',
+  'signer.showDetails': 'Show the details',
+  'signer.hideDetails': 'Hide the details',
+  'signer.customCalls': 'Signer uses custom contract calls.',
+  'signer.contract': 'Contract',
+  'signer.signerKey': 'Signer key',
+  'signer.notAvailable': 'Not available',
+  'signer.fingerprint': 'Code fingerprint',
+  'signer.fingerprintNote': 'Pools sharing this fingerprint run the same code.',
+
+  'contract.back': '← All signer contracts',
+  'contract.heading': '{name} signer contract',
+  'contract.poolsRunning.one': 'One pool runs this contract',
+  'contract.poolsRunning.other': '{count} pools run this contract',
+  'contract.sameCode':
+    'They run the same code, so they behave the same way. What differs is who operates them and what they charge.',
+  'contract.stakedTotal': ' Between them they are looking after {amount}.',
+  'contract.howWeChecked': 'How we checked',
+  'contract.fingerprint': 'Code fingerprint',
+  'contract.fingerprintNote':
+    'Every pool above hashes to this, which is how we know they run the same code.',
+  'contract.whoMayJoin': 'Who may join',
+  'contract.whoMayJoinEvidence': 'Staking is refused unless this holds: {code}',
+  'contract.whoMayJoinNone':
+    'Nothing in the contract tests who you are, so nobody is turned away.',
+  'contract.feeCeiling': 'Fee ceiling',
+  'contract.feeCeilingEvidence': 'The contract refuses a higher fee: {code}',
+  'contract.feeCeilingNone':
+    'Nothing in the contract limits the fee to anything meaningful, so the pool can set it as it likes.',
+  'contract.exempt': 'Stakers who pay no fee',
+  'contract.exemptEvidence':
+    'Some stakers are charged nothing, whatever the fee is set to: {code} {source}',
+  'contract.exemptOperator':
+    'Who counts is kept in “{source}”, which the pool writes — so the pool picks, and can change its mind.',
+  'contract.exemptFixed':
+    'Who counts is kept in “{source}”, which no public function writes.',
+  'contract.exemptNone':
+    'Every staker pays the same fee; the contract makes no exceptions.',
+  'contract.notice': 'Warning before a fee change',
+  'contract.noticeEvidence':
+    'A new fee has to be announced and then wait {amount} {unit} — {human} — before it can take effect: {code}',
+  'contract.noticeUnit.cycles': 'reward cycles',
+  'contract.noticeUnit.blocks': 'Bitcoin blocks',
+  'contract.noticeNone':
+    'A new fee can take effect as soon as the pool sets it, with no warning.',
+  'contract.bitcoin': 'Rewards in Bitcoin',
+  'contract.bitcoinEvidence': 'It records a Bitcoin address for you: {code}',
+  'contract.bitcoinNone':
+    'The contract never handles a Bitcoin address, so rewards arrive as sBTC on Stacks.',
+
+  'stake.open': 'Stake with wallet',
+  'stake.title': 'Stake with {name}',
+  'stake.close': 'Close',
+  'stake.intro':
+    'Builds a bitcoin-staking buildStake transaction, then signs and broadcasts with your wallet. Keeps 1 STX as a safety buffer.',
+  'stake.currentSigner': 'Currently staking with signer: ',
+  'stake.currentSignerSelected': ' (this pool is selected)',
+  'stake.connect': 'Connect wallet',
+  'stake.switch': 'Switch accounts',
+  'stake.checking': 'Checking wallet...',
+  'stake.connected': 'Connected:',
+  'stake.balance': 'Balance: {value}',
+  'stake.balanceUnknown': 'Connect wallet to load',
+  'stake.amountLabel': 'Amount to stake (STX)',
+  'stake.max': 'Max',
+  'stake.maxHint': 'Max uses your balance minus 1 STX.',
+  'stake.receiveBtc': 'Receive rewards in BTC',
+  'stake.btcAddress': 'BTC address',
+  'stake.maxFee': 'Max fee (sats)',
+  'stake.maxFeeHint': 'Default is 3000 sats.',
+  'stake.submitting': 'Submitting...',
+  'stake.signUpdate': 'Sign stake update',
+  'stake.stakeNow': 'Stake now',
+  'stake.submitted': 'Submitted: ',
+  'stake.submittedNoTxid': 'Transaction request submitted.',
+  'stake.error.noStxAddress':
+    'Could not find an STX address in the connected wallet.',
+  'stake.error.amount': 'Enter a valid stake amount.',
+  'stake.error.tooMuch': 'Amount exceeds your balance minus 1 STX.',
+  'stake.error.btcAddress': 'Enter a BTC reward address.',
+  'stake.error.maxFee': 'Max fee (sats) must be a number.',
+  'stake.error.noPublicKey':
+    'Your wallet did not return a public key. Reconnect and try again.',
+  'stake.error.balanceLookup': 'Balance lookup failed ({status})',
+  'stake.error.balanceRead': 'Could not read STX balance',
+};
+
+export type Messages = typeof messages;
+export type MessageKey = keyof Messages;
+
+/** Keys that come in `.one` / `.other` pairs, for `t.plural`. */
+export type PluralKey = MessageKey extends infer K
+  ? K extends `${infer Base}.one`
+    ? Base
+    : never
+  : never;
+
+export interface LocaleBundle {
+  /** The language's own name for itself, for the language switcher. */
+  name: string;
+  /** BCP 47 tag for Intl date and number formatting. */
+  intlLocale: string;
+  /** Value for `<html lang>`. */
+  htmlLang: string;
+  /** Value for `og:locale`. */
+  ogLocale: string;
+  /** Largest unit first; the first step the amount reaches wins. */
+  amountScale: AmountScaleStep[];
+  /** Profile copy, keyed by profile id. Empty when the source copy is English. */
+  profiles: Record<string, ProfileTranslation>;
+  messages: Messages;
+}
+
+export const en: LocaleBundle = {
+  name: 'English',
+  intlLocale: 'en-GB',
+  htmlLang: 'en',
+  ogLocale: 'en_US',
+  amountScale: [
+    // One decimal below 10 million, none above: nobody needs "12.4 million"
+    // to three figures, and "1 million" hides too much.
+    {
+      min: 1_000_000,
+      divisor: 1_000_000,
+      decimalBelow: 10,
+      unit: '{value} million STX',
+    },
+  ],
+  // English profile copy is the source, and lives in src/data/profiles.json.
+  profiles: {},
+  messages,
+};

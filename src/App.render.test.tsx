@@ -35,6 +35,7 @@ beforeEach(() => {
     removeEventListener: () => {},
     scrollTo: () => {},
   });
+  vi.stubGlobal('navigator', { language: 'en-GB' });
 });
 
 describe('the page as a reader sees it', () => {
@@ -96,6 +97,19 @@ describe('the page as a reader sees it', () => {
     expect(html.indexOf('Last update:')).toBeLessThan(
       html.indexOf('All pools'),
     );
+  });
+
+  it('leaves no English behind for a Korean reader', () => {
+    // The amounts used to say "amount not known" and "nothing staked yet" in
+    // English whatever the page language was, because that copy lived in the
+    // formatter rather than in a language file.
+    vi.stubGlobal('navigator', { language: 'ko-KR' });
+    const html = renderToStaticMarkup(<App />);
+    expect(html).toContain('내 STX를 어디에 스테이킹할 수 있을까?');
+    expect(html).toContain('821.6만 STX');
+    expect(html).toContain('금액 확인 불가');
+    expect(html).not.toContain('amount not known');
+    expect(html).not.toContain('staked here');
   });
 
   it('says who made it and that they run some of the pools listed', () => {
