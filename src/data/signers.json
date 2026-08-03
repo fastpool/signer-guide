@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-03T08:43:59.124Z",
+  "generatedAt": "2026-08-03T12:38:33.496Z",
   "cycle": 140,
   "signers": [
     {
@@ -232,6 +232,29 @@
         "maxFee": null
       },
       "callApi": "nativePool"
+    },
+    {
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-blockdaemon-v1",
+      "displayName": "Blockdaemon V1",
+      "implementationName": "Invite-only",
+      "registered": true,
+      "signerKey": "0x03a541c1ec2cfb32da48cfadf439c9b2f27d166bbffa18a178c7a6a0d54cfa7813",
+      "sourceSha256": "4585077af0601600166bde4843fd780c5916e4fa4d522951fc73841e90eff1f1",
+      "canonicalSha256": "5cb86a1cff402c4f1f22c0121c13a329c5770e9f1d682eb0bda1841b0c7f0d1f",
+      "groupSha256": "d5718c4d8771628da0a24e4345534b4c9ec630f7942cdfd47c5fe3075c69b6b4",
+      "match": "canonical",
+      "profileId": "invite-only",
+      "bitcoinRewards": false,
+      "openToAnyone": false,
+      "feeBips": null,
+      "maxFeeBips": null,
+      "feeChangeNotice": null,
+      "feeExemption": null,
+      "evidence": {
+        "bitcoinRewards": null,
+        "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)",
+        "maxFee": null
+      }
     },
     {
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-1-v1",
