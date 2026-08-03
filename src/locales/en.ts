@@ -59,6 +59,10 @@ const messages = {
   'app.lastUpdate': 'Last update: {at}',
   'app.refreshNote':
     'Fees and amounts are read from the chain again every hour.',
+  'app.savedCopy':
+    'This is the last copy saved on your device — the newest could not be fetched.',
+  'app.updateReady': 'A new version of the app is ready.',
+  'app.updateApply': 'Reload',
   'app.newsletter': 'Sign up for our newsletter',
   'app.allPools': 'All pools',
   'app.whatMatters': 'What matters to you?',

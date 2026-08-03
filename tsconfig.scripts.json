@@ -1,7 +1,9 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "types": ["node"],
+    // src/lib is shared with the browser build, and some of it reads
+    // import.meta.env, so this project needs Vite's types as well as Node's.
+    "types": ["node", "vite/client"],
     "module": "ESNext",
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true

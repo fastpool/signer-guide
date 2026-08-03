@@ -21,6 +21,7 @@ import {
 } from '../lib/staking';
 import { ellipsedAddr } from '../lib/strings';
 import type { Signer } from '../lib/types';
+import { initWalletConnect, walletOptions } from '../lib/wallet-connect';
 import {
   clearWalletSession,
   isStacksAddress,
@@ -371,7 +372,10 @@ export default function StakeModal({
   const openWallet = async (): Promise<WalletSession> => {
     clearWalletSession();
     await clearLocalStorage();
-    const { addresses } = await connect();
+    // On a phone the wallet is another app, not an extension in this page, so
+    // the WalletConnect route has to exist before the picker opens.
+    await initWalletConnect();
+    const { addresses } = await connect(walletOptions());
     const next = sessionFromAddresses(addresses as WalletAddress[]);
     if (!next) {
       throw new Error(
@@ -492,7 +496,9 @@ export default function StakeModal({
             network: 'mainnet',
           });
 
-      const response = (await request('stx_signTransaction', {
+      // Same options as the connect above, so the signature is asked of the
+      // wallet the reader actually picked rather than a second one.
+      const response = (await request(walletOptions(), 'stx_signTransaction', {
         transaction: transactionToHex(tx),
         broadcast: true,
       })) as { txid?: string };

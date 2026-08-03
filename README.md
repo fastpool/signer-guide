@@ -34,37 +34,37 @@ collapsed, strings left intact — and hashed. This mirrors
 in signer-sidekick byte for byte, so a hash produced here means the same thing
 there. Two hashes are kept:
 
-| hash | meaning |
-| --- | --- |
-| `sourceSha256` | the raw bytes as deployed, reproducible with `curl … \| jq -r .source \| sha256sum` |
-| `canonicalSha256` | the same code ignoring comments and formatting |
+| hash              | meaning                                                                             |
+| ----------------- | ----------------------------------------------------------------------------------- |
+| `sourceSha256`    | the raw bytes as deployed, reproducible with `curl … \| jq -r .source \| sha256sum` |
+| `canonicalSha256` | the same code ignoring comments and formatting                                      |
 
 A third hash does the grouping. The canonical form is lexical, not semantic: a
 newline before a closing paren survives as a space, so the same contract
 reformatted still hashes differently — Fast Pool's signer is the Standard
 contract with three spaces moved, and nothing else. Rather than "tidy" the
 canonical form and lose sidekick compatibility, grouping uses `groupSha256`,
-which additionally drops whitespace *beside a paren*. Whitespace between tokens
+which additionally drops whitespace _beside a paren_. Whitespace between tokens
 is kept, or `(a b)` would collide with `(ab)`.
 
-| hash | used for |
-| --- | --- |
-| `sourceSha256` | exact identity of the deployed bytes |
-| `canonicalSha256` | sidekick-compatible recognition |
-| `groupSha256` | grouping pools that run the same contract |
+| hash              | used for                                  |
+| ----------------- | ----------------------------------------- |
+| `sourceSha256`    | exact identity of the deployed bytes      |
+| `canonicalSha256` | sidekick-compatible recognition           |
+| `groupSha256`     | grouping pools that run the same contract |
 
 That leaves 21 pools running five signer contracts. Reviewed contracts live in
 `src/lib/profiles.ts`, keyed by group hash, and each gets its own page at
-`#/contract/<id>`. A pool whose hash is not listed is shown as *not reviewed
-yet* rather than being given badges it has not earned.
+`#/contract/<id>`. A pool whose hash is not listed is shown as _not reviewed
+yet_ rather than being given badges it has not earned.
 
 ## Where the badges come from
 
 Two of the three come from the contract itself, and the generator records the
-line of Clarity each decision was made from (visible under *Show the details*):
+line of Clarity each decision was made from (visible under _Show the details_):
 
 - **Anyone can join** — `validate-stake!` contains no `asserts!` that tests the
-  `staker`. Checks on the *caller* being pox-5, or on a pause flag, do not
+  `staker`. Checks on the _caller_ being pox-5, or on a pause flag, do not
   count: they apply to everyone and say nothing about who is welcome. Some
   contracts hide the caller check in a helper and others inline it, so counting
   bare asserts would misread the inlined ones as invite-only.
@@ -76,7 +76,7 @@ line of Clarity each decision was made from (visible under *Show the details*):
 Two separate things, deliberately not conflated.
 
 **The fee today** is a stored value the operator can change, so it is read live
-and always shown as *right now*. Where it lives differs by contract, so the
+and always shown as _right now_. Where it lives differs by contract, so the
 source says which to read rather than the reader assuming:
 
 - a no-argument getter when there is one (`get-fee-bips`, as Juice Pool has),
@@ -94,7 +94,7 @@ one pool charging 10%.
 
 **A ceiling** is a promise, and one contract makes it: Juice Pool asserts
 `(<= new-fee MAX_FEE_BIPS)` with `MAX_FEE_BIPS u2000`, so its fee can never
-exceed 20% whatever the operator does. Those pools get a *fee capped* badge.
+exceed 20% whatever the operator does. Those pools get a _fee capped_ badge.
 The Standard contract's `MAX_BIPS u10000` only stops a fee of 100% or more,
 which promises a staker nothing, so it is reported as no ceiling at all.
 
@@ -113,7 +113,7 @@ they do not agree on the unit, so the unit travels with the number:
 
 Both are matched on shape rather than on function names, so a contract that
 calls its steps something else is still picked up. The queued form additionally
-requires the contract to *read the stored point back* before applying the new
+requires the contract to _read the stored point back_ before applying the new
 rate — storing a number proves nothing on its own, and a contract that only
 pretends to queue should not earn the badge.
 
@@ -132,7 +132,7 @@ whatever the rate is for everyone else.
 
 Detected on shape — a test on one `staker` choosing between no fee and the fee —
 so a contract that calls its favoured stakers something else is picked up too.
-Two things must hold before the page says anything: the branch *not* taken has
+Two things must hold before the page says anything: the branch _not_ taken has
 to be about the fee, since contracts are full of `u0` branches that are just
 arithmetic; and the test has to resolve to a map the contract keeps, so the page
 can say where the answer comes from. A test that cannot be traced is left
@@ -170,9 +170,9 @@ Three consequences worth knowing:
 - **Reads are paced**, one at a time and 300ms apart, because the node allows
   roughly 50 requests a minute per IP. Two at a time with no gap got nine pools
   in and earned a 429 for the remaining fourteen — a rate limit the page would
-  have shown as *amount not known*, which is a rate limit dressed up as
+  have shown as _amount not known_, which is a rate limit dressed up as
   ignorance about somebody's money. A pool that genuinely cannot be read after
-  its retries shows as *amount not known* — never as zero.
+  its retries shows as _amount not known_ — never as zero.
 - **The file carries no timestamp.** A "read at" that moved every hour would be
   an hourly commit saying nothing, which is exactly what
   `describe-signer-changes.ts` exists to keep out of the history. Any diff to
@@ -188,11 +188,11 @@ read as zero for every pool, which tells a reader nothing.
 
 Both generators take their endpoint from the environment, in `scripts/node.ts`:
 
-| variable | default | meaning |
-| --- | --- | --- |
-| `STACKS_API_URL` | `https://api.hiro.so` | the node to read |
-| `HIRO_API_KEY` | *(none)* | sent as `x-api-key` when set, omitted when not |
-| `VITE_SIGNER_UPDATES_FORM_URL` | *(none)* | optional POST endpoint used by the email signup form |
+| variable                       | default               | meaning                                              |
+| ------------------------------ | --------------------- | ---------------------------------------------------- |
+| `STACKS_API_URL`               | `https://api.hiro.so` | the node to read                                     |
+| `HIRO_API_KEY`                 | _(none)_              | sent as `x-api-key` when set, omitted when not       |
+| `VITE_SIGNER_UPDATES_FORM_URL` | _(none)_              | optional POST endpoint used by the email signup form |
 
 ```bash
 STACKS_API_URL=http://localhost:3999 pnpm generate:signers   # your own node
@@ -213,11 +213,19 @@ way.
 
 `.env` is gitignored, for `node --env-file=.env`.
 
-**The key never reaches the browser.** Everything that talks to a node lives
-under `scripts/`, which is why `locked.ts` sits there rather than in `src/lib/`
-despite the page using its output — the page ships two committed JSON files and
-makes no requests at all. `src/lib/types.ts` holds the shape they share, so
-nothing in `src/` needs to import anything that knows an endpoint from a key.
+**The key never reaches the browser.** Every _refresh_ that talks to a node
+lives under `scripts/`, which is why `locked.ts` sits there rather than in
+`src/lib/` despite the page using its output. `src/lib/types.ts` holds the shape
+they share, so nothing in `src/` needs to import anything that knows an endpoint
+from a key.
+
+The page itself does make requests, and it is worth being precise about which.
+Nothing is asked of a node to _read the guide_: the pool list, the fees and the
+amounts all come from the two committed JSON files. Requests happen for two
+things only — the data refresh described under [Installing it](#installing-it),
+which reads those same two files from this branch anonymously, and staking,
+where a connected wallet's balance and position are read from a public node.
+Neither carries a key.
 
 ### The refresh
 
@@ -248,3 +256,68 @@ the commits worth reading:
 The commit message is the list of what moved — a fee going from 0% to 2.5%, a
 pool registering, a feature reading that changed under us (which can only mean
 a detector here changed, since a deployed contract cannot).
+
+## Installing it
+
+The guide also installs to a phone's home screen, as **Bitcoin Staking**. It is
+a PWA rather than a store app: the same build, plus a manifest, an icon and a
+service worker.
+
+### Its data does not age with the build
+
+A browser tab always has current data, because the site is rebuilt whenever the
+hourly refresh commits. An installed app is not — it holds whatever build it
+last downloaded. So `src/lib/data-source.ts` reads the same two files from this
+branch at runtime and keeps them on the device. Three copies, best first:
+
+| copy    | where                                  | when it is used                                         |
+| ------- | -------------------------------------- | ------------------------------------------------------- |
+| network | `raw.githubusercontent.com/…/src/data` | whenever it answers                                     |
+| cache   | `localStorage`                         | offline, and on every cold start before the fetch lands |
+| bundled | compiled into the build                | the very first launch, and if the cache is unreadable   |
+
+The bundled copy is a floor, never a ceiling: a saved copy older than the build
+running against it is discarded rather than shown. A saved copy is also checked
+before it is believed — a total that is not a plain uSTX count is rejected here
+rather than thrown at the first render. When the fetch fails, the dot beside
+"Last update" turns amber and the line says the reader is looking at a saved
+copy, so the age of what is on screen is never implied to be now.
+
+### What the service worker will not do
+
+`public/sw.js` caches the _application_ and nothing the application _says_.
+Every cross-origin request goes to the network, always:
+
+- **`api.hiro.so`** — a cached balance is a wrong balance, and somebody is
+  about to stake against it.
+- **`raw.githubusercontent.com`** — the pool data has its own copy above, and
+  the page tells the reader when it is showing it. Answering from a second
+  cache here would make that notice a lie.
+
+`src/lib/sw.test.ts` loads the worker into a sandbox and asserts both refusals,
+because a negative rule is the kind that rots quietly.
+
+A new version is **offered, not applied**: the worker waits, a bar appears, and
+the reload happens when the reader says so. An app that reloads itself could do
+it in the middle of approving a transaction.
+
+### Signing from a phone
+
+On a desktop browser `connect()` finds Leather or Xverse injected into the page.
+On a phone there is no extension to inject anything, so the wallet is another
+app and the route to it is WalletConnect — `@stacks/connect` already carries
+that provider and lists it in the same picker as the injected ones, so nothing
+downstream of `connect()` changes.
+
+It needs a project id from [Reown](https://dashboard.reown.com), which is
+per-deployment and public:
+
+| variable                        | default                  | meaning                                        |
+| ------------------------------- | ------------------------ | ---------------------------------------------- |
+| `VITE_WALLETCONNECT_PROJECT_ID` | _(none)_                 | enables WalletConnect in the wallet picker     |
+| `VITE_DATA_BASE_URL`            | this branch's `src/data` | where the installed app re-reads the data from |
+| `VITE_STACKS_API_URL`           | `https://api.hiro.so`    | node the staking dialog reads balances from    |
+
+Without the id the connector cannot be created, so it is left out entirely
+rather than half-configured, and the picker shows whatever is injected — which
+is what this app did before.

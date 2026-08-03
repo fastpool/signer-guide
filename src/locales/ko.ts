@@ -94,6 +94,10 @@ export const ko: LocaleBundle = {
     'app.poolCount.other': '풀 {count}개',
     'app.lastUpdate': '마지막 업데이트: {at}',
     'app.refreshNote': '수수료와 금액은 매시간 체인에서 다시 읽습니다.',
+    'app.savedCopy':
+      '기기에 저장된 마지막 사본입니다. 최신 데이터를 가져오지 못했습니다.',
+    'app.updateReady': '앱의 새 버전이 준비되었습니다.',
+    'app.updateApply': '새로고침',
     'app.newsletter': '뉴스레터 구독',
     'app.allPools': '전체 풀',
     'app.whatMatters': '어떤 기준이 중요한가요?',

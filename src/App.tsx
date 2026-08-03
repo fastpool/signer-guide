@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from 'react';
 import ContractPage from './components/ContractPage';
 import LocaleSwitch from './components/LocaleSwitch';
 import SignerCard from './components/SignerCard';
-import data from './data/signers.json';
-import totalsData from './data/totals.json';
+import UpdateBanner from './components/UpdateBanner';
 import { stxLabel, sumUstx } from './lib/amounts';
+import { useSnapshot } from './lib/data-source';
 import {
   detectLocale,
   formatLastUpdate,
@@ -16,16 +16,9 @@ import { applyLocaleMetadata } from './lib/metadata';
 import { localizeProfile } from './lib/profile-i18n';
 import { PROFILES } from './lib/profiles';
 import { contractHref, useRoute } from './lib/route';
+import { useServiceWorker } from './lib/service-worker';
 import { buildTemplates, templateFor } from './lib/templates';
-import type { LockedTotals, SignerData } from './lib/types';
-
-const signerData = data as SignerData;
-
-/**
- * What each pool holds, read from pox-5 by the hourly refresh rather than by
- * every visitor. See the note at the top of scripts/locked.ts.
- */
-const totals = totalsData as LockedTotals;
+import type { SignerData } from './lib/types';
 
 /** A fee we would call low. Not a promise — see the note under the filters. */
 const LOW_FEE_BIPS = 500; // 5%
@@ -70,16 +63,24 @@ export function matches(
   return true;
 }
 
-const CONTRACT_IDS = signerData.signers.map((s) => s.contractId);
-
 export default function App() {
   const route = useRoute();
   const [active, setActive] = useState<Set<FilterId>>(new Set());
   const [locale, setLocale] = useState<Locale>(() => detectLocale());
   const t = translator(locale);
+
+  const update = useServiceWorker();
+
+  // Whatever is already on the device, replaced by the branch when it answers.
+  const { snapshot, stale } = useSnapshot();
+  const signerData = snapshot.signers;
+  const totals = snapshot.totals;
   const lastUpdate = formatLastUpdate(signerData.generatedAt, locale);
 
-  const templates = useMemo(() => buildTemplates(signerData.signers), []);
+  const templates = useMemo(
+    () => buildTemplates(signerData.signers),
+    [signerData],
+  );
 
   const shown = useMemo(() => {
     const matching = signerData.signers.filter((s) => matches(s, active));
@@ -90,24 +91,30 @@ export default function App() {
       const right = BigInt(totals.ustx[b.contractId] ?? 0);
       return right > left ? 1 : right < left ? -1 : 0;
     });
-  }, [active]);
+  }, [active, signerData, totals]);
 
   useEffect(() => {
     applyLocaleMetadata(locale);
   }, [locale]);
 
-  const staked = sumUstx(CONTRACT_IDS, totals.ustx);
+  const staked = sumUstx(
+    signerData.signers.map((s) => s.contractId),
+    totals.ustx,
+  );
 
   if (route.name === 'contract') {
     const template = templateFor(templates, route.profileId);
     if (template) {
       return (
-        <ContractPage
-          template={template}
-          lockedUstx={totals.ustx}
-          locale={locale}
-          onLocaleChange={setLocale}
-        />
+        <>
+          <ContractPage
+            template={template}
+            lockedUstx={totals.ustx}
+            locale={locale}
+            onLocaleChange={setLocale}
+          />
+          <UpdateBanner update={update} locale={locale} />
+        </>
       );
     }
   }
@@ -215,10 +222,14 @@ export default function App() {
 
       <p className='mt-10 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted'>
         <span className='inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 font-bold text-ink shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
-          <span className='h-2 w-2 rounded-full bg-mint' aria-hidden='true' />
+          {/* Amber, not mint, when what is on screen is a saved copy. */}
+          <span
+            className={`h-2 w-2 rounded-full ${stale ? 'bg-amber-warm' : 'bg-mint'}`}
+            aria-hidden='true'
+          />
           {t('app.lastUpdate', { at: lastUpdate })}
         </span>
-        <span>{t('app.refreshNote')}</span>
+        <span>{stale ? t('app.savedCopy') : t('app.refreshNote')}</span>
       </p>
 
       <section className='mt-2'>
@@ -331,6 +342,8 @@ export default function App() {
           })}
         </p>
       </footer>
+
+      <UpdateBanner update={update} locale={locale} />
     </main>
   );
 }
