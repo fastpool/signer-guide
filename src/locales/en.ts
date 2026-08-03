@@ -176,33 +176,76 @@ const messages = {
   'stake.title': 'Stake with {name}',
   'stake.close': 'Close',
   'stake.intro':
-    'Builds a bitcoin-staking buildStake transaction, then signs and broadcasts with your wallet. Keeps 1 STX as a safety buffer.',
-  'stake.currentSigner': 'Currently staking with signer: ',
-  'stake.currentSignerSelected': ' (this pool is selected)',
+    'Staking locks some of your STX for a while, and earns you rewards for it. It never leaves your own wallet — it is held in place on the chain, and the pool cannot spend it.',
+
+  'stake.wallet': 'Your wallet',
+  'stake.walletNone': 'Not connected yet',
   'stake.connect': 'Connect wallet',
-  'stake.switch': 'Switch accounts',
-  'stake.checking': 'Checking wallet...',
-  'stake.connected': 'Connected:',
-  'stake.balance': 'Balance: {value}',
-  'stake.balanceUnknown': 'Connect wallet to load',
-  'stake.amountLabel': 'Amount to stake (STX)',
-  'stake.max': 'Max',
-  'stake.maxHint': 'Max uses your balance minus 1 STX.',
-  'stake.receiveBtc': 'Receive rewards in BTC',
-  'stake.btcAddress': 'BTC address',
-  'stake.maxFee': 'Max fee (sats)',
-  'stake.maxFeeHint': 'Default is 3000 sats.',
-  'stake.submitting': 'Submitting...',
-  'stake.signUpdate': 'Sign stake update',
-  'stake.stakeNow': 'Stake now',
-  'stake.submitted': 'Submitted: ',
-  'stake.submittedNoTxid': 'Transaction request submitted.',
+  'stake.switch': 'Use another account',
+  'stake.checking': 'Just a moment…',
+  'stake.available': '{amount} you can stake',
+  'stake.availableUnknown': 'Connect your wallet to see what you have',
+
+  'stake.position.title': 'You are already staking',
+  'stake.position.amount': '{amount} with {pool}',
+  'stake.position.thisPool': 'That is this pool.',
+  'stake.position.otherPool': 'Staking here moves it to {pool}.',
+  'stake.position.cycles.one': 'For one reward cycle, from cycle {first}.',
+  'stake.position.cycles.other':
+    'For {count} reward cycles, from cycle {first}.',
+  'stake.position.cyclesHint': 'A reward cycle is about two weeks.',
+  'stake.position.rewardsBitcoin': 'Your rewards go to Bitcoin, at {address}.',
+  'stake.position.rewardsSbtc':
+    'Your rewards arrive as sBTC, in this same wallet.',
+  'stake.position.rewardsUnknown':
+    'We could not read where this pool sends your rewards.',
+  'stake.position.maxFee':
+    'Up to {sats} sats of each payout covers sending it on.',
+  'stake.position.minClaim': 'Paid out once it is worth at least {sats} sats.',
+
+  'stake.amountQuestion': 'How much would you like to stake?',
+  'stake.max': 'Use max',
+  'stake.maxHint':
+    'Max leaves 1 STX behind, so you can still pay for transactions.',
+
+  'stake.rewardsQuestion': 'Where should your rewards go?',
+  'stake.rewardsSbtc': 'Keep them on Stacks',
+  'stake.rewardsSbtcHelp':
+    'They arrive as sBTC in this wallet. Nothing to set up.',
+  'stake.rewardsBitcoin': 'Send them to Bitcoin',
+  'stake.rewardsBitcoinHelp': 'They go to a Bitcoin address you choose.',
+  'stake.rewardsNow': 'what happens now',
+  'stake.rewardsChangeToSbtc':
+    'This stops your rewards going to Bitcoin. They will arrive as sBTC in this wallet instead.',
+  'stake.rewardsChangeAddress':
+    'This replaces the Bitcoin address the pool holds for you.',
+  'stake.btcAddress': 'Your Bitcoin address',
+  'stake.maxFee': 'Most to spend on sending it',
+  'stake.maxFeeHint':
+    'In sats. Sending Bitcoin costs a small fee, taken out of the payout. 3000 is a sensible starting point.',
+  'stake.minClaim': 'Smallest payout worth sending',
+  'stake.minClaimHint':
+    'In sats. Rewards build up until they reach this, then anyone can send them on to you. Set it higher and payouts come less often but lose less to fees. It has to be above {min}.',
+
+  'stake.explain': 'What happens when I press this?',
+  'stake.explainBody':
+    'Your wallet builds a transaction that locks the amount above with this pool for one reward cycle, and asks you to approve it. Nothing moves until you do, and you can close this window at any point before then.',
+
+  'stake.submitting': 'Waiting for your wallet…',
+  'stake.stakeNow': 'Start staking',
+  'stake.addToStake': 'Add to my stake',
+  'stake.moveStake': 'Move my stake here',
+  'stake.submitted': 'Sent — ',
+  'stake.submittedNoTxid': 'Sent to your wallet.',
+  'stake.submittedHint': 'It usually confirms within a few minutes.',
   'stake.error.noStxAddress':
     'Could not find an STX address in the connected wallet.',
-  'stake.error.amount': 'Enter a valid stake amount.',
-  'stake.error.tooMuch': 'Amount exceeds your balance minus 1 STX.',
-  'stake.error.btcAddress': 'Enter a BTC reward address.',
-  'stake.error.maxFee': 'Max fee (sats) must be a number.',
+  'stake.error.amount': 'Enter an amount to stake.',
+  'stake.error.tooMuch': 'That is more than you have, less the 1 STX buffer.',
+  'stake.error.btcAddress': 'Enter the Bitcoin address your rewards go to.',
+  'stake.error.maxFee': 'The most to spend on sending has to be a number.',
+  'stake.error.minClaim':
+    'The smallest payout has to be a number above {min} sats, or the pool cannot send it.',
   'stake.error.noPublicKey':
     'Your wallet did not return a public key. Reconnect and try again.',
   'stake.error.balanceLookup': 'Balance lookup failed ({status})',

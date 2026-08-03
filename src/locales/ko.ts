@@ -215,32 +215,74 @@ export const ko: LocaleBundle = {
     'stake.title': '{name} 스테이킹',
     'stake.close': '닫기',
     'stake.intro':
-      'bitcoin-staking buildStake 트랜잭션을 만들고 지갑으로 서명해 전송합니다. 안전 여유를 위해 1 STX는 남겨둡니다.',
-    'stake.currentSigner': '현재 스테이킹 중인 서명자: ',
-    'stake.currentSignerSelected': ' (현재 이 풀 선택됨)',
+      '스테이킹은 STX를 일정 기간 잠가 두고 그 대가로 보상을 받는 것입니다. STX는 내 지갑을 떠나지 않으며, 체인에서 잠겨 있을 뿐이라 풀이 마음대로 쓸 수 없습니다.',
+
+    'stake.wallet': '내 지갑',
+    'stake.walletNone': '아직 연결되지 않았습니다',
     'stake.connect': '지갑 연결',
-    'stake.switch': '계정 전환',
-    'stake.checking': '연결 상태 확인 중...',
-    'stake.connected': '연결됨:',
-    'stake.balance': '잔액: {value}',
-    'stake.balanceUnknown': '지갑 연결 필요',
-    'stake.amountLabel': '스테이킹 수량 (STX)',
+    'stake.switch': '다른 계정 사용',
+    'stake.checking': '잠시만 기다려 주세요…',
+    'stake.available': '스테이킹 가능 금액 {amount}',
+    'stake.availableUnknown': '지갑을 연결하면 보유 금액이 표시됩니다',
+
+    'stake.position.title': '이미 스테이킹 중입니다',
+    'stake.position.amount': '{pool}에 {amount}',
+    'stake.position.thisPool': '지금 보고 있는 풀입니다.',
+    'stake.position.otherPool': '여기서 스테이킹하면 {pool}(으)로 옮겨집니다.',
+    'stake.position.cycles.one': '{first} 사이클부터 한 보상 사이클 동안.',
+    'stake.position.cycles.other':
+      '{first} 사이클부터 {count}개 보상 사이클 동안.',
+    'stake.position.cyclesHint': '보상 사이클은 약 2주입니다.',
+    'stake.position.rewardsBitcoin': '보상은 비트코인 주소 {address}로 갑니다.',
+    'stake.position.rewardsSbtc': '보상은 이 지갑으로 sBTC로 들어옵니다.',
+    'stake.position.rewardsUnknown':
+      '이 풀이 보상을 어디로 보내는지 확인하지 못했습니다.',
+    'stake.position.maxFee':
+      '보상을 보낼 때 최대 {sats} sats까지 전송 비용으로 사용됩니다.',
+    'stake.position.minClaim': '{sats} sats 이상 모이면 지급됩니다.',
+
+    'stake.amountQuestion': '얼마를 스테이킹할까요?',
     'stake.max': '최대',
-    'stake.maxHint': '최대 버튼은 잔액 - 1 STX를 자동 입력합니다.',
-    'stake.receiveBtc': '보상을 BTC로 받기',
-    'stake.btcAddress': 'BTC 주소',
-    'stake.maxFee': '최대 수수료 (sats)',
-    'stake.maxFeeHint': '기본값은 3000 sats입니다.',
-    'stake.submitting': '요청 중...',
-    'stake.signUpdate': '스테이킹 업데이트 서명',
-    'stake.stakeNow': '지금 스테이킹',
-    'stake.submitted': '요청 완료: ',
-    'stake.submittedNoTxid': '트랜잭션 요청이 제출되었습니다.',
+    'stake.maxHint':
+      '최대를 누르면 거래 수수료용으로 1 STX를 남기고 입력됩니다.',
+
+    'stake.rewardsQuestion': '보상을 어디로 받을까요?',
+    'stake.rewardsSbtc': 'Stacks에 그대로 두기',
+    'stake.rewardsSbtcHelp':
+      '이 지갑으로 sBTC로 들어옵니다. 따로 설정할 것이 없습니다.',
+    'stake.rewardsBitcoin': '비트코인으로 보내기',
+    'stake.rewardsBitcoinHelp': '지정한 비트코인 주소로 보냅니다.',
+    'stake.rewardsNow': '현재 설정',
+    'stake.rewardsChangeToSbtc':
+      '보상이 더 이상 비트코인으로 가지 않고, 이 지갑에 sBTC로 들어오게 됩니다.',
+    'stake.rewardsChangeAddress':
+      '풀에 등록된 비트코인 주소를 입력한 주소로 바꿉니다.',
+    'stake.btcAddress': '내 비트코인 주소',
+    'stake.maxFee': '전송에 쓸 최대 금액',
+    'stake.maxFeeHint':
+      '단위는 sats입니다. 비트코인 전송에는 약간의 수수료가 들며 보상에서 차감됩니다. 3000이 무난한 시작값입니다.',
+    'stake.minClaim': '지급을 시작할 최소 금액',
+    'stake.minClaimHint':
+      '단위는 sats입니다. 보상이 이 금액에 도달하면 누구나 지급을 실행할 수 있습니다. 높게 잡으면 지급 횟수는 줄지만 수수료로 나가는 비율도 줄어듭니다. {min}보다 커야 합니다.',
+
+    'stake.explain': '누르면 무슨 일이 일어나나요?',
+    'stake.explainBody':
+      '지갑이 위 금액을 이 풀에 한 보상 사이클 동안 잠그는 트랜잭션을 만들어 승인을 요청합니다. 승인하기 전까지는 아무것도 움직이지 않으며, 그 전에는 언제든 이 창을 닫아도 됩니다.',
+
+    'stake.submitting': '지갑에서 승인을 기다리는 중…',
+    'stake.stakeNow': '스테이킹 시작',
+    'stake.addToStake': '스테이킹 추가하기',
+    'stake.moveStake': '이 풀로 옮기기',
+    'stake.submitted': '전송됨 — ',
+    'stake.submittedNoTxid': '지갑으로 전송했습니다.',
+    'stake.submittedHint': '보통 몇 분 안에 확정됩니다.',
     'stake.error.noStxAddress': '지갑에서 STX 주소를 찾지 못했습니다.',
-    'stake.error.amount': '유효한 스테이킹 수량을 입력하세요.',
-    'stake.error.tooMuch': '잔액에서 1 STX를 제외한 금액을 초과했습니다.',
-    'stake.error.btcAddress': 'BTC 주소를 입력하세요.',
-    'stake.error.maxFee': '최대 수수료(sats)는 숫자여야 합니다.',
+    'stake.error.amount': '스테이킹할 금액을 입력하세요.',
+    'stake.error.tooMuch': '보유 금액에서 1 STX를 남긴 한도를 넘었습니다.',
+    'stake.error.btcAddress': '보상을 받을 비트코인 주소를 입력하세요.',
+    'stake.error.maxFee': '전송에 쓸 최대 금액은 숫자여야 합니다.',
+    'stake.error.minClaim':
+      '지급 최소 금액은 {min} sats보다 큰 숫자여야 합니다. 그렇지 않으면 풀이 보낼 수 없습니다.',
     'stake.error.noPublicKey':
       '지갑이 공개키를 반환하지 않았습니다. 다시 연결한 뒤 시도하세요.',
     'stake.error.balanceLookup': '잔액 조회에 실패했습니다 ({status})',

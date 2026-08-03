@@ -19,6 +19,27 @@ export function toStx(ustx: string | bigint): number {
 }
 
 /**
+ * "1,234.5 STX" — grouped, but not rounded.
+ *
+ * Rounding is right for what a pool holds and wrong for what *you* hold: the
+ * balance a reader is about to stake should be the number they can check
+ * against their wallet, to the last microSTX.
+ */
+export function exactStxLabel(
+  ustx: string | bigint,
+  locale: Locale = 'en',
+): string {
+  const t = translator(locale);
+  const total = BigInt(ustx);
+  const whole = (total / MICRO_STX).toLocaleString(t.bundle.intlLocale);
+  const frac = (total % MICRO_STX)
+    .toString()
+    .padStart(6, '0')
+    .replace(/0+$/, '');
+  return t('amount.plain', { value: frac ? `${whole}.${frac}` : whole });
+}
+
+/**
  * "8.2 million STX", "12,340 STX", "nothing staked yet".
  *
  * A pool we could not read is not zero — it is unknown, and says so.

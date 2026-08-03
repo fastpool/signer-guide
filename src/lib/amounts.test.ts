@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { stxLabel, sumUstx, toStx } from './amounts';
+import { exactStxLabel, stxLabel, sumUstx, toStx } from './amounts';
 
 describe('stxLabel', () => {
   it('rounds millions, because nobody reads eight digits', () => {
@@ -40,6 +40,25 @@ describe('stxLabel', () => {
 describe('toStx', () => {
   it('converts from microSTX without losing the integer part', () => {
     expect(toStx('8215865483722')).toBe(8_215_865);
+  });
+});
+
+describe('exactStxLabel', () => {
+  it('does not round what belongs to the person reading it', () => {
+    // A pool's total can round; your own stake cannot, or it stops matching
+    // the number in your wallet.
+    expect(exactStxLabel('8215865483722')).toBe('8,215,865.483722 STX');
+    expect(exactStxLabel(1_469_149_063n)).toBe('1,469.149063 STX');
+  });
+
+  it('drops trailing zeros but keeps the grouping', () => {
+    expect(exactStxLabel('57200000000')).toBe('57,200 STX');
+    expect(exactStxLabel('1500000')).toBe('1.5 STX');
+    expect(exactStxLabel('0')).toBe('0 STX');
+  });
+
+  it('groups the way the reader’s language groups', () => {
+    expect(exactStxLabel('8215865483722', 'ko')).toBe('8,215,865.483722 STX');
   });
 });
 

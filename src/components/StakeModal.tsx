@@ -6,8 +6,20 @@ import {
   request,
 } from '@stacks/connect';
 import { transactionToHex } from '@stacks/transactions';
+import { exactStxLabel } from '../lib/amounts';
 import { explorerUrl } from '../lib/explorer';
 import { translator, type Locale, type Translator } from '../lib/i18n';
+import {
+  buildPayoutCalldata,
+  defaultMinClaimSats,
+  fetchPayoutRecord,
+  fetchStakedPosition,
+  isValidMinClaim,
+  minClaimFloorSats,
+  type PayoutRecord,
+  type StakedPosition,
+} from '../lib/staking';
+import { ellipsedAddr } from '../lib/strings';
 import type { Signer } from '../lib/types';
 import {
   clearWalletSession,
@@ -51,7 +63,8 @@ export function spendableFromBalance(
   return balanceUstx > ONE_STX_USTX ? balanceUstx - ONE_STX_USTX : 0n;
 }
 
-function signerNameFromContractId(contractId: string): string {
+/** "fastpool-1-signer-manager" → "Fastpool 1 Signer Manager". */
+export function signerNameFromContractId(contractId: string): string {
   const [, contractName = contractId] = contractId.split('.');
   return contractName
     .split('-')
@@ -89,6 +102,80 @@ function cachedStxAddress(): string | null {
   }
 }
 
+/** Enough to get a payout out in most fee conditions, and no more. */
+const DEFAULT_MAX_FEE_SATS = '3000';
+
+const CARD = 'rounded-2xl bg-cream p-4';
+const FIELD =
+  'w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm';
+
+/**
+ * One of the two reward destinations.
+ *
+ * `now` marks the one already in force, so the reader can see at a glance
+ * whether they are about to change anything.
+ */
+function RewardOption({
+  name,
+  checked,
+  onSelect,
+  title,
+  help,
+  now,
+  nowLabel,
+}: {
+  name: string;
+  checked: boolean;
+  onSelect: () => void;
+  title: string;
+  help: string;
+  now: boolean;
+  nowLabel: string;
+}) {
+  return (
+    <label
+      className={`flex gap-3 rounded-xl border p-3 ${
+        checked ? 'border-grape bg-grape-soft/40' : 'border-black/10'
+      }`}
+    >
+      <input
+        type='radio'
+        name={name}
+        checked={checked}
+        onChange={onSelect}
+        className='mt-1'
+      />
+      <span>
+        <span className='block text-sm font-semibold'>
+          {title}
+          {now && (
+            <span className='ml-2 rounded-full bg-mint-soft px-2 py-0.5 text-xs font-semibold text-mint'>
+              {nowLabel}
+            </span>
+          )}
+        </span>
+        <span className='block text-xs text-muted'>{help}</span>
+      </span>
+    </label>
+  );
+}
+
+/** A heading for one step of the form, so the dialog reads as a sequence. */
+function Step({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className='mt-5'>
+      <h5 className='text-sm font-bold text-ink'>{title}</h5>
+      {children}
+    </div>
+  );
+}
+
 export default function StakeModal({
   signer,
   locale,
@@ -98,19 +185,29 @@ export default function StakeModal({
 }) {
   const t = translator(locale);
   const titleId = useId();
+  const rewardsName = useId();
 
   const session = useWalletSession();
   const [open, setOpen] = useState(false);
   /** Known from localStorage but with no public key behind it yet. */
   const [cachedAddress, setCachedAddress] = useState<string | null>(null);
-  const [currentSignerManager, setCurrentSignerManager] = useState<
-    string | null
-  >(null);
+  const [position, setPosition] = useState<StakedPosition | null>(null);
+  /** What this pool holds for this staker, and which calldata it speaks. */
+  const [payout, setPayout] = useState<PayoutRecord | null>(null);
   const [balanceUstx, setBalanceUstx] = useState<bigint | null>(null);
   const [amountStx, setAmountStx] = useState('');
-  const [receiveBtc, setReceiveBtc] = useState(false);
-  const [btcAddress, setBtcAddress] = useState('');
-  const [maxFeeSats, setMaxFeeSats] = useState('3000');
+  /*
+   * The reward fields are deliberately not state until the reader touches
+   * them: null means "whatever the chain says". Holding a copy of the chain's
+   * answer in state is how the summary above the toggle and the toggle itself
+   * came to disagree — one was set from a fetch, the other kept its default.
+   */
+  const [rewardChoice, setRewardChoice] = useState<'bitcoin' | 'sbtc' | null>(
+    null,
+  );
+  const [btcAddressInput, setBtcAddressInput] = useState<string | null>(null);
+  const [maxFeeInput, setMaxFeeInput] = useState<string | null>(null);
+  const [minClaimInput, setMinClaimInput] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -125,8 +222,8 @@ export default function StakeModal({
   const canToggleBtc = signer.bitcoinRewards;
 
   /**
-   * Bumped whenever the account changes, so a slow balance lookup for the
-   * account the user has just switched away from cannot overwrite the new one.
+   * Bumped whenever the account changes, so a slow lookup for the account the
+   * user has just switched away from cannot overwrite the new one.
    */
   const loadId = useRef(0);
 
@@ -135,11 +232,47 @@ export default function StakeModal({
     [balanceUstx],
   );
 
-  const currentSignerName = useMemo(() => {
-    if (!currentSignerManager) return null;
-    if (currentSignerManager === signer.contractId) return signer.displayName;
-    return signerNameFromContractId(currentSignerManager);
-  }, [currentSignerManager, signer.contractId, signer.displayName]);
+  const stakingHere = position?.signer === signer.contractId;
+  const currentPoolName = position
+    ? stakingHere
+      ? signer.displayName
+      : signerNameFromContractId(position.signer)
+    : null;
+
+  /**
+   * The Bitcoin payout on file — this pool's if it has one, otherwise the one
+   * the staker has with whichever pool they are in, so moving pools carries
+   * the choice over rather than silently dropping it.
+   */
+  const recorded =
+    (payout?.route.kind === 'bitcoin' ? payout.route : null) ??
+    (position?.payout?.route.kind === 'bitcoin' ? position.payout.route : null);
+
+  /** Derived, never stored: it cannot fall out of step with what is above it. */
+  const receiveBtc =
+    (rewardChoice ?? (recorded ? 'bitcoin' : 'sbtc')) === 'bitcoin';
+  const btcAddress =
+    btcAddressInput ?? recorded?.address ?? session?.btcAddress ?? '';
+  const maxFeeSats =
+    maxFeeInput ?? recorded?.maxFeeSats.toString() ?? DEFAULT_MAX_FEE_SATS;
+
+  /** Only the newer calldata carries a floor; the older one has no field for it. */
+  const supportsMinClaim = payout?.shape === 'payout-config';
+  const parsedMaxFee = /^\d+$/.test(maxFeeSats.trim())
+    ? BigInt(maxFeeSats.trim())
+    : null;
+  const minClaimSats =
+    minClaimInput ??
+    recorded?.minClaimSats?.toString() ??
+    (parsedMaxFee === null ? '' : defaultMinClaimSats(parsedMaxFee).toString());
+
+  /** Staking with sBTC selected deletes the payout entry the pool holds. */
+  const stopsBitcoinPayouts = recorded !== null && !receiveBtc;
+  const replacesBtcAddress =
+    recorded !== null &&
+    receiveBtc &&
+    btcAddress.trim().length > 0 &&
+    btcAddress.trim() !== recorded.address;
 
   useEffect(() => {
     if (!open) return;
@@ -160,7 +293,7 @@ export default function StakeModal({
     setCachedAddress(cachedStxAddress());
   }, [open, session, cachedAddress]);
 
-  /** Balance and current signer for whichever address we are showing. */
+  /** Balance, and the stake already in place, for whichever address is shown. */
   useEffect(() => {
     if (!open || !walletAddress) return;
 
@@ -168,15 +301,24 @@ export default function StakeModal({
     const load = async () => {
       setLoading(true);
       try {
-        const { fetchStakerInfo } = await import('@stacks/bitcoin-staking');
-        const stakerInfo = await fetchStakerInfo({
-          address: walletAddress,
-          network: 'mainnet',
-        });
+        const staked = await fetchStakedPosition({ address: walletAddress });
         if (id !== loadId.current) return;
-        setCurrentSignerManager(
-          stakerInfo.staked ? stakerInfo.details.signer : null,
-        );
+        setPosition(staked);
+
+        // This pool's own record, which is what staking here would replace.
+        // Reading it also names the calldata shape, so it is worth doing for
+        // somebody with no Bitcoin address on file yet.
+        if (signer.bitcoinRewards) {
+          const here =
+            staked?.signer === signer.contractId
+              ? staked.payout
+              : await fetchPayoutRecord({
+                  staker: walletAddress,
+                  signer: signer.contractId,
+                });
+          if (id !== loadId.current) return;
+          setPayout(here);
+        }
 
         const balance = await fetchBalanceUstx(walletAddress, t);
         if (id !== loadId.current) return;
@@ -193,20 +335,29 @@ export default function StakeModal({
     };
 
     void load();
-  }, [open, walletAddress, reloadNonce, t]);
-
-  useEffect(() => {
-    if (session?.btcAddress) setBtcAddress(session.btcAddress);
-  }, [session?.btcAddress]);
+  }, [
+    open,
+    walletAddress,
+    reloadNonce,
+    signer.bitcoinRewards,
+    signer.contractId,
+    t,
+  ]);
 
   /** Everything read for the previous account, dropped before the new one loads. */
   const forgetAccount = () => {
     loadId.current += 1;
     setCachedAddress(null);
-    setCurrentSignerManager(null);
+    setPosition(null);
+    setPayout(null);
     setBalanceUstx(null);
     setAmountStx('');
-    setBtcAddress('');
+    // The reward fields go back to following the chain, so the new account's
+    // own record decides rather than the previous account's answers.
+    setRewardChoice(null);
+    setBtcAddressInput(null);
+    setMaxFeeInput(null);
+    setMinClaimInput(null);
     setError(null);
     setResult(null);
     setReloadNonce((n) => n + 1);
@@ -268,9 +419,29 @@ export default function StakeModal({
       return;
     }
 
-    if (receiveBtc && !/^\d+$/.test(maxFeeSats.trim())) {
+    if (receiveBtc && parsedMaxFee === null) {
       setError(t('stake.error.maxFee'));
       return;
+    }
+
+    // The contract refuses a floor that a payout could not clear after the fee
+    // and the dust limit, so it is worth catching here rather than as a failed
+    // transaction the staker has already paid for.
+    const minClaim =
+      receiveBtc && supportsMinClaim && /^\d+$/.test(minClaimSats.trim())
+        ? BigInt(minClaimSats.trim())
+        : null;
+    if (receiveBtc && supportsMinClaim && parsedMaxFee !== null) {
+      if (minClaim === null || !isValidMinClaim(minClaim, parsedMaxFee)) {
+        setError(
+          t('stake.error.minClaim', {
+            min: minClaimFloorSats(parsedMaxFee).toLocaleString(
+              t.bundle.intlLocale,
+            ),
+          }),
+        );
+        return;
+      }
     }
 
     setSubmitting(true);
@@ -279,13 +450,8 @@ export default function StakeModal({
       // wallet interaction left is signing. Otherwise connect once, here.
       const active = session ?? (await openWallet());
 
-      const {
-        buildSignerCalldata,
-        buildStake,
-        buildStakeUpdate,
-        fetchAccountStatus,
-        fetchPoxInfo,
-      } = await import('@stacks/bitcoin-staking');
+      const { buildStake, buildStakeUpdate, fetchAccountStatus, fetchPoxInfo } =
+        await import('@stacks/bitcoin-staking');
 
       const account = await fetchAccountStatus({
         address: active.stxAddress,
@@ -293,17 +459,20 @@ export default function StakeModal({
       });
       const poxInfo = await fetchPoxInfo({ network: 'mainnet' });
 
-      const signerCalldata = receiveBtc
-        ? buildSignerCalldata({
-            poxAddress: rewardBtcAddress,
-            maxFeeSats: BigInt(maxFeeSats.trim()),
-          })
-        : undefined;
+      const signerCalldata =
+        receiveBtc && parsedMaxFee !== null
+          ? await buildPayoutCalldata({
+              shape: payout?.shape ?? 'pox-addr',
+              btcAddress: rewardBtcAddress,
+              maxFeeSats: parsedMaxFee,
+              minClaimSats: minClaim ?? undefined,
+            })
+          : undefined;
 
-      const tx = currentSignerManager
+      const tx = position
         ? await buildStakeUpdate({
             signerManager: signer.contractId,
-            oldSignerManager: currentSignerManager,
+            oldSignerManager: position.signer,
             amountIncrease: amountUstx,
             signerCalldata,
             publicKey: active.publicKey,
@@ -336,11 +505,11 @@ export default function StakeModal({
     }
   };
 
-  const connectLabel = loading
-    ? t('stake.checking')
-    : walletAddress
-      ? t('stake.switch')
-      : t('stake.connect');
+  const submitLabel = !position
+    ? t('stake.stakeNow')
+    : stakingHere
+      ? t('stake.addToStake')
+      : t('stake.moveStake');
 
   return (
     <>
@@ -378,123 +547,214 @@ export default function StakeModal({
 
             <p className='mt-2 text-sm text-muted'>{t('stake.intro')}</p>
 
-            {currentSignerManager && (
-              <p className='mt-2 rounded-xl bg-cream px-3 py-2 text-xs text-muted'>
-                {t('stake.currentSigner')}
-                <span className='font-semibold text-ink'>
-                  {currentSignerName}
-                </span>
-                {currentSignerName !== currentSignerManager && (
-                  <>
-                    {' '}
-                    <span className='font-mono text-ink'>
-                      ({currentSignerManager})
-                    </span>
-                  </>
+            <div className={`mt-4 ${CARD}`}>
+              <div className='flex flex-wrap items-baseline justify-between gap-2'>
+                <p className='text-sm font-bold'>{t('stake.wallet')}</p>
+                <button
+                  type='button'
+                  onClick={connectWallet}
+                  className='rounded-full bg-grape-soft px-3 py-1 text-xs font-semibold text-grape hover:bg-grape-soft/80'
+                >
+                  {loading
+                    ? t('stake.checking')
+                    : walletAddress
+                      ? t('stake.switch')
+                      : t('stake.connect')}
+                </button>
+              </div>
+              <p className='mt-1 font-mono text-sm text-ink'>
+                {walletAddress ? (
+                  <span title={walletAddress}>
+                    {ellipsedAddr(walletAddress, 12)}
+                  </span>
+                ) : (
+                  <span className='font-sans text-muted'>
+                    {t('stake.walletNone')}
+                  </span>
                 )}
-                {currentSignerManager === signer.contractId &&
-                  t('stake.currentSignerSelected')}
               </p>
+              <p className='mt-1 text-sm text-muted'>
+                {spendableUstx === null
+                  ? t('stake.availableUnknown')
+                  : t('stake.available', {
+                      amount: exactStxLabel(spendableUstx, locale),
+                    })}
+              </p>
+            </div>
+
+            {position && (
+              <div className='mt-3 rounded-2xl bg-mint-soft p-4 text-sm'>
+                <p className='font-bold text-ink'>
+                  {t('stake.position.title')}
+                </p>
+                <p className='mt-1 text-ink'>
+                  {t('stake.position.amount', {
+                    amount: exactStxLabel(position.amountUstx, locale),
+                    pool: currentPoolName ?? position.signer,
+                  })}{' '}
+                  <span className='text-muted'>
+                    {stakingHere
+                      ? t('stake.position.thisPool')
+                      : t('stake.position.otherPool', {
+                          pool: signer.displayName,
+                        })}
+                  </span>
+                </p>
+                <p className='mt-1 text-muted'>
+                  {t.plural('stake.position.cycles', position.numCycles, {
+                    first: position.firstRewardCycle,
+                  })}{' '}
+                  {t('stake.position.cyclesHint')}
+                </p>
+                <p className='mt-2 text-ink'>
+                  {position.payout === null
+                    ? t('stake.position.rewardsUnknown')
+                    : position.payout.route.kind === 'sbtc'
+                      ? t('stake.position.rewardsSbtc')
+                      : t.rich('stake.position.rewardsBitcoin', {
+                          // Shortened, with the whole of it a hover away: the
+                          // point is that there *is* one and that it is yours.
+                          address: (
+                            <span
+                              className='font-mono'
+                              title={position.payout.route.address}
+                            >
+                              {ellipsedAddr(position.payout.route.address, 16)}
+                            </span>
+                          ),
+                        })}
+                </p>
+                {position.payout?.route.kind === 'bitcoin' && (
+                  <p className='mt-1 text-xs text-muted'>
+                    {t('stake.position.maxFee', {
+                      sats: position.payout.route.maxFeeSats.toLocaleString(
+                        t.bundle.intlLocale,
+                      ),
+                    })}
+                    {position.payout.route.minClaimSats !== null && (
+                      <>
+                        {' '}
+                        {t('stake.position.minClaim', {
+                          sats: position.payout.route.minClaimSats.toLocaleString(
+                            t.bundle.intlLocale,
+                          ),
+                        })}
+                      </>
+                    )}
+                  </p>
+                )}
+              </div>
             )}
 
-            <div className='mt-4 flex flex-wrap items-center gap-2'>
-              <button
-                type='button'
-                onClick={connectWallet}
-                className='rounded-full bg-grape-soft px-4 py-2 text-sm font-semibold text-grape hover:bg-grape-soft/80'
-              >
-                {connectLabel}
-              </button>
-              {walletAddress && (
-                <span className='text-xs text-muted'>
-                  {t('stake.connected')} {walletAddress}
-                </span>
-              )}
-            </div>
-
-            <div className='mt-4 rounded-2xl bg-cream p-4'>
-              <p className='text-sm text-muted'>
-                {t.rich('stake.balance', {
-                  value: (
-                    <strong className='text-ink'>
-                      {balanceUstx === null
-                        ? t('stake.balanceUnknown')
-                        : `${formatUstxAsStx(balanceUstx)} STX`}
-                    </strong>
-                  ),
-                })}
-              </p>
-              {session?.btcAddress && (
-                <p className='mt-1 text-xs text-muted'>
-                  BTC: <span className='font-mono'>{session.btcAddress}</span>
-                </p>
-              )}
-            </div>
-
-            <div className='mt-4'>
-              <label className='text-sm font-semibold'>
-                {t('stake.amountLabel')}
-              </label>
-              <div className='mt-1 flex gap-2'>
+            <Step title={t('stake.amountQuestion')}>
+              <div className='mt-2 flex gap-2'>
                 <input
                   type='text'
                   inputMode='decimal'
                   value={amountStx}
                   onChange={(e) => setAmountStx(e.target.value)}
-                  className='w-full rounded-xl border border-black/10 px-3 py-2 text-sm'
+                  className={FIELD}
                   placeholder='0'
+                  aria-label={t('stake.amountQuestion')}
                 />
                 <button
                   type='button'
                   onClick={onUseMax}
-                  className='rounded-xl bg-grape-soft px-3 py-2 text-sm font-semibold text-grape'
+                  className='shrink-0 rounded-xl bg-grape-soft px-3 py-2 text-sm font-semibold text-grape'
                 >
                   {t('stake.max')}
                 </button>
               </div>
               <p className='mt-1 text-xs text-muted'>{t('stake.maxHint')}</p>
-            </div>
+            </Step>
 
             {canToggleBtc && (
-              <div className='mt-4 rounded-2xl border border-black/10 p-4'>
-                <label className='flex items-center gap-2 text-sm font-semibold'>
-                  <input
-                    type='checkbox'
-                    checked={receiveBtc}
-                    onChange={(e) => setReceiveBtc(e.target.checked)}
+              <Step title={t('stake.rewardsQuestion')}>
+                <div className='mt-2 space-y-2'>
+                  <RewardOption
+                    name={rewardsName}
+                    checked={!receiveBtc}
+                    onSelect={() => setRewardChoice('sbtc')}
+                    title={t('stake.rewardsSbtc')}
+                    help={t('stake.rewardsSbtcHelp')}
+                    now={recorded === null && payout !== null}
+                    nowLabel={t('stake.rewardsNow')}
                   />
-                  {t('stake.receiveBtc')}
-                </label>
+                  <RewardOption
+                    name={rewardsName}
+                    checked={receiveBtc}
+                    onSelect={() => setRewardChoice('bitcoin')}
+                    title={t('stake.rewardsBitcoin')}
+                    help={t('stake.rewardsBitcoinHelp')}
+                    now={recorded !== null}
+                    nowLabel={t('stake.rewardsNow')}
+                  />
+                </div>
+
+                {(stopsBitcoinPayouts || replacesBtcAddress) && (
+                  <p className='mt-2 rounded-xl bg-amber-soft p-3 text-xs text-amber-warm'>
+                    {stopsBitcoinPayouts
+                      ? t('stake.rewardsChangeToSbtc')
+                      : t('stake.rewardsChangeAddress')}
+                  </p>
+                )}
 
                 {receiveBtc && (
-                  <>
-                    <label className='mt-3 block text-sm font-semibold'>
-                      {t('stake.btcAddress')}
-                    </label>
-                    <input
-                      type='text'
-                      value={btcAddress}
-                      onChange={(e) => setBtcAddress(e.target.value)}
-                      className='mt-1 w-full rounded-xl border border-black/10 px-3 py-2 text-sm font-mono'
-                      placeholder='bc1...'
-                    />
-
-                    <label className='mt-3 block text-sm font-semibold'>
-                      {t('stake.maxFee')}
-                    </label>
-                    <input
-                      type='text'
-                      inputMode='numeric'
-                      value={maxFeeSats}
-                      onChange={(e) => setMaxFeeSats(e.target.value)}
-                      className='mt-1 w-full rounded-xl border border-black/10 px-3 py-2 text-sm'
-                    />
-                    <p className='mt-1 text-xs text-muted'>
-                      {t('stake.maxFeeHint')}
-                    </p>
-                  </>
+                  <div className='mt-3 space-y-3 rounded-xl bg-cream p-3'>
+                    <div>
+                      <label className='block text-xs font-semibold'>
+                        {t('stake.btcAddress')}
+                      </label>
+                      <input
+                        type='text'
+                        value={btcAddress}
+                        onChange={(e) => setBtcAddressInput(e.target.value)}
+                        className={`mt-1 font-mono ${FIELD}`}
+                        placeholder='bc1...'
+                      />
+                    </div>
+                    <div>
+                      <label className='block text-xs font-semibold'>
+                        {t('stake.maxFee')}
+                      </label>
+                      <input
+                        type='text'
+                        inputMode='numeric'
+                        value={maxFeeSats}
+                        onChange={(e) => setMaxFeeInput(e.target.value)}
+                        className={`mt-1 ${FIELD}`}
+                      />
+                      <p className='mt-1 text-xs text-muted'>
+                        {t('stake.maxFeeHint')}
+                      </p>
+                    </div>
+                    {supportsMinClaim && (
+                      <div>
+                        <label className='block text-xs font-semibold'>
+                          {t('stake.minClaim')}
+                        </label>
+                        <input
+                          type='text'
+                          inputMode='numeric'
+                          value={minClaimSats}
+                          onChange={(e) => setMinClaimInput(e.target.value)}
+                          className={`mt-1 ${FIELD}`}
+                        />
+                        <p className='mt-1 text-xs text-muted'>
+                          {t('stake.minClaimHint', {
+                            min:
+                              parsedMaxFee === null
+                                ? '—'
+                                : minClaimFloorSats(
+                                    parsedMaxFee,
+                                  ).toLocaleString(t.bundle.intlLocale),
+                          })}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 )}
-              </div>
+              </Step>
             )}
 
             {error && (
@@ -514,27 +774,30 @@ export default function StakeModal({
                       target='_blank'
                       rel='noreferrer'
                     >
-                      {result.txid}
+                      {ellipsedAddr(result.txid, 16)}
                     </a>
                   </>
                 ) : (
                   t('stake.submittedNoTxid')
-                )}
+                )}{' '}
+                {t('stake.submittedHint')}
               </p>
             )}
 
-            <div className='mt-5 flex justify-end'>
+            <div className='mt-5 flex flex-wrap items-center justify-between gap-3'>
+              <details className='text-xs text-muted'>
+                <summary className='cursor-pointer font-semibold'>
+                  {t('stake.explain')}
+                </summary>
+                <p className='mt-1 max-w-sm'>{t('stake.explainBody')}</p>
+              </details>
               <button
                 type='button'
                 onClick={onStake}
                 disabled={submitting}
-                className='rounded-full bg-grape px-5 py-2 text-sm font-semibold text-white disabled:opacity-50'
+                className='rounded-full bg-grape px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50'
               >
-                {submitting
-                  ? t('stake.submitting')
-                  : currentSignerManager
-                    ? t('stake.signUpdate')
-                    : t('stake.stakeNow')}
+                {submitting ? t('stake.submitting') : submitLabel}
               </button>
             </div>
           </div>
