@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-03T21:33:09.567Z",
+  "generatedAt": "2026-08-03T23:29:42.053Z",
   "cycle": 140,
   "signers": [
     {
@@ -193,6 +193,29 @@
       "registered": true,
       "signerKey": "0x038cb1e945144ca7669b0f33656b8379bcb3c17795b4d8665e42dea76eb3f86d2f",
       "sourceSha256": "48d22cf832f2b61118327265b6b7f303c911a98bdb5af2a54a931a1cf432e316",
+      "canonicalSha256": "004da6bde5f91b9cdf555a020494cab73d29cc75733ad0c05e4f4b32a94e251b",
+      "groupSha256": "09aa95c7bdeb5ba47970ef47eec3122bf1e1c38ac796799622bc9a4a48c0867e",
+      "match": "canonical",
+      "profileId": "standard",
+      "bitcoinRewards": true,
+      "openToAnyone": true,
+      "feeBips": 0,
+      "maxFeeBips": null,
+      "feeChangeNotice": null,
+      "feeExemption": null,
+      "evidence": {
+        "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
+        "openToAnyone": null,
+        "maxFee": null
+      }
+    },
+    {
+      "contractId": "SP3KF99SM1T2V25NF2JZYAD1ZADC8326PH6HD7HF6.not-used",
+      "displayName": "Not Used",
+      "implementationName": "Standard",
+      "registered": true,
+      "signerKey": "0x0240afe322491c16eb3a80ee38559b6e0f2000c4462c6473bc00d10cd2d0354336",
+      "sourceSha256": "05aaf409ed285f02d8b6d5d540f94feb8baea139a14263b7e7de7ba9f054d3c5",
       "canonicalSha256": "004da6bde5f91b9cdf555a020494cab73d29cc75733ad0c05e4f4b32a94e251b",
       "groupSha256": "09aa95c7bdeb5ba47970ef47eec3122bf1e1c38ac796799622bc9a4a48c0867e",
       "match": "canonical",
