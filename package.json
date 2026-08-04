@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "generate:signers": "tsx scripts/generate-signers.ts",
     "generate:totals": "tsx scripts/generate-totals.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "check:pwa": "node scripts/pwa-check.mjs"
   },
   "dependencies": {
     "@stacks/bitcoin-staking": "^7.6.0",

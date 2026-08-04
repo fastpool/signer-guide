@@ -297,6 +297,23 @@ Every cross-origin request goes to the network, always:
 `src/lib/sw.test.ts` loads the worker into a sandbox and asserts both refusals,
 because a negative rule is the kind that rots quietly.
 
+### Checking it in a real browser
+
+A service worker cannot be unit-tested — whether it registers, whether it takes
+control on the next visit, and what the app does with the network cut are facts
+about a browser. Neither can the wallet picker, which is a web component that
+has to be handed a project id before it will offer WalletConnect at all. So
+those eleven things are checked by driving a real browser:
+
+```bash
+pnpm build && pnpm preview &
+pnpm check:pwa                  # CHROME_PATH=… if it cannot find a browser
+```
+
+It is deliberately **not** part of `pnpm test`: it needs a build, a server and
+a browser, none of which the unit tests do. Run it before shipping anything
+that touches the shell, the data layer or the wallet.
+
 A new version is **offered, not applied**: the worker waits, a bar appears, and
 the reload happens when the reader says so. An app that reloads itself could do
 it in the middle of approving a transaction.
@@ -309,15 +326,19 @@ app and the route to it is WalletConnect — `@stacks/connect` already carries
 that provider and lists it in the same picker as the injected ones, so nothing
 downstream of `connect()` changes.
 
-It needs a project id from [Reown](https://dashboard.reown.com), which is
-per-deployment and public:
+It needs a project id from [Reown](https://dashboard.reown.com). Fast Pool's is
+committed in `src/lib/wallet-connect.ts`, so a fork or a preview deploy gets a
+working wallet picker without being told about an environment variable.
+
+That is deliberate, not a leak. A Reown project id is a public client
+identifier: it ships inside the bundle of every site that uses WalletConnect,
+including this one, and can be read straight out of it. What stops somebody
+else spending the quota is the **allowed-domains list in the Reown dashboard** —
+so that list is the thing to keep current, and a deployment on another domain
+should set its own id rather than borrow this one.
 
 | variable                        | default                  | meaning                                        |
 | ------------------------------- | ------------------------ | ---------------------------------------------- |
-| `VITE_WALLETCONNECT_PROJECT_ID` | _(none)_                 | enables WalletConnect in the wallet picker     |
+| `VITE_WALLETCONNECT_PROJECT_ID` | Fast Pool's own          | overrides the committed id                     |
 | `VITE_DATA_BASE_URL`            | this branch's `src/data` | where the installed app re-reads the data from |
 | `VITE_STACKS_API_URL`           | `https://api.hiro.so`    | node the staking dialog reads balances from    |
-
-Without the id the connector cannot be created, so it is left out entirely
-rather than half-configured, and the picker shows whatever is injected — which
-is what this app did before.

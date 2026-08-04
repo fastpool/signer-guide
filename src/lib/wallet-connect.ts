@@ -17,21 +17,31 @@ type ConnectRequestOptions = NonNullable<Parameters<typeof connect>[0]>;
  * rather than a second way of talking to them. Everything downstream —
  * `connect()`, `request('stx_signTransaction')` — is unchanged.
  *
- * WalletConnect needs a project id from Reown, which is per-deployment and
- * public. Without one the connector cannot be created at all, so it is left
- * out entirely rather than half-configured: the picker then shows whatever is
- * injected, which is the behaviour this app had before.
+ * WalletConnect needs a project id from Reown. Without one the connector
+ * cannot be created at all, so it is left out entirely rather than
+ * half-configured: the picker then shows whatever is injected, which is the
+ * behaviour this app had before.
  */
+
+/**
+ * Fast Pool's own, committed rather than kept in the environment.
+ *
+ * A Reown project id is a public client identifier, not a secret — it ships
+ * inside the bundle of every site that uses WalletConnect, and it is read
+ * straight out of this one. What stops somebody else spending the quota is the
+ * allowed-domains list in the Reown dashboard, which is where that belongs.
+ *
+ * Committing it means a fork or a preview deploy gets a working wallet picker
+ * without anyone having to be told about an environment variable. A deployment
+ * that wants its own id sets `VITE_WALLETCONNECT_PROJECT_ID`.
+ */
+const DEFAULT_PROJECT_ID = 'a013ec0fd2d07ac0ba6c2e2512fd8a23';
 
 const PROJECT_ID =
   typeof import.meta.env.VITE_WALLETCONNECT_PROJECT_ID === 'string' &&
   import.meta.env.VITE_WALLETCONNECT_PROJECT_ID.length > 0
     ? import.meta.env.VITE_WALLETCONNECT_PROJECT_ID
-    : null;
-
-export function isWalletConnectConfigured(): boolean {
-  return PROJECT_ID !== null;
-}
+    : DEFAULT_PROJECT_ID;
 
 const METADATA = {
   name: 'Bitcoin Staking',
@@ -43,11 +53,11 @@ const METADATA = {
 };
 
 /**
- * Options for `connect()` / `request()`, with WalletConnect added when it is
- * configured. Safe to spread into either call in every environment.
+ * Options for `connect()` / `request()`. Safe to pass to either, in any
+ * environment — on a desktop browser the injected wallets are still listed
+ * first and WalletConnect is simply one more entry in the picker.
  */
 export function walletOptions(): ConnectRequestOptions {
-  if (PROJECT_ID === null) return {};
   return {
     walletConnect: {
       projectId: PROJECT_ID,
@@ -66,7 +76,6 @@ let initialized: Promise<void> | null = null;
  * picker, and any injected wallet still works — so the caller carries on.
  */
 export function initWalletConnect(): Promise<void> {
-  if (PROJECT_ID === null) return Promise.resolve();
   initialized ??= (async () => {
     const { WalletConnect } = await import('@stacks/connect');
     await WalletConnect.initializeProvider({
