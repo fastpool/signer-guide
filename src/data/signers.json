@@ -1,7 +1,30 @@
 {
-  "generatedAt": "2026-08-04T06:44:06.998Z",
+  "generatedAt": "2026-08-04T10:01:38.865Z",
   "cycle": 140,
   "signers": [
+    {
+      "contractId": "SP1N8F8BBBC60XF6HJBNJHKPRGJ7WZBRGNDJX4YDR.signer-manager",
+      "displayName": "signer-manager",
+      "implementationName": "Standard",
+      "registered": true,
+      "signerKey": "0x02fcf9e4c4bf998223095d849dcda17de147c4b50ab3751164c670aea956eba68d",
+      "sourceSha256": "48d22cf832f2b61118327265b6b7f303c911a98bdb5af2a54a931a1cf432e316",
+      "canonicalSha256": "004da6bde5f91b9cdf555a020494cab73d29cc75733ad0c05e4f4b32a94e251b",
+      "groupSha256": "09aa95c7bdeb5ba47970ef47eec3122bf1e1c38ac796799622bc9a4a48c0867e",
+      "match": "canonical",
+      "profileId": "standard",
+      "bitcoinRewards": true,
+      "openToAnyone": true,
+      "feeBips": 0,
+      "maxFeeBips": null,
+      "feeChangeNotice": null,
+      "feeExemption": null,
+      "evidence": {
+        "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
+        "openToAnyone": null,
+        "maxFee": null
+      }
+    },
     {
       "contractId": "SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85.signer-manager-hiro",
       "displayName": "Hiro",
@@ -210,12 +233,58 @@
       }
     },
     {
+      "contractId": "SP3DHX7ZHNTCE1WQHJH0T0HY9NNSVT4SWTY2FRCCT.hiro-contract",
+      "displayName": "Hiro Contract",
+      "implementationName": "Standard",
+      "registered": true,
+      "signerKey": "0x03585c7041ce97cb01afc92b338f63d9f2afe737314126dd4594a7f16c7ab27a03",
+      "sourceSha256": "48d22cf832f2b61118327265b6b7f303c911a98bdb5af2a54a931a1cf432e316",
+      "canonicalSha256": "004da6bde5f91b9cdf555a020494cab73d29cc75733ad0c05e4f4b32a94e251b",
+      "groupSha256": "09aa95c7bdeb5ba47970ef47eec3122bf1e1c38ac796799622bc9a4a48c0867e",
+      "match": "canonical",
+      "profileId": "standard",
+      "bitcoinRewards": true,
+      "openToAnyone": true,
+      "feeBips": 0,
+      "maxFeeBips": null,
+      "feeChangeNotice": null,
+      "feeExemption": null,
+      "evidence": {
+        "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
+        "openToAnyone": null,
+        "maxFee": null
+      }
+    },
+    {
       "contractId": "SP3KF99SM1T2V25NF2JZYAD1ZADC8326PH6HD7HF6.not-used",
       "displayName": "Not Used",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x0240afe322491c16eb3a80ee38559b6e0f2000c4462c6473bc00d10cd2d0354336",
       "sourceSha256": "05aaf409ed285f02d8b6d5d540f94feb8baea139a14263b7e7de7ba9f054d3c5",
+      "canonicalSha256": "004da6bde5f91b9cdf555a020494cab73d29cc75733ad0c05e4f4b32a94e251b",
+      "groupSha256": "09aa95c7bdeb5ba47970ef47eec3122bf1e1c38ac796799622bc9a4a48c0867e",
+      "match": "canonical",
+      "profileId": "standard",
+      "bitcoinRewards": true,
+      "openToAnyone": true,
+      "feeBips": 0,
+      "maxFeeBips": null,
+      "feeChangeNotice": null,
+      "feeExemption": null,
+      "evidence": {
+        "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
+        "openToAnyone": null,
+        "maxFee": null
+      }
+    },
+    {
+      "contractId": "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs",
+      "displayName": "Stacks Labs",
+      "implementationName": "Standard",
+      "registered": true,
+      "signerKey": "0x03bf03c1c517fc0ac40ee19d019145d1e14b36e108f3f44d2134bc458665f88c1a",
+      "sourceSha256": "48d22cf832f2b61118327265b6b7f303c911a98bdb5af2a54a931a1cf432e316",
       "canonicalSha256": "004da6bde5f91b9cdf555a020494cab73d29cc75733ad0c05e4f4b32a94e251b",
       "groupSha256": "09aa95c7bdeb5ba47970ef47eec3122bf1e1c38ac796799622bc9a4a48c0867e",
       "match": "canonical",
