@@ -225,6 +225,7 @@ export const ko: LocaleBundle = {
     'stake.walletNone': '아직 연결되지 않았습니다',
     'stake.connect': '지갑 연결',
     'stake.switch': '다른 계정 사용',
+    'stake.disconnect': '연결 해제',
     'stake.checking': '잠시만 기다려 주세요…',
     'stake.available': '스테이킹 가능 금액 {amount}',
     'stake.availableUnknown': '지갑을 연결하면 보유 금액이 표시됩니다',

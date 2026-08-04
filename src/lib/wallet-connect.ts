@@ -1,3 +1,4 @@
+import { disconnect, WalletConnect } from '@stacks/connect';
 import type { connect } from '@stacks/connect';
 
 /** The package does not export `ConnectRequestOptions`, so take it from `connect`. */
@@ -53,17 +54,38 @@ const METADATA = {
 };
 
 /**
+ * Stacks only, deliberately.
+ *
+ * Left to itself `@stacks/connect` uses its `Default` config, which asks for
+ * two namespaces: `stacks` and `bip122`. Xverse on mobile does not serve the
+ * bip122 `getAccountAddresses` method over WalletConnect, so a session that
+ * negotiated it came back with no addresses and an error about a bip method
+ * being unavailable — after the user had already approved in the wallet.
+ *
+ * Nothing here needs the Bitcoin namespace. The STX address and
+ * `stx_signTransaction` are what staking uses; the Bitcoin address is only
+ * ever a convenience prefill for the reward field, and `sessionFromAddresses`
+ * already treats it as optional. So this asks for what it uses and no more,
+ * which is also the smaller thing for a wallet to approve.
+ *
+ * The cost is real but small: over WalletConnect there is no BTC address to
+ * prefill, and somebody choosing Bitcoin rewards types theirs in.
+ */
+const NETWORKS = [WalletConnect.Networks.Stacks];
+
+const WALLET_CONNECT_CONFIG = {
+  projectId: PROJECT_ID,
+  metadata: METADATA,
+  networks: NETWORKS,
+};
+
+/**
  * Options for `connect()` / `request()`. Safe to pass to either, in any
  * environment — on a desktop browser the injected wallets are still listed
  * first and WalletConnect is simply one more entry in the picker.
  */
 export function walletOptions(): ConnectRequestOptions {
-  return {
-    walletConnect: {
-      projectId: PROJECT_ID,
-      metadata: METADATA,
-    },
-  };
+  return { walletConnect: WALLET_CONNECT_CONFIG };
 }
 
 let initialized: Promise<void> | null = null;
@@ -76,15 +98,31 @@ let initialized: Promise<void> | null = null;
  * picker, and any injected wallet still works — so the caller carries on.
  */
 export function initWalletConnect(): Promise<void> {
-  initialized ??= (async () => {
-    const { WalletConnect } = await import('@stacks/connect');
-    await WalletConnect.initializeProvider({
-      projectId: PROJECT_ID,
-      metadata: METADATA,
-    });
-  })().catch(() => {
-    // Let the next attempt try again rather than caching the failure.
-    initialized = null;
-  });
+  initialized ??= WalletConnect.initializeProvider(WALLET_CONNECT_CONFIG).catch(
+    () => {
+      // Let the next attempt try again rather than caching the failure.
+      initialized = null;
+    },
+  );
   return initialized;
+}
+
+/**
+ * Puts the page back to knowing no wallet at all.
+ *
+ * `clearLocalStorage` only drops the cached addresses. It leaves the
+ * WalletConnect session live and the chosen wallet remembered, so the next
+ * `connect()` quietly reuses both — which is why a failed connect used to
+ * leave no way back: pressing the button again did nothing visible, while
+ * `isConnected()` still answered true because an address was in storage.
+ *
+ * `disconnect()` is the one that ends the session, forgets the provider
+ * choice and clears storage, so the picker genuinely opens again.
+ */
+export function forgetWallet(): void {
+  try {
+    disconnect();
+  } catch {
+    // Nothing connected, or a provider that dislikes being asked twice.
+  }
 }

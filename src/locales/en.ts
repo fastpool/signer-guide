@@ -186,6 +186,7 @@ const messages = {
   'stake.walletNone': 'Not connected yet',
   'stake.connect': 'Connect wallet',
   'stake.switch': 'Use another account',
+  'stake.disconnect': 'Disconnect',
   'stake.checking': 'Just a moment…',
   'stake.available': '{amount} you can stake',
   'stake.availableUnknown': 'Connect your wallet to see what you have',

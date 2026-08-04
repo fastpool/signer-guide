@@ -21,7 +21,11 @@ import {
 } from '../lib/staking';
 import { ellipsedAddr } from '../lib/strings';
 import type { Signer } from '../lib/types';
-import { initWalletConnect, walletOptions } from '../lib/wallet-connect';
+import {
+  forgetWallet,
+  initWalletConnect,
+  walletOptions,
+} from '../lib/wallet-connect';
 import {
   clearWalletSession,
   isStacksAddress,
@@ -371,13 +375,27 @@ export default function StakeModal({
    */
   const openWallet = async (): Promise<WalletSession> => {
     clearWalletSession();
-    await clearLocalStorage();
+    // Not clearLocalStorage: that leaves the WalletConnect session live and
+    // the chosen wallet remembered, so the picker never reopens.
+    forgetWallet();
     // On a phone the wallet is another app, not an extension in this page, so
     // the WalletConnect route has to exist before the picker opens.
     await initWalletConnect();
-    const { addresses } = await connect(walletOptions());
+
+    let addresses: WalletAddress[];
+    try {
+      ({ addresses } = await connect(walletOptions()));
+    } catch (err) {
+      // A half-finished connect can still have written addresses to storage,
+      // which would leave the page looking connected to a wallet that never
+      // answered. Put it back to knowing nothing.
+      forgetWallet();
+      throw err;
+    }
+
     const next = sessionFromAddresses(addresses as WalletAddress[]);
     if (!next) {
+      forgetWallet();
       throw new Error(
         addresses.length === 0
           ? t('stake.error.noStxAddress')
@@ -393,8 +411,19 @@ export default function StakeModal({
     try {
       await openWallet();
     } catch (err) {
+      // Whatever went wrong, the wallet is now forgotten — so the button
+      // below says "Connect wallet" again and pressing it really does reopen
+      // the picker, rather than silently reusing the session that just failed.
+      setCachedAddress(null);
       setError(err instanceof Error ? err.message : String(err));
     }
+  };
+
+  /** An explicit way out, for when a wallet connects but cannot be used. */
+  const disconnectWallet = () => {
+    forgetAccount();
+    clearWalletSession();
+    forgetWallet();
   };
 
   const onUseMax = () => {
@@ -556,17 +585,30 @@ export default function StakeModal({
             <div className={`mt-4 ${CARD}`}>
               <div className='flex flex-wrap items-baseline justify-between gap-2'>
                 <p className='text-sm font-bold'>{t('stake.wallet')}</p>
-                <button
-                  type='button'
-                  onClick={connectWallet}
-                  className='rounded-full bg-grape-soft px-3 py-1 text-xs font-semibold text-grape hover:bg-grape-soft/80'
-                >
-                  {loading
-                    ? t('stake.checking')
-                    : walletAddress
-                      ? t('stake.switch')
-                      : t('stake.connect')}
-                </button>
+                <span className='flex items-center gap-2'>
+                  {/* Always reachable once anything is remembered, so a wallet
+                      that connects but cannot be used is never a dead end. */}
+                  {walletAddress && (
+                    <button
+                      type='button'
+                      onClick={disconnectWallet}
+                      className='rounded-full px-2 py-1 text-xs font-semibold text-muted underline underline-offset-2 hover:text-ink'
+                    >
+                      {t('stake.disconnect')}
+                    </button>
+                  )}
+                  <button
+                    type='button'
+                    onClick={connectWallet}
+                    className='rounded-full bg-grape-soft px-3 py-1 text-xs font-semibold text-grape hover:bg-grape-soft/80'
+                  >
+                    {loading
+                      ? t('stake.checking')
+                      : walletAddress
+                        ? t('stake.switch')
+                        : t('stake.connect')}
+                  </button>
+                </span>
               </div>
               <p className='mt-1 font-mono text-sm text-ink'>
                 {walletAddress ? (
