@@ -1,10 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import {
-  clearLocalStorage,
-  connect,
-  getLocalStorage,
-  request,
-} from '@stacks/connect';
+import { getLocalStorage, request } from '@stacks/connect';
 import { transactionToHex } from '@stacks/transactions';
 import { exactStxLabel } from '../lib/amounts';
 import { explorerUrl } from '../lib/explorer';
@@ -24,6 +19,7 @@ import type { Signer } from '../lib/types';
 import {
   forgetWallet,
   initWalletConnect,
+  requestAddresses,
   walletOptions,
 } from '../lib/wallet-connect';
 import {
@@ -384,7 +380,7 @@ export default function StakeModal({
 
     let addresses: WalletAddress[];
     try {
-      ({ addresses } = await connect(walletOptions()));
+      addresses = await requestAddresses();
     } catch (err) {
       // A half-finished connect can still have written addresses to storage,
       // which would leave the page looking connected to a wallet that never

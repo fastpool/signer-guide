@@ -1,4 +1,9 @@
-import { disconnect, WalletConnect } from '@stacks/connect';
+import {
+  connect as connectWallet,
+  disconnect,
+  request,
+  WalletConnect,
+} from '@stacks/connect';
 import type { connect } from '@stacks/connect';
 
 /** The package does not export `ConnectRequestOptions`, so take it from `connect`. */
@@ -44,39 +49,46 @@ const PROJECT_ID =
     ? import.meta.env.VITE_WALLETCONNECT_PROJECT_ID
     : DEFAULT_PROJECT_ID;
 
+const ORIGIN = typeof location === 'undefined' ? '' : location.origin;
+
 const METADATA = {
   name: 'Bitcoin Staking',
   description: 'Stake your STX with a Stacks signer pool.',
-  url: typeof location === 'undefined' ? '' : location.origin,
-  icons: [
-    typeof location === 'undefined' ? '' : `${location.origin}/icon-512.png`,
-  ],
+  url: ORIGIN,
+  icons: [ORIGIN ? `${ORIGIN}/icon-512.png` : ''],
+  /**
+   * Where the wallet sends the user back to.
+   *
+   * On a phone, approving happens in another app. Without somewhere to return
+   * to, the wallet has nothing to open when it is done: it approves, and the
+   * user is left looking at the wallet with the page still waiting behind it.
+   * `universal` is the link the wallet opens to bring the browser back.
+   *
+   * `linkMode` is deliberately off — it needs a verified domain and a
+   * `.well-known` file, and without those it makes the round trip worse.
+   */
+  redirect: { native: '', universal: ORIGIN },
 };
 
 /**
- * Stacks only, deliberately.
+ * Both namespaces, which is the library's own default.
  *
- * Left to itself `@stacks/connect` uses its `Default` config, which asks for
- * two namespaces: `stacks` and `bip122`. Xverse on mobile does not serve the
- * bip122 `getAccountAddresses` method over WalletConnect, so a session that
- * negotiated it came back with no addresses and an error about a bip method
- * being unavailable — after the user had already approved in the wallet.
+ * Restricting this to `stacks` looked like the fix for Xverse failing on a
+ * bip122 address method, and made things worse: AppKit builds the wallet list
+ * from `networks.flatMap(n => n.chains)`, so asking for one namespace shrinks
+ * the picker to wallets registered for it — and Xverse dropped out of the list
+ * entirely.
  *
- * Nothing here needs the Bitcoin namespace. The STX address and
- * `stx_signTransaction` are what staking uses; the Bitcoin address is only
- * ever a convenience prefill for the reward field, and `sessionFromAddresses`
- * already treats it as optional. So this asks for what it uses and no more,
- * which is also the smaller thing for a wallet to approve.
- *
- * The cost is real but small: over WalletConnect there is no BTC address to
- * prefill, and somebody choosing Bitcoin rewards types theirs in.
+ * It was also never the cause. `UniversalConnector.connect` passes everything
+ * as `optionalNamespaces`, so naming bip122 never required a wallet to support
+ * it. A wallet approves what it can. The failure is downstream, where the WBIP
+ * `getAddresses` reaches for a bip122 method the approved session does not
+ * have — which is what `stx_getAddresses` below sidesteps.
  */
-const NETWORKS = [WalletConnect.Networks.Stacks];
-
 const WALLET_CONNECT_CONFIG = {
   projectId: PROJECT_ID,
   metadata: METADATA,
-  networks: NETWORKS,
+  networks: WalletConnect.Default.networks,
 };
 
 /**
@@ -125,4 +137,45 @@ export function forgetWallet(): void {
   } catch {
     // Nothing connected, or a provider that dislikes being asked twice.
   }
+}
+
+/** Somebody dismissed the picker or pressed reject — not a broken wallet. */
+function isUserCancellation(error: unknown): boolean {
+  const code = (error as { code?: unknown })?.code;
+  if (code === 4001) return true; // the JSON-RPC "user rejected" code
+  const message = (
+    error instanceof Error ? error.message : String(error)
+  ).toLowerCase();
+  return /reject|denied|declin|cancel|closed the walletconnect modal/.test(
+    message,
+  );
+}
+
+export type AddressEntry = { address: string; publicKey?: string };
+
+/**
+ * Opens the picker and asks the chosen wallet who it is.
+ *
+ * `connect()` asks through the WBIP `getAddresses`, which wants Stacks *and*
+ * Bitcoin addresses. Over WalletConnect that reaches for a bip122 method, and
+ * a wallet whose approved session has no bip122 in it — Xverse on mobile —
+ * answers that the method is unavailable, after the user has already approved.
+ *
+ * `stx_getAddresses` asks the same question inside the Stacks namespace alone,
+ * so any session that approved `stacks` can answer it. It runs as a fallback
+ * rather than as the first choice because `connect()` is what works today with
+ * the browser extensions, and the session is already live by the time the
+ * first attempt fails — so the retry costs no second approval.
+ *
+ * A cancelled picker is not retried; asking twice would just reopen it.
+ */
+export async function requestAddresses(): Promise<AddressEntry[]> {
+  try {
+    const { addresses } = await connectWallet(walletOptions());
+    if (addresses.length > 0) return addresses;
+  } catch (error) {
+    if (isUserCancellation(error)) throw error;
+  }
+  const { addresses } = await request(walletOptions(), 'stx_getAddresses');
+  return addresses;
 }
