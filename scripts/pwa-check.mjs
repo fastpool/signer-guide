@@ -112,8 +112,17 @@ async function navigate(url) {
   await sleep(2500);
 }
 
-/** Text of the page including inside shadow roots, where the picker lives. */
-const DEEP_TEXT = `
+/**
+ * Text of the picker alone, reached through its shadow roots.
+ *
+ * Deliberately not the whole page. Reading the page and looking for a wallet's
+ * name in it gives false positives that are very hard to see: the app's own
+ * "Your wallet" and "Connect wallet" sit next to each other, and concatenating
+ * the text of every node spells `walletConnect`.
+ */
+const PICKER_TEXT = `
+  const modal = document.querySelector('connect-modal');
+  if (!modal) return 'no picker';
   const walk = (root, out) => {
     out.push(root.textContent ?? '');
     for (const el of root.querySelectorAll('*')) {
@@ -121,7 +130,7 @@ const DEEP_TEXT = `
     }
     return out;
   };
-  return walk(document.body, []).join(' ');
+  return walk(modal.shadowRoot ?? modal, []).join(' ');
 `;
 
 await send('Page.enable');
@@ -173,8 +182,10 @@ check(
 );
 
 // ---- the wallet picker ---------------------------------------------------
-// Needs the project id to be accepted by Reown, so this is the end-to-end
-// check that WalletConnect is actually on offer rather than silently absent.
+// WalletConnect is switched off (see WALLETCONNECT.md), so the check below is
+// the other way round from what it used to be: the picker must still open and
+// list the injected wallets, and must *not* offer a route that ends in an
+// error after the user has already approved.
 const picker = await evaluate(`
   const stake = [...document.querySelectorAll('button')]
     .find((b) => b.textContent.trim() === 'Stake with wallet');
@@ -186,16 +197,16 @@ const picker = await evaluate(`
   if (!connect) return 'no connect button';
   connect.click();
   await new Promise((r) => setTimeout(r, 6000));
-  ${DEEP_TEXT}
+  ${PICKER_TEXT}
 `);
 check(
-  'the wallet picker opens',
-  typeof picker === 'string' && /Leather|Xverse|Wallet/i.test(picker),
-  typeof picker === 'string' ? picker.slice(0, 90) : picker,
+  'the wallet picker opens, listing the injected wallets',
+  typeof picker === 'string' && /Leather/.test(picker) && /Xverse/.test(picker),
+  typeof picker === 'string' ? picker.slice(0, 110) : picker,
 );
 check(
-  'WalletConnect is offered, so the project id was accepted',
-  typeof picker === 'string' && /WalletConnect/i.test(picker),
+  'WalletConnect is not offered',
+  typeof picker === 'string' && !/WalletConnect/i.test(picker),
 );
 
 // ---- second visit: the worker should now be in control -------------------

@@ -1,7 +1,9 @@
 import {
   connect as connectWallet,
+  DEFAULT_PROVIDERS,
   disconnect,
   request,
+  WALLET_CONNECT_PROVIDER,
   WalletConnect,
 } from '@stacks/connect';
 import type { connect } from '@stacks/connect';
@@ -30,7 +32,16 @@ type ConnectRequestOptions = NonNullable<Parameters<typeof connect>[0]>;
  */
 
 /**
- * Fast Pool's own, committed rather than kept in the environment.
+ * Fast Pool's own — commented out, so nothing offers WalletConnect for now.
+ *
+ * Approving over WalletConnect does not currently end in a usable session.
+ * `@stacks/connect` reads addresses out of the WalletConnect session rather
+ * than asking the wallet, and unless the wallet published a public key into
+ * `sessionProperties`, this app cannot build a transaction from what comes
+ * back — so the user approves in their wallet and is met with an error. An
+ * option that fails after the user has already committed to it is worse than
+ * an option that is not there, so it is not there. See WALLETCONNECT.md, and
+ * uncomment this line to put it back once the wallets have answered.
  *
  * A Reown project id is a public client identifier, not a secret — it ships
  * inside the bundle of every site that uses WalletConnect, and it is read
@@ -39,14 +50,17 @@ type ConnectRequestOptions = NonNullable<Parameters<typeof connect>[0]>;
  *
  * Committing it means a fork or a preview deploy gets a working wallet picker
  * without anyone having to be told about an environment variable. A deployment
- * that wants its own id sets `VITE_WALLETCONNECT_PROJECT_ID`.
+ * that wants its own id — or wants WalletConnect back before this line is
+ * uncommented — sets `VITE_WALLETCONNECT_PROJECT_ID`.
  */
-const DEFAULT_PROJECT_ID = 'a013ec0fd2d07ac0ba6c2e2512fd8a23';
+// const DEFAULT_PROJECT_ID = 'a013ec0fd2d07ac0ba6c2e2512fd8a23';
+const DEFAULT_PROJECT_ID: string | null = null;
 
-const PROJECT_ID =
-  typeof import.meta.env.VITE_WALLETCONNECT_PROJECT_ID === 'string' &&
-  import.meta.env.VITE_WALLETCONNECT_PROJECT_ID.length > 0
-    ? import.meta.env.VITE_WALLETCONNECT_PROJECT_ID
+const ENV_PROJECT_ID = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID;
+
+const PROJECT_ID: string | null =
+  typeof ENV_PROJECT_ID === 'string' && ENV_PROJECT_ID.length > 0
+    ? ENV_PROJECT_ID
     : DEFAULT_PROJECT_ID;
 
 const ORIGIN = typeof location === 'undefined' ? '' : location.origin;
@@ -86,23 +100,46 @@ const METADATA = {
  *
  * It was also never the cause. `UniversalConnector.connect` passes everything
  * as `optionalNamespaces`, so naming bip122 never required a wallet to support
- * it. A wallet approves what it can. The failure is downstream, where the WBIP
- * `getAddresses` reaches for a bip122 method the approved session does not
- * have — which is what `stx_getAddresses` below sidesteps.
+ * it. A wallet approves what it can.
+ *
+ * Nor is the cause in which method asks for the addresses, which an earlier
+ * note here claimed: over WalletConnect `getAddresses` makes no RPC call at
+ * all. It reads the session. What it finds there is the real problem, and it
+ * is why WalletConnect is switched off — see WALLETCONNECT.md.
  */
-const WALLET_CONNECT_CONFIG = {
-  projectId: PROJECT_ID,
-  metadata: METADATA,
-  networks: WalletConnect.Default.networks,
-};
+export function walletConnectConfig(projectId: string) {
+  return {
+    projectId,
+    metadata: METADATA,
+    networks: WalletConnect.Default.networks,
+  };
+}
+
+/** Every wallet the library knows about, except WalletConnect. */
+const INJECTED_ONLY = DEFAULT_PROVIDERS.filter(
+  (provider) => provider.id !== WALLET_CONNECT_PROVIDER.id,
+);
 
 /**
  * Options for `connect()` / `request()`. Safe to pass to either, in any
- * environment — on a desktop browser the injected wallets are still listed
- * first and WalletConnect is simply one more entry in the picker.
+ * environment — on a desktop browser the injected wallets are listed and
+ * WalletConnect is one more entry in the picker, when there is a project id
+ * for it.
+ *
+ * Taking it away needs both halves, which is worth knowing before anyone tries
+ * one of them:
+ *
+ *  - `WALLET_CONNECT_PROVIDER` is already in `DEFAULT_PROVIDERS`, so the picker
+ *    lists it whether or not a `walletConnect` option is passed. Dropping the
+ *    option alone leaves the entry there, leading to a wallet that was never
+ *    initialised. So the list itself is narrowed.
+ *  - The library appends the entry again, and creates the connector, whenever
+ *    `walletConnect` is *present* — it never looks at the id first — so the key
+ *    has to be absent rather than empty.
  */
 export function walletOptions(): ConnectRequestOptions {
-  return { walletConnect: WALLET_CONNECT_CONFIG };
+  if (PROJECT_ID === null) return { defaultProviders: INJECTED_ONLY };
+  return { walletConnect: walletConnectConfig(PROJECT_ID) };
 }
 
 let initialized: Promise<void> | null = null;
@@ -115,12 +152,13 @@ let initialized: Promise<void> | null = null;
  * picker, and any injected wallet still works — so the caller carries on.
  */
 export function initWalletConnect(): Promise<void> {
-  initialized ??= WalletConnect.initializeProvider(WALLET_CONNECT_CONFIG).catch(
-    () => {
-      // Let the next attempt try again rather than caching the failure.
-      initialized = null;
-    },
-  );
+  if (PROJECT_ID === null) return Promise.resolve();
+  initialized ??= WalletConnect.initializeProvider(
+    walletConnectConfig(PROJECT_ID),
+  ).catch(() => {
+    // Let the next attempt try again rather than caching the failure.
+    initialized = null;
+  });
   return initialized;
 }
 

@@ -301,9 +301,9 @@ because a negative rule is the kind that rots quietly.
 
 A service worker cannot be unit-tested — whether it registers, whether it takes
 control on the next visit, and what the app does with the network cut are facts
-about a browser. Neither can the wallet picker, which is a web component that
-has to be handed a project id before it will offer WalletConnect at all. So
-those eleven things are checked by driving a real browser:
+about a browser. Neither can the wallet picker, which is a web component, and
+which has to keep listing the injected wallets while no longer offering
+WalletConnect. So those eleven things are checked by driving a real browser:
 
 ```bash
 pnpm build && pnpm preview &
@@ -326,19 +326,27 @@ app and the route to it is WalletConnect — `@stacks/connect` already carries
 that provider and lists it in the same picker as the injected ones, so nothing
 downstream of `connect()` changes.
 
-It needs a project id from [Reown](https://dashboard.reown.com). Fast Pool's is
-committed in `src/lib/wallet-connect.ts`, so a fork or a preview deploy gets a
-working wallet picker without being told about an environment variable.
+**That route is switched off at the moment.** Approving over WalletConnect does
+not end in a session this app can use: `@stacks/connect` reads addresses out of
+the session rather than asking the wallet, and without a public key in there
+the staking dialog cannot build a transaction — so the user approves in their
+wallet and is met with an error. Offering a route that fails after somebody has
+already committed to it is worse than not offering it, so the project id in
+`src/lib/wallet-connect.ts` is commented out and the picker shows the injected
+wallets only. [`WALLETCONNECT.md`](WALLETCONNECT.md) has the whole analysis and
+the question that is open with Xverse and Leather.
 
-That is deliberate, not a leak. A Reown project id is a public client
-identifier: it ships inside the bundle of every site that uses WalletConnect,
-including this one, and can be read straight out of it. What stops somebody
-else spending the quota is the **allowed-domains list in the Reown dashboard** —
-so that list is the thing to keep current, and a deployment on another domain
-should set its own id rather than borrow this one.
+Uncommenting that one line puts WalletConnect back; so does setting
+`VITE_WALLETCONNECT_PROJECT_ID`, which is how a deployment can re-enable it
+without touching the source. The id itself is a public client identifier, not a
+secret: it ships inside the bundle of every site that uses WalletConnect and can
+be read straight out of it. What stops somebody else spending the quota is the
+**allowed-domains list in the Reown dashboard** — so that list is the thing to
+keep current, and a deployment on another domain should set its own id rather
+than borrow Fast Pool's.
 
-| variable                        | default                  | meaning                                        |
-| ------------------------------- | ------------------------ | ---------------------------------------------- |
-| `VITE_WALLETCONNECT_PROJECT_ID` | Fast Pool's own          | overrides the committed id                     |
-| `VITE_DATA_BASE_URL`            | this branch's `src/data` | where the installed app re-reads the data from |
-| `VITE_STACKS_API_URL`           | `https://api.hiro.so`    | node the staking dialog reads balances from    |
+| variable                        | default                      | meaning                                        |
+| ------------------------------- | ---------------------------- | ---------------------------------------------- |
+| `VITE_WALLETCONNECT_PROJECT_ID` | unset — WalletConnect is off | turns WalletConnect back on, with this id      |
+| `VITE_DATA_BASE_URL`            | this branch's `src/data`     | where the installed app re-reads the data from |
+| `VITE_STACKS_API_URL`           | `https://api.hiro.so`        | node the staking dialog reads balances from    |

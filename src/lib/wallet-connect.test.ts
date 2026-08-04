@@ -1,5 +1,10 @@
+import { WALLET_CONNECT_PROVIDER } from '@stacks/connect';
 import { describe, expect, it } from 'vitest';
-import { forgetWallet, walletOptions } from './wallet-connect';
+import {
+  forgetWallet,
+  walletConnectConfig,
+  walletOptions,
+} from './wallet-connect';
 
 /*
  * Xverse on mobile connected, the user approved, and it came back with no
@@ -15,13 +20,41 @@ import { forgetWallet, walletOptions } from './wallet-connect';
  *    so naming bip122 never required a wallet to support it. It was never the
  *    cause.
  *
- * The cause is downstream, in which method is used to ask for addresses, and
- * is handled by the `stx_getAddresses` fallback in `requestAddresses`.
+ * The cause is downstream, in what a WalletConnect session can answer with at
+ * all — not in which method asks. See WALLETCONNECT.md, which is also why
+ * WalletConnect is switched off for now.
  */
 
-describe('what the app asks a WalletConnect wallet for', () => {
-  const config = walletOptions().walletConnect;
-  const networks = config?.networks ?? [];
+describe('WalletConnect is not on offer', () => {
+  const options = walletOptions();
+
+  it('is not configured, so no connector is created', () => {
+    // The library creates the connector, and appends the picker entry, whenever
+    // this key is present — it never looks at the id first, so an empty config
+    // would not do.
+    expect(options.walletConnect).toBeUndefined();
+  });
+
+  it('is taken out of the picker, where it is listed by default', () => {
+    // The catch: WALLET_CONNECT_PROVIDER is in DEFAULT_PROVIDERS already, so
+    // dropping the option above is not enough on its own — the entry stays in
+    // the picker and leads to a connector nothing initialised.
+    const offered = options.defaultProviders?.map((p) => p.id) ?? [];
+    expect(offered).not.toContain(WALLET_CONNECT_PROVIDER.id);
+    expect(offered).toContain('LeatherProvider');
+    expect(offered).toContain('XverseProviders.BitcoinProvider');
+  });
+});
+
+/*
+ * The config itself, checked apart from whether it is currently handed over.
+ * These guard what was learnt the hard way, so that uncommenting the project
+ * id puts back something that works rather than something that has quietly
+ * rotted in the meantime.
+ */
+describe('what the app would ask a WalletConnect wallet for', () => {
+  const config = walletConnectConfig('0'.repeat(32));
+  const networks = config.networks ?? [];
 
   it('offers every wallet the library knows, not just Stacks ones', () => {
     // Narrowing this is what made Xverse vanish from the picker.
@@ -44,7 +77,7 @@ describe('what the app asks a WalletConnect wallet for', () => {
     // AppKit's `Metadata` type omits `redirect`, though the WalletConnect core
     // type it is handed to carries it — so this reads it through that shape
     // rather than AppKit's narrower one.
-    const metadata = config?.metadata as
+    const metadata = config.metadata as
       | { url?: string; redirect?: { universal?: string; linkMode?: boolean } }
       | undefined;
     expect(metadata?.redirect).toBeDefined();
@@ -54,8 +87,8 @@ describe('what the app asks a WalletConnect wallet for', () => {
     expect(metadata?.redirect?.linkMode).toBeFalsy();
   });
 
-  it('carries a project id, or the picker would not offer WalletConnect', () => {
-    expect(config?.projectId).toMatch(/^[0-9a-f]{32}$/);
+  it('passes the project id through, since the picker needs one', () => {
+    expect(config.projectId).toMatch(/^[0-9a-f]{32}$/);
   });
 });
 
