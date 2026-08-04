@@ -64,8 +64,13 @@ const METADATA = {
    * user is left looking at the wallet with the page still waiting behind it.
    * `universal` is the link the wallet opens to bring the browser back.
    *
-   * `linkMode` is deliberately off — it needs a verified domain and a
-   * `.well-known` file, and without those it makes the round trip worse.
+   * `linkMode` stays off, and not for the reason an earlier note here gave.
+   * It is a native-app transport: both ends declare a universal link and
+   * carry requests over links instead of the relay. A web page has no
+   * universal link of its own to be reached at, so turning it on would claim
+   * something untrue. It is unrelated to `/.well-known/walletconnect.txt`,
+   * which verifies the domain for the Verify API and changes what a wallet
+   * *displays* about who is asking, not how the reply gets back.
    */
   redirect: { native: '', universal: ORIGIN },
 };
