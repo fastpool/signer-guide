@@ -1,0 +1,23 @@
+{
+  "SP20XZGWBWSMRE94WDJ6YJ1EKPJ55RGRGK4JDJHNK.signer-manager-pox5": {
+    "note": "The contract is named after pox-5, not after the pool that runs it, so the generator can only make 'Pox5' out of it. Senseinode is the operator.",
+    "displayName": "Senseinode"
+  },
+  "SP2369QN53586176SYRF4XFGF4E84V0J0EWKRG0ZH.signer-manager": {
+    "note": "Nothing but the plumbing words, so there is no name in the contract to read. Say so rather than print 'signer-manager' as if it were a pool's name.",
+    "displayName": "(anonymous)"
+  },
+  "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager": {
+    "note": "Run by Stacking DAO, which the contract name does not say. Its fee is taken through .native-pool-v1 rather than here, so the card reads the amounts from that contract instead of pox-5.",
+    "displayName": "Native Pool (Stacking Dao)",
+    "callApi": "nativePool"
+  },
+  "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager": {
+    "note": "It does pay rewards to L1, and the detector misses it: validate-stake! hands the calldata to store-payout-config, which is where the pox-addr is decoded and written to payout-configs, and the detector only looks inside validate-stake! itself. Remove this once it follows a helper one level down.",
+    "bitcoinRewards": true
+  },
+  "SPWJG9ZQT7VG8F3YS9TK0YN3VK34M76NYDZMTCWT.signer-manager": {
+    "note": "As above — the contract name is all plumbing, so there is no pool name to show.",
+    "displayName": "(anonymous)"
+  }
+}

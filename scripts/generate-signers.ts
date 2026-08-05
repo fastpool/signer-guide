@@ -12,6 +12,16 @@
  * below 100%, so it is a current value, not a promise. Anything the contract
  * does not guarantee is not presented as a guarantee.
  *
+ * Three steps, in this order: read every registered signer from the chain,
+ * lay `src/data/signers-manual.json` over the result, write the file.
+ *
+ * The output is replaced, not merged into. An earlier version kept whatever
+ * was already recorded for a contract and only appended contracts it had not
+ * seen, which meant the hand-written names survived a refresh — and so did
+ * every fee, read once when the pool first appeared and never again. The
+ * decisions a person made now live in their own file instead, where they can
+ * be read in one go, and everything else is whatever the chain said this run.
+ *
  * Usage: npx tsx scripts/generate-signers.ts
  *
  * Reads STACKS_API_URL and HIRO_API_KEY — see scripts/node.ts.
@@ -29,9 +39,11 @@ import { detectFeatures } from '../src/lib/features.js';
 import { profileFor } from '../src/lib/profiles.js';
 import type { Signer, SignerData } from '../src/lib/types.js';
 import { API_URL, describeNode, nodeHeaders, SPACING_MS } from './node.js';
-import oldSigners from '../src/data/signers.json';
+import { humanizeContractName } from './humanize.js';
+import { applyManualData, type ManualData } from './manual-data.js';
+import manualSigners from '../src/data/signers-manual.json';
 
-const oldSignersData = oldSigners as SignerData;
+const manual = manualSigners as ManualData;
 
 const OUTPUT = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -103,25 +115,6 @@ async function fetchCurrentCycle(): Promise<number> {
   return pox?.current_cycle.id ?? 0;
 }
 
-/**
- * A readable name for the pool from its contract name: drop the plumbing
- * words every one of them carries, and title-case the rest.
- *   signer-manager-hiro        -> Hiro
- *   fastpool-1-signer-manager  -> Fastpool 1
- *   native-pool-signer-manager -> Native Pool
- * Falls back to the raw contract name when nothing distinctive is left.
- */
-export function humanizeContractName(contractId: string): string {
-  const name = contractId.split('.')[1] ?? contractId;
-  const words = name
-    .split('-')
-    .filter((word) => !['signer', 'manager'].includes(word));
-  if (words.length === 0) return name;
-  return words
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-}
-
 /** A Clarity `(uint N)` off the wire: 0x01 then 16 bytes big-endian. */
 function parseUintHex(result: string | undefined): number | null {
   if (!result) return null;
@@ -176,14 +169,10 @@ async function main() {
   const cycle = await fetchCurrentCycle();
   console.log(`  ${registered.size} registered, cycle ${cycle} is current`);
 
-  const signers: Signer[] = oldSignersData.signers;
+  const signers: Signer[] = [];
   const unmatched: string[] = [];
 
   for (const [contractId, signerKey] of registered) {
-    if (signers.some((s) => s.contractId === contractId)) {
-      console.log(`  = skipping ${contractId} (already recorded)`);
-      continue;
-    }
     const source = await fetchSource(contractId);
     if (!source) {
       console.log(`  ! could not read source of ${contractId}`);
@@ -236,19 +225,47 @@ async function main() {
 
   signers.sort((a, b) => a.contractId.localeCompare(b.contractId));
 
+  // Everything above is what the chain said. Everything a person decided is
+  // in one file, and goes on last.
+  const {
+    signers: withManual,
+    applied,
+    unused,
+    redundant,
+  } = applyManualData(signers, manual);
+
   const data: SignerData = {
     generatedAt: new Date().toISOString(),
     cycle,
-    signers,
+    signers: withManual,
   };
 
   fs.mkdirSync(path.dirname(OUTPUT), { recursive: true });
   fs.writeFileSync(OUTPUT, JSON.stringify(data, null, 2));
 
-  console.log(`\nWrote ${signers.length} signer(s) to ${OUTPUT}`);
   console.log(
-    `  open to anyone: ${signers.filter((s) => s.openToAnyone).length}` +
-      `  |  Bitcoin rewards: ${signers.filter((s) => s.bitcoinRewards).length}`,
+    `\nApplied ${applied.length} manual entr(y/ies) from signers-manual.json`,
+  );
+  for (const id of applied) console.log(`    ~ ${id}`);
+  if (unused.length) {
+    console.log(
+      `\n  ${unused.length} manual entr(y/ies) name a contract no longer` +
+        ` registered — remove them from src/data/signers-manual.json:`,
+    );
+    for (const id of unused) console.log(`    ? ${id}`);
+  }
+  if (redundant.length) {
+    console.log(
+      `\n  ${redundant.length} manual value(s) now match what the generator` +
+        ` works out on its own — delete them, the override is done its job:`,
+    );
+    for (const line of redundant) console.log(`    = ${line}`);
+  }
+
+  console.log(`\nWrote ${withManual.length} signer(s) to ${OUTPUT}`);
+  console.log(
+    `  open to anyone: ${withManual.filter((s) => s.openToAnyone).length}` +
+      `  |  Bitcoin rewards: ${withManual.filter((s) => s.bitcoinRewards).length}`,
   );
   if (unmatched.length) {
     console.log(

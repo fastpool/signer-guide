@@ -229,10 +229,57 @@ Neither carries a key.
 
 ### The refresh
 
-`pnpm generate:signers` rewrites `src/data/signers.json`. Any pool whose
-canonical hash matches no profile is printed at the end — read its code, then
-add it to `src/lib/profiles.ts`. `pnpm generate:totals` then rewrites
-`src/data/totals.json` for exactly the pools that file lists.
+`pnpm generate:signers` rewrites `src/data/signers.json`, in three steps: read
+every registered signer from the chain, lay `src/data/signers-manual.json` over
+the result, write the file. Any pool whose canonical hash matches no profile is
+printed at the end — read its code, then add it to `src/lib/profiles.ts`.
+`pnpm generate:totals` then rewrites `src/data/totals.json` for exactly the
+pools that file lists.
+
+### What a person decided, and where it lives
+
+`signers.json` is written from scratch every run, so nothing hand-written
+survives in it. Anything a person decided goes in
+[`src/data/signers-manual.json`](src/data/signers-manual.json) instead, keyed
+by contract id and laid over the generated record afterwards. To see everything
+anyone has ever decided about the pools, read that one short file.
+
+Almost always a name. A contract called `signer-manager-pox5` is run by
+Senseinode, and no amount of reading the code will say so; one called
+`signer-manager` carries no name at all, and the page says `(anonymous)` rather
+than printing the plumbing as though it were a pool. Each entry carries a
+`note` saying why, next to the value rather than in a commit message nobody
+will find again.
+
+A **feature reading** may also be corrected, where a detector is known to be
+wrong about one specific contract. Fast Pool's own `max500` is the case:
+`validate-stake!` hands the calldata to `store-payout-config`, and the pox-addr
+is decoded and recorded in there, while the detector only looks inside
+`validate-stake!` itself — so it reads a contract that pays rewards to L1 as one
+that does not. The note on that entry says as much, and says to delete it once
+the detector follows a helper one level down.
+
+Those entries are the ones to keep an eye on, because they are a claim the code
+is no longer being asked about. The generator prints any manual value that has
+come to match what it works out on its own — the sign that a detector has been
+fixed and the override has done its job — so a stale one shows up in the hourly
+log rather than sitting there for years looking load-bearing. It cannot be a
+test: `signers.json` is what came out _after_ the overrides were applied, so
+comparing the two would call every entry redundant. Only the generator holds the
+record as the chain gave it.
+
+What never belongs there is a **fee**, a hash, a profile or a signer key.
+A fee changes under us, and a hash is the identity of the code itself; a value
+written by hand would go on being stated as fact long after it stopped being
+true. `scripts/manual-data.test.ts` fails the build if an entry writes one, if
+an entry names a contract that is no longer registered, or if a name merely
+restates what the generator already works out.
+
+This replaced a merge. The generator used to keep whatever was already recorded
+for a contract and only append ones it had not seen, which is how the
+hand-written names survived — and how every fee and feature reading survived
+too, read once when the pool first appeared and never looked at again. Nothing
+in the file said which of the two had put a value there.
 
 `.github/workflows/refresh-signers.yml` does both **hourly** and commits the
 result, so the guide does not quietly go stale between releases. Hourly rather
