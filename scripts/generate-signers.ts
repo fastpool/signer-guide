@@ -39,6 +39,11 @@ import { detectFeatures } from '../src/lib/features.js';
 import { profileFor } from '../src/lib/profiles.js';
 import type { Signer, SignerData } from '../src/lib/types.js';
 import { API_URL, describeNode, nodeHeaders, SPACING_MS } from './node.js';
+import {
+  clarinetVersion,
+  identiconHashOf,
+  identiconsBySource,
+} from './identicon.js';
 import { humanizeContractName } from './humanize.js';
 import { applyManualData, type ManualData } from './manual-data.js';
 import manualSigners from '../src/data/signers-manual.json';
@@ -54,6 +59,15 @@ const OUTPUT = path.join(
 );
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** What is already committed, or null on the first run. */
+function readCommitted(): SignerData | null {
+  try {
+    return JSON.parse(fs.readFileSync(OUTPUT, 'utf8')) as SignerData;
+  } catch {
+    return null;
+  }
+}
 
 async function getJson<T>(url: string, attempts = 5): Promise<T | null> {
   for (let attempt = 0; attempt < attempts; attempt += 1) {
@@ -164,6 +178,69 @@ async function fetchFeeBips(
 }
 
 async function main() {
+  /*
+   * The icons, before anything is read.
+   *
+   * A deployed contract's source cannot change, so its identicon hash is
+   * worked out once and then carried by the file itself. The formatter is
+   * wanted only for source nobody has hashed — and when the version it would
+   * be standardised with is not the one the committed hashes came from, in
+   * which case they all go again, so the file never holds two formatters'
+   * work at once.
+   */
+  const committed = readCommitted();
+  const known = identiconsBySource(committed?.signers ?? []);
+  const formatter = clarinetVersion();
+  const restandardise =
+    formatter !== null &&
+    committed?.standardisedWith != null &&
+    committed.standardisedWith !== formatter;
+
+  if (restandardise) {
+    console.log(
+      `Standardising every contract again: ${committed?.standardisedWith}` +
+        ` -> ${formatter}`,
+    );
+    known.clear();
+  } else if (formatter) {
+    console.log(`Standardising new source with ${formatter}`);
+  } else {
+    console.log(
+      'Standardising nothing: clarinet is not on PATH.' +
+        ' Icons already worked out are carried forward; code nobody has' +
+        ' hashed will show on the page as new.',
+    );
+  }
+
+  const reused: string[] = [];
+  const standardised: string[] = [];
+  const unstandardised: string[] = [];
+
+  const identiconFor = (
+    contractId: string,
+    sourceSha256: string,
+    source: string,
+  ): string | null => {
+    const already = known.get(sourceSha256);
+    if (already) {
+      reused.push(contractId);
+      return already;
+    }
+    if (!formatter) {
+      unstandardised.push(contractId);
+      return null;
+    }
+    const hash = identiconHashOf(source);
+    if (!hash) {
+      console.log(`  ! could not standardise the source of ${contractId}`);
+      unstandardised.push(contractId);
+      return null;
+    }
+    known.set(sourceSha256, hash);
+    standardised.push(contractId);
+    return hash;
+  };
+
   console.log(`Reading registered signers from ${describeNode()} ...`);
   const registered = await fetchRegisteredSigners();
   const cycle = await fetchCurrentCycle();
@@ -189,6 +266,10 @@ async function main() {
       strictCanonicalizeClaritySource(source),
     );
     const profile = profileFor(groupSha256);
+    // Nothing to do with the three hashes above: this one is SIP-043's, taken
+    // from the source as `clarinet format` standardises it, and it is what
+    // makes the icon here the same icon a wallet draws.
+    const identiconHash = identiconFor(contractId, sourceSha256, source);
     const features = detectFeatures(source);
     const feeBips = features.feeReading
       ? await fetchFeeBips(contractId, features.feeReading)
@@ -205,6 +286,7 @@ async function main() {
       sourceSha256,
       canonicalSha256,
       groupSha256,
+      identiconHash,
       match: profile ? 'canonical' : 'unknown',
       profileId: profile?.id ?? null,
       bitcoinRewards: features.bitcoinRewards.value,
@@ -237,6 +319,12 @@ async function main() {
   const data: SignerData = {
     generatedAt: new Date().toISOString(),
     cycle,
+    // What drew the icons, which is not necessarily what ran today: a refresh
+    // with no formatter carries both the hashes and the version that made
+    // them. Only a run that actually standardises something changes this.
+    standardisedWith: standardised.length
+      ? formatter
+      : (committed?.standardisedWith ?? null),
     signers: withManual,
   };
 
@@ -267,6 +355,20 @@ async function main() {
     `  open to anyone: ${withManual.filter((s) => s.openToAnyone).length}` +
       `  |  Bitcoin rewards: ${withManual.filter((s) => s.bitcoinRewards).length}`,
   );
+  console.log(
+    `  icons: ${reused.length} carried forward, ${standardised.length}` +
+      ` standardised, ${unstandardised.length} without one`,
+  );
+  if (unstandardised.length) {
+    console.log(
+      `\n  ${unstandardised.length} signer(s) run code nobody has hashed, so` +
+        ` the page shows them as new rather than drawing an icon.` +
+        (formatter
+          ? ' The formatter would not take them:'
+          : ' Install clarinet and run this again to give them one:'),
+    );
+    for (const id of unstandardised) console.log(`    ${id}`);
+  }
   if (unmatched.length) {
     console.log(
       `\n  ${unmatched.length} signer(s) match no reviewed profile — add the` +

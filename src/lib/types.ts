@@ -15,6 +15,14 @@ export interface Signer {
   canonicalSha256: string;
   /** Grouping key — canonical, ignoring whitespace beside parens. */
   groupSha256: string;
+  /**
+   * SIP-043's identicon hash: SHA-512/256 of the standardised source, which
+   * is what `clarinet format` makes of the deployed source. Not one of the
+   * three above — those are ours and mean something only here, this one is
+   * the number every implementation of the SIP computes. Null when the
+   * formatter would not take the contract. See scripts/identicon.ts.
+   */
+  identiconHash: string | null;
   /** How it compares to a reviewed implementation. */
   match: SourceMatch;
   /** Reviewed implementation this shares code with, when known. */
@@ -44,6 +52,13 @@ export interface SignerData {
   generatedAt: string;
   /** Reward cycle current when this was generated. */
   cycle: number;
+  /**
+   * The `clarinet --version` that produced the identicon hashes below, so the
+   * icons on the page can be reproduced. Null before anything has been
+   * standardised. Not what ran most recently: an hourly refresh carries the
+   * hashes forward without a formatter, and carries this with them.
+   */
+  standardisedWith: string | null;
   signers: Signer[];
 }
 

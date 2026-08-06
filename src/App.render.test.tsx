@@ -83,6 +83,18 @@ describe('the page as a reader sees it', () => {
     );
   });
 
+  it('draws an icon of the code beside each contract and each pool', () => {
+    // The icon is the only claim on this page a reader takes in without
+    // reading anything, so it renders inline rather than as an <img> that a
+    // slow network can leave blank, and it carries a label saying what it is
+    // an icon of — the code, not the address.
+    const html = renderToStaticMarkup(<App />);
+    const icons = html.split('<svg viewBox="-1.5 -1.5 8 8"').length - 1;
+    // Six contracts and every pool that could be standardised.
+    expect(icons).toBeGreaterThan(6);
+    expect(html).toContain('aria-label="Icon of the code this pool runs"');
+  });
+
   it('points a reader at the code behind every claim', () => {
     const html = renderToStaticMarkup(<App />);
     expect(html).toContain('https://github.com/fastpool/signer-guide');

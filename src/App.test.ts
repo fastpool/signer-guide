@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { matches, type FilterId } from './App';
 import data from './data/signers.json';
 import totals from './data/totals.json';
+import { identiconSvg, isIdenticonHash } from './lib/identicon';
+import { buildTemplates } from './lib/templates';
 import type { Signer, SignerData } from './lib/types';
 
 /*
@@ -22,6 +24,7 @@ const base: Signer = {
   sourceSha256: 'a',
   canonicalSha256: 'b',
   groupSha256: 'c',
+  identiconHash: null,
   match: 'unknown',
   profileId: null,
   bitcoinRewards: false,
@@ -108,6 +111,37 @@ describe('the committed amounts', () => {
       // Null is "we could not read it" and is allowed. Anything else has to
       // be a plain uSTX count: the page does BigInt arithmetic on these.
       if (amount !== null) expect(amount).toMatch(/^\d+$/);
+    }
+  });
+});
+
+/*
+ * The icons are drawn from what is committed, so a hash the renderer would
+ * refuse is a blank space on the page — or, where a heading holds one, a
+ * thrown error. Cheaper to find here.
+ */
+describe('the committed identicons', () => {
+  it('gives every pool a hash to draw from, or says it has none', () => {
+    // Null is "the formatter would not take this contract" and is allowed:
+    // that pool keeps its name and badges and simply shows no icon.
+    for (const signer of signers) {
+      expect(
+        signer.identiconHash === null || isIdenticonHash(signer.identiconHash),
+        `${signer.contractId}: ${signer.identiconHash}`,
+      ).toBe(true);
+    }
+  });
+
+  it('has not quietly stopped computing them', () => {
+    // Every pool at null would pass the test above while leaving the page
+    // with no icons at all.
+    expect(signers.some((s) => s.identiconHash !== null)).toBe(true);
+  });
+
+  it('draws the icon of every contract the page gives a page to', () => {
+    for (const template of buildTemplates(signers)) {
+      if (template.identiconHash === null) continue;
+      expect(() => identiconSvg(template.identiconHash!)).not.toThrow();
     }
   });
 });

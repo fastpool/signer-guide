@@ -135,6 +135,13 @@ const messages = {
   'signer.notAvailable': 'Not available',
   'signer.fingerprint': 'Code fingerprint',
   'signer.fingerprintNote': 'Pools sharing this fingerprint run the same code.',
+  'signer.identicon': 'Code icon',
+  'signer.identiconNote':
+    'Drawn from the code, not from the address, so the same contract deployed twice shows the same icon here and in any other app that follows {link}.',
+
+  'identicon.label': 'Icon of the code this pool runs',
+  'identicon.newLabel': 'New code — no icon for it yet',
+  'identicon.sip': 'the identicon standard',
 
   'contract.back': '← All signer contracts',
   'contract.heading': '{name} signer contract',
@@ -147,6 +154,9 @@ const messages = {
   'contract.fingerprint': 'Code fingerprint',
   'contract.fingerprintNote':
     'Every pool above hashes to this, which is how we know they run the same code.',
+  'contract.identicon': 'Code icon',
+  'contract.identiconNote':
+    'The icon every pool above shows. It is drawn from the code itself, so an app that follows {link} draws the same one — and a pool claiming this contract while showing a different icon is not running it.',
   'contract.whoMayJoin': 'Who may join',
   'contract.whoMayJoinEvidence': 'Staking is refused unless this holds: {code}',
   'contract.whoMayJoinNone':

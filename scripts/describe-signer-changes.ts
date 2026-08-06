@@ -80,9 +80,12 @@ export function describeChanges(
       );
     }
     // A deployed contract cannot change, so this means our own reading of it
-    // changed — a canonicalisation or detector edit. Worth a human's eye.
+    // changed — a canonicalisation, a detector edit, or a `clarinet format`
+    // release that lays some form out differently and moves the icon with it.
+    // Worth a human's eye.
     for (const key of [
       'groupSha256',
+      'identiconHash',
       'bitcoinRewards',
       'openToAnyone',
       'maxFeeBips',

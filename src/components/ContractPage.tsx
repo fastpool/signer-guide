@@ -1,9 +1,11 @@
 import { stxLabel, sumUstx } from '../lib/amounts';
 import { explorerUrl } from '../lib/explorer';
+import { SIP_IDENTICON_URL } from '../lib/identicon';
 import { translator, type Locale } from '../lib/i18n';
 import { localizeProfile } from '../lib/profile-i18n';
 import type { Template } from '../lib/templates';
 import Badge, { feeLabel, noticeLabel } from './Badge';
+import Identicon from './Identicon';
 import LocaleSwitch from './LocaleSwitch';
 
 const Code = ({ children }: { children: string }) => (
@@ -42,7 +44,12 @@ export default function ContractPage({
         <LocaleSwitch locale={locale} onChange={onLocaleChange} />
       </div>
 
-      <h1 className='mt-6 text-4xl font-extrabold md:text-5xl'>
+      <h1 className='mt-6 flex items-center gap-3 text-4xl font-extrabold md:text-5xl'>
+        <Identicon
+          hash={template.identiconHash}
+          locale={locale}
+          className='h-12 w-12 md:h-14 md:w-14'
+        />
         {t('contract.heading', { name: profile.name })}
       </h1>
 
@@ -130,6 +137,36 @@ export default function ContractPage({
             </dd>
             <dd className='mt-1 text-muted'>{t('contract.fingerprintNote')}</dd>
           </div>
+
+          {template.identiconHash && (
+            <div>
+              <dt className='font-semibold'>{t('contract.identicon')}</dt>
+              <dd className='mt-1 flex items-center gap-2'>
+                <Identicon
+                  hash={template.identiconHash}
+                  locale={locale}
+                  className='h-10 w-10'
+                />
+                <span className='break-all font-mono text-xs text-muted'>
+                  {template.identiconHash}
+                </span>
+              </dd>
+              <dd className='mt-1 text-muted'>
+                {t.rich('contract.identiconNote', {
+                  link: (
+                    <a
+                      className='underline'
+                      href={SIP_IDENTICON_URL}
+                      target='_blank'
+                      rel='noreferrer'
+                    >
+                      {t('identicon.sip')}
+                    </a>
+                  ),
+                })}
+              </dd>
+            </div>
+          )}
 
           <div>
             <dt className='font-semibold'>{t('contract.whoMayJoin')}</dt>

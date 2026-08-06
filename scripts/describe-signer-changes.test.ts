@@ -10,6 +10,7 @@ const signer = (overrides: Partial<Signer> = {}): Signer => ({
   sourceSha256: 'a',
   canonicalSha256: 'b',
   groupSha256: 'c',
+  identiconHash: 'd',
   match: 'canonical',
   profileId: 'standard',
   bitcoinRewards: true,
@@ -29,6 +30,7 @@ const signer = (overrides: Partial<Signer> = {}): Signer => ({
 const data = (signers: Signer[], cycle = 141): SignerData => ({
   generatedAt: '2026-07-31T00:00:00.000Z',
   cycle,
+  standardisedWith: 'clarinet 3.23.1',
   signers,
 });
 

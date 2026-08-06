@@ -171,6 +171,13 @@ export const ko: LocaleBundle = {
     'signer.notAvailable': '정보 없음',
     'signer.fingerprint': '코드 지문',
     'signer.fingerprintNote': '이 지문이 같은 풀은 같은 코드를 실행합니다.',
+    'signer.identicon': '코드 아이콘',
+    'signer.identiconNote':
+      '주소가 아니라 코드에서 생성됩니다. 그래서 같은 컨트랙트를 두 번 배포해도, 이 페이지와 {link}을 따르는 다른 앱에서 같은 아이콘이 표시됩니다.',
+
+    'identicon.label': '이 풀이 실행하는 코드의 아이콘',
+    'identicon.newLabel': '새로운 코드 — 아직 아이콘이 없습니다',
+    'identicon.sip': '아이덴티콘 표준',
 
     'contract.back': '← 모든 서명자 컨트랙트',
     'contract.heading': '{name} 서명자 컨트랙트',
@@ -184,6 +191,9 @@ export const ko: LocaleBundle = {
     'contract.fingerprint': '코드 지문',
     'contract.fingerprintNote':
       '위 모든 풀의 해시가 이 값과 같기 때문에 같은 코드를 실행한다는 것을 알 수 있습니다.',
+    'contract.identicon': '코드 아이콘',
+    'contract.identiconNote':
+      '위의 모든 풀이 표시하는 아이콘입니다. 코드 자체에서 생성되므로 {link}을 따르는 앱은 같은 아이콘을 그립니다. 이 컨트랙트를 실행한다면서 다른 아이콘을 표시하는 풀은 실제로 이 컨트랙트를 실행하는 것이 아닙니다.',
     'contract.whoMayJoin': '참여 가능 대상',
     'contract.whoMayJoinEvidence':
       '다음 조건이 성립하지 않으면 스테이킹이 거절됩니다: {code}',

@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { stxLabel } from '../lib/amounts';
 import { explorerUrl } from '../lib/explorer';
+import { SIP_IDENTICON_URL } from '../lib/identicon';
 import { translator, type Locale } from '../lib/i18n';
 import { contractHref } from '../lib/route';
 import { ellipsedAddr } from '../lib/strings';
 import type { Signer } from '../lib/types';
 import Badge, { feeLabel, noticeLabel } from './Badge';
+import Identicon from './Identicon';
 import StakeModal from './StakeModal';
 
 export default function SignerCard({
@@ -26,8 +28,15 @@ export default function SignerCard({
 
   return (
     <li className='rounded-3xl bg-white p-6 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
-      <div className='flex flex-wrap items-baseline justify-between gap-2'>
-        <h3 className='text-xl font-bold'>{signer.displayName}</h3>
+      <div className='flex flex-wrap items-center justify-between gap-2'>
+        <h3 className='flex items-center gap-2 text-xl font-bold'>
+          <Identicon
+            hash={signer.identiconHash}
+            locale={locale}
+            className='h-8 w-8'
+          />
+          {signer.displayName}
+        </h3>
         <p className='font-mono text-xs text-muted'>
           {ellipsedAddr(addr)}.{name}
         </p>
@@ -142,6 +151,36 @@ export default function SignerCard({
             </dd>
             <dd className='mt-1 text-muted'>{t('signer.fingerprintNote')}</dd>
           </div>
+
+          {signer.identiconHash && (
+            <div>
+              <dt className='font-semibold'>{t('signer.identicon')}</dt>
+              <dd className='mt-1 flex items-center gap-2'>
+                <Identicon
+                  hash={signer.identiconHash}
+                  locale={locale}
+                  className='h-10 w-10'
+                />
+                <span className='break-all font-mono text-xs text-muted'>
+                  {signer.identiconHash}
+                </span>
+              </dd>
+              <dd className='mt-1 text-muted'>
+                {t.rich('signer.identiconNote', {
+                  link: (
+                    <a
+                      className='underline'
+                      href={SIP_IDENTICON_URL}
+                      target='_blank'
+                      rel='noreferrer'
+                    >
+                      {t('identicon.sip')}
+                    </a>
+                  ),
+                })}
+              </dd>
+            </div>
+          )}
         </dl>
       )}
     </li>

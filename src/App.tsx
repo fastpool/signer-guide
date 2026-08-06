@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import ContractPage from './components/ContractPage';
+import Identicon from './components/Identicon';
 import LocaleSwitch from './components/LocaleSwitch';
 import SignerCard from './components/SignerCard';
 import UpdateBanner from './components/UpdateBanner';
@@ -206,7 +207,13 @@ export default function App() {
                   href={contractHref(template.profile.id)}
                   className='flex h-full flex-col rounded-3xl bg-white p-5 shadow-[0_1px_3px_rgba(44,42,53,0.08)] transition-colors hover:bg-grape-soft'
                 >
-                  <span className='text-lg font-bold'>{profile.name}</span>
+                  <span className='flex items-center gap-2 text-lg font-bold'>
+                    <Identicon
+                      hash={template.identiconHash}
+                      locale={locale}
+                    />
+                    {profile.name}
+                  </span>
                   <span className='text-sm text-muted'>
                     {t.plural('app.poolCount', template.signers.length)}
                   </span>

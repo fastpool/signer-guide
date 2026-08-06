@@ -21,7 +21,10 @@ pnpm dev
 ```
 
 Both generators read `STACKS_API_URL` and `HIRO_API_KEY` — see
-[Which node it asks](#which-node-it-asks).
+[Which node it asks](#which-node-it-asks). `generate:signers` uses
+[`clarinet`](https://github.com/hirosystems/clarinet/releases) when it is on
+the `PATH`, and only for contracts nobody has hashed yet — see
+[The icon beside the name](#the-icon-beside-the-name).
 
 ## How a pool is identified
 
@@ -57,6 +60,69 @@ That leaves 21 pools running five signer contracts. Reviewed contracts live in
 `src/lib/profiles.ts`, keyed by group hash, and each gets its own page at
 `#/contract/<id>`. A pool whose hash is not listed is shown as _not reviewed
 yet_ rather than being given badges it has not earned.
+
+### The icon beside the name
+
+The three hashes above are ours. They answer "have we read this code before",
+they mean something only here, and no reader is going to compare 64 characters
+by eye anyway. So each contract also carries a small icon, drawn from its code,
+that says the same thing at a glance: two pools showing the same icon run the
+same contract.
+
+The icon follows [SIP-043](https://github.com/stacksgov/sips/pull/266), which
+exists so that it is the _same_ icon in a wallet, in an explorer and here.
+Three things have to match for that, and the SIP pins all three:
+
+| step        | what                                                                  |
+| ----------- | --------------------------------------------------------------------- |
+| standardise | the byte-for-byte output of `clarinet format`, default settings        |
+| hash        | `SHA-512/256` over its UTF-8 bytes, lowercase hex — `identiconHash`    |
+| draw        | `minidenticons`, seeded with that hex and nothing else                 |
+
+**The standardised code, not the deployed code.** That is the whole point of
+the first step: the same contract deployed twice, laid out differently, is one
+contract and should be one icon. It is also why this is a fourth hash rather
+than one of ours — `canonicalSha256` strips comments and `groupSha256` moves
+whitespace beside parens, and neither is what anyone else computes. On the
+pools registered today the icon and the group hash partition them identically
+(six icons, six groups, no group split between two icons), which is a useful
+sign that the guide's own grouping is not doing anything strange, but they are
+different standardisations and `src/lib/templates.ts` treats the day they
+disagree as a page with no icon rather than picking one pool's.
+
+Two notes on following the SIP literally, both worth raising against the draft:
+
+- It names the renderer's function `minidenticonSvg`. In `minidenticons` 4.x
+  that export is a custom element registered as a side effect; the function
+  that returns SVG is `minidenticon`.
+- It calls saturation 50 and lightness 50 the library's defaults. They are 95
+  and 45. The guide passes the SIP's numbers explicitly, so which of the two
+  is "default" cannot change what is on the page.
+
+**The hourly refresh does not run the formatter.** A deployed contract's
+source cannot change, so its icon is worked out once and then carried by
+`signers.json` itself, keyed on `sourceSha256` — nine distinct sources have
+appeared across the whole history of that file, so the formatter has nine runs
+of work to do rather than thirty-eight an hour. That is a cache and not the
+merge the generator was rid of in _[what a person
+decided](#what-a-person-decided-and-where-it-lives)_: the key is the deployed
+bytes, so a byte's difference is a miss and gets standardised properly, and
+nothing that can go stale is carried by it.
+
+So clarinet is wanted only when code nobody has hashed appears — which is the
+same moment somebody is being asked to read that contract anyway, and the
+issue the refresh opens says so. Until then that pool shows a dashed
+placeholder rather than an icon: **new code, no claim made yet**, in the same
+amber the page uses everywhere else for what it has not checked. Never an
+invented pattern — an icon is a claim about which code this is, and there is
+no claim to make yet.
+
+Because the icon comes from a formatter's output it is only as stable as the
+formatter, and `clarinet format` is beta. `signers.json` records which version
+drew the icons in `standardisedWith`, and a run whose local clarinet differs
+re-standardises every contract rather than leaving the file holding two
+formatters' work — so a bump is somebody's commit, arriving as
+`~ identiconHash` per contract in the refresh summary, and never a Tuesday.
 
 ## Where the badges come from
 

@@ -69,6 +69,17 @@ jobs:
         # Either way the script retries a 429 and skips a contract it cannot
         # read rather than failing, so a bad day upstream costs a line in the
         # summary.
+        #
+        # No clarinet here on purpose, though the identicons are defined as the
+        # hash of its output. A deployed contract's source cannot change, so
+        # each icon is worked out once and then carried by signers.json itself,
+        # keyed on the deployed bytes — nine distinct sources in the whole
+        # history of that file. Installing a 20MB formatter every hour to
+        # recompute nine answers that cannot have moved is not worth the extra
+        # way this job can fail. A pool running code nobody has hashed yet
+        # shows on the page as new code, until someone with clarinet on their
+        # PATH runs `pnpm generate:signers` — the same person who has to read
+        # that contract anyway, per the issue this job opens.
         env:
           HIRO_API_KEY: ${{ secrets.HIRO_API_KEY }}
         run: pnpm generate:signers
@@ -170,6 +181,10 @@ jobs:
               echo "\`src/lib/profiles.ts\` as a new entry, or — if it turns out to be"
               echo "one we already know, only reformatted — work out why the group"
               echo "hash differs."
+              echo
+              echo "Run \`pnpm generate:signers\` with \`clarinet\` on your PATH while"
+              echo "you are there. The scheduled refresh has none, so this contract"
+              echo "has no identicon yet and the page is showing it as new code."
               echo
               echo "https://explorer.hiro.so/txid/$contract?chain=mainnet"
             } > "$RUNNER_TEMP/issue-body.md"

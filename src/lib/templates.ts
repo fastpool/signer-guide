@@ -19,6 +19,17 @@ export interface Template {
   feeExemption: Signer['feeExemption'];
   evidence: Signer['evidence'];
   groupSha256: string;
+  /**
+   * The icon every pool in the group shows, or null when they do not all show
+   * the same one.
+   *
+   * The only field here not simply taken off the first pool. Grouping is on
+   * our own hash; the identicon hash is SIP-043's, taken from a different
+   * standardisation of the source. They agree on everything deployed today,
+   * and a page-level icon that quietly showed one pool's when they disagreed
+   * would be a claim about the others that nobody checked.
+   */
+  identiconHash: string | null;
 }
 
 export function buildTemplates(signers: Signer[]): Template[] {
@@ -46,6 +57,9 @@ export function buildTemplates(signers: Signer[]): Template[] {
       feeExemption: first.feeExemption,
       evidence: first.evidence,
       groupSha256: first.groupSha256,
+      identiconHash: group.every((s) => s.identiconHash === first.identiconHash)
+        ? first.identiconHash
+        : null,
     });
   }
 

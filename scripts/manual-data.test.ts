@@ -138,6 +138,7 @@ describe('src/data/signers-manual.json', () => {
       'sourceSha256',
       'canonicalSha256',
       'groupSha256',
+      'identiconHash',
       'profileId',
       'implementationName',
       'match',

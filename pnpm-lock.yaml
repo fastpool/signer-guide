@@ -23,6 +23,9 @@ importers:
       '@stacks/transactions':
         specifier: ^7.6.0
         version: 7.6.0
+      minidenticons:
+        specifier: ^4.2.1
+        version: 4.2.1
       react:
         specifier: ^19.2.4
         version: 19.2.8
@@ -1516,6 +1519,10 @@ packages:
   micro-packed@0.9.0:
     resolution: {integrity: sha512-gFdaWTxEXOwtSOcpxulO4AuXVtp3HWIRmB8eq8+3m1Zku0ubgva0UGpi03YhcvsTJasHngG9gTIUK5kHNKdesg==}
     engines: {node: '>= 20.19.0'}
+
+  minidenticons@4.2.1:
+    resolution: {integrity: sha512-oWfFivA0lOx/V/bO/YIJbthB26lV8JXYvhnv9zM2hNd3fzsHTXQ6c6bWZPcvhD3nnOB+lQk/D9lF43BXixrN8g==}
+    engines: {node: '>=15.14.0'}
 
   minimalistic-assert@1.0.1:
     resolution: {integrity: sha512-UtJcAD4yEaGtjPezWuO9wC4nwUnVH/8/Im3yEHQP4b67cXlD/Qr9hdITCU1xDbSEXg2XKNaP8jsReV7vQd00/A==}
@@ -4195,6 +4202,8 @@ snapshots:
   micro-packed@0.9.0:
     dependencies:
       '@scure/base': 2.2.0
+
+  minidenticons@4.2.1: {}
 
   minimalistic-assert@1.0.1:
     optional: true
