@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-05T15:31:55.620Z",
+  "generatedAt": "2026-08-06T10:02:52.800Z",
   "cycle": 140,
   "signers": [
     {
@@ -405,7 +405,7 @@
       "match": "canonical",
       "profileId": "native-pool",
       "bitcoinRewards": false,
-      "openToAnyone": false,
+      "openToAnyone": true,
       "feeBips": null,
       "maxFeeBips": null,
       "feeChangeNotice": null,
@@ -648,6 +648,29 @@
       }
     },
     {
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-xverse-v1",
+      "displayName": "Xverse V1",
+      "implementationName": "Invite-only",
+      "registered": true,
+      "signerKey": "0x0285f4c617c4065e429d1666dcfd885c52e223acfc042aa2c2855adc93034e6975",
+      "sourceSha256": "4585077af0601600166bde4843fd780c5916e4fa4d522951fc73841e90eff1f1",
+      "canonicalSha256": "5cb86a1cff402c4f1f22c0121c13a329c5770e9f1d682eb0bda1841b0c7f0d1f",
+      "groupSha256": "d5718c4d8771628da0a24e4345534b4c9ec630f7942cdfd47c5fe3075c69b6b4",
+      "match": "canonical",
+      "profileId": "invite-only",
+      "bitcoinRewards": false,
+      "openToAnyone": false,
+      "feeBips": null,
+      "maxFeeBips": null,
+      "feeChangeNotice": null,
+      "feeExemption": null,
+      "evidence": {
+        "bitcoinRewards": null,
+        "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)",
+        "maxFee": null
+      }
+    },
+    {
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1",
       "displayName": "Xverse 1",
       "implementationName": "Xverse",
@@ -767,6 +790,29 @@
       }
     },
     {
+      "contractId": "SPTYE94YNFECH2R1RQE1NZC5MZYK0RX9GA32T859.signer-manager",
+      "displayName": "signer-manager",
+      "implementationName": "Standard",
+      "registered": true,
+      "signerKey": "0x038b9ddb9808631dd75ccb0b6715b36bb1e391d85d40f1a031e98a332890bed2ea",
+      "sourceSha256": "05aaf409ed285f02d8b6d5d540f94feb8baea139a14263b7e7de7ba9f054d3c5",
+      "canonicalSha256": "004da6bde5f91b9cdf555a020494cab73d29cc75733ad0c05e4f4b32a94e251b",
+      "groupSha256": "09aa95c7bdeb5ba47970ef47eec3122bf1e1c38ac796799622bc9a4a48c0867e",
+      "match": "canonical",
+      "profileId": "standard",
+      "bitcoinRewards": true,
+      "openToAnyone": true,
+      "feeBips": 0,
+      "maxFeeBips": null,
+      "feeChangeNotice": null,
+      "feeExemption": null,
+      "evidence": {
+        "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
+        "openToAnyone": null,
+        "maxFee": null
+      }
+    },
+    {
       "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer",
       "displayName": "Juice Pool Stx",
       "implementationName": "Juice Pool",
@@ -819,6 +865,33 @@
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
         "openToAnyone": null,
         "maxFee": null
+      }
+    },
+    {
+      "contractId": "SPZACCJ8XPZ14P7K7NGFMT1BWQYF2JA9DFA2ZR8A.signer-manager",
+      "displayName": "signer-manager",
+      "implementationName": "Capped Fee",
+      "registered": true,
+      "signerKey": "0x022150d4ea6dc60e75e162455553a92adea0a0f3000c192cc55d0bffed22c0a8e0",
+      "sourceSha256": "e80395f43dd6dd0008131ed2ba64eef11d4dde54eba1aa8e31c5e5eaa3a30608",
+      "canonicalSha256": "ce411cc010b94f26925c7b02bed02b575bf191488d040ca4eed368a5a013fbd4",
+      "groupSha256": "d6c5e82af733250d80b38be57d02c5ff6677ec2712e31d00381899e3fecc6874",
+      "match": "canonical",
+      "profileId": "capped-fee",
+      "bitcoinRewards": false,
+      "openToAnyone": true,
+      "feeBips": 0,
+      "maxFeeBips": 500,
+      "feeChangeNotice": {
+        "amount": 2,
+        "unit": "cycles",
+        "evidence": "(var-set pending-fees-cycle (+ cycle FEE_ACTIVATION_DELAY_CYCLES))"
+      },
+      "feeExemption": null,
+      "evidence": {
+        "bitcoinRewards": null,
+        "openToAnyone": null,
+        "maxFee": "(asserts! (<= new-fees MAX_FEE_BIPS) ERR_INVALID_FEES_BIPS)"
       }
     }
   ]
