@@ -54,10 +54,11 @@ describe('filters', () => {
     expect(ids).toContain(
       'SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager',
     );
-    expect(shown.map((s) => s.feeChangeNotice?.unit).sort()).toEqual([
-      'blocks',
-      'cycles',
-    ]);
+    // Which units appear, not how many pools carry each: a pool registering
+    // is not a regression, a unit the page cannot word is.
+    expect(new Set(shown.map((s) => s.feeChangeNotice?.unit))).toEqual(
+      new Set(['blocks', 'cycles']),
+    );
   });
 
   it('does not let a fee ceiling stand in for notice of a change', () => {
