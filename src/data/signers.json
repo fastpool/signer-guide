@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-08T13:16:04.016Z",
+  "generatedAt": "2026-08-08T14:02:15.557Z",
   "cycle": 140,
   "standardisedWith": "clarinet 3.23.1",
   "signers": [
@@ -762,7 +762,7 @@
       "profileId": "xverse",
       "bitcoinRewards": true,
       "openToAnyone": true,
-      "feeBips": 0,
+      "feeBips": 495,
       "maxFeeBips": null,
       "feeChangeNotice": null,
       "feeExemption": null,
@@ -786,7 +786,7 @@
       "profileId": "xverse",
       "bitcoinRewards": true,
       "openToAnyone": true,
-      "feeBips": 0,
+      "feeBips": 495,
       "maxFeeBips": null,
       "feeChangeNotice": null,
       "feeExemption": null,
@@ -810,7 +810,7 @@
       "profileId": "xverse",
       "bitcoinRewards": true,
       "openToAnyone": true,
-      "feeBips": 0,
+      "feeBips": 495,
       "maxFeeBips": null,
       "feeChangeNotice": null,
       "feeExemption": null,
