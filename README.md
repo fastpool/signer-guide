@@ -73,22 +73,34 @@ The icon follows [SIP-043](https://github.com/stacksgov/sips/pull/266), which
 exists so that it is the _same_ icon in a wallet, in an explorer and here.
 Three things have to match for that, and the SIP pins all three:
 
-| step        | what                                                                  |
-| ----------- | --------------------------------------------------------------------- |
-| standardise | the byte-for-byte output of `clarinet format`, default settings        |
-| hash        | `SHA-512/256` over its UTF-8 bytes, lowercase hex — `identiconHash`    |
-| draw        | `minidenticons`, seeded with that hex and nothing else                 |
+| step        | what                                                                |
+| ----------- | ------------------------------------------------------------------- |
+| standardise | the byte-for-byte output of `clarinet format`, default settings     |
+| hash        | `SHA-512/256` over its UTF-8 bytes, lowercase hex — `identiconHash` |
+| draw        | `minidenticons`, seeded with that hex and nothing else              |
 
 **The standardised code, not the deployed code.** That is the whole point of
 the first step: the same contract deployed twice, laid out differently, is one
 contract and should be one icon. It is also why this is a fourth hash rather
 than one of ours — `canonicalSha256` strips comments and `groupSha256` moves
-whitespace beside parens, and neither is what anyone else computes. On the
-pools registered today the icon and the group hash partition them identically
-(six icons, six groups, no group split between two icons), which is a useful
-sign that the guide's own grouping is not doing anything strange, but they are
-different standardisations and `src/lib/templates.ts` treats the day they
-disagree as a page with no icon rather than picking one pool's.
+whitespace beside parens, and neither is what anyone else computes.
+
+They agreed on the pools registered until recently — same partition, no group
+split between two icons — and then `SP21D6BW….signer-manager-bd-contract`
+arrived: the Standard contract, deployed with its twelve-line header comment
+stripped and indented four spaces instead of two. `clarinet format` puts the
+indentation back and keeps the missing comment missing, so it shares the group
+and not the icon.
+
+A group that holds two icons is not a group that is wrong, then, and
+`src/lib/templates.ts` shows the majority one and counts the pools it does not
+speak for. Requiring agreement was the earlier rule and it failed badly: one
+pool in twenty-two took the icon off the Standard contract page and the front
+page card, and took it off by showing the _new code, nobody has standardised
+it yet_ placeholder — of the most-deployed, most-read contract on the page.
+The contract page now says which pools the icon is speaking for instead of
+letting a blank stand in for a sentence. A tie between two icons is the one
+case left with no majority to show, and keeps the placeholder.
 
 Two notes on following the SIP literally, both worth raising against the draft:
 

@@ -33,6 +33,37 @@ export default function ContractPage({
     lockedUstx,
   );
 
+  const sipLink = (
+    <a
+      className='underline'
+      href={SIP_IDENTICON_URL}
+      target='_blank'
+      rel='noreferrer'
+    >
+      {t('identicon.sip')}
+    </a>
+  );
+
+  // The icon shown is the group's majority, so the note may only claim every
+  // pool shows it when every pool does — see Template.identiconHash. Plural
+  // picked by hand rather than through t.plural, which returns a string and
+  // would have nowhere to put the link.
+  const outliers = template.identiconOutliers;
+  const identiconNote =
+    outliers === 0
+      ? t.rich('contract.identiconNote', { link: sipLink })
+      : t.rich(
+          outliers === 1
+            ? 'contract.identiconMajority.one'
+            : 'contract.identiconMajority.other',
+          {
+            count: outliers,
+            sharing: signers.length - outliers,
+            total: signers.length,
+            link: sipLink,
+          },
+        );
+
   return (
     <main className='mx-auto max-w-3xl px-5 py-12 md:py-20'>
       <div className='flex flex-wrap items-center justify-between gap-3'>
@@ -152,20 +183,7 @@ export default function ContractPage({
                   {template.identiconHash}
                 </span>
               </dd>
-              <dd className='mt-1 text-muted'>
-                {t.rich('contract.identiconNote', {
-                  link: (
-                    <a
-                      className='underline'
-                      href={SIP_IDENTICON_URL}
-                      target='_blank'
-                      rel='noreferrer'
-                    >
-                      {t('identicon.sip')}
-                    </a>
-                  ),
-                })}
-              </dd>
+              <dd className='mt-1 text-muted'>{identiconNote}</dd>
             </div>
           )}
 

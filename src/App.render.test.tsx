@@ -93,6 +93,27 @@ describe('the page as a reader sees it', () => {
     // Six contracts and every pool that could be standardised.
     expect(icons).toBeGreaterThan(6);
     expect(html).toContain('aria-label="Icon of the code this pool runs"');
+    // Every committed pool has a hash, so nothing on this page is new code.
+    // The placeholder here would mean a contract lost its icon to a
+    // disagreement among its pools, which is not what it says.
+    expect(html).not.toContain('New code — no icon for it yet');
+  });
+
+  it('keeps a contract icon that one of its pools does not share', () => {
+    // The Standard contract has a pool deploying its code without the header
+    // comment: same code by the fingerprint above it, different SIP-043 hash.
+    // The page shows what the rest of them show, and says how many it is
+    // speaking for rather than letting the icon speak for all of them.
+    vi.stubGlobal('window', {
+      location: { hash: '#/contract/standard' },
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      scrollTo: () => {},
+    });
+    const html = renderToStaticMarkup(<App />);
+    expect(html).toContain('<svg viewBox="-1.5 -1.5 8 8"');
+    expect(html).toContain('pools above show');
+    expect(html).not.toContain('The icon every pool above shows');
   });
 
   it('points a reader at the code behind every claim', () => {

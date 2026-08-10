@@ -18,6 +18,9 @@
     "note": "The contract is named after pox-5, not after the pool that runs it, so the generator can only make 'Pox5' out of it. Senseinode is the operator, and slotwatch.dev names this signer key the same.",
     "displayName": "Senseinode"
   },
+  "SP21D6BW36TSGWAZS8K4JAJVTNXWKQN9G3TH5MG6A.signer-manager-bd-contract": {
+    "note": "Deliberately not renamed, though 'Bd Contract' is initials plus a plumbing word rather than anything a pool calls itself. It is registered with signer key 0x03a541c1ec…, which slotwatch.dev names 'Blockdaemon*' and which SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-blockdaemon-v1 is also registered with — so one operator runs both, and expanding 'bd' to Blockdaemon here would be reading the initials through another contract's name and another site's footnote; see the blockdaemon-v1 entry for why that asterisk is not ours to drop. '(anonymous)' would be worse, because it would say the contract id carries no name when it carries initials. So it stays a reading of the contract id until the pool says otherwise."
+  },
   "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager": {
     "note": "slotwatch.dev names this signer key Fast Pool, which is how the pool spells itself; the generator can only make 'Fastpool 1' out of the contract id.",
     "displayName": "Fast Pool v1"
@@ -33,7 +36,13 @@
     "openToAnyone": true
   },
   "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-blockdaemon-v1": {
-    "note": "Deliberately not renamed. slotwatch.dev names this signer key 'Blockdaemon*' — same operator the contract id already says, and the asterisk is a marker of theirs whose meaning is not documented anywhere we can find. Dropping it would be inventing a name, keeping it would be copying another site's footnote, and 'Blockdaemon' alone loses the V1 that tells this apart from the rest of the -v1 family under this principal. Nothing to add, so nothing is claimed."
+    "note": "Deliberately not renamed. slotwatch.dev names this signer key 'Blockdaemon*' — same operator the contract id already says, and the asterisk is a marker of theirs whose meaning is not documented anywhere we can find. Dropping it would be inventing a name, keeping it would be copying another site's footnote, and 'Blockdaemon' alone loses the V1 that tells this apart from the rest of the -v1 family under this principal. Nothing to add, so nothing is claimed. The same signer key is also registered by SP21D6BW36TSGWAZS8K4JAJVTNXWKQN9G3TH5MG6A.signer-manager-bd-contract; see the entry there."
+  },
+  "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-foundry-v1": {
+    "note": "Deliberately not renamed. Registered with signer key 0x0309126df3…, which is not in the current signer set — slotwatch.dev has no name for it, so there is nothing to check 'Foundry V1' against. The contract id already says whatever the deployer meant by it, and this stays a reading of that id until the pool is confirmed."
+  },
+  "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-infstones-v1": {
+    "note": "Deliberately not renamed, and in particular not respelled. Registered with signer key 0x02c54d8b1b…, which is not in the current signer set, so slotwatch.dev has no name for it. The infrastructure company spells itself InfStones, and 'Infstones V1' is only what capitalising the contract id produces — but nothing here says this pool is that company, and correcting the spelling would be claiming the identification rather than reading the id. Same reasoning as the blockdaemon-v1 entry above."
   },
   "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager": {
     "note": "It does pay rewards to L1, and the detector misses it: validate-stake! hands the calldata to store-payout-config, which is where the pox-addr is decoded and written to payout-configs, and the detector only looks inside validate-stake! itself. Remove this once it follows a helper one level down.",

@@ -198,6 +198,10 @@ export const ko: LocaleBundle = {
     'contract.identicon': '코드 아이콘',
     'contract.identiconNote':
       '위의 모든 풀이 표시하는 아이콘입니다. 코드 자체에서 생성되므로 {link}을 따르는 앱은 같은 아이콘을 그립니다. 이 컨트랙트를 실행한다면서 다른 아이콘을 표시하는 풀은 실제로 이 컨트랙트를 실행하는 것이 아닙니다.',
+    'contract.identiconMajority.one':
+      '위 {total}개 풀 가운데 {sharing}개가 표시하는 아이콘입니다. 1개는 표시하지 않습니다 — 주석이 다르거나, 아직 아이콘이 만들어지지 않았기 때문입니다. 어느 쪽도 다른 컨트랙트라는 뜻은 아닙니다. 그것을 확인하는 것은 위의 코드 지문이며, 지문은 주석을 무시하지만 {link}은 무시하지 않습니다.',
+    'contract.identiconMajority.other':
+      '위 {total}개 풀 가운데 {sharing}개가 표시하는 아이콘입니다. {count}개는 표시하지 않습니다 — 주석이 다르거나, 아직 아이콘이 만들어지지 않았기 때문입니다. 어느 쪽도 다른 컨트랙트라는 뜻은 아닙니다. 그것을 확인하는 것은 위의 코드 지문이며, 지문은 주석을 무시하지만 {link}은 무시하지 않습니다.',
     'contract.whoMayJoin': '참여 가능 대상',
     'contract.whoMayJoinEvidence':
       '다음 조건이 성립하지 않으면 스테이킹이 거절됩니다: {code}',

@@ -161,6 +161,10 @@ const messages = {
   'contract.identicon': 'Code icon',
   'contract.identiconNote':
     'The icon every pool above shows. It is drawn from the code itself, so an app that follows {link} draws the same one — and a pool claiming this contract while showing a different icon is not running it.',
+  'contract.identiconMajority.one':
+    'The icon {sharing} of the {total} pools above show. One does not — a comment of its own, or no icon drawn for it yet. Neither makes it a different contract: the fingerprint above is what checks that, and it ignores comments where {link} does not.',
+  'contract.identiconMajority.other':
+    'The icon {sharing} of the {total} pools above show. {count} do not — a comment of their own, or no icon drawn for them yet. Neither makes them a different contract: the fingerprint above is what checks that, and it ignores comments where {link} does not.',
   'contract.whoMayJoin': 'Who may join',
   'contract.whoMayJoinEvidence': 'Staking is refused unless this holds: {code}',
   'contract.whoMayJoinNone':

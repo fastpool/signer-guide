@@ -145,4 +145,15 @@ describe('the committed identicons', () => {
       expect(() => identiconSvg(template.identiconHash!)).not.toThrow();
     }
   });
+
+  it('leaves no contract the page knows without an icon', () => {
+    // The placeholder says "new code, nobody has standardised it yet". Every
+    // contract with a profile has been standardised — that is what gave it a
+    // profile — so a placeholder on one of these cards is the page saying
+    // something untrue about code it has read.
+    const missing = buildTemplates(signers)
+      .filter((template) => template.identiconHash === null)
+      .map((template) => template.profile.id);
+    expect(missing).toEqual([]);
+  });
 });
