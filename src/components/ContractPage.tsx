@@ -7,6 +7,7 @@ import type { Template } from '../lib/templates';
 import Badge, { feeLabel, noticeLabel } from './Badge';
 import Identicon from './Identicon';
 import LocaleSwitch from './LocaleSwitch';
+import PoolName from './PoolName';
 
 const Code = ({ children }: { children: string }) => (
   <code className='break-all font-mono text-xs'>{children}</code>
@@ -110,7 +111,7 @@ export default function ContractPage({
                 target='_blank'
                 rel='noreferrer'
               >
-                {signer.displayName}
+                <PoolName signer={signer} locale={locale} />
               </a>
               <span className='flex flex-wrap items-baseline gap-2'>
                 {lockedUstx && (

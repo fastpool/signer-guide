@@ -5,6 +5,7 @@ import type { Signer, SignerData } from '../src/lib/types.js';
 const signer = (overrides: Partial<Signer> = {}): Signer => ({
   contractId: 'SP000.signer-manager',
   displayName: 'Test',
+  displayNameSource: 'contract',
   implementationName: 'Standard',
   registered: true,
   sourceSha256: 'a',

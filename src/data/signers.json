@@ -1,11 +1,12 @@
 {
-  "generatedAt": "2026-08-07T07:05:52.309Z",
+  "generatedAt": "2026-08-07T23:51:54.050Z",
   "cycle": 140,
   "standardisedWith": "clarinet 3.23.1",
   "signers": [
     {
       "contractId": "SP1N8F8BBBC60XF6HJBNJHKPRGJ7WZBRGNDJX4YDR.signer-manager",
       "displayName": "signer-manager",
+      "displayNameSource": "contract",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x02fcf9e4c4bf998223095d849dcda17de147c4b50ab3751164c670aea956eba68d",
@@ -30,6 +31,7 @@
     {
       "contractId": "SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85.signer-manager-hiro",
       "displayName": "Hiro",
+      "displayNameSource": "contract",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x02879477ec9ed8a56c0b26ba4b452246608d6e1b02ae1fa405a2c97ee8af5da202",
@@ -53,7 +55,8 @@
     },
     {
       "contractId": "SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85.signer-manager-stackslabs-1",
-      "displayName": "Stackslabs 1",
+      "displayName": "L2-Labs-1",
+      "displayNameSource": "manual",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x02844807121921880119fe05ae47fccb4945a4bb2f840fe7de66e6f32640bc8169",
@@ -77,7 +80,8 @@
     },
     {
       "contractId": "SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85.signer-manager-stackslabs-2",
-      "displayName": "Stackslabs 2",
+      "displayName": "L2-Labs-2",
+      "displayNameSource": "manual",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x0268e6f499fca2912488e89fc8b6734cafbe24a4ecbcd3312e4eb27ed8e5cfb4f3",
@@ -101,7 +105,8 @@
     },
     {
       "contractId": "SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85.signer-manager-stackslabs-3",
-      "displayName": "Stackslabs 3",
+      "displayName": "L2-Labs-3",
+      "displayNameSource": "manual",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x038cb1e945144ca7669b0f33656b8379bcb3c17795b4d8665e42dea76eb3f86d2f",
@@ -126,6 +131,7 @@
     {
       "contractId": "SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85.signer-manager-stackslabs-4",
       "displayName": "Stackslabs 4",
+      "displayNameSource": "contract",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x02879477ec9ed8a56c0b26ba4b452246608d6e1b02ae1fa405a2c97ee8af5da202",
@@ -150,6 +156,7 @@
     {
       "contractId": "SP1RWRWKM2364FY3XZTWFFK8K4MVBQYQX5V1E2KVC.signer-manager",
       "displayName": "signer-manager",
+      "displayNameSource": "contract",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x039262e5a8badd8e49eaa1808a675ad005f7b324bd677576fa670e43e73b166844",
@@ -174,6 +181,7 @@
     {
       "contractId": "SP206Y7BR5NFCR517VGVX04BSGNA5425GM6DMF9H.signer-manager-hashkeycloud-2",
       "displayName": "Hashkeycloud 2",
+      "displayNameSource": "contract",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x0216436e7785e1dc55cf4350ac1f90e45daf0ec5b57bce13a32551a513446e71d1",
@@ -198,6 +206,7 @@
     {
       "contractId": "SP206Y7BR5NFCR517VGVX04BSGNA5425GM6DMF9H.signer-manager-hashkeycloud-v1",
       "displayName": "Hashkeycloud V1",
+      "displayNameSource": "contract",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x025e6a2fdb9962638262cb6fde940355718908ff5f13f8cbb71e34ed1982577a1e",
@@ -222,6 +231,7 @@
     {
       "contractId": "SP20XZGWBWSMRE94WDJ6YJ1EKPJ55RGRGK4JDJHNK.signer-manager-pox5",
       "displayName": "Senseinode",
+      "displayNameSource": "manual",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x024f164c6e73df283d34d7d9cc86553a82dce76045ba7dfbf4de0004f89eabb8e0",
@@ -244,8 +254,34 @@
       }
     },
     {
+      "contractId": "SP21D6BW36TSGWAZS8K4JAJVTNXWKQN9G3TH5MG6A.signer-manager-bd-contract",
+      "displayName": "Bd Contract",
+      "displayNameSource": "contract",
+      "implementationName": "Standard",
+      "registered": true,
+      "signerKey": "0x03a541c1ec2cfb32da48cfadf439c9b2f27d166bbffa18a178c7a6a0d54cfa7813",
+      "sourceSha256": "19eb290785cb57e47254fc62e61cee17c77504273ce3c0b6f5abbe07f25d5c2f",
+      "canonicalSha256": "004da6bde5f91b9cdf555a020494cab73d29cc75733ad0c05e4f4b32a94e251b",
+      "groupSha256": "09aa95c7bdeb5ba47970ef47eec3122bf1e1c38ac796799622bc9a4a48c0867e",
+      "identiconHash": "3d068fc6906a21d60b6c3f2647cb38db439fb6fafac56f7fdc5d2c1fdfe9d468",
+      "match": "canonical",
+      "profileId": "standard",
+      "bitcoinRewards": true,
+      "openToAnyone": true,
+      "feeBips": 9999,
+      "maxFeeBips": null,
+      "feeChangeNotice": null,
+      "feeExemption": null,
+      "evidence": {
+        "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
+        "openToAnyone": null,
+        "maxFee": null
+      }
+    },
+    {
       "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager",
-      "displayName": "Fastpool 1",
+      "displayName": "Fast Pool",
+      "displayNameSource": "manual",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x023d6ecdc36fa1e1c6a9f116c7f13ae843001ed9d617f66f6c68cabf751bf82555",
@@ -270,6 +306,7 @@
     {
       "contractId": "SP2369QN53586176SYRF4XFGF4E84V0J0EWKRG0ZH.signer-manager",
       "displayName": "(anonymous)",
+      "displayNameSource": "manual",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x0228a566db9a7b3212d612aa06e34fa981351a4372737849bfcaa1a28e8a044e5d",
@@ -294,6 +331,7 @@
     {
       "contractId": "SP30A7BPA23W9G3GR090ZRVE5AAJ2TCXH412ABYJH.signer-manager",
       "displayName": "signer-manager",
+      "displayNameSource": "contract",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x0209130bec93e83b23d3366adfcbe0a1641057b9c48102572d892fe8f78de2bee7",
@@ -318,6 +356,7 @@
     {
       "contractId": "SP3DHX7ZHNTCE1WQHJH0T0HY9NNSVT4SWTY2FRCCT.hiro",
       "displayName": "Hiro",
+      "displayNameSource": "contract",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x038cb1e945144ca7669b0f33656b8379bcb3c17795b4d8665e42dea76eb3f86d2f",
@@ -342,6 +381,7 @@
     {
       "contractId": "SP3DHX7ZHNTCE1WQHJH0T0HY9NNSVT4SWTY2FRCCT.hiro-contract",
       "displayName": "Hiro Contract",
+      "displayNameSource": "contract",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x03585c7041ce97cb01afc92b338f63d9f2afe737314126dd4594a7f16c7ab27a03",
@@ -366,6 +406,7 @@
     {
       "contractId": "SP3KF99SM1T2V25NF2JZYAD1ZADC8326PH6HD7HF6.not-used",
       "displayName": "Not Used",
+      "displayNameSource": "contract",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x0240afe322491c16eb3a80ee38559b6e0f2000c4462c6473bc00d10cd2d0354336",
@@ -390,6 +431,7 @@
     {
       "contractId": "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs",
       "displayName": "Stacks Labs",
+      "displayNameSource": "contract",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x03bf03c1c517fc0ac40ee19d019145d1e14b36e108f3f44d2134bc458665f88c1a",
@@ -414,6 +456,7 @@
     {
       "contractId": "SP3TB3AJ0XMZ9S6CGY2CQ6R06H1Z6DJQ1SH15ZP2H.signer-manager-stillearly",
       "displayName": "Stillearly",
+      "displayNameSource": "contract",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x0294f4bc505c0afcc4d3b2372e517f73a59523da933c95958107223e1be91e4d13",
@@ -425,7 +468,7 @@
       "profileId": "standard",
       "bitcoinRewards": true,
       "openToAnyone": true,
-      "feeBips": 0,
+      "feeBips": 500,
       "maxFeeBips": null,
       "feeChangeNotice": null,
       "feeExemption": null,
@@ -438,6 +481,7 @@
     {
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager",
       "displayName": "Native Pool (Stacking Dao)",
+      "displayNameSource": "manual",
       "implementationName": "Native Pool",
       "registered": true,
       "signerKey": "0x025588e24e2bf387fe8cc7bccba1aac7fe599b96724892431e992a40d06e8fe220",
@@ -463,6 +507,7 @@
     {
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-blockdaemon-v1",
       "displayName": "Blockdaemon V1",
+      "displayNameSource": "contract",
       "implementationName": "Invite-only",
       "registered": true,
       "signerKey": "0x03a541c1ec2cfb32da48cfadf439c9b2f27d166bbffa18a178c7a6a0d54cfa7813",
@@ -487,6 +532,7 @@
     {
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-1-v1",
       "displayName": "Bond 1 V1",
+      "displayNameSource": "contract",
       "implementationName": "Invite-only",
       "registered": true,
       "signerKey": "0x03f55a58fc47821147a5f2a7c35723fd4007037aeecfc6c10d7db4321f14b0beb9",
@@ -511,6 +557,7 @@
     {
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-2-v1",
       "displayName": "Bond 2 V1",
+      "displayNameSource": "contract",
       "implementationName": "Invite-only",
       "registered": true,
       "signerKey": "0x03c56effa8046803c0fde0ac489cf6fb0b9c8b3119c12059dac349d4f427ecae01",
@@ -535,6 +582,7 @@
     {
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-3-v1",
       "displayName": "Bond 3 V1",
+      "displayNameSource": "contract",
       "implementationName": "Invite-only",
       "registered": true,
       "signerKey": "0x026cd54c6d17e25b01a7e54be2d2569ff3cec7aaf22c519edcb161a3ca823c42f1",
@@ -559,6 +607,7 @@
     {
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-4-v1",
       "displayName": "Bond 4 V1",
+      "displayNameSource": "contract",
       "implementationName": "Invite-only",
       "registered": true,
       "signerKey": "0x02d086de601ab56f2278b08bddc1ef079d7d2eb1fe2a1042c1db14f29a68b1fcab",
@@ -583,6 +632,7 @@
     {
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-5-v1",
       "displayName": "Bond 5 V1",
+      "displayNameSource": "contract",
       "implementationName": "Invite-only",
       "registered": true,
       "signerKey": "0x0258c32ea6e887ff892898eefd68e3a544bf5faaedf2fb81003ecbea880809f9a3",
@@ -607,6 +657,7 @@
     {
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-6-v1",
       "displayName": "Bond 6 V1",
+      "displayNameSource": "contract",
       "implementationName": "Invite-only",
       "registered": true,
       "signerKey": "0x028bf8fbf4eb8e7281effa8557e60b725944b12d250870e7824344b328998bb05b",
@@ -631,6 +682,7 @@
     {
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-hashkey-v1",
       "displayName": "Hashkey V1",
+      "displayNameSource": "contract",
       "implementationName": "Invite-only",
       "registered": true,
       "signerKey": "0x027af6b78b484b2c129dab7e490e8438f9a6eb4890071335a5781d483073866b9a",
@@ -655,6 +707,7 @@
     {
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-juicy-stake-v1",
       "displayName": "Juicy Stake V1",
+      "displayNameSource": "contract",
       "implementationName": "Invite-only",
       "registered": true,
       "signerKey": "0x038265445ac9fa77d96bf6f3eee74e287deb10aeef2f2e3f96581a6bb765de8240",
@@ -679,6 +732,7 @@
     {
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-stacking-dao-v1",
       "displayName": "Stacking Dao V1",
+      "displayNameSource": "contract",
       "implementationName": "Invite-only",
       "registered": true,
       "signerKey": "0x02bcfeb0fd2bafa20d865999467d5b9a00d4ef5e37fbaca27d45ee0dbaf13e0596",
@@ -703,6 +757,7 @@
     {
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-xverse-v1",
       "displayName": "Xverse V1",
+      "displayNameSource": "contract",
       "implementationName": "Invite-only",
       "registered": true,
       "signerKey": "0x0285f4c617c4065e429d1666dcfd885c52e223acfc042aa2c2855adc93034e6975",
@@ -727,6 +782,7 @@
     {
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1",
       "displayName": "Xverse 1",
+      "displayNameSource": "contract",
       "implementationName": "Xverse",
       "registered": true,
       "signerKey": "0x021acd08580abb387c45d44cc742fffe0f61c17db534331495a246f315a0d9404f",
@@ -751,6 +807,7 @@
     {
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-2",
       "displayName": "Xverse 2",
+      "displayNameSource": "contract",
       "implementationName": "Xverse",
       "registered": true,
       "signerKey": "0x0285f4c617c4065e429d1666dcfd885c52e223acfc042aa2c2855adc93034e6975",
@@ -775,6 +832,7 @@
     {
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-3",
       "displayName": "Xverse 3",
+      "displayNameSource": "contract",
       "implementationName": "Xverse",
       "registered": true,
       "signerKey": "0x02f37e08d25d8a660caf66b9cb3a09b1ce055cbb5f57186d92af43268d722408da",
@@ -799,6 +857,7 @@
     {
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager",
       "displayName": "Fastpool Max500",
+      "displayNameSource": "contract",
       "implementationName": "Capped Fee",
       "registered": true,
       "signerKey": "0x023d6e4adbd5e7bedd5a1e1b85940e1e8c6c34924fd0d584e5e15d84c8572083d9",
@@ -827,6 +886,7 @@
     {
       "contractId": "SPSK4ANDM659GCR4YD05496XMGDVF204RNDE69K.signer-manager-sol",
       "displayName": "Sol",
+      "displayNameSource": "contract",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x0321129d7a3e14cce66abef68b9a3d31d998f14e9a18b09d66aa1110fc604a3b1f",
@@ -850,7 +910,8 @@
     },
     {
       "contractId": "SPTYE94YNFECH2R1RQE1NZC5MZYK0RX9GA32T859.signer-manager",
-      "displayName": "signer-manager",
+      "displayName": "Figment-3",
+      "displayNameSource": "manual",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x038b9ddb9808631dd75ccb0b6715b36bb1e391d85d40f1a031e98a332890bed2ea",
@@ -874,7 +935,8 @@
     },
     {
       "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer",
-      "displayName": "Juice Pool Stx",
+      "displayName": "STX Juice",
+      "displayNameSource": "manual",
       "implementationName": "Juice Pool",
       "registered": true,
       "signerKey": "0x038d545b66cc01a93fe405e14d6432432d81ec03e296d55cf3c07b143a4407aa4a",
@@ -908,6 +970,7 @@
     {
       "contractId": "SPWJG9ZQT7VG8F3YS9TK0YN3VK34M76NYDZMTCWT.signer-manager",
       "displayName": "(anonymous)",
+      "displayNameSource": "manual",
       "implementationName": "Standard",
       "registered": true,
       "signerKey": "0x037e7c6b6d6b9840beb8dc23c2b25d0b8bc4047a001c8a19c0878a77bbd753780e",
@@ -931,7 +994,8 @@
     },
     {
       "contractId": "SPZACCJ8XPZ14P7K7NGFMT1BWQYF2JA9DFA2ZR8A.signer-manager",
-      "displayName": "signer-manager",
+      "displayName": "Assymetric Labs",
+      "displayNameSource": "manual",
       "implementationName": "Capped Fee",
       "registered": true,
       "signerKey": "0x022150d4ea6dc60e75e162455553a92adea0a0f3000c192cc55d0bffed22c0a8e0",

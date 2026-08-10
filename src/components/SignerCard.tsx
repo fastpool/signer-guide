@@ -8,6 +8,7 @@ import { ellipsedAddr } from '../lib/strings';
 import type { Signer } from '../lib/types';
 import Badge, { feeLabel, noticeLabel } from './Badge';
 import Identicon from './Identicon';
+import PoolName from './PoolName';
 import StakeModal from './StakeModal';
 
 export default function SignerCard({
@@ -35,7 +36,7 @@ export default function SignerCard({
             locale={locale}
             className='h-8 w-8'
           />
-          {signer.displayName}
+          <PoolName signer={signer} locale={locale} />
         </h3>
         <p className='font-mono text-xs text-muted'>
           {ellipsedAddr(addr)}.{name}

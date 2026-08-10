@@ -77,9 +77,11 @@ export type ManualResult = {
 /**
  * `note` documents the entry rather than being part of it. `contractId` is the
  * key the entry is filed under, so letting it through would let an override
- * rename the thing it is keyed by.
+ * rename the thing it is keyed by. `displayNameSource` records whether a name
+ * was decided here, so an entry that could set it could claim a name was
+ * confirmed by a person when nobody confirmed anything.
  */
-const NOT_OVERRIDES = new Set(['note', 'contractId']);
+const NOT_OVERRIDES = new Set(['note', 'contractId', 'displayNameSource']);
 
 export function applyManualData(
   signers: Signer[],
@@ -107,7 +109,15 @@ export function applyManualData(
     }
 
     applied.push(signer.contractId);
-    return { ...signer, ...overrides };
+    // Setting the name here is what makes it a person's, so the record says so
+    // rather than leaving the page to guess from the string itself. Derived
+    // from the override actually being present, not written in the entry — see
+    // NOT_OVERRIDES above for why an entry may not claim this for itself.
+    const source: Partial<Signer> =
+      overrides.displayName === undefined
+        ? {}
+        : { displayNameSource: 'manual' };
+    return { ...signer, ...overrides, ...source };
   });
 
   const known = new Set(signers.map((signer) => signer.contractId));

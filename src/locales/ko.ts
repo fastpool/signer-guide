@@ -179,6 +179,10 @@ export const ko: LocaleBundle = {
     'identicon.newLabel': '새로운 코드 — 아직 아이콘이 없습니다',
     'identicon.sip': '아이덴티콘 표준',
 
+    'name.confirmed': '확인된 이름 — 이 풀이 실제로 쓰는 이름입니다',
+    'name.fromContract':
+      '컨트랙트 이름에서 읽은 이름이며, 풀이 확인해 준 것은 아닙니다',
+
     'contract.back': '← 모든 서명자 컨트랙트',
     'contract.heading': '{name} 서명자 컨트랙트',
     'contract.poolsRunning.one': '이 컨트랙트를 실행하는 풀은 1곳입니다',

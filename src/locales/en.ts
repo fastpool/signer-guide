@@ -143,6 +143,10 @@ const messages = {
   'identicon.newLabel': 'New code — no icon for it yet',
   'identicon.sip': 'the identicon standard',
 
+  'name.confirmed': 'Name confirmed — this is what the pool is called',
+  'name.fromContract':
+    'Name read off the contract id, not confirmed by the pool',
+
   'contract.back': '← All signer contracts',
   'contract.heading': '{name} signer contract',
   'contract.poolsRunning.one': 'One pool runs this contract',

@@ -317,6 +317,16 @@ than printing the plumbing as though it were a pool. Each entry carries a
 `note` saying why, next to the value rather than in a commit message nobody
 will find again.
 
+The page then says which of the two a reader is looking at. Most names on it
+are not the pool's — they are the contract id tidied up, which gives `Pox5` for
+Senseinode and a bare `signer-manager` for three others. A guess, in other
+words, and one printed in the same type as a confirmed name is a claim to know
+something we do not. So a name from this file is printed plainly with a tick,
+and a name read off the contract id is set in italic. `applyManualData` records
+which by setting `displayNameSource` on the record; an entry may not set that
+field itself, or it could claim a name was confirmed when nobody confirmed
+anything.
+
 A **feature reading** may also be corrected, where a detector is known to be
 wrong about one specific contract. Fast Pool's own `max500` is the case:
 `validate-stake!` hands the calldata to `store-payout-config`, and the pox-addr

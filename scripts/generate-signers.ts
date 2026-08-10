@@ -280,6 +280,9 @@ async function main() {
     signers.push({
       contractId,
       displayName: humanizeContractName(contractId),
+      // Everything the generator can do is read the contract id. An entry in
+      // signers-manual.json turns this to 'manual' when it lands.
+      displayNameSource: 'contract',
       implementationName: profile?.name ?? null,
       registered: true,
       signerKey,

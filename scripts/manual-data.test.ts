@@ -93,6 +93,40 @@ describe('applyManualData', () => {
     expect(redundant).toEqual([]);
   });
 
+  it('records that a name it wrote came from a person', () => {
+    const { signers } = applyManualData(
+      [signer('SP1.a', { displayNameSource: 'contract' })],
+      { 'SP1.a': { displayName: 'Senseinode' } },
+    );
+
+    expect(signers[0].displayNameSource).toBe('manual');
+  });
+
+  it('leaves the name a reading of the contract when the entry says nothing about it', () => {
+    // A feature override is not a name confirmation. Marking it as one would
+    // put a tick on the page next to a string the generator invented.
+    const { signers } = applyManualData(
+      [signer('SP1.a', { displayNameSource: 'contract' })],
+      { 'SP1.a': { bitcoinRewards: true } },
+    );
+
+    expect(signers[0].displayName).toBe('Generated');
+    expect(signers[0].displayNameSource).toBe('contract');
+  });
+
+  it('refuses to let an entry claim a name was confirmed', () => {
+    // The tick says a person decided this name. An entry that could set the
+    // field directly could claim that without anyone having decided anything.
+    const { signers } = applyManualData(
+      [signer('SP1.a', { displayNameSource: 'contract' })],
+      {
+        'SP1.a': { displayNameSource: 'manual' } as ManualData[string],
+      },
+    );
+
+    expect(signers[0].displayNameSource).toBe('contract');
+  });
+
   it('does not mutate what it was given', () => {
     const generated = [signer('SP1.a')];
     applyManualData(generated, { 'SP1.a': { displayName: 'Senseinode' } });
@@ -143,6 +177,9 @@ describe('src/data/signers-manual.json', () => {
       'implementationName',
       'match',
       'signerKey',
+      // Not a value at all but a record of where displayName came from, which
+      // only applyManualData is in a position to know.
+      'displayNameSource',
     ];
     for (const [id, entry] of Object.entries(manual)) {
       for (const key of NEVER) {

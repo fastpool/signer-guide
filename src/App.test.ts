@@ -19,6 +19,7 @@ const withFilter = (...ids: FilterId[]) =>
 const base: Signer = {
   contractId: 'SP000.test',
   displayName: 'Test',
+  displayNameSource: 'contract',
   implementationName: null,
   registered: true,
   sourceSha256: 'a',

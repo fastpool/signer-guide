@@ -6,6 +6,23 @@ export interface Signer {
   contractId: string;
   /** The pool's own name, tidied up from the contract name. */
   displayName: string;
+  /**
+   * Where `displayName` came from.
+   *
+   * `contract` is the generator making the best it can of the contract's own
+   * name — `signer-manager-pox5` becomes "Pox5", which is not what anyone
+   * calls that pool. A guess, in other words, and the page says so by setting
+   * those names in italic rather than printing them like a fact.
+   *
+   * `manual` means a person put the name in `signers-manual.json` and said in
+   * the entry's note where they got it. Those carry a tick on the page. The
+   * distinction is the whole reason this field exists: a reader deciding where
+   * to stake should be able to tell a pool that told us its name from a string
+   * we made up out of its contract id.
+   *
+   * Written by `applyManualData`, never by hand — see scripts/manual-data.ts.
+   */
+  displayNameSource: 'manual' | 'contract';
   /** The implementation it runs, when we recognise the code. */
   implementationName: string | null;
   registered: boolean;

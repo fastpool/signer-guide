@@ -1,10 +1,29 @@
 {
+  "SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85.signer-manager-stackslabs-1": {
+    "note": "slotwatch.dev names this signer key L2-Labs-1. The contract says 'stackslabs', which the generator turns into 'Stackslabs 1'; the operator goes by L2 Labs where it is doing the signing, so that is what a reader will see everywhere else.",
+    "displayName": "L2-Labs-1"
+  },
+  "SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85.signer-manager-stackslabs-2": {
+    "note": "As above — slotwatch.dev names this signer key L2-Labs-2.",
+    "displayName": "L2-Labs-2"
+  },
+  "SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85.signer-manager-stackslabs-3": {
+    "note": "As above — slotwatch.dev names this signer key L2-Labs-3. Note that SP3DHX7ZHNTCE1WQHJH0T0HY9NNSVT4SWTY2FRCCT.hiro is registered with the same signer key, so slotwatch has one name for the two contracts; see the entry there.",
+    "displayName": "L2-Labs-3"
+  },
+  "SP3DHX7ZHNTCE1WQHJH0T0HY9NNSVT4SWTY2FRCCT.hiro": {
+    "note": "Deliberately not renamed. This contract is registered with signer key 0x038cb1e945…, the same key as .signer-manager-stackslabs-3, and slotwatch.dev names that key L2-Labs-3. But the name belongs to whoever runs the signer, not to every contract pointing at it, so calling this pool L2-Labs-3 would be a claim nobody made. 'Hiro' is what the contract id says and it stays a reading of the contract id until someone confirms the pool."
+  },
   "SP20XZGWBWSMRE94WDJ6YJ1EKPJ55RGRGK4JDJHNK.signer-manager-pox5": {
-    "note": "The contract is named after pox-5, not after the pool that runs it, so the generator can only make 'Pox5' out of it. Senseinode is the operator.",
+    "note": "The contract is named after pox-5, not after the pool that runs it, so the generator can only make 'Pox5' out of it. Senseinode is the operator, and slotwatch.dev names this signer key the same.",
     "displayName": "Senseinode"
   },
+  "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager": {
+    "note": "slotwatch.dev names this signer key Fast Pool, which is how the pool spells itself; the generator can only make 'Fastpool 1' out of the contract id.",
+    "displayName": "Fast Pool v1"
+  },
   "SP2369QN53586176SYRF4XFGF4E84V0J0EWKRG0ZH.signer-manager": {
-    "note": "Nothing but the plumbing words, so there is no name in the contract to read. Say so rather than print 'signer-manager' as if it were a pool's name.",
+    "note": "Nothing but the plumbing words, so there is no name in the contract to read. Say so rather than print 'signer-manager' as if it were a pool's name. slotwatch.dev has no name for this signer key either.",
     "displayName": "(anonymous)"
   },
   "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager": {
@@ -13,12 +32,28 @@
     "callApi": "nativePool",
     "openToAnyone": true
   },
+  "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-blockdaemon-v1": {
+    "note": "Deliberately not renamed. slotwatch.dev names this signer key 'Blockdaemon*' — same operator the contract id already says, and the asterisk is a marker of theirs whose meaning is not documented anywhere we can find. Dropping it would be inventing a name, keeping it would be copying another site's footnote, and 'Blockdaemon' alone loses the V1 that tells this apart from the rest of the -v1 family under this principal. Nothing to add, so nothing is claimed."
+  },
   "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager": {
     "note": "It does pay rewards to L1, and the detector misses it: validate-stake! hands the calldata to store-payout-config, which is where the pox-addr is decoded and written to payout-configs, and the detector only looks inside validate-stake! itself. Remove this once it follows a helper one level down.",
-    "bitcoinRewards": true
+    "bitcoinRewards": true,
+    "displayName": "Fast Pool Max500"
+  },
+  "SPTYE94YNFECH2R1RQE1NZC5MZYK0RX9GA32T859.signer-manager": {
+    "note": "The contract id is all plumbing, so the generator prints 'signer-manager' where a name should be. slotwatch.dev names this signer key Figment-3.",
+    "displayName": "Figment-3"
+  },
+  "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer": {
+    "note": "slotwatch.dev names this signer key STX Juice, which is the pool's own word order; the generator reads the contract id the other way round as 'Juice Pool Stx'.",
+    "displayName": "STX Juice"
   },
   "SPWJG9ZQT7VG8F3YS9TK0YN3VK34M76NYDZMTCWT.signer-manager": {
-    "note": "As above — the contract name is all plumbing, so there is no pool name to show.",
+    "note": "As above — the contract name is all plumbing, so there is no pool name to show. This signer key is not in the current signer set, so slotwatch.dev has nothing on it.",
     "displayName": "(anonymous)"
+  },
+  "SPZACCJ8XPZ14P7K7NGFMT1BWQYF2JA9DFA2ZR8A.signer-manager": {
+    "note": "The contract id is all plumbing, so the generator prints 'signer-manager' where a name should be. slotwatch.dev names this signer key Assymetric Labs, spelled as they spell it.",
+    "displayName": "Assymetric Labs"
   }
 }
