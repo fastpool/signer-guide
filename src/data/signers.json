@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-10T08:53:40.385Z",
+  "generatedAt": "2026-08-10T10:39:07.785Z",
   "cycle": 140,
   "standardisedWith": "clarinet 3.23.1",
   "signers": [
@@ -653,11 +653,59 @@
       }
     },
     {
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-foundry-v1",
+      "displayName": "Foundry V1",
+      "implementationName": "Invite-only",
+      "registered": true,
+      "signerKey": "0x0309126df3691918f25f8872819bc8268e9e1e0d92d0494fa4fb9783589a1392fa",
+      "sourceSha256": "4585077af0601600166bde4843fd780c5916e4fa4d522951fc73841e90eff1f1",
+      "canonicalSha256": "5cb86a1cff402c4f1f22c0121c13a329c5770e9f1d682eb0bda1841b0c7f0d1f",
+      "groupSha256": "d5718c4d8771628da0a24e4345534b4c9ec630f7942cdfd47c5fe3075c69b6b4",
+      "identiconHash": "bfb482e8f51e9f84bde8ebbc1a2ef9955fcedf70ca226eae9b5a044d8ff666ec",
+      "match": "canonical",
+      "profileId": "invite-only",
+      "bitcoinRewards": false,
+      "openToAnyone": false,
+      "feeBips": null,
+      "maxFeeBips": null,
+      "feeChangeNotice": null,
+      "feeExemption": null,
+      "evidence": {
+        "bitcoinRewards": null,
+        "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)",
+        "maxFee": null
+      }
+    },
+    {
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-hashkey-v1",
       "displayName": "Hashkey V1",
       "implementationName": "Invite-only",
       "registered": true,
       "signerKey": "0x027af6b78b484b2c129dab7e490e8438f9a6eb4890071335a5781d483073866b9a",
+      "sourceSha256": "4585077af0601600166bde4843fd780c5916e4fa4d522951fc73841e90eff1f1",
+      "canonicalSha256": "5cb86a1cff402c4f1f22c0121c13a329c5770e9f1d682eb0bda1841b0c7f0d1f",
+      "groupSha256": "d5718c4d8771628da0a24e4345534b4c9ec630f7942cdfd47c5fe3075c69b6b4",
+      "identiconHash": "bfb482e8f51e9f84bde8ebbc1a2ef9955fcedf70ca226eae9b5a044d8ff666ec",
+      "match": "canonical",
+      "profileId": "invite-only",
+      "bitcoinRewards": false,
+      "openToAnyone": false,
+      "feeBips": null,
+      "maxFeeBips": null,
+      "feeChangeNotice": null,
+      "feeExemption": null,
+      "evidence": {
+        "bitcoinRewards": null,
+        "openToAnyone": "(is-allowed-staker staker) ERR_STAKER_NOT_ALLOWED)",
+        "maxFee": null
+      }
+    },
+    {
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-infstones-v1",
+      "displayName": "Infstones V1",
+      "implementationName": "Invite-only",
+      "registered": true,
+      "signerKey": "0x02c54d8b1ba4b7207f78f861c60f8a67433c264a11ac9b6b7773476e9f6c008e49",
       "sourceSha256": "4585077af0601600166bde4843fd780c5916e4fa4d522951fc73841e90eff1f1",
       "canonicalSha256": "5cb86a1cff402c4f1f22c0121c13a329c5770e9f1d682eb0bda1841b0c7f0d1f",
       "groupSha256": "d5718c4d8771628da0a24e4345534b4c9ec630f7942cdfd47c5fe3075c69b6b4",
