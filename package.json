@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@stacks/bitcoin-staking": "^7.6.0",
-    "@stacks/connect": "^8.2.6",
+    "@stacks/connect": "^8.2.7",
     "@stacks/network": "^7.6.0",
     "@stacks/stacking": "^7.6.0",
     "@stacks/transactions": "^7.6.0",

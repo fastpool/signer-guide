@@ -267,9 +267,9 @@ const messages = {
   'stake.stakeNow': 'Start staking',
   'stake.addToStake': 'Add to my stake',
   'stake.moveStake': 'Move my stake here',
-  'stake.submitted': 'Sent — ',
-  'stake.submittedNoTxid': 'Sent to your wallet.',
-  'stake.submittedHint': 'It usually confirms within a few minutes.',
+  'stake.tx.pending': 'Broadcast, waiting for it to confirm —',
+  'stake.tx.success': 'Confirmed —',
+  'stake.tx.failed': 'It did not go through —',
 
   'stake.unstake.title': 'Stop staking',
   'stake.unstake.body':
@@ -284,6 +284,8 @@ const messages = {
   'stake.error.nothingToChange':
     'Nothing would change. Add an amount, or change where your rewards go.',
   'stake.error.refused': 'The chain would refuse this. {reasons}',
+  'stake.error.notBroadcast':
+    'Your wallet did not send the transaction on to the chain, so nothing has changed. Try again.',
   'stake.error.tooMuch': 'That is more than you have, less the 1 STX buffer.',
   'stake.error.btcAddress': 'Enter the Bitcoin address your rewards go to.',
   'stake.error.maxFee': 'The most to spend on sending has to be a number.',

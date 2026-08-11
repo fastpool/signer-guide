@@ -1,6 +1,13 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { getLocalStorage, request } from '@stacks/connect';
-import { transactionToHex } from '@stacks/transactions';
+import {
+  addressToString,
+  PayloadType,
+  type ClarityValue,
+  type ContractIdString,
+  type PostCondition,
+  type StacksTransactionWire,
+} from '@stacks/transactions';
 import { exactStxLabel } from '../lib/amounts';
 import { explorerUrl } from '../lib/explorer';
 import { translator, type Locale, type Translator } from '../lib/i18n';
@@ -20,6 +27,7 @@ import {
   type StakedPosition,
 } from '../lib/staking';
 import { ellipsedAddr } from '../lib/strings';
+import { watchTxStatus, type TxStatus } from '../lib/tx-status';
 import type { Signer } from '../lib/types';
 import {
   forgetWallet,
@@ -69,6 +77,21 @@ export function spendableFromBalance(
   return balanceUstx > ONE_STX_USTX ? balanceUstx - ONE_STX_USTX : 0n;
 }
 
+/**
+ * What is actually free to lock: the balance less whatever is locked already.
+ *
+ * `balance` in this endpoint is everything the account holds, locked STX
+ * included, and locked STX cannot be locked again. Offering it as available
+ * is how somebody who has just unstaked is shown their whole position as
+ * spendable and told by the chain that they do not have it.
+ */
+export function unlockedFromBalances(
+  balanceUstx: bigint,
+  lockedUstx: bigint,
+): bigint {
+  return balanceUstx > lockedUstx ? balanceUstx - lockedUstx : 0n;
+}
+
 /** "fastpool-1-signer-manager" → "Fastpool 1 Signer Manager". */
 export function signerNameFromContractId(contractId: string): string {
   const [, contractName = contractId] = contractId.split('.');
@@ -89,12 +112,18 @@ async function fetchBalanceUstx(
   if (!res.ok) {
     throw new Error(t('stake.error.balanceLookup', { status: res.status }));
   }
-  const data = (await res.json()) as { stx?: { balance?: string } };
+  const data = (await res.json()) as {
+    stx?: { balance?: string; locked?: string };
+  };
   const balance = data.stx?.balance;
   if (!balance || !/^\d+$/.test(balance)) {
     throw new Error(t('stake.error.balanceRead'));
   }
-  return BigInt(balance);
+  const locked = data.stx?.locked;
+  return unlockedFromBalances(
+    BigInt(balance),
+    locked && /^\d+$/.test(locked) ? BigInt(locked) : 0n,
+  );
 }
 
 /** The STX address localStorage remembers, which never carries a public key. */
@@ -110,6 +139,31 @@ function cachedStxAddress(): string | null {
 
 /** Enough to get a payout out in most fee conditions, and no more. */
 const DEFAULT_MAX_FEE_SATS = '3000';
+
+/**
+ * The call inside a transaction the staking package built.
+ *
+ * The package builds whole transactions; the wallet, through connect, wants
+ * the call and builds — and broadcasts — the transaction itself. Reading the
+ * call back out keeps the arguments the package's business, which is where
+ * argument order and calldata encoding belong, and leaves nonce, fee, signing
+ * and broadcast to the wallet, which is where those belong.
+ */
+function contractCallFrom(tx: StacksTransactionWire): {
+  contract: ContractIdString;
+  functionName: string;
+  functionArgs: ClarityValue[];
+} {
+  const payload = tx.payload;
+  if (payload.payloadType !== PayloadType.ContractCall) {
+    throw new Error('Expected a contract call from the staking package');
+  }
+  return {
+    contract: `${addressToString(payload.contractAddress)}.${payload.contractName.content}`,
+    functionName: payload.functionName.content,
+    functionArgs: payload.functionArgs,
+  };
+}
 
 /**
  * Why the contract would refuse a call, in its own words.
@@ -240,7 +294,10 @@ export default function StakeModal({
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<{ txid: string | null } | null>(null);
+  /** The transaction the wallet broadcast, once there is one. */
+  const [result, setResult] = useState<{ txid: string } | null>(null);
+  /** What the chain has made of it since. */
+  const [txStatus, setTxStatus] = useState<TxStatus>('pending');
   /**
    * Bumped on every reconnect, so reconnecting to the account already shown
    * reloads its balance instead of leaving the cleared fields empty.
@@ -342,6 +399,24 @@ export default function StakeModal({
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [open]);
+
+  /** Follows the broadcast transaction until the chain has decided. */
+  useEffect(() => {
+    const txid = result?.txid;
+    if (!txid) return;
+    setTxStatus('pending');
+    return watchTxStatus({
+      txid,
+      apiUrl: STACKS_API_URL,
+      onStatus: (status) => {
+        setTxStatus(status);
+        // The position, the balance and the payout are all now something else
+        // than what the dialog is showing — most of all after an unstake,
+        // which leaves a position that ends with this cycle.
+        if (status === 'success') setReloadNonce((n) => n + 1);
+      },
+    });
+  }, [result?.txid]);
 
   /**
    * What the dialog can show without asking the wallet anything: the address
@@ -498,6 +573,40 @@ export default function StakeModal({
     setAmountStx(formatUstxAsStx(spendableUstx));
   };
 
+  /**
+   * Hands the call to the wallet, which builds, signs and broadcasts it.
+   *
+   * `stx_callContract` is the method wallets broadcast from. Asking one to
+   * sign a finished transaction instead is a request to sign and nothing more
+   * — Leather hands the signed bytes back and sends nothing — which left a
+   * staker approving a transaction that never reached the chain, and being
+   * told it had been sent.
+   */
+  const sendCall = async (
+    tx: StacksTransactionWire,
+    postConditions: PostCondition[],
+  ): Promise<string> => {
+    // Same options as the connect above, so the wallet asked is the one the
+    // reader actually picked rather than a second one.
+    const response = (await request(walletOptions(), 'stx_callContract', {
+      ...contractCallFrom(tx),
+      /*
+       * connect serializes these itself, but only for the kinds it knows by
+       * name: before 8.2.7 its list held the STX, fungible and non-fungible
+       * kinds only, and the two SIP-044 kinds these calls need went to the
+       * Clarity serializer instead — "Unable to serialize. Invalid Clarity
+       * Value.", on every stake and every unstake. Hence the floor on the
+       * dependency; there is nothing to work around above it.
+       */
+      postConditions,
+      postConditionMode: 'deny',
+      network: 'mainnet',
+    })) as { txid?: string };
+
+    if (!response?.txid) throw new Error(t('stake.error.notBroadcast'));
+    return response.txid;
+  };
+
   const onStake = async () => {
     setError(null);
     setResult(null);
@@ -565,16 +674,21 @@ export default function StakeModal({
         buildStake,
         buildStakeUpdate,
         describePox5Error,
-        fetchAccountStatus,
         fetchEligibleStakeUpdate,
         fetchPoxInfo,
+        fetchStakerInfo,
       } = await import('@stacks/bitcoin-staking');
 
-      const account = await fetchAccountStatus({
-        address: active.stxAddress,
-        network: 'mainnet',
-      });
-      const poxInfo = await fetchPoxInfo({ network: 'mainnet' });
+      /*
+       * Read the position again rather than trusting the one the dialog opened
+       * with. An unstake rewrites `num-cycles` to end the position at the
+       * close of this cycle — the very number the contract checks here — so a
+       * copy read before it asks for a lock period the chain then refuses.
+       */
+      const [poxInfo, staker] = await Promise.all([
+        fetchPoxInfo({ network: 'mainnet' }),
+        fetchStakerInfo({ address: active.stxAddress, network: 'mainnet' }),
+      ]);
 
       const signerCalldata =
         receiveBtc && parsedMaxFee !== null
@@ -586,12 +700,18 @@ export default function StakeModal({
             })
           : undefined;
 
+      /*
+       * The wallet fills in the nonce and the fee and then signs, so the
+       * numbers below are placeholders that keep the package from looking
+       * either up. Only the call inside this transaction is used.
+       */
+      const unsigned = { publicKey: active.publicKey, nonce: 0, fee: 0 };
+
       let tx;
-      if (position) {
-        // Read from the answer we are about to build against, not from the one
-        // the dialog opened with — a cycle can turn while the form is filled in.
+      let postConditions;
+      if (staker.staked) {
         const cyclesToExtend = extendCyclesForUpdate({
-          position,
+          position: staker.details,
           currentCycle: poxInfo.rewardCycleId,
         });
 
@@ -600,7 +720,7 @@ export default function StakeModal({
         const eligible = await fetchEligibleStakeUpdate({
           staker: active.stxAddress,
           signerManager: signer.contractId,
-          oldSignerManager: position.signer,
+          oldSignerManager: staker.details.signer,
           cyclesToExtend,
           amountIncrease: amountUstx,
           poxInfo,
@@ -617,42 +737,38 @@ export default function StakeModal({
 
         tx = await buildStakeUpdate({
           signerManager: signer.contractId,
-          oldSignerManager: position.signer,
+          oldSignerManager: staker.details.signer,
           cyclesToExtend,
           amountIncrease: amountUstx,
           signerCalldata,
-          publicKey: active.publicKey,
-          nonce: account.nonce,
-          fee: 10_000n,
           network: 'mainnet',
-          postConditions: stakeUpdatePostConditions(
-            active.stxAddress,
-            amountUstx,
-          ),
+          ...unsigned,
         });
+        postConditions = stakeUpdatePostConditions(
+          active.stxAddress,
+          staker.details.amountUstx + amountUstx,
+        );
       } else {
+        // The dialog allows an empty amount for a position that turns out to
+        // have unlocked in the meantime; a first stake has to lock something.
+        if (amountUstx === 0n) {
+          setError(t('stake.error.amount'));
+          return;
+        }
+
         tx = await buildStake({
           signerManager: signer.contractId,
           amountUstx,
           numCycles: 1,
           startBurnHt: poxInfo.currentBurnchainBlockHeight + 1,
           signerCalldata,
-          publicKey: active.publicKey,
-          nonce: account.nonce,
-          fee: 10_000n,
           network: 'mainnet',
-          postConditions: stakePostConditions(active.stxAddress, amountUstx),
+          ...unsigned,
         });
+        postConditions = stakePostConditions(active.stxAddress, amountUstx);
       }
 
-      // Same options as the connect above, so the signature is asked of the
-      // wallet the reader actually picked rather than a second one.
-      const response = (await request(walletOptions(), 'stx_signTransaction', {
-        transaction: transactionToHex(tx),
-        broadcast: true,
-      })) as { txid?: string };
-
-      setResult({ txid: response?.txid ?? null });
+      setResult({ txid: await sendCall(tx, postConditions) });
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -676,7 +792,6 @@ export default function StakeModal({
       const {
         buildUnstake,
         describePox5Error,
-        fetchAccountStatus,
         fetchEligibleUnstake,
         fetchPoxInfo,
         fetchStakerCustodiedSbtc,
@@ -698,37 +813,34 @@ export default function StakeModal({
         return;
       }
 
-      const [account, custodiedSbtcSats] = await Promise.all([
-        fetchAccountStatus({ address: active.stxAddress, network: 'mainnet' }),
-        // Zero for everybody who staked here — but a staker who also holds a
-        // bond gets their sBTC back in the same call, and deny mode refuses an
-        // sBTC transfer nothing accounts for.
-        fetchStakerCustodiedSbtc({
-          staker: active.stxAddress,
-          network: 'mainnet',
-        }),
-      ]);
+      // Zero for everybody who staked here — but a staker who also holds a
+      // bond gets their sBTC back in the same call, and deny mode refuses an
+      // sBTC transfer nothing accounts for.
+      const custodiedSbtcSats = await fetchStakerCustodiedSbtc({
+        staker: active.stxAddress,
+        network: 'mainnet',
+      });
 
       const tx = await buildUnstake({
         oldSignerManager: position.signer,
-        publicKey: active.publicKey,
-        nonce: account.nonce,
-        fee: 10_000n,
         network: 'mainnet',
-        postConditions: unstakePostConditions({
+        // Placeholders: the wallet sets the nonce and the fee itself.
+        publicKey: active.publicKey,
+        nonce: 0,
+        fee: 0,
+      });
+
+      const txid = await sendCall(
+        tx,
+        unstakePostConditions({
           staker: active.stxAddress,
           custodiedSbtcSats,
           poxContractId: poxInfo.contractId,
           sbtcContract: poxInfo.sbtcContract,
         }),
-      });
+      );
 
-      const response = (await request(walletOptions(), 'stx_signTransaction', {
-        transaction: transactionToHex(tx),
-        broadcast: true,
-      })) as { txid?: string };
-
-      setResult({ txid: response?.txid ?? null });
+      setResult({ txid });
       setConfirmUnstake(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -1038,23 +1150,22 @@ export default function StakeModal({
             )}
 
             {result && (
-              <p className='mt-4 rounded-xl bg-mint-soft p-3 text-sm text-mint'>
-                {result.txid ? (
-                  <>
-                    {t('stake.submitted')}
-                    <a
-                      className='font-mono break-all underline underline-offset-2'
-                      href={explorerUrl(result.txid)}
-                      target='_blank'
-                      rel='noreferrer'
-                    >
-                      {ellipsedAddr(result.txid, 16)}
-                    </a>
-                  </>
-                ) : (
-                  t('stake.submittedNoTxid')
-                )}{' '}
-                {t('stake.submittedHint')}
+              <p
+                className={`mt-4 rounded-xl p-3 text-sm ${
+                  txStatus === 'failed'
+                    ? 'bg-amber-soft text-amber-warm'
+                    : 'bg-mint-soft text-mint'
+                }`}
+              >
+                {t(`stake.tx.${txStatus}`)}{' '}
+                <a
+                  className='font-mono break-all underline underline-offset-2'
+                  href={explorerUrl(result.txid)}
+                  target='_blank'
+                  rel='noreferrer'
+                >
+                  {ellipsedAddr(result.txid, 16)}
+                </a>
               </p>
             )}
 
@@ -1076,8 +1187,10 @@ export default function StakeModal({
             </div>
 
             {/* Only for the pool the stake is actually with: unstaking ends
-                that position wherever the reader happens to be looking. */}
-            {stakingHere && (
+                that position wherever the reader happens to be looking. A
+                position with no cycle left after this one is already ending,
+                so there is nothing for this to stop. */}
+            {stakingHere && extendCycles === 0 && (
               <div className='mt-5 border-t border-black/10 pt-4'>
                 <p className='text-sm font-bold text-ink'>
                   {t('stake.unstake.title')}

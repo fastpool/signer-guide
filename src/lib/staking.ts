@@ -217,9 +217,26 @@ export async function buildPayoutCalldata(opts: {
  *
  * The amount is the part worth pinning down. It is the only number in these
  * calls that can cost the staker more than the one they typed.
+ *
+ * That amount is the position's whole locked total, not what this call adds to
+ * it. The chain settled the point on a `stake-update` that extended a position
+ * by a cycle and added nothing:
+ *
+ *   Post-condition check failure on STX staked by SPX8…: 0 SentEq 88092754445
+ *
+ * The call itself had returned `(ok … (amount-increase u0) (amount-ustx
+ * u88092754445) …)`; the condition, written against the increase, aborted it.
+ * The package README's table says otherwise — read it as the delta and every
+ * top-up and every extension aborts, having cost its fee.
  */
 
-/** `stake`: locks what the staker asked for, and not a microstack more. */
+/**
+ * `stake`: locks what the staker asked for, and not a microstack more.
+ *
+ * The total and the amount typed are the same number here — this is the call
+ * for somebody with no position, so there is nothing already locked for it to
+ * be added to.
+ */
 export function stakePostConditions(
   staker: string,
   amountUstx: bigint,
@@ -228,9 +245,15 @@ export function stakePostConditions(
 }
 
 /**
- * `stake-update`: bounds the top-up, which is `0` for a rotation that adds
- * nothing — and `0` is worth stating, because it is then an assertion that
- * moving pools locks no further STX.
+ * `stake-update`: bounds what the position ends up holding — the amount
+ * already locked plus whatever this call adds, which for an extension or a
+ * move with no top-up is the amount already locked on its own.
+ *
+ * `lte` rather than `eq`, because the total is read before the staker signs
+ * and the transaction is checked after: an equality would abort on any drift,
+ * costing a fee, and drift downwards costs the staker nothing. The direction
+ * that can hurt them — more of their STX locked than they agreed to — is the
+ * one this bounds.
  *
  * Rotating changes no lock, so it is a PoX action rather than a staking one
  * and needs a condition of its own or deny mode refuses the call. It is
@@ -242,10 +265,11 @@ export function stakePostConditions(
  */
 export function stakeUpdatePostConditions(
   staker: string,
-  amountIncreaseUstx: bigint,
+  /** What the position holds after the update: locked already + the top-up. */
+  totalLockedUstx: bigint,
 ): PostCondition[] {
   return [
-    Pc.principal(staker).willSendEq(amountIncreaseUstx).ustxToLock(),
+    Pc.principal(staker).willSendLte(totalLockedUstx).ustxToLock(),
     Pc.principal(staker).mayPerformPox(),
   ];
 }

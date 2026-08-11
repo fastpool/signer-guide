@@ -3,6 +3,7 @@ import {
   formatUstxAsStx,
   parseStxToUstx,
   spendableFromBalance,
+  unlockedFromBalances,
 } from './StakeModal';
 
 describe('StakeModal staking helpers', () => {
@@ -39,6 +40,23 @@ describe('StakeModal staking helpers', () => {
 
     it('returns null for unknown balance', () => {
       expect(spendableFromBalance(null)).toBeNull();
+    });
+  });
+
+  describe('unlockedFromBalances', () => {
+    /*
+     * `balance` counts locked STX, and locked STX cannot be locked again. A
+     * staker whose position is ending would otherwise be offered the whole of
+     * it and told by the chain they do not have it.
+     */
+    it('leaves out what is locked already', () => {
+      expect(unlockedFromBalances(10_000_000n, 9_000_000n)).toBe(1_000_000n);
+      expect(unlockedFromBalances(10_000_000n, 0n)).toBe(10_000_000n);
+    });
+
+    it('never goes below nothing', () => {
+      expect(unlockedFromBalances(9_000_000n, 9_000_000n)).toBe(0n);
+      expect(unlockedFromBalances(9_000_000n, 10_000_000n)).toBe(0n);
     });
   });
 });

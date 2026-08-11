@@ -305,9 +305,9 @@ export const ko: LocaleBundle = {
     'stake.stakeNow': '스테이킹 시작',
     'stake.addToStake': '스테이킹 추가하기',
     'stake.moveStake': '이 풀로 옮기기',
-    'stake.submitted': '전송됨 — ',
-    'stake.submittedNoTxid': '지갑으로 전송했습니다.',
-    'stake.submittedHint': '보통 몇 분 안에 확정됩니다.',
+    'stake.tx.pending': '전송됨, 확정을 기다리는 중 —',
+    'stake.tx.success': '확정되었습니다 —',
+    'stake.tx.failed': '처리되지 않았습니다 —',
 
     'stake.unstake.title': '스테이킹 중단',
     'stake.unstake.body':
@@ -321,6 +321,8 @@ export const ko: LocaleBundle = {
     'stake.error.nothingToChange':
       '바뀌는 것이 없습니다. 금액을 입력하거나 보상을 받을 곳을 바꾸세요.',
     'stake.error.refused': '체인이 이 요청을 거부합니다. {reasons}',
+    'stake.error.notBroadcast':
+      '지갑이 트랜잭션을 체인으로 보내지 않아 바뀐 것이 없습니다. 다시 시도해 주세요.',
     'stake.error.tooMuch': '보유 금액에서 1 STX를 남긴 한도를 넘었습니다.',
     'stake.error.btcAddress': '보상을 받을 비트코인 주소를 입력하세요.',
     'stake.error.maxFee': '전송에 쓸 최대 금액은 숫자여야 합니다.',

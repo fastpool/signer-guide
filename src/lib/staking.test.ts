@@ -1,5 +1,11 @@
 import { BtcAddress, parseSignerCalldata } from '@stacks/bitcoin-staking';
-import { Cl, deserializeCV } from '@stacks/transactions';
+import {
+  Cl,
+  deserializeCV,
+  deserializePostConditionWire,
+  postConditionToHex,
+  wireToPostCondition,
+} from '@stacks/transactions';
 import { describe, expect, it } from 'vitest';
 import {
   buildPayoutCalldata,
@@ -138,16 +144,29 @@ describe('post conditions', () => {
       {
         type: 'staking-postcondition',
         address: STAKER,
-        condition: 'eq',
+        condition: 'lte',
         amount: '500000',
       },
       { type: 'pox-postcondition', address: STAKER, condition: 'may-perform' },
     ]);
   });
 
-  it('asserts a move with no top-up locks nothing further', () => {
-    const [staking] = stakeUpdatePostConditions(STAKER, 0n);
-    expect(staking).toMatchObject({ condition: 'eq', amount: '0' });
+  it('bounds an update by the whole position, not by what it adds', () => {
+    /*
+     * What the chain measures is the position's total, so a bound written
+     * against the top-up aborts the transaction after it has already worked:
+     *
+     *   Post-condition check failure on STX staked by SPX8…: 0 SentEq
+     *   88092754445
+     *
+     * — an extension by one cycle that added nothing to a position of 88,092
+     * STX. The bound below is what that call needed.
+     */
+    const [staking] = stakeUpdatePostConditions(STAKER, 88_092_754_445n);
+    expect(staking).toMatchObject({
+      condition: 'lte',
+      amount: '88092754445',
+    });
   });
 
   it('asks unstake for no amount at all, only that it happened', () => {
@@ -161,6 +180,32 @@ describe('post conditions', () => {
     ).toEqual([
       { type: 'pox-postcondition', address: STAKER, condition: 'will-perform' },
     ]);
+  });
+
+  it('encodes every one of them to the wire form the wallet is given', () => {
+    /*
+     * Hex is what reaches the wallet, and the SIP-044 kinds are the reason it
+     * is worth pinning: connect serializes a post condition only for the kinds
+     * it knows by name, and sent the two below to the Clarity serializer until
+     * 8.2.7 — "Unable to serialize. Invalid Clarity Value.". A kind that
+     * cannot be encoded here is one no staker could sign.
+     */
+    const conditions = [
+      ...stakePostConditions(STAKER, 1n),
+      ...stakeUpdatePostConditions(STAKER, 0n),
+      ...unstakePostConditions({
+        staker: STAKER,
+        custodiedSbtcSats: 1n,
+        poxContractId: POX5,
+        sbtcContract: SBTC,
+      }),
+    ];
+    for (const condition of conditions) {
+      const hex = postConditionToHex(condition);
+      expect(wireToPostCondition(deserializePostConditionWire(hex))).toEqual(
+        condition,
+      );
+    }
   });
 
   it('bounds the sBTC an unstake returns, when there is any', () => {
