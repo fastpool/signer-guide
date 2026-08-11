@@ -7,10 +7,15 @@ import { translator, type Locale, type Translator } from '../lib/i18n';
 import {
   buildPayoutCalldata,
   defaultMinClaimSats,
+  extendCyclesForUpdate,
+  fetchCycleState,
   fetchPayoutRecord,
   fetchStakedPosition,
   isValidMinClaim,
   minClaimFloorSats,
+  stakePostConditions,
+  stakeUpdatePostConditions,
+  unstakePostConditions,
   type PayoutRecord,
   type StakedPosition,
 } from '../lib/staking';
@@ -105,6 +110,22 @@ function cachedStxAddress(): string | null {
 
 /** Enough to get a payout out in most fee conditions, and no more. */
 const DEFAULT_MAX_FEE_SATS = '3000';
+
+/**
+ * Why the contract would refuse a call, in its own words.
+ *
+ * The descriptions come from the package rather than the language files, so
+ * they arrive in English whatever the page is set to — better than a bare
+ * error code, and better than a guess at which gate closed.
+ */
+function reasonList(
+  reasons: readonly number[],
+  describe: (code: number) => { description: string } | undefined,
+): string {
+  return reasons
+    .map((code) => describe(code)?.description ?? `pox-5 error ${code}`)
+    .join(' ');
+}
 
 const CARD = 'rounded-2xl bg-cream p-4';
 const FIELD =
@@ -210,6 +231,13 @@ export default function StakeModal({
   const [maxFeeInput, setMaxFeeInput] = useState<string | null>(null);
   const [minClaimInput, setMinClaimInput] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  /** Stopping a stake is a step apart from the form, and asks twice. */
+  const [confirmUnstake, setConfirmUnstake] = useState(false);
+  /** Where the chain is in its cycle; null until the lookup answers. */
+  const [cycle, setCycle] = useState<{
+    rewardCycleId: number;
+    inPreparePhase: boolean;
+  } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{ txid: string | null } | null>(null);
@@ -275,6 +303,37 @@ export default function StakeModal({
     btcAddress.trim().length > 0 &&
     btcAddress.trim() !== recorded.address;
 
+  /** Whether pressing the button would hand the pool a different payout. */
+  const changesPayout = receiveBtc
+    ? recorded === null ||
+      replacesBtcAddress ||
+      maxFeeSats.trim() !== recorded.maxFeeSats.toString() ||
+      (supportsMinClaim &&
+        minClaimSats.trim() !== (recorded.minClaimSats?.toString() ?? ''))
+    : recorded !== null;
+
+  /**
+   * Moving an existing stake to this pool, which pox-5 does as a `stake-update`
+   * with a new signer manager and — for somebody who is only moving — nothing
+   * else. That is the whole point of allowing an empty amount below.
+   */
+  const rotating = position !== null && !stakingHere;
+
+  /** Empty means zero once there is a position to update: a move, no top-up. */
+  const amountUstx =
+    position !== null && amountStx.trim() === ''
+      ? 0n
+      : parseStxToUstx(amountStx);
+
+  /**
+   * A position in its final cycle has no lock period left for the contract to
+   * assert on, so a move has to carry it one cycle further or be refused.
+   */
+  const extendCycles =
+    position !== null && cycle !== null
+      ? extendCyclesForUpdate({ position, currentCycle: cycle.rewardCycleId })
+      : 0;
+
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (event: KeyboardEvent) => {
@@ -321,10 +380,21 @@ export default function StakeModal({
           setPayout(here);
         }
 
+        // Both rules that depend on the clock: whether a change is refused
+        // outright right now, and whether moving has to extend the lock.
+        const cycleState = await fetchCycleState();
+        if (id !== loadId.current) return;
+        setCycle(cycleState);
+
         const balance = await fetchBalanceUstx(walletAddress, t);
         if (id !== loadId.current) return;
         setBalanceUstx(balance);
-        setAmountStx(formatUstxAsStx(spendableFromBalance(balance) ?? 0n));
+        // Somebody who already stakes is most likely here to move pools or
+        // change where rewards go, not to lock everything they own — so the
+        // field starts empty for them and the whole balance is a click away.
+        setAmountStx(
+          staked ? '' : formatUstxAsStx(spendableFromBalance(balance) ?? 0n),
+        );
       } catch (err) {
         // Not fatal: the user can still connect, or type an amount by hand.
         if (id === loadId.current) {
@@ -353,6 +423,7 @@ export default function StakeModal({
     setPayout(null);
     setBalanceUstx(null);
     setAmountStx('');
+    setConfirmUnstake(false);
     // The reward fields go back to following the chain, so the new account's
     // own record decides rather than the previous account's answers.
     setRewardChoice(null);
@@ -431,9 +502,20 @@ export default function StakeModal({
     setError(null);
     setResult(null);
 
-    const amountUstx = parseStxToUstx(amountStx);
-    if (amountUstx === null || amountUstx <= 0n) {
+    if (amountUstx === null || amountUstx < 0n) {
       setError(t('stake.error.amount'));
+      return;
+    }
+
+    // A first stake has to lock something. An update does not: moving pools,
+    // or changing where rewards go, is a change in its own right.
+    if (position === null && amountUstx === 0n) {
+      setError(t('stake.error.amount'));
+      return;
+    }
+
+    if (amountUstx === 0n && !rotating && !changesPayout) {
+      setError(t('stake.error.nothingToChange'));
       return;
     }
 
@@ -479,8 +561,14 @@ export default function StakeModal({
       // wallet interaction left is signing. Otherwise connect once, here.
       const active = session ?? (await openWallet());
 
-      const { buildStake, buildStakeUpdate, fetchAccountStatus, fetchPoxInfo } =
-        await import('@stacks/bitcoin-staking');
+      const {
+        buildStake,
+        buildStakeUpdate,
+        describePox5Error,
+        fetchAccountStatus,
+        fetchEligibleStakeUpdate,
+        fetchPoxInfo,
+      } = await import('@stacks/bitcoin-staking');
 
       const account = await fetchAccountStatus({
         address: active.stxAddress,
@@ -498,28 +586,64 @@ export default function StakeModal({
             })
           : undefined;
 
-      const tx = position
-        ? await buildStakeUpdate({
-            signerManager: signer.contractId,
-            oldSignerManager: position.signer,
-            amountIncrease: amountUstx,
-            signerCalldata,
-            publicKey: active.publicKey,
-            nonce: account.nonce,
-            fee: 10_000n,
-            network: 'mainnet',
-          })
-        : await buildStake({
-            signerManager: signer.contractId,
+      let tx;
+      if (position) {
+        // Read from the answer we are about to build against, not from the one
+        // the dialog opened with — a cycle can turn while the form is filled in.
+        const cyclesToExtend = extendCyclesForUpdate({
+          position,
+          currentCycle: poxInfo.rewardCycleId,
+        });
+
+        // Every gate the contract applies to this call, replayed read-only.
+        // The alternative is a staker paying a fee to be told no.
+        const eligible = await fetchEligibleStakeUpdate({
+          staker: active.stxAddress,
+          signerManager: signer.contractId,
+          oldSignerManager: position.signer,
+          cyclesToExtend,
+          amountIncrease: amountUstx,
+          poxInfo,
+          network: 'mainnet',
+        });
+        if (!eligible.ok) {
+          setError(
+            t('stake.error.refused', {
+              reasons: reasonList(eligible.reasons, describePox5Error),
+            }),
+          );
+          return;
+        }
+
+        tx = await buildStakeUpdate({
+          signerManager: signer.contractId,
+          oldSignerManager: position.signer,
+          cyclesToExtend,
+          amountIncrease: amountUstx,
+          signerCalldata,
+          publicKey: active.publicKey,
+          nonce: account.nonce,
+          fee: 10_000n,
+          network: 'mainnet',
+          postConditions: stakeUpdatePostConditions(
+            active.stxAddress,
             amountUstx,
-            numCycles: 1,
-            startBurnHt: poxInfo.currentBurnchainBlockHeight + 1,
-            signerCalldata,
-            publicKey: active.publicKey,
-            nonce: account.nonce,
-            fee: 10_000n,
-            network: 'mainnet',
-          });
+          ),
+        });
+      } else {
+        tx = await buildStake({
+          signerManager: signer.contractId,
+          amountUstx,
+          numCycles: 1,
+          startBurnHt: poxInfo.currentBurnchainBlockHeight + 1,
+          signerCalldata,
+          publicKey: active.publicKey,
+          nonce: account.nonce,
+          fee: 10_000n,
+          network: 'mainnet',
+          postConditions: stakePostConditions(active.stxAddress, amountUstx),
+        });
+      }
 
       // Same options as the connect above, so the signature is asked of the
       // wallet the reader actually picked rather than a second one.
@@ -529,6 +653,83 @@ export default function StakeModal({
       })) as { txid?: string };
 
       setResult({ txid: response?.txid ?? null });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  /**
+   * Ends the stake at the close of the current cycle. It moves no STX today —
+   * the lock simply stops being renewed — so there is no amount to ask for and
+   * none to bound in the post conditions.
+   */
+  const onUnstake = async () => {
+    if (!position) return;
+    setError(null);
+    setResult(null);
+    setSubmitting(true);
+    try {
+      const active = session ?? (await openWallet());
+
+      const {
+        buildUnstake,
+        describePox5Error,
+        fetchAccountStatus,
+        fetchEligibleUnstake,
+        fetchPoxInfo,
+        fetchStakerCustodiedSbtc,
+      } = await import('@stacks/bitcoin-staking');
+
+      const poxInfo = await fetchPoxInfo({ network: 'mainnet' });
+      const eligible = await fetchEligibleUnstake({
+        staker: active.stxAddress,
+        oldSignerManager: position.signer,
+        poxInfo,
+        network: 'mainnet',
+      });
+      if (!eligible.ok) {
+        setError(
+          t('stake.error.refused', {
+            reasons: reasonList(eligible.reasons, describePox5Error),
+          }),
+        );
+        return;
+      }
+
+      const [account, custodiedSbtcSats] = await Promise.all([
+        fetchAccountStatus({ address: active.stxAddress, network: 'mainnet' }),
+        // Zero for everybody who staked here — but a staker who also holds a
+        // bond gets their sBTC back in the same call, and deny mode refuses an
+        // sBTC transfer nothing accounts for.
+        fetchStakerCustodiedSbtc({
+          staker: active.stxAddress,
+          network: 'mainnet',
+        }),
+      ]);
+
+      const tx = await buildUnstake({
+        oldSignerManager: position.signer,
+        publicKey: active.publicKey,
+        nonce: account.nonce,
+        fee: 10_000n,
+        network: 'mainnet',
+        postConditions: unstakePostConditions({
+          staker: active.stxAddress,
+          custodiedSbtcSats,
+          poxContractId: poxInfo.contractId,
+          sbtcContract: poxInfo.sbtcContract,
+        }),
+      });
+
+      const response = (await request(walletOptions(), 'stx_signTransaction', {
+        transaction: transactionToHex(tx),
+        broadcast: true,
+      })) as { txid?: string };
+
+      setResult({ txid: response?.txid ?? null });
+      setConfirmUnstake(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -690,7 +891,13 @@ export default function StakeModal({
               </div>
             )}
 
-            <Step title={t('stake.amountQuestion')}>
+            <Step
+              title={
+                position
+                  ? t('stake.amountQuestionMore')
+                  : t('stake.amountQuestion')
+              }
+            >
               <div className='mt-2 flex gap-2'>
                 <input
                   type='text'
@@ -699,7 +906,11 @@ export default function StakeModal({
                   onChange={(e) => setAmountStx(e.target.value)}
                   className={FIELD}
                   placeholder='0'
-                  aria-label={t('stake.amountQuestion')}
+                  aria-label={
+                    position
+                      ? t('stake.amountQuestionMore')
+                      : t('stake.amountQuestion')
+                  }
                 />
                 <button
                   type='button'
@@ -709,8 +920,27 @@ export default function StakeModal({
                   {t('stake.max')}
                 </button>
               </div>
+              {position && (
+                <p className='mt-1 text-xs text-muted'>
+                  {rotating
+                    ? t('stake.amountOptionalMove')
+                    : t('stake.amountOptional')}
+                </p>
+              )}
               <p className='mt-1 text-xs text-muted'>{t('stake.maxHint')}</p>
             </Step>
+
+            {position && extendCycles > 0 && (
+              <p className='mt-3 rounded-xl bg-cream p-3 text-xs text-muted'>
+                {t('stake.extendNote')}
+              </p>
+            )}
+
+            {position && cycle?.inPreparePhase && (
+              <p className='mt-3 rounded-xl bg-amber-soft p-3 text-xs text-amber-warm'>
+                {t('stake.prepareNote')}
+              </p>
+            )}
 
             {canToggleBtc && (
               <Step title={t('stake.rewardsQuestion')}>
@@ -844,6 +1074,48 @@ export default function StakeModal({
                 {submitting ? t('stake.submitting') : submitLabel}
               </button>
             </div>
+
+            {/* Only for the pool the stake is actually with: unstaking ends
+                that position wherever the reader happens to be looking. */}
+            {stakingHere && (
+              <div className='mt-5 border-t border-black/10 pt-4'>
+                <p className='text-sm font-bold text-ink'>
+                  {t('stake.unstake.title')}
+                </p>
+                <p className='mt-1 text-xs text-muted'>
+                  {t('stake.unstake.body')}
+                </p>
+                {confirmUnstake ? (
+                  <div className='mt-2 flex flex-wrap items-center gap-2'>
+                    <button
+                      type='button'
+                      onClick={onUnstake}
+                      disabled={submitting}
+                      className='rounded-full bg-amber-soft px-4 py-2 text-sm font-semibold text-amber-warm disabled:opacity-50'
+                    >
+                      {submitting
+                        ? t('stake.submitting')
+                        : t('stake.unstake.confirm')}
+                    </button>
+                    <button
+                      type='button'
+                      onClick={() => setConfirmUnstake(false)}
+                      className='rounded-full px-3 py-2 text-xs font-semibold text-muted underline underline-offset-2 hover:text-ink'
+                    >
+                      {t('stake.unstake.cancel')}
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type='button'
+                    onClick={() => setConfirmUnstake(true)}
+                    className='mt-2 rounded-full border border-black/10 px-4 py-2 text-sm font-semibold text-ink'
+                  >
+                    {t('stake.unstake.open')}
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}

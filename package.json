@@ -9,6 +9,8 @@
     "preview": "vite preview",
     "generate:signers": "tsx scripts/generate-signers.ts",
     "generate:totals": "tsx scripts/generate-totals.ts",
+    "members": "tsx scripts/signer-members.ts",
+    "addresses": "tsx scripts/address-report.ts",
     "test": "vitest run",
     "check:pwa": "node scripts/pwa-check.mjs"
   },

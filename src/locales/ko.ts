@@ -265,9 +265,18 @@ export const ko: LocaleBundle = {
     'stake.position.minClaim': '{sats} sats 이상 모이면 지급됩니다.',
 
     'stake.amountQuestion': '얼마를 스테이킹할까요?',
+    'stake.amountQuestionMore': '얼마를 추가할까요?',
+    'stake.amountOptional':
+      '비워 두면 금액은 그대로 두고 아래 설정만 바꿉니다.',
+    'stake.amountOptionalMove':
+      '비워 두면 추가 없이 지금 스테이킹한 금액만 옮깁니다.',
     'stake.max': '최대',
     'stake.maxHint':
       '최대를 누르면 거래 수수료용으로 1 STX를 남기고 입력됩니다.',
+    'stake.extendNote':
+      '이번 사이클로 스테이킹이 끝나며, 그 상태로는 체인이 변경을 받아들이지 않습니다. 이번 변경은 잠금을 한 사이클 더 이어 갑니다.',
+    'stake.prepareNote':
+      '다음 사이클을 준비하는 중이라, 시작할 때까지 체인이 스테이킹 변경을 거부합니다. 보통 하루 안에 시작됩니다.',
 
     'stake.rewardsQuestion': '보상을 어디로 받을까요?',
     'stake.rewardsSbtc': 'Stacks에 그대로 두기',
@@ -299,8 +308,19 @@ export const ko: LocaleBundle = {
     'stake.submitted': '전송됨 — ',
     'stake.submittedNoTxid': '지갑으로 전송했습니다.',
     'stake.submittedHint': '보통 몇 분 안에 확정됩니다.',
+
+    'stake.unstake.title': '스테이킹 중단',
+    'stake.unstake.body':
+      'STX는 이번 사이클이 끝날 때까지 잠겨 있다가 그때 풀립니다. 이미 쌓인 보상에는 영향이 없습니다.',
+    'stake.unstake.open': '스테이킹 중단',
+    'stake.unstake.confirm': '네, 중단합니다',
+    'stake.unstake.cancel': '계속 스테이킹',
+
     'stake.error.noStxAddress': '지갑에서 STX 주소를 찾지 못했습니다.',
     'stake.error.amount': '스테이킹할 금액을 입력하세요.',
+    'stake.error.nothingToChange':
+      '바뀌는 것이 없습니다. 금액을 입력하거나 보상을 받을 곳을 바꾸세요.',
+    'stake.error.refused': '체인이 이 요청을 거부합니다. {reasons}',
     'stake.error.tooMuch': '보유 금액에서 1 STX를 남긴 한도를 넘었습니다.',
     'stake.error.btcAddress': '보상을 받을 비트코인 주소를 입력하세요.',
     'stake.error.maxFee': '전송에 쓸 최대 금액은 숫자여야 합니다.',

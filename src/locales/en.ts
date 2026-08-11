@@ -227,9 +227,18 @@ const messages = {
   'stake.position.minClaim': 'Paid out once it is worth at least {sats} sats.',
 
   'stake.amountQuestion': 'How much would you like to stake?',
+  'stake.amountQuestionMore': 'How much would you like to add?',
+  'stake.amountOptional':
+    'Leave this empty to change nothing but the settings below.',
+  'stake.amountOptionalMove':
+    'Leave this empty to move what you already stake, without adding to it.',
   'stake.max': 'Use max',
   'stake.maxHint':
     'Max leaves 1 STX behind, so you can still pay for transactions.',
+  'stake.extendNote':
+    'Your stake ends after this cycle, and the chain will not accept a change that leaves it there. This one carries the lock one cycle further.',
+  'stake.prepareNote':
+    'The next cycle is being prepared, and the chain refuses changes to a stake until it starts. That is usually within a day.',
 
   'stake.rewardsQuestion': 'Where should your rewards go?',
   'stake.rewardsSbtc': 'Keep them on Stacks',
@@ -261,9 +270,20 @@ const messages = {
   'stake.submitted': 'Sent — ',
   'stake.submittedNoTxid': 'Sent to your wallet.',
   'stake.submittedHint': 'It usually confirms within a few minutes.',
+
+  'stake.unstake.title': 'Stop staking',
+  'stake.unstake.body':
+    'Your STX stays locked until the end of the current cycle and unlocks then. Rewards you have already earned are not affected.',
+  'stake.unstake.open': 'Stop staking',
+  'stake.unstake.confirm': 'Yes, stop staking',
+  'stake.unstake.cancel': 'Keep staking',
+
   'stake.error.noStxAddress':
     'Could not find an STX address in the connected wallet.',
   'stake.error.amount': 'Enter an amount to stake.',
+  'stake.error.nothingToChange':
+    'Nothing would change. Add an amount, or change where your rewards go.',
+  'stake.error.refused': 'The chain would refuse this. {reasons}',
   'stake.error.tooMuch': 'That is more than you have, less the 1 STX buffer.',
   'stake.error.btcAddress': 'Enter the Bitcoin address your rewards go to.',
   'stake.error.maxFee': 'The most to spend on sending has to be a number.',

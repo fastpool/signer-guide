@@ -19,52 +19,8 @@ import {
   serializeUint,
 } from '../src/lib/clarity.js';
 import type { LockedTotals } from '../src/lib/types.js';
-import { API_URL, nodeHeaders, SPACING_MS } from './node.js';
-
-const POX5 = 'SP000000000000000000002Q6VF78.pox-5';
-
-/** Waits before a retry, growing: a limit that bites needs more than a blink. */
-const RETRY_DELAYS_MS = [1_000, 5_000, 15_000];
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-async function callReadOnly(
-  functionName: string,
-  args: string[],
-): Promise<string | null> {
-  const [address, name] = POX5.split('.');
-
-  for (let attempt = 0; ; attempt += 1) {
-    try {
-      const response = await fetch(
-        `${API_URL}/v2/contracts/call-read/${address}/${name}/${functionName}`,
-        {
-          method: 'POST',
-          headers: nodeHeaders({ 'Content-Type': 'application/json' }),
-          body: JSON.stringify({ sender: address, arguments: args }),
-        },
-      );
-
-      // Being told to slow down is worth waiting out: the alternative is
-      // telling a reader we do not know what a pool holds when we could.
-      const retryable = response.status === 429 || response.status >= 500;
-      if (retryable && attempt < RETRY_DELAYS_MS.length) {
-        await sleep(RETRY_DELAYS_MS[attempt]);
-        continue;
-      }
-      if (!response.ok) return null;
-
-      const body = (await response.json()) as {
-        okay?: boolean;
-        result?: string;
-      };
-      return body.okay && body.result ? body.result : null;
-    } catch {
-      // Offline or blocked — no amount of retrying fixes that.
-      return null;
-    }
-  }
-}
+import { sleep, SPACING_MS } from './node.js';
+import { callReadOnly, fetchCurrentCycle } from './pox5.js';
 
 /** uSTX pox-5 will count for this signer in this cycle; null if unreadable. */
 export async function fetchAmountDelegated(
@@ -82,21 +38,6 @@ export async function fetchAmountDelegated(
     `0x${serializeUint(rewardCycle)}`,
   ]);
   return result === null ? null : parseUint(result);
-}
-
-async function fetchCurrentCycle(): Promise<number | null> {
-  try {
-    const response = await fetch(`${API_URL}/v2/pox`, {
-      headers: nodeHeaders(),
-    });
-    if (!response.ok) return null;
-    const body = (await response.json()) as {
-      current_cycle?: { id?: number };
-    };
-    return body.current_cycle?.id ?? null;
-  } catch {
-    return null;
-  }
 }
 
 /**

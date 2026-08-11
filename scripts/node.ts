@@ -34,6 +34,19 @@ const IDENTIFIED =
 export const SPACING_MS = IDENTIFIED ? 50 : 300;
 
 /**
+ * Waits before a retry, growing: a limit that bites needs more than a blink.
+ *
+ * Lives here beside the spacing because they are the same subject — how hard
+ * we lean on the endpoint, and what we do when it says stop. A caller that
+ * runs out of these has been refused four times and should report that it
+ * does not know, never that the answer was nothing.
+ */
+export const RETRY_DELAYS_MS = [1_000, 5_000, 15_000];
+
+export const sleep = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
  * Headers for a node request, carrying the key when there is one. Passing a
  * key we do not have as an empty header would earn a 401 rather than the
  * anonymous rate limit we actually want.

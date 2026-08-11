@@ -18,9 +18,13 @@ pnpm install
 pnpm generate:signers   # refresh src/data/signers.json from mainnet
 pnpm generate:totals    # refresh src/data/totals.json — what each pool holds
 pnpm dev
+
+pnpm members max500     # who stakes with a pool, and how much each of them has
+pnpm addresses --file addresses.txt --token sbtc   # what a list of addresses holds
 ```
 
-Both generators read `STACKS_API_URL` and `HIRO_API_KEY` — see
+The generators, `members` and `addresses` read `STACKS_API_URL` and
+`HIRO_API_KEY` — see
 [Which node it asks](#which-node-it-asks). `generate:signers` uses
 [`clarinet`](https://github.com/hirosystems/clarinet/releases) when it is on
 the `PATH`, and only for contracts nobody has hashed yet — see
@@ -259,6 +263,92 @@ Three consequences worth knowing:
 Amounts are shown for the current reward cycle, falling back to the cycle being
 filled while the current one is empty — during the pox-5 changeover, cycle 140
 read as zero for every pool, which tells a reader nothing.
+
+### Who is in a pool
+
+The page shows what a pool holds, never who is in it. `pnpm members` answers
+that question on the command line, for anyone who wants it:
+
+```bash
+pnpm members max500              # by name, contract id, or any part of either
+pnpm members "fast pool" --top 20
+pnpm members fastpool-1 --json   # every member, for piping somewhere else
+```
+
+Two sources, answering different questions:
+
+| source                                                 | says                                          |
+| ------------------------------------------------------ | --------------------------------------------- |
+| `/extended/v3/staking/signers/{signer}/stakers` (Hiro) | who has ever staked with this signer contract |
+| `pox-5.get-signer-cycle-membership` (the chain)        | who is with it this cycle, and for how much   |
+
+The index says who to ask about; the chain says what is true. That ordering is
+the only one that can be checked, and the script checks it: the members'
+amounts are summed and compared against `get-amount-delegated-for-signer` for
+the same cycle — both from pox-5, so they should agree to the microstack. A
+staker the index has never heard of would be invisible otherwise, and this is
+what says so. Fast Pool Max500 reconciled at 41,530,653.232810 STX across 89
+members in cycle 141; Fast Pool v1 at 1,193,883.160843 STX across 20.
+
+Being indexed is not being a member, and the report keeps the three ways that
+can fail apart: **gone** (indexed, holding nothing this cycle), **elsewhere**
+(staking, but with another signer now), and **unanswered** (the node would not
+say). Anyone still unanswered at the end of a run is asked about once more —
+on a long run it is the rate limit catching up, and one pass clears it — and
+whoever is left is named, because the total is short by exactly what they hold.
+An empty answer from Hiro's index is never printed as an empty pool: a refused
+page and a pool nobody stakes with look identical, and the report says which
+one it is looking at.
+
+The index is keyed by the signer _contract_, not the signer key, so the two
+contracts sharing a key — `.hiro` with `.signer-manager-stackslabs-3`, and
+`.signer-manager-bd-contract` with `.signer-manager-blockdaemon-v1` — do not
+get one another's members. The report says when a pool's key is shared, since
+anything keyed on the key counts them together.
+
+Reading amounts costs one node call per indexed staker, paced like every other
+read here, so a large pool takes a minute anonymously. `--no-amounts` prints
+the index alone and asks the chain nothing.
+
+### Which of my addresses needs attention
+
+The other direction: `pnpm addresses` takes a list of addresses and says which
+of them somebody has to do something about.
+
+```bash
+pnpm addresses SP2C2… SP3VR…
+pnpm addresses --file addresses.txt --token sbtc
+pnpm addresses --file addresses.txt --min-stx 1000 --ending-in 3 --json
+```
+
+Two reads per address — `/extended/v1/address/{principal}/balances` for STX,
+every fungible token and every NFT collection in one request, and
+`pox-5.get-staker-info` for the stake. The report is the difference between
+them, because neither one alone is a decision:
+
+| flag          | what it means                                                       |
+| ------------- | ------------------------------------------------------------------- |
+| `ending`      | the stake unlocks within `--ending-in` cycles (default 2)           |
+| `not staking` | `--min-stx` or more sitting unlocked, staking nothing (default 100) |
+| `idle`        | the same, but beside a stake it could be added to                   |
+| `not pox-5`   | STX locked that pox-5 has no position for — stacked elsewhere       |
+| `token`       | holds none of `--token`, or less than `--min-token`                 |
+| `unread`      | this run could not find out                                         |
+
+`unread` is a flag rather than a blank because an address nothing is known
+about must not read as an address with nothing wrong. `not pox-5` is the one
+worth knowing during the changeover: locked STX with no pox-5 position is a
+pox-4 stack, which "not staking" would describe wrongly and "staking" would
+describe worse.
+
+`--token` takes an asset identifier or any part of one. A fragment matching
+two assets — `sbtc` is both `sbtc-token` and `sbtc-token-locked` — is reported
+rather than resolved, but one the query names in full wins over one that
+merely contains it. A full identifier is taken as itself even when nobody in
+the list holds it, since "which of these is missing it" is the question.
+
+The script writes nothing to disk. The list of addresses is yours, and where
+it lives is not a script's decision.
 
 ## Refreshing
 

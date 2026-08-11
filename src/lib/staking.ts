@@ -2,8 +2,11 @@ import {
   Cl,
   ClarityType,
   fetchCallReadOnlyFunction,
+  Pc,
   serializeCVBytes,
   type ClarityValue,
+  type ContractIdString,
+  type PostCondition,
   type TupleCV,
   type UIntCV,
 } from '@stacks/transactions';
@@ -200,6 +203,124 @@ export async function buildPayoutCalldata(opts: {
       'min-claim': Cl.uint(opts.minClaimSats),
     }),
   );
+}
+
+/*
+ * Post conditions for the pox-5 calls this page makes.
+ *
+ * SIP-044 splits what pox-5 does to a staker in two, and every transaction
+ * here goes out in the default deny mode, so whatever is not named below is
+ * refused by the chain rather than performed:
+ *
+ *   staking (0x03)  the lock itself — carries an amount, guarded like STX
+ *   pox (0x04)      a PoX change that leaves the lock alone — no amount at all
+ *
+ * The amount is the part worth pinning down. It is the only number in these
+ * calls that can cost the staker more than the one they typed.
+ */
+
+/** `stake`: locks what the staker asked for, and not a microstack more. */
+export function stakePostConditions(
+  staker: string,
+  amountUstx: bigint,
+): PostCondition[] {
+  return [Pc.principal(staker).willSendEq(amountUstx).ustxToLock()];
+}
+
+/**
+ * `stake-update`: bounds the top-up, which is `0` for a rotation that adds
+ * nothing — and `0` is worth stating, because it is then an assertion that
+ * moving pools locks no further STX.
+ *
+ * Rotating changes no lock, so it is a PoX action rather than a staking one
+ * and needs a condition of its own or deny mode refuses the call. It is
+ * `mayPerform` rather than `willPerform`: whether the node counts a top-up and
+ * a rotation as one action or two is not ours to assume, and a `willPerform`
+ * the node never satisfies aborts a transaction the staker has already paid
+ * the fee for. Nothing is given up by the weaker code — a PoX action carries
+ * no amount, so the assertion would guard nothing the staker can lose.
+ */
+export function stakeUpdatePostConditions(
+  staker: string,
+  amountIncreaseUstx: bigint,
+): PostCondition[] {
+  return [
+    Pc.principal(staker).willSendEq(amountIncreaseUstx).ustxToLock(),
+    Pc.principal(staker).mayPerformPox(),
+  ];
+}
+
+/**
+ * `unstake`: no amount anywhere. It unlocks nothing today — it sets the
+ * position to end when the cycle does — so there is nothing to bound, and
+ * `willPerform` can be a real assertion rather than a guess: a transaction in
+ * which the unstake did not happen is one the staker paid for and did not want.
+ *
+ * The one asset it can move is custodied sBTC, which the contract returns in
+ * full rather than in an amount the caller names. Anyone who staked through
+ * this page is STX-only and has none, so the bound is only added when there is
+ * something to bound.
+ */
+export function unstakePostConditions(opts: {
+  staker: string;
+  custodiedSbtcSats: bigint;
+  /** `poxInfo.contractId` — the sender of any returned sBTC. */
+  poxContractId: string;
+  /** `poxInfo.sbtcContract`; node-configured off mainnet, so never hardcoded. */
+  sbtcContract: string;
+}): PostCondition[] {
+  const conditions: PostCondition[] = [
+    Pc.principal(opts.staker).willPerformPox(),
+  ];
+  if (opts.custodiedSbtcSats > 0n) {
+    conditions.push(
+      Pc.principal(opts.poxContractId)
+        .willSendEq(opts.custodiedSbtcSats)
+        .ft(opts.sbtcContract as ContractIdString, 'sbtc-token'),
+    );
+  }
+  return conditions;
+}
+
+/**
+ * Cycles a `stake-update` has to add for the contract to accept it at all.
+ *
+ * pox-5 recomputes the lock period as `first + num + extend - current - 1` and
+ * asserts it is at least one cycle. A staker in the last cycle of their
+ * position has a tail of zero, so rotating on its own comes back
+ * ERR_INVALID_NUM_CYCLES — the smallest thing that lets them move pools is to
+ * carry the lock one cycle further. Everyone else extends by nothing.
+ */
+export function extendCyclesForUpdate(opts: {
+  position: Pick<StakedPosition, 'firstRewardCycle' | 'numCycles'>;
+  currentCycle: number;
+}): number {
+  const tail =
+    opts.position.firstRewardCycle +
+    opts.position.numCycles -
+    opts.currentCycle -
+    1;
+  return tail >= 1 ? 0 : 1 - tail;
+}
+
+/**
+ * Where the chain is in its cycle — the two facts a change to a stake depends
+ * on. pox-5 refuses `stake-update` and `unstake` during the prepare phase, so
+ * it is worth saying so before somebody fills the form in.
+ */
+export async function fetchCycleState(
+  network: 'mainnet' | 'testnet' = 'mainnet',
+): Promise<{ rewardCycleId: number; inPreparePhase: boolean }> {
+  const { fetchPoxInfo, isInPreparePhase } =
+    await import('@stacks/bitcoin-staking');
+  const poxInfo = await fetchPoxInfo({ network });
+  return {
+    rewardCycleId: poxInfo.rewardCycleId,
+    inPreparePhase: isInPreparePhase({
+      burnHeight: poxInfo.currentBurnchainBlockHeight,
+      poxInfo,
+    }),
+  };
 }
 
 /** Null when this address is not staking at all. */
