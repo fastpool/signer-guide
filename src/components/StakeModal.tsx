@@ -14,11 +14,15 @@ import { translator, type Locale, type Translator } from '../lib/i18n';
 import {
   buildPayoutCalldata,
   defaultMinClaimSats,
-  extendCyclesForUpdate,
+  cyclesRemaining,
+  extendRange,
   fetchCycleState,
   fetchPayoutRecord,
   fetchStakedPosition,
+  isValidLockCycles,
   isValidMinClaim,
+  lockDuration,
+  MAX_LOCK_CYCLES,
   minClaimFloorSats,
   stakePostConditions,
   stakeUpdatePostConditions,
@@ -139,6 +143,13 @@ function cachedStxAddress(): string | null {
 
 /** Enough to get a payout out in most fee conditions, and no more. */
 const DEFAULT_MAX_FEE_SATS = '3000';
+
+/**
+ * The lock periods worth one tap: this cycle only, half a year, a year, and
+ * the longest the contract takes. Anything else is typed in the box beside
+ * them.
+ */
+const CYCLE_PRESETS = [1, 12, 26, MAX_LOCK_CYCLES];
 
 /**
  * The call inside a transaction the staking package built.
@@ -272,6 +283,16 @@ export default function StakeModal({
   const [payout, setPayout] = useState<PayoutRecord | null>(null);
   const [balanceUstx, setBalanceUstx] = useState<bigint | null>(null);
   const [amountStx, setAmountStx] = useState('');
+  /**
+   * How long a first stake locks for, as typed. A string rather than a number
+   * so the field can be empty while somebody is halfway through changing it.
+   */
+  const [cyclesInput, setCyclesInput] = useState('1');
+  /**
+   * How many cycles an update adds. Null until touched, meaning "whatever the
+   * contract insists on and no more" — which for most positions is none.
+   */
+  const [extendInput, setExtendInput] = useState<string | null>(null);
   /*
    * The reward fields are deliberately not state until the reader touches
    * them: null means "whatever the chain says". Holding a copy of the chain's
@@ -376,20 +397,54 @@ export default function StakeModal({
    */
   const rotating = position !== null && !stakingHere;
 
+  /** The cycle count as a number, or null while it is not one yet. */
+  const numCycles = /^\d+$/.test(cyclesInput.trim())
+    ? Number(cyclesInput.trim())
+    : null;
+
   /** Empty means zero once there is a position to update: a move, no top-up. */
   const amountUstx =
     position !== null && amountStx.trim() === ''
       ? 0n
       : parseStxToUstx(amountStx);
 
-  /**
-   * A position in its final cycle has no lock period left for the contract to
-   * assert on, so a move has to carry it one cycle further or be refused.
-   */
-  const extendCycles =
+  /** Cycles the position has after this one; null until the clock is known. */
+  const remaining =
     position !== null && cycle !== null
-      ? extendCyclesForUpdate({ position, currentCycle: cycle.rewardCycleId })
-      : 0;
+      ? cyclesRemaining({ position, currentCycle: cycle.rewardCycleId })
+      : null;
+
+  /**
+   * What an update may add. The floor is not a preference: a position in its
+   * final cycle has no lock period left for the contract to assert on, so a
+   * move has to carry it one cycle further or be refused.
+   */
+  const range = remaining === null ? null : extendRange(remaining);
+  const extendCycles = range?.min ?? 0;
+
+  /** What the staker is actually asking for, the floor until they say more. */
+  const askedExtend =
+    extendInput === null
+      ? extendCycles
+      : /^\d+$/.test(extendInput.trim())
+        ? Number(extendInput.trim())
+        : null;
+
+  /** Cycles the position would run for in all, once this update lands. */
+  const extendedTotal =
+    remaining === null || askedExtend === null ? null : remaining + askedExtend;
+
+  /**
+   * One tap each for: what the contract insists on, the usual periods that
+   * still fit, and the longest this position can reach. Anything between them
+   * is typed.
+   */
+  const extendPresets =
+    range === null
+      ? []
+      : [...new Set([range.min, ...CYCLE_PRESETS, range.max])]
+          .filter((preset) => preset >= range.min && preset <= range.max)
+          .sort((a, b) => a - b);
 
   useEffect(() => {
     if (!open) return;
@@ -623,13 +678,31 @@ export default function StakeModal({
       return;
     }
 
-    if (amountUstx === 0n && !rotating && !changesPayout) {
+    // Extending is a change like any other — and for a position in its last
+    // cycle it is the one that keeps the stake alive, so an empty amount and
+    // the same pool is a perfectly good reason to press the button.
+    if (
+      amountUstx === 0n &&
+      !rotating &&
+      !changesPayout &&
+      (askedExtend === null || askedExtend === 0)
+    ) {
       setError(t('stake.error.nothingToChange'));
       return;
     }
 
     if (spendableUstx !== null && amountUstx > spendableUstx) {
       setError(t('stake.error.tooMuch'));
+      return;
+    }
+
+    // Only a first stake names its own lock period; an update's is worked out
+    // from what is left of the position it is updating.
+    if (
+      position === null &&
+      (numCycles === null || !isValidLockCycles(numCycles))
+    ) {
+      setError(t('stake.error.cycles', { max: MAX_LOCK_CYCLES }));
       return;
     }
 
@@ -710,10 +783,30 @@ export default function StakeModal({
       let tx;
       let postConditions;
       if (staker.staked) {
-        const cyclesToExtend = extendCyclesForUpdate({
-          position: staker.details,
-          currentCycle: poxInfo.rewardCycleId,
-        });
+        /*
+         * The range against the position as it is now, not as the dialog read
+         * it: a cycle turning while the form was open moves both ends. Asking
+         * for less than the floor is not a refusal to extend, it is a position
+         * that cannot be updated without one more cycle — the same cycle the
+         * dialog offers by default. Asking for more than the ceiling is a
+         * lock the contract would refuse, so it is said rather than trimmed.
+         */
+        const freshRange = extendRange(
+          cyclesRemaining({
+            position: staker.details,
+            currentCycle: poxInfo.rewardCycleId,
+          }),
+        );
+        if (askedExtend === null || askedExtend > freshRange.max) {
+          setError(
+            t('stake.error.extend', {
+              min: freshRange.min,
+              max: freshRange.max,
+            }),
+          );
+          return;
+        }
+        const cyclesToExtend = Math.max(askedExtend, freshRange.min);
 
         // Every gate the contract applies to this call, replayed read-only.
         // The alternative is a staker paying a fee to be told no.
@@ -756,10 +849,14 @@ export default function StakeModal({
           return;
         }
 
+        // Checked above for the path that gets here; a position that unlocked
+        // between opening the dialog and pressing the button takes this one
+        // too, and one cycle is what it was locked for before.
         tx = await buildStake({
           signerManager: signer.contractId,
           amountUstx,
-          numCycles: 1,
+          numCycles:
+            numCycles !== null && isValidLockCycles(numCycles) ? numCycles : 1,
           startBurnHt: poxInfo.currentBurnchainBlockHeight + 1,
           signerCalldata,
           network: 'mainnet',
@@ -851,9 +948,11 @@ export default function StakeModal({
 
   const submitLabel = !position
     ? t('stake.stakeNow')
-    : stakingHere
-      ? t('stake.addToStake')
-      : t('stake.moveStake');
+    : !stakingHere
+      ? t('stake.moveStake')
+      : amountUstx === 0n && askedExtend !== null && askedExtend > 0
+        ? t('stake.extendStake')
+        : t('stake.addToStake');
 
   return (
     <>
@@ -1042,7 +1141,92 @@ export default function StakeModal({
               <p className='mt-1 text-xs text-muted'>{t('stake.maxHint')}</p>
             </Step>
 
-            {position && extendCycles > 0 && (
+            {/* A first stake picks its own lock period; an update's comes from
+                what is left of the position, so there is nothing to choose. */}
+            {!position && (
+              <Step title={t('stake.cyclesQuestion')}>
+                <div className='mt-2 flex flex-wrap items-center gap-2'>
+                  {CYCLE_PRESETS.map((preset) => (
+                    <button
+                      key={preset}
+                      type='button'
+                      onClick={() => setCyclesInput(String(preset))}
+                      className={`rounded-full px-3 py-1.5 text-sm font-semibold ${
+                        numCycles === preset
+                          ? 'bg-grape text-white'
+                          : 'bg-grape-soft text-grape'
+                      }`}
+                    >
+                      {t.plural('stake.cyclesCount', preset)}
+                    </button>
+                  ))}
+                  <input
+                    type='number'
+                    inputMode='numeric'
+                    min={1}
+                    max={MAX_LOCK_CYCLES}
+                    value={cyclesInput}
+                    onChange={(e) => setCyclesInput(e.target.value)}
+                    className={`w-24 ${FIELD}`}
+                    aria-label={t('stake.cyclesQuestion')}
+                  />
+                </div>
+                <p className='mt-1 text-xs text-muted'>
+                  {numCycles !== null && isValidLockCycles(numCycles)
+                    ? `${t.plural(
+                        `stake.cyclesFor.${lockDuration(numCycles).unit}`,
+                        lockDuration(numCycles).count,
+                      )} ${t('stake.cyclesHint', { max: MAX_LOCK_CYCLES })}`
+                    : t('stake.cyclesHint', { max: MAX_LOCK_CYCLES })}
+                </p>
+              </Step>
+            )}
+
+            {/* The same question for a position, asked the other way round:
+                not how long in all, but how much longer than it has. */}
+            {position && range !== null && range.max > 0 && (
+              <Step title={t('stake.extendQuestion')}>
+                <div className='mt-2 flex flex-wrap items-center gap-2'>
+                  {extendPresets.map((preset) => (
+                    <button
+                      key={preset}
+                      type='button'
+                      onClick={() => setExtendInput(String(preset))}
+                      className={`rounded-full px-3 py-1.5 text-sm font-semibold ${
+                        askedExtend === preset
+                          ? 'bg-grape text-white'
+                          : 'bg-grape-soft text-grape'
+                      }`}
+                    >
+                      {preset === 0
+                        ? t('stake.extendKeep')
+                        : t.plural('stake.extendCount', preset)}
+                    </button>
+                  ))}
+                  <input
+                    type='number'
+                    inputMode='numeric'
+                    min={range.min}
+                    max={range.max}
+                    value={extendInput ?? String(extendCycles)}
+                    onChange={(e) => setExtendInput(e.target.value)}
+                    className={`w-24 ${FIELD}`}
+                    aria-label={t('stake.extendQuestion')}
+                  />
+                </div>
+                <p className='mt-1 text-xs text-muted'>
+                  {extendedTotal !== null && extendedTotal >= 1
+                    ? `${t.plural('stake.extendTotal', extendedTotal)} ${t.plural(
+                        `stake.cyclesFor.${lockDuration(extendedTotal).unit}`,
+                        lockDuration(extendedTotal).count,
+                      )} `
+                    : ''}
+                  {t('stake.extendHint', { min: range.min, max: range.max })}
+                </p>
+              </Step>
+            )}
+
+            {position && extendCycles > 0 && askedExtend === extendCycles && (
               <p className='mt-3 rounded-xl bg-cream p-3 text-xs text-muted'>
                 {t('stake.extendNote')}
               </p>

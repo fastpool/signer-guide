@@ -273,6 +273,24 @@ export const ko: LocaleBundle = {
     'stake.max': '최대',
     'stake.maxHint':
       '최대를 누르면 거래 수수료용으로 1 STX를 남기고 입력됩니다.',
+    'stake.cyclesQuestion': '얼마나 오래 맡길까요?',
+    'stake.cyclesCount.one': '{count} 사이클',
+    'stake.cyclesCount.other': '{count} 사이클',
+    'stake.cyclesFor.weeks.one': '약 1주입니다.',
+    'stake.cyclesFor.weeks.other': '약 {count}주입니다.',
+    'stake.cyclesFor.months.one': '약 1개월입니다.',
+    'stake.cyclesFor.months.other': '약 {count}개월입니다.',
+    'stake.cyclesHint':
+      '기간이 끝나면 STX가 풀립니다. 나중에 최대 {max} 사이클까지 늘릴 수 있습니다.',
+
+    'stake.extendQuestion': '얼마나 더 연장할까요?',
+    'stake.extendKeep': '연장 안 함',
+    'stake.extendCount.one': '{count} 사이클 더',
+    'stake.extendCount.other': '{count} 사이클 더',
+    'stake.extendTotal.one': '모두 합해 한 사이클입니다.',
+    'stake.extendTotal.other': '모두 합해 {count} 사이클입니다.',
+    'stake.extendHint': '{min}에서 {max} 사이클까지 더할 수 있습니다.',
+
     'stake.extendNote':
       '이번 사이클로 스테이킹이 끝나며, 그 상태로는 체인이 변경을 받아들이지 않습니다. 이번 변경은 잠금을 한 사이클 더 이어 갑니다.',
     'stake.prepareNote':
@@ -299,12 +317,13 @@ export const ko: LocaleBundle = {
 
     'stake.explain': '누르면 무슨 일이 일어나나요?',
     'stake.explainBody':
-      '지갑이 위 금액을 이 풀에 한 보상 사이클 동안 잠그는 트랜잭션을 만들어 승인을 요청합니다. 승인하기 전까지는 아무것도 움직이지 않으며, 그 전에는 언제든 이 창을 닫아도 됩니다.',
+      '지갑이 위 금액을 이 풀에 선택한 기간 동안 잠그는 트랜잭션을 만들어 승인을 요청합니다. 승인하기 전까지는 아무것도 움직이지 않으며, 그 전에는 언제든 이 창을 닫아도 됩니다.',
 
     'stake.submitting': '지갑에서 승인을 기다리는 중…',
     'stake.stakeNow': '스테이킹 시작',
     'stake.addToStake': '스테이킹 추가하기',
     'stake.moveStake': '이 풀로 옮기기',
+    'stake.extendStake': '스테이킹 기간 연장',
     'stake.tx.pending': '전송됨, 확정을 기다리는 중 —',
     'stake.tx.success': '확정되었습니다 —',
     'stake.tx.failed': '처리되지 않았습니다 —',
@@ -318,6 +337,9 @@ export const ko: LocaleBundle = {
 
     'stake.error.noStxAddress': '지갑에서 STX 주소를 찾지 못했습니다.',
     'stake.error.amount': '스테이킹할 금액을 입력하세요.',
+    'stake.error.cycles': '1에서 {max} 사이의 정수 사이클을 선택하세요.',
+    'stake.error.extend':
+      '{min}에서 {max} 사이의 정수 사이클을 추가로 선택하세요.',
     'stake.error.nothingToChange':
       '바뀌는 것이 없습니다. 금액을 입력하거나 보상을 받을 곳을 바꾸세요.',
     'stake.error.refused': '체인이 이 요청을 거부합니다. {reasons}',

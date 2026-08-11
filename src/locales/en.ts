@@ -235,6 +235,24 @@ const messages = {
   'stake.max': 'Use max',
   'stake.maxHint':
     'Max leaves 1 STX behind, so you can still pay for transactions.',
+  'stake.cyclesQuestion': 'For how long?',
+  'stake.cyclesCount.one': '{count} cycle',
+  'stake.cyclesCount.other': '{count} cycles',
+  'stake.cyclesFor.weeks.one': 'About one week.',
+  'stake.cyclesFor.weeks.other': 'About {count} weeks.',
+  'stake.cyclesFor.months.one': 'About one month.',
+  'stake.cyclesFor.months.other': 'About {count} months.',
+  'stake.cyclesHint':
+    'Your STX unlocks at the end of it. You can add cycles later, up to {max}.',
+
+  'stake.extendQuestion': 'For how much longer?',
+  'stake.extendKeep': 'No longer',
+  'stake.extendCount.one': '{count} more cycle',
+  'stake.extendCount.other': '{count} more cycles',
+  'stake.extendTotal.one': 'One cycle in all.',
+  'stake.extendTotal.other': '{count} cycles in all.',
+  'stake.extendHint': 'From {min} to {max} more cycles.',
+
   'stake.extendNote':
     'Your stake ends after this cycle, and the chain will not accept a change that leaves it there. This one carries the lock one cycle further.',
   'stake.prepareNote':
@@ -261,12 +279,13 @@ const messages = {
 
   'stake.explain': 'What happens when I press this?',
   'stake.explainBody':
-    'Your wallet builds a transaction that locks the amount above with this pool for one reward cycle, and asks you to approve it. Nothing moves until you do, and you can close this window at any point before then.',
+    'Your wallet builds a transaction that locks the amount above with this pool for as long as you chose, and asks you to approve it. Nothing moves until you do, and you can close this window at any point before then.',
 
   'stake.submitting': 'Waiting for your wallet…',
   'stake.stakeNow': 'Start staking',
   'stake.addToStake': 'Add to my stake',
   'stake.moveStake': 'Move my stake here',
+  'stake.extendStake': 'Extend my stake',
   'stake.tx.pending': 'Broadcast, waiting for it to confirm —',
   'stake.tx.success': 'Confirmed —',
   'stake.tx.failed': 'It did not go through —',
@@ -281,6 +300,9 @@ const messages = {
   'stake.error.noStxAddress':
     'Could not find an STX address in the connected wallet.',
   'stake.error.amount': 'Enter an amount to stake.',
+  'stake.error.cycles': 'Pick a whole number of cycles, from 1 to {max}.',
+  'stake.error.extend':
+    'Pick a whole number of cycles to add, from {min} to {max}.',
   'stake.error.nothingToChange':
     'Nothing would change. Add an amount, or change where your rewards go.',
   'stake.error.refused': 'The chain would refuse this. {reasons}',

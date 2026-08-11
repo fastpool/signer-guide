@@ -307,24 +307,79 @@ export function unstakePostConditions(opts: {
 }
 
 /**
- * Cycles a `stake-update` has to add for the contract to accept it at all.
+ * The longest lock pox-5 accepts, in reward cycles — `MAX_NUM_CYCLES`.
  *
- * pox-5 recomputes the lock period as `first + num + extend - current - 1` and
- * asserts it is at least one cycle. A staker in the last cycle of their
- * position has a tail of zero, so rotating on its own comes back
- * ERR_INVALID_NUM_CYCLES — the smallest thing that lets them move pools is to
- * carry the lock one cycle further. Everyone else extends by nothing.
+ * Copied rather than imported: the staking package is loaded on demand, and
+ * pulling the whole of it into the page to read one number would cost every
+ * reader who never opens the dialog. `staking.test.ts` asserts the two agree.
+ */
+export const MAX_LOCK_CYCLES = 96;
+
+/** What the contract will take: a whole number of cycles, at least one. */
+export function isValidLockCycles(cycles: number): boolean {
+  return Number.isInteger(cycles) && cycles >= 1 && cycles <= MAX_LOCK_CYCLES;
+}
+
+/**
+ * How long a lock of this many cycles lasts, in units a person thinks in.
+ *
+ * A cycle is about two weeks, which is a fine way to say "two cycles" and a
+ * useless way to say "ninety-six" — nobody holds 192 weeks in their head. So
+ * short locks are weeks and long ones are months, and both are approximate
+ * because the cycle is a burn-block count, not a calendar.
+ */
+export function lockDuration(cycles: number): {
+  unit: 'weeks' | 'months';
+  count: number;
+} {
+  if (cycles < 5) return { unit: 'weeks', count: cycles * 2 };
+  return { unit: 'months', count: Math.round((cycles * 14) / 30.44) };
+}
+
+/**
+ * Cycles the position still has after this one — the tail pox-5 measures.
+ *
+ * The contract recomputes a lock period as `first + num + extend - current - 1`
+ * and asserts it is between one cycle and {@link MAX_LOCK_CYCLES}. That
+ * expression is this tail plus whatever an update extends by, so every rule
+ * about extending is a rule about this number. It goes negative for a position
+ * that has already unlocked, which is a tail of less than nothing rather than
+ * an error.
+ */
+export function cyclesRemaining(opts: {
+  position: Pick<StakedPosition, 'firstRewardCycle' | 'numCycles'>;
+  currentCycle: number;
+}): number {
+  return (
+    opts.position.firstRewardCycle +
+    opts.position.numCycles -
+    opts.currentCycle -
+    1
+  );
+}
+
+/**
+ * How far a `stake-update` may carry a position, in cycles it can add.
+ *
+ * The floor is what the contract insists on: a tail of zero cannot be updated
+ * at all — ERR_INVALID_NUM_CYCLES — so somebody in their last cycle has to add
+ * one before they can rotate or top up. The ceiling is the contract's maximum
+ * lock, counted from where the position already reaches rather than from now.
+ */
+export function extendRange(remaining: number): { min: number; max: number } {
+  const min = Math.max(0, 1 - remaining);
+  return { min, max: Math.max(min, MAX_LOCK_CYCLES - remaining) };
+}
+
+/**
+ * The smallest extension the contract would accept — what an update that only
+ * moves pools or adds STX asks for, since it wants no more time than it has.
  */
 export function extendCyclesForUpdate(opts: {
   position: Pick<StakedPosition, 'firstRewardCycle' | 'numCycles'>;
   currentCycle: number;
 }): number {
-  const tail =
-    opts.position.firstRewardCycle +
-    opts.position.numCycles -
-    opts.currentCycle -
-    1;
-  return tail >= 1 ? 0 : 1 - tail;
+  return extendRange(cyclesRemaining(opts)).min;
 }
 
 /**

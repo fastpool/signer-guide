@@ -12,8 +12,13 @@ import {
   decodeRewardRoute,
   defaultMinClaimSats,
   DUST_LIMIT_SATS,
+  cyclesRemaining,
   extendCyclesForUpdate,
+  extendRange,
+  isValidLockCycles,
   isValidMinClaim,
+  lockDuration,
+  MAX_LOCK_CYCLES,
   minClaimFloorSats,
   stakePostConditions,
   stakeUpdatePostConditions,
@@ -224,6 +229,67 @@ describe('post conditions', () => {
       amount: '100000',
       asset: `${SBTC}::sbtc-token`,
     });
+  });
+});
+
+describe('how long a first stake runs for', () => {
+  it('matches the limit the staking package holds', async () => {
+    /*
+     * 96 is `MAX_NUM_CYCLES`, copied into the page so the staking package
+     * stays out of the bundle. The package marks it `@internal`, so it ships
+     * in the JavaScript but not in the types — which is why it is read like
+     * this, and why it is worth checking at all: if the contract's limit
+     * moves, this says so rather than a staker's transaction being refused.
+     */
+    const pkg = (await import('@stacks/bitcoin-staking')) as unknown as {
+      MAX_NUM_CYCLES: number;
+    };
+    expect(MAX_LOCK_CYCLES).toBe(pkg.MAX_NUM_CYCLES);
+  });
+
+  it('allows every cycle count the contract does, and no more', () => {
+    expect(isValidLockCycles(1)).toBe(true);
+    expect(isValidLockCycles(96)).toBe(true);
+    expect(isValidLockCycles(0)).toBe(false);
+    expect(isValidLockCycles(97)).toBe(false);
+    expect(isValidLockCycles(1.5)).toBe(false);
+    expect(isValidLockCycles(Number.NaN)).toBe(false);
+  });
+
+  it('says it in weeks while weeks still mean something', () => {
+    expect(lockDuration(1)).toEqual({ unit: 'weeks', count: 2 });
+    expect(lockDuration(4)).toEqual({ unit: 'weeks', count: 8 });
+  });
+
+  it('switches to months before the number stops being readable', () => {
+    expect(lockDuration(6)).toEqual({ unit: 'months', count: 3 });
+    expect(lockDuration(26)).toEqual({ unit: 'months', count: 12 });
+    expect(lockDuration(96)).toEqual({ unit: 'months', count: 44 });
+  });
+});
+
+describe('extendRange', () => {
+  /*
+   * Both ends come from the one assertion the contract makes on an update:
+   * `first + num + extend - current - 1` between 1 and 96.
+   */
+  it('lets a position with room ahead of it add nothing at all', () => {
+    expect(extendRange(5)).toEqual({ min: 0, max: 91 });
+  });
+
+  it('makes the last cycle add one before anything else is allowed', () => {
+    expect(extendRange(0)).toEqual({ min: 1, max: 96 });
+  });
+
+  it('counts the ceiling from where the position already reaches', () => {
+    // 90 more on a tail of 6 is 96 in all — the longest the contract takes.
+    expect(extendRange(6).max).toBe(90);
+    expect(extendRange(95)).toEqual({ min: 0, max: 1 });
+    expect(extendRange(96)).toEqual({ min: 0, max: 0 });
+  });
+
+  it('reaches back to one cycle for a position already unlocked', () => {
+    expect(extendRange(-3)).toEqual({ min: 4, max: 99 });
   });
 });
 
