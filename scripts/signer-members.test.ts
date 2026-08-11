@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { formatStx } from './format.js';
 import {
   classify,
+  groupBySignerKey,
+  groupName,
+  matchGroups,
   matchSigners,
   parseArgs,
-  sharesKeyWith,
   type Reading,
   type CycleMembership,
 } from './signer-members.js';
@@ -73,15 +75,26 @@ describe('what the chain said about a staker', () => {
     value: { signer: MAX500, ustx: 1_000_000n },
   };
 
-  it('counts them when the cycle names this pool', () => {
-    expect(classify(member, MAX500)).toEqual({
+  it('counts them when the cycle names one of this signer’s contracts', () => {
+    expect(classify(member, [MAX500])).toEqual({
       kind: 'member',
       ustx: 1_000_000n,
+      contract: MAX500,
     });
   });
 
-  it('says where they went when the cycle names another pool', () => {
-    expect(classify(member, V1)).toEqual({
+  it('keeps them for the signer when they moved between its contracts', () => {
+    // Two contracts, one signer key: moving from one to the other is not
+    // leaving, and the column has to say which of the two they are with.
+    expect(classify(member, [V1, MAX500])).toEqual({
+      kind: 'member',
+      ustx: 1_000_000n,
+      contract: MAX500,
+    });
+  });
+
+  it('says where they went when the cycle names another signer', () => {
+    expect(classify(member, [V1])).toEqual({
       kind: 'elsewhere',
       signer: MAX500,
       ustx: 1_000_000n,
@@ -91,10 +104,10 @@ describe('what the chain said about a staker', () => {
   it('separates holding nothing from not being answered for', () => {
     // Both are "no amount to add", and only one of them means the total below
     // is short. Collapsing them would make a wrong total look like a right one.
-    expect(classify({ read: true, value: null }, MAX500)).toEqual({
+    expect(classify({ read: true, value: null }, [MAX500])).toEqual({
       kind: 'gone',
     });
-    expect(classify({ read: false }, MAX500)).toEqual({ kind: 'unknown' });
+    expect(classify({ read: false }, [MAX500])).toEqual({ kind: 'unknown' });
   });
 });
 
@@ -108,15 +121,40 @@ describe('amounts as they are printed', () => {
 });
 
 describe('pools behind one signer key', () => {
-  it('names the others, so a total keyed on the key is not read as this one', () => {
-    const stackslabs = POOLS[3];
-    expect(sharesKeyWith(stackslabs, POOLS).map((s) => s.displayName)).toEqual([
-      'Hiro',
+  it('makes one signer of the contracts that share a key', () => {
+    const groups = groupBySignerKey(POOLS);
+    expect(groups.map(groupName)).toEqual([
+      'Fast Pool Max500',
+      'Fast Pool v1',
+      'Hiro + L2-Labs-3',
+    ]);
+    expect(groups[2].signerKey).toBe('0xcc');
+  });
+
+  it('leaves a contract with no key on its own rather than piling them up', () => {
+    // An unknown key is not evidence of a shared one; merging on it would
+    // report two unrelated pools as one signer.
+    const keyless = [
+      signer('SP1.a', 'A', ''),
+      signer('SP1.b', 'B', ''),
+    ] as Signer[];
+    expect(groupBySignerKey(keyless).map((g) => g.contracts.length)).toEqual([
+      1, 1,
     ]);
   });
 
-  it('says nothing when the key belongs to this pool alone', () => {
-    expect(sharesKeyWith(POOLS[0], POOLS)).toEqual([]);
+  it('answers a query about one contract with the whole signer', () => {
+    // Asking about L2-Labs-3 and being told about half its signer is the
+    // fragmentation this grouping exists to remove.
+    expect(matchGroups('stackslabs-3', POOLS).map(groupName)).toEqual([
+      'Hiro + L2-Labs-3',
+    ]);
+    // And naming both halves is still one signer, not two reports.
+    expect(matchGroups('SP', POOLS).map(groupName)).toEqual([
+      'Fast Pool Max500',
+      'Fast Pool v1',
+      'Hiro + L2-Labs-3',
+    ]);
   });
 });
 

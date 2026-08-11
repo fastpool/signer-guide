@@ -89,18 +89,33 @@ export function tuplePrincipal(tuple: ClarityTuple, field: string): string {
   return String(tuple[field]?.value ?? '');
 }
 
-/** The reward cycle the chain is in, or null if the node would not say. */
+/**
+ * The reward cycle the chain is in, or null if the node would not say.
+ *
+ * Waits out a rate limit like every other read here. This one answers the
+ * question the rest of a run is asked in terms of, so a 429 on it does not
+ * cost a number — it costs the whole report.
+ */
 export async function fetchCurrentCycle(): Promise<number | null> {
-  try {
-    const response = await fetch(`${API_URL}/v2/pox`, {
-      headers: nodeHeaders(),
-    });
-    if (!response.ok) return null;
-    const body = (await response.json()) as {
-      current_cycle?: { id?: number };
-    };
-    return body.current_cycle?.id ?? null;
-  } catch {
-    return null;
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      const response = await fetch(`${API_URL}/v2/pox`, {
+        headers: nodeHeaders(),
+      });
+
+      const retryable = response.status === 429 || response.status >= 500;
+      if (retryable && attempt < RETRY_DELAYS_MS.length) {
+        await sleep(RETRY_DELAYS_MS[attempt]);
+        continue;
+      }
+      if (!response.ok) return null;
+
+      const body = (await response.json()) as {
+        current_cycle?: { id?: number };
+      };
+      return body.current_cycle?.id ?? null;
+    } catch {
+      return null;
+    }
   }
 }
