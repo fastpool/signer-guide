@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-12T13:52:14.725Z",
+  "generatedAt": "2026-08-12T15:17:41.956Z",
   "cycle": 141,
   "standardisedWith": "clarinet 3.23.1",
   "signers": [
@@ -43,7 +43,7 @@
       "profileId": "standard",
       "bitcoinRewards": true,
       "openToAnyone": true,
-      "feeBips": 0,
+      "feeBips": 9999,
       "maxFeeBips": null,
       "feeChangeNotice": null,
       "feeExemption": null,
