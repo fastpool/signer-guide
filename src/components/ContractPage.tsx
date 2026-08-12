@@ -1,8 +1,8 @@
 import { stxLabel, sumUstx } from '../lib/amounts';
-import { explorerUrl } from '../lib/explorer';
 import { SIP_IDENTICON_URL } from '../lib/identicon';
 import { translator, type Locale } from '../lib/i18n';
 import { localizeProfile } from '../lib/profile-i18n';
+import { signerHref } from '../lib/route';
 import type { Template } from '../lib/templates';
 import Badge, { feeLabel, noticeLabel } from './Badge';
 import Identicon from './Identicon';
@@ -136,11 +136,13 @@ export default function ContractPage({
               key={signer.contractId}
               className='flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 rounded-3xl bg-white p-5 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'
             >
+              {/* To the pool's own page rather than to the explorer: this
+                  list is about which pools run the code, and the next thing a
+                  reader wants of one of them is who is actually in it. The
+                  explorer is a click further on, from there. */}
               <a
                 className='text-lg font-bold underline underline-offset-2'
-                href={explorerUrl(signer.contractId)}
-                target='_blank'
-                rel='noreferrer'
+                href={signerHref(signer.contractId)}
               >
                 <PoolName signer={signer} locale={locale} />
               </a>

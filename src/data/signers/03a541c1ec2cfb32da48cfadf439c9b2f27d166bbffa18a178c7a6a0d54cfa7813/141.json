@@ -1,0 +1,16 @@
+{
+  "signerKey": "0x03a541c1ec2cfb32da48cfadf439c9b2f27d166bbffa18a178c7a6a0d54cfa7813",
+  "cycle": 141,
+  "members": [
+    {
+      "staker": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.stx-staker-blockdaemon-v2",
+      "ustx": "11500000000006",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-blockdaemon-v1"
+    },
+    {
+      "staker": "SMWFRYN9N7WB287SSZRYJ95ZHT4K3SH0TBQMFH5G",
+      "ustx": "360000500110",
+      "contractId": "SP21D6BW36TSGWAZS8K4JAJVTNXWKQN9G3TH5MG6A.signer-manager-bd-contract"
+    }
+  ]
+}

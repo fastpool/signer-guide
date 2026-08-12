@@ -1,15 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { formatStx } from './format.js';
+import { classify, type Reading, type CycleMembership } from './members.js';
 import {
-  classify,
-  groupBySignerKey,
   groupName,
   matchGroups,
   matchSigners,
   parseArgs,
-  type Reading,
-  type CycleMembership,
 } from './signer-members.js';
+import { groupBySignerKey } from '../src/lib/signer-groups.js';
 import type { Signer } from '../src/lib/types.js';
 
 /*

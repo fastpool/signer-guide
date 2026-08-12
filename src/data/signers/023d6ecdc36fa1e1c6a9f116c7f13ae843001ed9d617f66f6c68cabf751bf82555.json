@@ -1,0 +1,29 @@
+{
+  "signerKey": "0x023d6ecdc36fa1e1c6a9f116c7f13ae843001ed9d617f66f6c68cabf751bf82555",
+  "contractIds": [
+    "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
+  ],
+  "cycles": [
+    {
+      "cycle": 142,
+      "ustx": {
+        "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager": "1193883160843"
+      },
+      "memberCount": 20,
+      "membersAddUp": true,
+      "walks": 1,
+      "final": false
+    },
+    {
+      "cycle": 141,
+      "ustx": {
+        "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager": "1193883160843"
+      },
+      "memberCount": 20,
+      "membersAddUp": true,
+      "walks": 1,
+      "final": false
+    }
+  ],
+  "generatedAt": "2026-08-12T19:26:04.438Z"
+}

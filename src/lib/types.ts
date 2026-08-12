@@ -62,7 +62,7 @@ export interface Signer {
     openToAnyone: string | null;
     maxFee: string | null;
   };
-  callApi?: "pox5" | "nativePool" ;
+  callApi?: 'pox5' | 'nativePool';
 }
 
 export interface SignerData {
@@ -92,4 +92,87 @@ export interface LockedTotals {
   cycle: number;
   /** uSTX per contract id as a string; null for a pool we could not read. */
   ustx: Record<string, string | null>;
+}
+
+/**
+ * One signer's history, as `src/data/signers/<slug>.json` holds it.
+ *
+ * The unit is the signer key rather than the contract, for the reason set out
+ * at the top of scripts/signer-members.ts: a key can have several
+ * signer-manager contracts registered against it, and everything the key
+ * decides is decided on them together. Read per contract, half a signer looks
+ * like a small pool and the other half like another one.
+ *
+ * Not bundled with the build and not part of the snapshot — the page fetches
+ * it when a reader opens one signer, because nobody opening the list needs
+ * the other forty-five. See src/lib/signer-history.ts.
+ */
+export interface SignerHistory {
+  /** Null for a contract with no key on file, which stands on its own. */
+  signerKey: string | null;
+  /** Contract ids registered against this key at the last refresh. */
+  contractIds: string[];
+  /** Newest first, so the cycle a reader wants is the one they land on. */
+  cycles: SignerCycleSummary[];
+  generatedAt: string;
+}
+
+/**
+ * What one signer held in one cycle, and how much is known about who held it.
+ *
+ * The members themselves are not in here. A busy signer has thousands of them
+ * and a reader opening the page wants the shape of the thing, not four
+ * megabytes of addresses — so each cycle's list is its own file, fetched only
+ * if somebody asks for that cycle. What is here is what the summary needs:
+ * the amounts, and enough about the list to say whether it can be trusted.
+ */
+export interface SignerCycleSummary {
+  cycle: number;
+  /** uSTX per contract id; null for one the node would not answer for. */
+  ustx: Record<string, string | null>;
+  /**
+   * How many members the list for this cycle has, or null when no list has
+   * been built yet. Zero is a signer nobody staked with, which is a fact; null
+   * is one we have not walked, which is not the same and must not read as one.
+   */
+  memberCount: number | null;
+  /**
+   * True when the members' amounts add up to what pox-5 says the signer holds.
+   *
+   * The one check worth carrying to the page. Both numbers come from pox-5, so
+   * they agree unless somebody staking here is missing from Hiro's index or the
+   * walk was cut short — either way the list below is short, and the page says
+   * so rather than presenting it as everybody.
+   */
+  membersAddUp: boolean;
+  /**
+   * How many times the members have been walked.
+   *
+   * The generator's business, not the page's. A list that does not add up is
+   * usually a rate limit and is worth asking about again — but not for ever,
+   * and a frozen cycle retried every hour is a bill that never stops. See
+   * MAX_WALKS in scripts/generate-signer-history.ts.
+   */
+  walks: number;
+  /**
+   * True once the cycle is behind us and nothing in it can move again. Final
+   * cycles are written once and never read from the chain a second time.
+   */
+  final: boolean;
+}
+
+/** One cycle's members, as `src/data/signers/<slug>/<cycle>.json` holds it. */
+export interface SignerCycleMembers {
+  signerKey: string | null;
+  cycle: number;
+  /** Largest first: the question behind "who is in this pool" is who most of it is. */
+  members: CycleMember[];
+}
+
+export interface CycleMember {
+  /** An address, or `address.name` for a contract that stakes. */
+  staker: string;
+  ustx: string;
+  /** Which of the signer's contracts they are with. */
+  contractId: string;
 }

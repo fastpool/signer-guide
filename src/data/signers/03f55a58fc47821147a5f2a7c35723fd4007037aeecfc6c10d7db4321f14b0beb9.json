@@ -1,0 +1,29 @@
+{
+  "signerKey": "0x03f55a58fc47821147a5f2a7c35723fd4007037aeecfc6c10d7db4321f14b0beb9",
+  "contractIds": [
+    "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-1-v1"
+  ],
+  "cycles": [
+    {
+      "cycle": 142,
+      "ustx": {
+        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-1-v1": "0"
+      },
+      "memberCount": 0,
+      "membersAddUp": true,
+      "walks": 1,
+      "final": false
+    },
+    {
+      "cycle": 141,
+      "ustx": {
+        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-1-v1": "0"
+      },
+      "memberCount": 0,
+      "membersAddUp": true,
+      "walks": 1,
+      "final": false
+    }
+  ],
+  "generatedAt": "2026-08-12T19:27:11.345Z"
+}

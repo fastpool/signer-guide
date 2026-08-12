@@ -116,6 +116,66 @@ describe('the page as a reader sees it', () => {
     expect(html).not.toContain('The icon every pool above shows');
   });
 
+  it('gives one pool a page of its own, with its signer key on it', () => {
+    vi.stubGlobal('window', {
+      location: {
+        hash: '#/signer/SP21D6BW36TSGWAZS8K4JAJVTNXWKQN9G3TH5MG6A.signer-manager-bd-contract',
+      },
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      scrollTo: () => {},
+    });
+    const html = renderToStaticMarkup(<App />);
+    expect(html).toContain('Signer key');
+    expect(html).toContain(
+      '0x03a541c1ec2cfb32da48cfadf439c9b2f27d166bbffa18a178c7a6a0d54cfa7813',
+    );
+  });
+
+  it('names the other contract registered against the same key', () => {
+    // The point of the page. A reader looking at this contract is looking at
+    // half a signer, and nothing else in the guide would tell them so — the
+    // sibling is deployed by a different address, so even the contract id
+    // gives no hint that the two are one.
+    vi.stubGlobal('window', {
+      location: {
+        hash: '#/signer/SP21D6BW36TSGWAZS8K4JAJVTNXWKQN9G3TH5MG6A.signer-manager-bd-contract',
+      },
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      scrollTo: () => {},
+    });
+    const html = renderToStaticMarkup(<App />);
+    expect(html).toContain('2 contracts are registered against this key');
+    expect(html).toContain('signer-manager-blockdaemon-v1');
+    expect(html).toContain(
+      '#/signer/SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-blockdaemon-v1',
+    );
+    expect(html).toContain('— this page');
+  });
+
+  it('shows the list rather than a blank page for a pool it does not have', () => {
+    vi.stubGlobal('window', {
+      location: { hash: '#/signer/SP000000000000000000002Q6VF78.made-up' },
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      scrollTo: () => {},
+    });
+    const html = renderToStaticMarkup(<App />);
+    expect(html).toContain('All pools');
+    expect(html).not.toContain('Signer key');
+  });
+
+  it('asks for nothing before a reader opens a pool', () => {
+    // The history is fetched per signer and per cycle, so a reader on the
+    // list page downloads none of it. A fetch here would mean forty-odd
+    // requests for data nobody has asked to see.
+    const fetch = vi.fn();
+    vi.stubGlobal('fetch', fetch);
+    renderToStaticMarkup(<App />);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it('points a reader at the code behind every claim', () => {
     const html = renderToStaticMarkup(<App />);
     expect(html).toContain('https://github.com/fastpool/signer-guide');

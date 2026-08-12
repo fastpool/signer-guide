@@ -16,7 +16,51 @@
  *   HIRO_API_KEY=… pnpm generate:totals
  */
 
-export const API_URL = process.env.STACKS_API_URL ?? 'https://api.hiro.so';
+/**
+ * `STACKS_API_URL`, made into something `fetch` can actually use.
+ *
+ * `new URL('localhost:3999')` does not throw. It reads `localhost:` as the
+ * scheme and leaves the hostname empty, so a URL with the `http://` left off
+ * survives every check here and reaches `fetch`, which fails with "unknown
+ * scheme" — and every caller in this directory turns a failed fetch into "the
+ * node would not answer". A typo in an environment variable then reads as an
+ * unresponsive chain, which sends whoever typed it looking at their node.
+ *
+ * So a bare `host:port` is completed rather than rejected: it is unambiguous,
+ * it is what everyone means by it, and it is the one mistake worth being kind
+ * about. Anything that is still not http(s) afterwards throws by name, because
+ * the alternative is the silence above.
+ */
+export function normaliseApiUrl(raw: string): string {
+  const withScheme = /^[a-z][a-z0-9+.-]*:\/\//i.test(raw)
+    ? raw
+    : `http://${raw}`;
+
+  let url: URL;
+  try {
+    url = new URL(withScheme);
+  } catch {
+    throw new Error(
+      `STACKS_API_URL is not a URL: ${raw}\n` +
+        '  Try something like http://localhost:3999 or https://api.hiro.so',
+    );
+  }
+
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+    throw new Error(
+      `STACKS_API_URL has to be http or https, not "${url.protocol}": ${raw}\n` +
+        '  Try something like http://localhost:3999 or https://api.hiro.so',
+    );
+  }
+
+  // Every caller builds paths as `${API_URL}/v2/…`, so a trailing slash here
+  // would ask the node for `//v2/…`.
+  return url.href.replace(/\/+$/, '');
+}
+
+export const API_URL = normaliseApiUrl(
+  process.env.STACKS_API_URL ?? 'https://api.hiro.so',
+);
 
 const API_KEY = process.env.HIRO_API_KEY ?? '';
 

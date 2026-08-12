@@ -1,0 +1,106 @@
+{
+  "signerKey": "0x023d6ecdc36fa1e1c6a9f116c7f13ae843001ed9d617f66f6c68cabf751bf82555",
+  "cycle": 142,
+  "members": [
+    {
+      "staker": "SP3VR0QZKCZ8XRCYMQMF2Z487AEDH0SQRZGXAP8T0",
+      "ustx": "304290507243",
+      "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
+    },
+    {
+      "staker": "SP37A7Q6NE3B33HA098QQQ80C0HXC73RDPZDA30WM",
+      "ustx": "259410000000",
+      "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
+    },
+    {
+      "staker": "SP13CM9QN6J23B6T6415SC0T8JQZ3YADPD1TJ27WZ",
+      "ustx": "220000000000",
+      "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
+    },
+    {
+      "staker": "SPQ2AZWJ7HQMA6BVNBNJEN5DKFYH8RZY4VR9C0PP",
+      "ustx": "165503782676",
+      "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
+    },
+    {
+      "staker": "SP3910KBW2WAXNDM5VXWGH0JR3JFD245YWM9BA5HE",
+      "ustx": "49970000000",
+      "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
+    },
+    {
+      "staker": "SP10Y2X7RMBZPDH64Y49KFDPG4WK3YY6QN7XE8KHD",
+      "ustx": "27906339373",
+      "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
+    },
+    {
+      "staker": "SP5J710KFE9V93HWMPEDEDM7SBX3T9VNAKJDKVM4",
+      "ustx": "25700000000",
+      "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
+    },
+    {
+      "staker": "SPQ2HN9TYF8ZYY9D3G45NGYA9GHA6QZHQ8AXF5QM",
+      "ustx": "25500000000",
+      "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
+    },
+    {
+      "staker": "SP3N7G67J6CTFX1MAETHYD7KBXKFEVX1PA32PW24W",
+      "ustx": "24535000000",
+      "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
+    },
+    {
+      "staker": "SP326H2T31PKEBR5VDPDG0FCHCGCBKFCN61Y5V8Z0",
+      "ustx": "20001000000",
+      "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
+    },
+    {
+      "staker": "SPWJ6W4173C5295EHCX5MBAZ3J6ZJ9P6YHETVHTJ",
+      "ustx": "18884467948",
+      "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
+    },
+    {
+      "staker": "SP3F2W2J9QPZPV3EWWEA09KWK61V6PTD006B911MG",
+      "ustx": "17471263603",
+      "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
+    },
+    {
+      "staker": "SP3M6ZWNNPKDZR12HD1CDM3QS0034H33H8TEK21AN",
+      "ustx": "10136000000",
+      "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
+    },
+    {
+      "staker": "SP1R17D8PRB38QABDFJHVECSMHNXZMNYG08PDK4NW",
+      "ustx": "10011000000",
+      "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
+    },
+    {
+      "staker": "SP1Y6ZAD2ZZFKNWN58V8EA42R3VRWFJSGWFAD9C36",
+      "ustx": "5200000000",
+      "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
+    },
+    {
+      "staker": "SP2PVS4V3A52AACGYE6S74RREDFP2AYTYHCTM0ZWW",
+      "ustx": "3300000000",
+      "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
+    },
+    {
+      "staker": "SP31SXJHBV3YN94HQX7NR7TV9RBM8NSNYAGXG9R6X",
+      "ustx": "3000000000",
+      "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
+    },
+    {
+      "staker": "SP2QADHYYW550P3Z57EWKE8WJWHWCARWQ7K2YSK0C",
+      "ustx": "2799000000",
+      "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
+    },
+    {
+      "staker": "SP39WR7DRCPK9AHRFC0YF96S43QMZ0S8XWQKTJP0X",
+      "ustx": "140000000",
+      "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
+    },
+    {
+      "staker": "SP232MNC98HCVS4N165GZEXSPKERR8H6ASRW3TCQN",
+      "ustx": "124800000",
+      "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
+    }
+  ]
+}

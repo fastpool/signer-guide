@@ -11,12 +11,15 @@ is what all of this being public is for.
 The 23 pools registered on pox-5 run only six distinct **signer contracts**
 between them, so the guide leads with those: one page per contract explaining
 what it does and which pools run it, then the full pool list with filters for
-what actually matters to you.
+what actually matters to you. Each pool has a page of its own as well — its
+signer key, the other contracts registered against that key, and what it held
+cycle by cycle with the members who held it.
 
 ```bash
 pnpm install
 pnpm generate:signers   # refresh src/data/signers.json from mainnet
 pnpm generate:totals    # refresh src/data/totals.json — what each pool holds
+pnpm generate:history   # refresh src/data/signers/ — cycles and members per signer
 pnpm dev
 
 pnpm members max500     # who stakes with a pool, and how much each of them has
@@ -266,8 +269,10 @@ read as zero for every pool, which tells a reader nothing.
 
 ### Who is in a pool
 
-The page shows what a pool holds, never who is in it. `pnpm members` answers
-that question on the command line, for anyone who wants it:
+Each pool's own page shows this — see
+[The page for one pool](#the-page-for-one-pool) below. `pnpm members` answers
+the same question on the command line, against the chain rather than against
+committed data, which is what to reach for when you want it now:
 
 ```bash
 pnpm members max500              # by name, contract id, or any part of either
@@ -350,11 +355,97 @@ the list holds it, since "which of these is missing it" is the question.
 The script writes nothing to disk. The list of addresses is yours, and where
 it lives is not a script's decision.
 
+## The page for one pool
+
+`#/signer/<contract-id>` is a page about one deployed signer contract, reached
+from a pool's name anywhere in the guide. It is a different page from
+`#/contract/<profile>`, and the difference is worth keeping straight: a
+**contract** is a piece of reviewed code that a dozen pools may share, and a
+**signer** is one deployment of it, with its own key, its own money and its own
+members. "Is this code safe" is the first page; "who am I actually staking
+with" is this one.
+
+Most of what is on it is about the signer rather than the contract, because a
+signer key can have several signer-manager contracts registered against it, and
+the stake behind the key, its weight and the slots it holds are decided on them
+together. Somebody looking at `.signer-manager-bd-contract` is looking at half a
+signer — its other half is `.signer-manager-blockdaemon-v1`, deployed by a
+different address, so nothing about the contract id hints that the two are one.
+The page names the siblings and links between them.
+
+### Making it affordable
+
+An amount is one call per contract per cycle. A member list is one call _per
+staker_, because pox-5 answers "who is this staker with" and not "who is with
+this signer" — so a signer with two thousand members costs two thousand calls
+for one cycle. Anonymously Hiro allows about fifty a minute. Walking every
+signer's every cycle every hour is not slow, it is impossible.
+
+Four things make it cheap, and they are the whole design of
+`scripts/generate-signer-history.ts`:
+
+- **A cycle that is behind us cannot move, so it is read once.** Stacking for a
+  cycle is locked in before the cycle begins, so only the cycle being filled is
+  really live. The generator still re-reads the current one — a cycle of
+  insurance against that reasoning, costing a few calls an hour, against
+  freezing a number that later moved. Everything strictly past is written once
+  and never asked about again. **In the steady state a run reads two cycles,
+  not forty.**
+- **A cheap number decides whether the expensive walk runs.** The amounts come
+  first. If a signer's total is exactly what it was last run, nobody joined,
+  nobody left and nobody changed their stake — so the member list on file still
+  stands and the walk is skipped entirely. Only a signer whose money actually
+  moved pays for its members, and most hours most signers do not.
+- **The unit is the signer key, not the contract.** Walking the signer once
+  rather than each of its contracts reads a staker who moved between two of them
+  once, and gets the arithmetic right as a side effect.
+- **A run can be given a budget.** `--budget N` caps the per-staker calls and
+  spends them on the signers checked longest ago, so an hourly run that cannot
+  afford everything still makes progress and comes back to the rest next time.
+  A signer that will not fit is left whole rather than half-walked — half a
+  member list is a list that does not add up, which is worse than no list. The
+  exception is a run that has spent nothing yet, so the largest signer can never
+  be starved by a budget smaller than it is.
+
+### Why none of it is bundled
+
+The rest of the guide ships as two committed files every reader downloads, which
+works because they are small and everybody wants all of them. History is
+neither, so it is split and fetched only when asked for:
+
+| file                                   | fetched when                |
+| -------------------------------------- | --------------------------- |
+| `src/data/signers/<slug>.json`         | a reader opens a pool       |
+| `src/data/signers/<slug>/<cycle>.json` | they open one of its cycles |
+
+A reader on the list page pays for neither, and that is nearly all of them. The
+slug is the signer key without its `0x`, or the contract id for a signer with no
+key on file — the two cannot collide, since a key is lower-case hex and a
+contract id starts with an upper-case address.
+
+A cycle nobody staked in gets no members file at all: `memberCount: 0` in the
+summary says everything an empty file would. `memberCount: null` is the
+different statement that nobody has walked it yet, and the page keeps the two
+apart rather than reporting one as the other.
+
+`membersAddUp` carries the same check `pnpm members` prints, so the page can
+say when a list is short instead of presenting it as everybody. Where it is
+true, the members in the file really do sum to what pox-5 says the signer holds
+— `signer-history.test.ts` proves that against the committed data.
+
+Because the page reads the published branch, a working copy shows the published
+history rather than one you have just generated. To see your own:
+
+```bash
+pnpm generate:history --only "fast pool"
+VITE_DATA_BASE_URL=/src/data pnpm dev
+```
+
 ## Refreshing
 
 ### Which node it asks
 
-Both generators take their endpoint from the environment, in `scripts/node.ts`:
+Every generator takes its endpoint from the environment, in `scripts/node.ts`:
 
 | variable                       | default               | meaning                                              |
 | ------------------------------ | --------------------- | ---------------------------------------------------- |
@@ -364,10 +455,18 @@ Both generators take their endpoint from the environment, in `scripts/node.ts`:
 
 ```bash
 STACKS_API_URL=http://localhost:3999 pnpm generate:signers   # your own node
+STACKS_API_URL=localhost:3999 pnpm generate:history          # http:// assumed
 HIRO_API_KEY=… pnpm generate:totals                          # or a key
 ```
 
-Both also decide **how fast to go** from that. Anonymous against Hiro the
+The scheme is filled in when it is left off, because `new URL('localhost:3999')`
+does not throw — it reads `localhost:` as the scheme and leaves no hostname —
+so the mistake used to survive every check and reach `fetch`, which failed with
+_unknown scheme_, which each caller here turned into "the node would not
+answer". A typo then read as an unresponsive chain. Anything that is still not
+http(s) after that is refused by name.
+
+They also decide **how fast to go** from that. Anonymous against Hiro the
 requests are 300ms apart, because the limit is roughly 50 a minute per IP and a
 refresh asks about every pool twice over. With a key, or against a node of your
 own, there is nothing to wait for and the gap drops to 50ms — a full signer
@@ -402,7 +501,16 @@ every registered signer from the chain, lay `src/data/signers-manual.json` over
 the result, write the file. Any pool whose canonical hash matches no profile is
 printed at the end — read its code, then add it to `src/lib/profiles.ts`.
 `pnpm generate:totals` then rewrites `src/data/totals.json` for exactly the
-pools that file lists.
+pools that file lists, and `pnpm generate:history` updates `src/data/signers/`
+for exactly the signers they make up — reading only what can still have moved,
+per [Making it affordable](#making-it-affordable). The hourly workflow gives
+that last one a `--budget`, so a run it cannot finish picks up where it left
+off rather than overrunning.
+
+Only the first of the three can fail the run. The amounts and the history are
+the softest things on the site, they keep their previous values rather than
+blanking, and losing an hour of either should not stop a fee change reaching
+the page.
 
 ### What a person decided, and where it lives
 

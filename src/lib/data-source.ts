@@ -21,7 +21,7 @@ import type { LockedTotals, SignerData } from './types';
  * build it is running against is discarded rather than shown.
  */
 
-const RAW_BASE =
+export const RAW_BASE =
   typeof import.meta.env.VITE_DATA_BASE_URL === 'string' &&
   import.meta.env.VITE_DATA_BASE_URL.length > 0
     ? import.meta.env.VITE_DATA_BASE_URL

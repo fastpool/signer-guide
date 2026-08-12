@@ -194,6 +194,40 @@ const messages = {
   'contract.bitcoinNone':
     'The contract never handles a Bitcoin address, so rewards arrive as sBTC on Stacks.',
 
+  'signerPage.back': '← All pools',
+  'signerPage.key': 'Signer key',
+  'signerPage.keyNone':
+    'We have no signer key on file for this pool, so we cannot tell whether it shares one with any other contract.',
+  'signerPage.sharedBy.one': 'One contract is registered against this key',
+  'signerPage.sharedBy.other':
+    '{count} contracts are registered against this key',
+  'signerPage.thisOne': '— this page',
+  'signerPage.sharedNote':
+    'These contracts are one signer. The stake behind the key, the weight it carries and the slots it holds are decided on all of them together, so what any one of them holds is a part of the whole rather than a pool of its own.',
+  'signerPage.cycles': 'Cycle by cycle',
+  'signerPage.cyclesIntro':
+    'What this pool held in each reward cycle, and who it was holding it for. Amounts come from pox-5; the members come from pox-5 too, asked one staker at a time.',
+  'signerPage.cycle': 'Cycle {cycle}',
+  'signerPage.filling': 'still filling',
+  'signerPage.ofSigner': 'of {total} across the signer',
+  'signerPage.memberCount.one': 'One member',
+  'signerPage.memberCount.other': '{count} members',
+  'signerPage.notCounted': 'Members not counted for this cycle yet',
+  'signerPage.showMembers': 'Show who was in it',
+  'signerPage.hideMembers': 'Hide',
+  'signerPage.shortList':
+    'This list is short: the members below do not add up to what the signer holds, so somebody staking here is missing from it.',
+  'signerPage.colStaker': 'Staker',
+  'signerPage.colAmount': 'Amount',
+  'signerPage.colShare': 'Share',
+  'signerPage.colContract': 'Contract',
+  'signerPage.showAll': 'Show all {count}',
+  'signerPage.loading': 'Reading …',
+  'signerPage.failed': 'That would not load. Try again in a moment.',
+  'signerPage.noHistory':
+    'No history has been built for this pool yet. The hourly refresh writes it a signer at a time, so check back later.',
+  'signerPage.noMembers': 'The list for this cycle is not on file.',
+
   'stake.open': 'Stake with wallet',
   'stake.title': 'Stake with {name}',
   'stake.close': 'Close',

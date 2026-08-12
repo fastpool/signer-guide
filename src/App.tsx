@@ -3,6 +3,7 @@ import ContractPage from './components/ContractPage';
 import Identicon from './components/Identicon';
 import LocaleSwitch from './components/LocaleSwitch';
 import SignerCard from './components/SignerCard';
+import SignerPage from './components/SignerPage';
 import UpdateBanner from './components/UpdateBanner';
 import { stxLabel, sumUstx } from './lib/amounts';
 import { useSnapshot } from './lib/data-source';
@@ -17,6 +18,7 @@ import { applyLocaleMetadata } from './lib/metadata';
 import { localizeProfile } from './lib/profile-i18n';
 import { PROFILES } from './lib/profiles';
 import { contractHref, useRoute } from './lib/route';
+import { groupForContract, signerSlug } from './lib/signer-groups';
 import { useServiceWorker } from './lib/service-worker';
 import { buildTemplates, templateFor } from './lib/templates';
 import type { SignerData } from './lib/types';
@@ -120,6 +122,30 @@ export default function App() {
     }
   }
 
+  if (route.name === 'signer') {
+    // A link to a pool that has since gone from the data falls through to the
+    // list rather than to an error: the pool is not there, and the list is
+    // what somebody who wanted it should be looking at.
+    const group = groupForContract(signerData.signers, route.contractId);
+    const signer = group?.contracts.find(
+      (contract) => contract.contractId === route.contractId,
+    );
+    if (group && signer) {
+      return (
+        <>
+          <SignerPage
+            signer={signer}
+            group={group}
+            slug={signerSlug(group)}
+            locale={locale}
+            onLocaleChange={setLocale}
+          />
+          <UpdateBanner update={update} locale={locale} />
+        </>
+      );
+    }
+  }
+
   const toggle = (id: FilterId) =>
     setActive((current) => {
       const next = new Set(current);
@@ -208,10 +234,7 @@ export default function App() {
                   className='flex h-full flex-col rounded-3xl bg-white p-5 shadow-[0_1px_3px_rgba(44,42,53,0.08)] transition-colors hover:bg-grape-soft'
                 >
                   <span className='flex items-center gap-2 text-lg font-bold'>
-                    <Identicon
-                      hash={template.identiconHash}
-                      locale={locale}
-                    />
+                    <Identicon hash={template.identiconHash} locale={locale} />
                     {profile.name}
                   </span>
                   <span className='text-sm text-muted'>

@@ -1,0 +1,11 @@
+{
+  "signerKey": "0x0309126df3691918f25f8872819bc8268e9e1e0d92d0494fa4fb9783589a1392fa",
+  "cycle": 141,
+  "members": [
+    {
+      "staker": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.stx-staker-foundry-v2",
+      "ustx": "11499999999999",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-foundry-v1"
+    }
+  ]
+}

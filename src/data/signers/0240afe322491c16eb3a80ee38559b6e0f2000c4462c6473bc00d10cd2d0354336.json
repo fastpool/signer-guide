@@ -1,0 +1,29 @@
+{
+  "signerKey": "0x0240afe322491c16eb3a80ee38559b6e0f2000c4462c6473bc00d10cd2d0354336",
+  "contractIds": [
+    "SP3KF99SM1T2V25NF2JZYAD1ZADC8326PH6HD7HF6.not-used"
+  ],
+  "cycles": [
+    {
+      "cycle": 142,
+      "ustx": {
+        "SP3KF99SM1T2V25NF2JZYAD1ZADC8326PH6HD7HF6.not-used": "0"
+      },
+      "memberCount": 0,
+      "membersAddUp": true,
+      "walks": 1,
+      "final": false
+    },
+    {
+      "cycle": 141,
+      "ustx": {
+        "SP3KF99SM1T2V25NF2JZYAD1ZADC8326PH6HD7HF6.not-used": "0"
+      },
+      "memberCount": 0,
+      "membersAddUp": true,
+      "walks": 1,
+      "final": false
+    }
+  ],
+  "generatedAt": "2026-08-12T19:36:01.704Z"
+}

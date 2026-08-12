@@ -1,0 +1,29 @@
+{
+  "signerKey": "0x0209130bec93e83b23d3366adfcbe0a1641057b9c48102572d892fe8f78de2bee7",
+  "contractIds": [
+    "SP30A7BPA23W9G3GR090ZRVE5AAJ2TCXH412ABYJH.signer-manager"
+  ],
+  "cycles": [
+    {
+      "cycle": 142,
+      "ustx": {
+        "SP30A7BPA23W9G3GR090ZRVE5AAJ2TCXH412ABYJH.signer-manager": "103276993000000"
+      },
+      "memberCount": 10,
+      "membersAddUp": true,
+      "walks": 1,
+      "final": false
+    },
+    {
+      "cycle": 141,
+      "ustx": {
+        "SP30A7BPA23W9G3GR090ZRVE5AAJ2TCXH412ABYJH.signer-manager": "115676993000000"
+      },
+      "memberCount": 14,
+      "membersAddUp": true,
+      "walks": 1,
+      "final": false
+    }
+  ],
+  "generatedAt": "2026-08-12T19:26:12.057Z"
+}

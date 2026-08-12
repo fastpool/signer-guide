@@ -1,0 +1,11 @@
+{
+  "signerKey": "0x038265445ac9fa77d96bf6f3eee74e287deb10aeef2f2e3f96581a6bb765de8240",
+  "cycle": 141,
+  "members": [
+    {
+      "staker": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.stx-staker-juicy-stake-v2",
+      "ustx": "11499999999999",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-juicy-stake-v1"
+    }
+  ]
+}

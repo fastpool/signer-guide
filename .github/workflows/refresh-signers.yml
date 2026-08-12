@@ -103,6 +103,30 @@ jobs:
           HIRO_API_KEY: ${{ secrets.HIRO_API_KEY }}
         run: pnpm generate:totals
 
+      - name: Read each signer's cycles, and who was in them
+        # The data behind the page for one pool: what its signer held each
+        # cycle and who held it. Much the most expensive thing here — a member
+        # list costs one chain call per staker — so the script is built around
+        # not paying for it twice. A cycle that is behind us is written once
+        # and never read again, and a live cycle whose total has not moved
+        # keeps the member list it already has. See the header of
+        # scripts/generate-signer-history.ts.
+        #
+        # The budget is what keeps this inside an hourly run. It caps the
+        # per-staker calls and spends them on the signers checked longest ago,
+        # so a run that cannot afford everything still makes progress and comes
+        # back to the rest next time. Raise it once HIRO_API_KEY is set: the
+        # pacing drops from 300ms a call to 50ms and the same hour buys six
+        # times as much.
+        #
+        # Allowed to fail, like the amounts above. History is the softest thing
+        # on the site — losing an hour of it should not stop a fee change
+        # reaching the page.
+        continue-on-error: true
+        env:
+          HIRO_API_KEY: ${{ secrets.HIRO_API_KEY }}
+        run: pnpm generate:history --budget 2000
+
       - name: Decide whether there is anything worth committing
         id: commit
         env:
@@ -117,12 +141,40 @@ jobs:
             amounts=true
           fi
 
-          if [ "$SIGNERS_CHANGED" != 'true' ] && [ "$amounts" != 'true' ]; then
-            echo 'Same pools, same fees, same amounts — nothing to commit.'
-            # Only the timestamp moved. Put it back so the tree is clean.
-            git checkout -- src/data/signers.json
+          # Every run rewrites `generatedAt` in each signer's summary, so those
+          # files are always dirty and asking `git diff` about them would
+          # commit on the timestamp alone — the thing the rest of this job
+          # exists to avoid. News is a cycle, an amount or a member list that
+          # moved, so the timestamps are held out of the comparison.
+          #
+          # Staged first because `git diff` says nothing about a file it has
+          # never seen, and a signer read for the first time is all new files
+          # — exactly the news worth committing.
+          git add -A src/data/signers/
+          if git diff --cached --unified=0 -- src/data/signers/ \
+              | grep -E '^[-+][^-+]' \
+              | grep -qvE '^[-+][[:space:]]*"generatedAt"'; then
+            history=true
+          else
+            history=false
+          fi
+
+          if [ "$SIGNERS_CHANGED" != 'true' ] && [ "$amounts" != 'true' ] \
+              && [ "$history" != 'true' ]; then
+            echo 'Same pools, same fees, same amounts, same members — nothing to commit.'
+            # Only timestamps moved. Put them back so the tree is clean. No
+            # untracked file can be in here: a new one would have added a line
+            # that is not a timestamp, and `history` would be true.
+            git reset -q -- src/data/signers/
+            git checkout -- src/data/signers.json src/data/signers/
             echo 'commit=false' >> "$GITHUB_OUTPUT"
             exit 0
+          fi
+
+          # The amounts or the history moved but the pools did not, so there is
+          # no description of the change to commit under.
+          if [ "$history" = 'true' ]; then
+            amounts=true
           fi
 
           # The amounts moved but nothing else did, so there is no description
@@ -151,7 +203,13 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          # `-A` for the history: it grows new files — a signer read for the
+          # first time, a cycle nobody had walked — and `git add` on the
+          # directory alone would leave a deleted member list staged as
+          # present. The step above has already staged it; this is the case
+          # where only the pools or the amounts moved.
           git add src/data/signers.json src/data/totals.json
+          git add -A src/data/signers/
           git commit --file "$RUNNER_TEMP/commit-message.txt"
           git push
 

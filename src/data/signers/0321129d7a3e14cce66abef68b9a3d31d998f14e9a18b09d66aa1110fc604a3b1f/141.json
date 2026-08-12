@@ -1,0 +1,11 @@
+{
+  "signerKey": "0x0321129d7a3e14cce66abef68b9a3d31d998f14e9a18b09d66aa1110fc604a3b1f",
+  "cycle": 141,
+  "members": [
+    {
+      "staker": "SP3573HMB9SPCTMT85YS85KEPYCX33E6MZGQ5QB2A",
+      "ustx": "4049000000000",
+      "contractId": "SPSK4ANDM659GCR4YD05496XMGDVF204RNDE69K.signer-manager-sol"
+    }
+  ]
+}

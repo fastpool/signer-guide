@@ -3,7 +3,7 @@ import { stxLabel } from '../lib/amounts';
 import { explorerUrl } from '../lib/explorer';
 import { SIP_IDENTICON_URL } from '../lib/identicon';
 import { translator, type Locale } from '../lib/i18n';
-import { contractHref } from '../lib/route';
+import { contractHref, signerHref } from '../lib/route';
 import { ellipsedAddr } from '../lib/strings';
 import type { Signer } from '../lib/types';
 import Badge, { feeLabel, noticeLabel } from './Badge';
@@ -36,7 +36,14 @@ export default function SignerCard({
             locale={locale}
             className='h-8 w-8'
           />
-          <PoolName signer={signer} locale={locale} />
+          {/* The name is the link to the pool's own page: it is what a reader
+              reaches for when they want to know more about this one. */}
+          <a
+            className='underline decoration-transparent underline-offset-4 transition-colors hover:decoration-grape'
+            href={signerHref(signer.contractId)}
+          >
+            <PoolName signer={signer} locale={locale} />
+          </a>
         </h3>
         <p className='font-mono text-xs text-muted'>
           {ellipsedAddr(addr)}.{name}

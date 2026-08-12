@@ -1,0 +1,11 @@
+{
+  "signerKey": "0x02bcfeb0fd2bafa20d865999467d5b9a00d4ef5e37fbaca27d45ee0dbaf13e0596",
+  "cycle": 141,
+  "members": [
+    {
+      "staker": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.stx-staker-stacking-dao-v2",
+      "ustx": "11499999999999",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-stacking-dao-v1"
+    }
+  ]
+}

@@ -57,26 +57,16 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Cl, cvToHex } from '@stacks/transactions';
-import { serializeUint } from '../src/lib/clarity.js';
+import {
+  groupBySignerKey,
+  type SignerGroup,
+} from '../src/lib/signer-groups.js';
 import type { Signer, SignerData } from '../src/lib/types.js';
 import { formatStx } from './format.js';
-import { getJson } from './hiro.js';
 import { fetchAmountDelegated } from './locked.js';
-import {
-  API_URL,
-  describeNode,
-  RETRY_DELAYS_MS,
-  sleep,
-  SPACING_MS,
-} from './node.js';
-import {
-  callReadOnly,
-  fetchCurrentCycle,
-  optionalTuple,
-  tuplePrincipal,
-  tupleUint,
-} from './pox5.js';
+import { walkSignerMembers, type Member } from './members.js';
+import { describeNode, sleep, SPACING_MS } from './node.js';
+import { fetchCurrentCycle } from './pox5.js';
 
 const SIGNERS = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -152,95 +142,6 @@ export function matchSigners(query: string, signers: Signer[]): Signer[] {
 }
 
 /**
- * What the node said about one staker, kept apart from what it means.
- *
- * `read: false` is "the node would not answer", which is not the same as an
- * answer of none — the first is a gap in this run, the second is a fact about
- * the staker, and reporting one as the other is how somebody ends up missing
- * from a list of who is owed rewards.
- */
-export type Reading<T> = { read: false } | { read: true; value: T | null };
-
-export interface CycleMembership {
-  signer: string;
-  ustx: bigint;
-}
-
-export type Position =
-  /** With one of this signer's contracts — which one is worth keeping. */
-  | { kind: 'member'; ustx: bigint; contract: string }
-  /** Staking this cycle, but with a signer that is not this one. */
-  | { kind: 'elsewhere'; signer: string; ustx: bigint }
-  /** Known to the index, with nothing in this cycle. */
-  | { kind: 'gone' }
-  | { kind: 'unknown' };
-
-/**
- * What one staker is to this signer.
- *
- * The chain answers with a signer-manager contract, and a signer may have
- * several: membership is of the group, so the contract named has to be one of
- * this signer's rather than the one whose index turned the staker up. A
- * staker who moved between two contracts of the same signer never left it.
- */
-export function classify(
-  reading: Reading<CycleMembership>,
-  contractIds: readonly string[],
-): Position {
-  if (!reading.read) return { kind: 'unknown' };
-  if (reading.value === null) return { kind: 'gone' };
-  if (contractIds.includes(reading.value.signer)) {
-    return {
-      kind: 'member',
-      ustx: reading.value.ustx,
-      contract: reading.value.signer,
-    };
-  }
-  return {
-    kind: 'elsewhere',
-    signer: reading.value.signer,
-    ustx: reading.value.ustx,
-  };
-}
-
-/** One signer key, and every contract registered against it. */
-export interface SignerGroup {
-  /** Null for a contract whose key is unknown, which groups with nothing. */
-  signerKey: string | null;
-  contracts: Signer[];
-}
-
-/**
- * The signers behind a list of pools.
- *
- * Contracts sharing a key are one signer. A contract with no key on file is
- * its own group rather than joining a "no key" pile: an unknown key is not
- * evidence of a shared one, and merging on it would invent a signer.
- */
-export function groupBySignerKey(signers: Signer[]): SignerGroup[] {
-  const groups: SignerGroup[] = [];
-  const byKey = new Map<string, SignerGroup>();
-
-  for (const signer of signers) {
-    const key = signer.signerKey;
-    if (!key) {
-      groups.push({ signerKey: null, contracts: [signer] });
-      continue;
-    }
-    const existing = byKey.get(key);
-    if (existing) {
-      existing.contracts.push(signer);
-      continue;
-    }
-    const group: SignerGroup = { signerKey: key, contracts: [signer] };
-    byKey.set(key, group);
-    groups.push(group);
-  }
-
-  return groups;
-}
-
-/**
  * The signers a query names — one contract brings its siblings with it.
  *
  * Naming a contract is how somebody asks about a pool, and the honest answer
@@ -274,98 +175,6 @@ export function contractLabel(contractId: string): string {
 // The parts that ask
 // ---------------------------------------------------------------------------
 
-export interface IndexedStaker {
-  staker: string;
-  types: string[];
-}
-
-interface IndexPage {
-  total?: number;
-  results?: IndexedStaker[];
-  cursor?: { next: string | null };
-}
-
-/**
- * Every staker the index has for this signer contract, following its cursor.
- *
- * `complete` is the part that matters. A page the index will not answer for
- * ends the walk, and what has been collected is still worth printing — but a
- * refused first page and a pool nobody stakes with both come back as an empty
- * list, and printing "0 members" for the first would be reporting a rate
- * limit as an empty pool. So the walk says whether it finished, and the
- * caller has to say which of the two it is looking at.
- */
-async function fetchIndexedStakers(contractId: string): Promise<{
-  stakers: IndexedStaker[];
-  total: number | null;
-  complete: boolean;
-}> {
-  const stakers: IndexedStaker[] = [];
-  let cursor: string | null = null;
-  let total: number | null = null;
-  const seen = new Set<string>();
-
-  do {
-    const url = new URL(
-      `${API_URL}/extended/v3/staking/signers/${contractId}/stakers`,
-    );
-    url.searchParams.set('limit', '100');
-    if (cursor) url.searchParams.set('cursor', cursor);
-
-    const page = (await getJson<IndexPage>(url.toString())).value;
-    if (!page) return { stakers, total, complete: false };
-
-    total = page.total ?? total;
-    for (const entry of page.results ?? []) {
-      if (seen.has(entry.staker)) continue;
-      seen.add(entry.staker);
-      stakers.push(entry);
-    }
-
-    cursor = page.cursor?.next ?? null;
-    // A cursor pointing at a page we have already walked would loop forever.
-    if (cursor && seen.has(cursor) && (page.results?.length ?? 0) === 0) break;
-    if (cursor) await sleep(SPACING_MS);
-  } while (cursor);
-
-  return { stakers, total, complete: true };
-}
-
-/** What pox-5 has for this staker in this cycle. */
-async function readMembership(
-  staker: string,
-  cycle: number,
-): Promise<Reading<CycleMembership>> {
-  let stakerArg: string;
-  try {
-    stakerArg = cvToHex(Cl.principal(staker));
-  } catch {
-    // Not a principal the chain could hold a position for. The index gave it
-    // to us, so say nothing rather than counting it as having left.
-    return { read: false };
-  }
-
-  const result = await callReadOnly('get-signer-cycle-membership', [
-    stakerArg,
-    `0x${serializeUint(cycle)}`,
-  ]);
-  if (result === null) return { read: false };
-
-  try {
-    const tuple = optionalTuple(result);
-    if (tuple === null) return { read: true, value: null };
-    return {
-      read: true,
-      value: {
-        signer: tuplePrincipal(tuple, 'signer'),
-        ustx: tupleUint(tuple, 'amount-ustx'),
-      },
-    };
-  } catch {
-    return { read: false };
-  }
-}
-
 /**
  * The cycle to ask about.
  *
@@ -390,19 +199,10 @@ async function chooseCycle(contractIds: string[]): Promise<number | null> {
   return current;
 }
 
-interface Member {
-  staker: string;
-  types: string[];
-  position: Position;
-}
-
-/** One contract of a signer, and what the two sources say about it. */
+/** One contract of a signer, and what pox-5 says it is holding. */
 interface ContractReport {
   contractId: string;
   displayName: string;
-  indexedTotal: number | null;
-  /** False when the index refused a page, so the member list is short. */
-  indexComplete: boolean;
   /** What pox-5 says this contract holds for the cycle, null if unreadable. */
   delegatedUstx: bigint | null;
 }
@@ -415,6 +215,10 @@ interface Report {
   cycle: number | null;
   /** Every staker of every contract, each counted once. */
   members: Member[];
+  /** False when an index refused a page, so the member list is short. */
+  indexComplete: boolean;
+  /** How many stakers the indexes claim between them; null when one would not say. */
+  indexedTotal: number | null;
   /** The contracts' amounts added up, or null when one would not read. */
   delegatedUstx: bigint | null;
 }
@@ -433,79 +237,27 @@ async function buildReport(
     return null;
   }
 
-  /*
-   * One walk per contract, into one list of people. A staker who moved from
-   * one of these contracts to another is in both indexes and is one member of
-   * this signer, so they are read once — and the types both indexes gave them
-   * are kept, since neither is wrong about how they staked.
-   */
-  const contracts: ContractReport[] = [];
-  const indexed = new Map<string, Set<string>>();
-
   /** The cycle to ask about, or null when this run asks nothing. */
   const asking = options.amounts ? (cycle as number) : null;
 
+  const { members, indexComplete, indexedTotal } = await walkSignerMembers(
+    contractIds,
+    asking,
+    (note) => console.error(`  ${note}`),
+  );
+
+  const contracts: ContractReport[] = [];
   for (const contract of group.contracts) {
-    const { stakers, total, complete } = await fetchIndexedStakers(
-      contract.contractId,
-    );
     contracts.push({
       contractId: contract.contractId,
       displayName: contract.displayName,
-      indexedTotal: total,
-      indexComplete: complete,
       delegatedUstx:
         asking === null
           ? null
           : await fetchAmountDelegated(contract.contractId, asking),
     });
-
-    for (const entry of stakers) {
-      const types = indexed.get(entry.staker);
-      if (types) for (const type of entry.types) types.add(type);
-      else indexed.set(entry.staker, new Set(entry.types));
-    }
     await sleep(SPACING_MS);
   }
-
-  const members: Member[] = [];
-  for (const [staker, types] of indexed) {
-    const position: Position =
-      asking === null
-        ? { kind: 'unknown' }
-        : classify(await readMembership(staker, asking), contractIds);
-    members.push({ staker, types: [...types], position });
-    if (options.amounts) await sleep(SPACING_MS);
-  }
-
-  // A staker the node refused after its own retries is usually the rate limit
-  // catching up with a long run, and one pass at the end clears it. Worth
-  // doing here rather than telling somebody to run the whole thing again: it
-  // is a handful of calls, and it is the difference between a total that adds
-  // up and a total that has to be explained.
-  const unread = members.filter((m) => m.position.kind === 'unknown');
-  if (options.amounts && unread.length) {
-    console.error(
-      `  ${unread.length} staker(s) went unread; asking again in a moment ...`,
-    );
-    await sleep(RETRY_DELAYS_MS[RETRY_DELAYS_MS.length - 1]);
-    for (const member of unread) {
-      member.position = classify(
-        await readMembership(member.staker, asking as number),
-        contractIds,
-      );
-      await sleep(SPACING_MS);
-    }
-  }
-
-  // Largest first: the question behind "who is in this pool" is usually who
-  // is most of it.
-  members.sort((a, b) => {
-    const left = a.position.kind === 'member' ? a.position.ustx : -1n;
-    const right = b.position.kind === 'member' ? b.position.ustx : -1n;
-    if (left === right) return a.staker.localeCompare(b.staker);
-    return right > left ? 1 : -1;
-  });
 
   // Null beats a total that is short by a contract nobody could read: the
   // check below it is only worth printing when both sides are whole.
@@ -517,6 +269,8 @@ async function buildReport(
     contracts,
     cycle,
     members,
+    indexComplete,
+    indexedTotal,
     delegatedUstx:
       options.amounts && readable
         ? contracts.reduce((sum, c) => sum + (c.delegatedUstx as bigint), 0n)
@@ -535,10 +289,7 @@ function printReport(report: Report, options: Options) {
     0n,
   );
 
-  const indexComplete = report.contracts.every((c) => c.indexComplete);
-  const indexedTotal = report.contracts.every((c) => c.indexedTotal !== null)
-    ? report.contracts.reduce((sum, c) => sum + (c.indexedTotal as number), 0)
-    : null;
+  const { indexComplete, indexedTotal } = report;
 
   console.log(`\n${report.name} — signer key ${report.signerKey ?? '—'}`);
   if (report.cycle !== null) console.log(`  cycle ${report.cycle}`);
@@ -706,11 +457,14 @@ function toJson(report: Report) {
     name: report.name,
     cycle: report.cycle,
     delegatedUstx: report.delegatedUstx?.toString() ?? null,
+    // Per signer, not per contract: the indexes are walked into one list of
+    // people, so how many they claim and whether they all answered are facts
+    // about the walk rather than about any one contract in it.
+    indexedTotal: report.indexedTotal,
+    indexComplete: report.indexComplete,
     contracts: report.contracts.map((contract) => ({
       contractId: contract.contractId,
       displayName: contract.displayName,
-      indexedTotal: contract.indexedTotal,
-      indexComplete: contract.indexComplete,
       delegatedUstx: contract.delegatedUstx?.toString() ?? null,
     })),
     members: report.members.map((member) => ({

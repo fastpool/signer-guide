@@ -1,0 +1,11 @@
+{
+  "signerKey": "0x03585c7041ce97cb01afc92b338f63d9f2afe737314126dd4594a7f16c7ab27a03",
+  "cycle": 141,
+  "members": [
+    {
+      "staker": "SM1ARMDQSX0FW0SVS69T67H5JG3ET8X75KHG8HQ2T",
+      "ustx": "9999999000000",
+      "contractId": "SP3DHX7ZHNTCE1WQHJH0T0HY9NNSVT4SWTY2FRCCT.hiro-contract"
+    }
+  ]
+}

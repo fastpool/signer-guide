@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "generate:signers": "tsx scripts/generate-signers.ts",
     "generate:totals": "tsx scripts/generate-totals.ts",
+    "generate:history": "tsx scripts/generate-signer-history.ts",
     "members": "tsx scripts/signer-members.ts",
     "addresses": "tsx scripts/address-report.ts",
     "test": "vitest run",

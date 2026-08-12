@@ -1,0 +1,16 @@
+{
+  "signerKey": "0x037e7c6b6d6b9840beb8dc23c2b25d0b8bc4047a001c8a19c0878a77bbd753780e",
+  "cycle": 141,
+  "members": [
+    {
+      "staker": "SP1ESKCMK8HENDR2QTFDJDDMCY1P34C98WN5RP3S3",
+      "ustx": "560270000000",
+      "contractId": "SPWJG9ZQT7VG8F3YS9TK0YN3VK34M76NYDZMTCWT.signer-manager"
+    },
+    {
+      "staker": "SP3DPVYZ9KFV852SK61FQFJ0ADCHFNKHGKP1EAV1W",
+      "ustx": "50970000000",
+      "contractId": "SPWJG9ZQT7VG8F3YS9TK0YN3VK34M76NYDZMTCWT.signer-manager"
+    }
+  ]
+}

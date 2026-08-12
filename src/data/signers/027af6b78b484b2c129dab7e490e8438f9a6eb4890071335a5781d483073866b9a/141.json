@@ -1,0 +1,11 @@
+{
+  "signerKey": "0x027af6b78b484b2c129dab7e490e8438f9a6eb4890071335a5781d483073866b9a",
+  "cycle": 141,
+  "members": [
+    {
+      "staker": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.stx-staker-hashkey-v2",
+      "ustx": "11499999999999",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-hashkey-v1"
+    }
+  ]
+}

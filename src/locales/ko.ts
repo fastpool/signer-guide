@@ -233,6 +233,39 @@ export const ko: LocaleBundle = {
     'contract.bitcoinNone':
       '컨트랙트가 비트코인 주소를 다루지 않으므로 보상은 Stacks의 sBTC로 지급됩니다.',
 
+    'signerPage.back': '← 전체 풀',
+    'signerPage.key': '서명자 키',
+    'signerPage.keyNone':
+      '이 풀의 서명자 키가 확인되지 않아, 다른 컨트랙트와 키를 공유하는지 알 수 없습니다.',
+    'signerPage.sharedBy.one': '이 키로 등록된 컨트랙트는 하나입니다',
+    'signerPage.sharedBy.other': '이 키로 등록된 컨트랙트는 {count}개입니다',
+    'signerPage.thisOne': '— 현재 페이지',
+    'signerPage.sharedNote':
+      '이 컨트랙트들은 하나의 서명자입니다. 키가 가진 스테이킹 물량과 가중치, 확보한 슬롯은 모두 함께 결정되므로, 어느 하나가 보유한 금액은 독립된 풀이 아니라 전체의 일부입니다.',
+    'signerPage.cycles': '사이클별 내역',
+    'signerPage.cyclesIntro':
+      '각 보상 사이클에서 이 풀이 보유한 금액과 그 참여자입니다. 금액은 pox-5에서 읽었고, 참여자 역시 pox-5에 한 명씩 물어 확인한 값입니다.',
+    'signerPage.cycle': '{cycle} 사이클',
+    'signerPage.filling': '아직 모집 중',
+    'signerPage.ofSigner': '(서명자 전체 {total} 중)',
+    'signerPage.memberCount.one': '참여자 1명',
+    'signerPage.memberCount.other': '참여자 {count}명',
+    'signerPage.notCounted': '이 사이클의 참여자는 아직 집계되지 않았습니다',
+    'signerPage.showMembers': '참여자 보기',
+    'signerPage.hideMembers': '숨기기',
+    'signerPage.shortList':
+      '이 목록은 불완전합니다. 아래 참여자의 합계가 서명자 보유 금액과 맞지 않으므로, 여기 스테이킹한 사람 중 일부가 빠져 있습니다.',
+    'signerPage.colStaker': '스테이커',
+    'signerPage.colAmount': '금액',
+    'signerPage.colShare': '비중',
+    'signerPage.colContract': '컨트랙트',
+    'signerPage.showAll': '{count}명 모두 보기',
+    'signerPage.loading': '불러오는 중 …',
+    'signerPage.failed': '불러오지 못했습니다. 잠시 후 다시 시도해 주세요.',
+    'signerPage.noHistory':
+      '이 풀의 내역은 아직 만들어지지 않았습니다. 매시간 갱신이 서명자별로 기록하므로 나중에 다시 확인해 주세요.',
+    'signerPage.noMembers': '이 사이클의 참여자 목록이 없습니다.',
+
     'stake.open': '지갑으로 스테이킹',
     'stake.title': '{name} 스테이킹',
     'stake.close': '닫기',

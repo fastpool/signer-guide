@@ -1,0 +1,29 @@
+{
+  "signerKey": "0x03bf03c1c517fc0ac40ee19d019145d1e14b36e108f3f44d2134bc458665f88c1a",
+  "contractIds": [
+    "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs"
+  ],
+  "cycles": [
+    {
+      "cycle": 142,
+      "ustx": {
+        "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs": "7999990000000"
+      },
+      "memberCount": 1,
+      "membersAddUp": true,
+      "walks": 1,
+      "final": false
+    },
+    {
+      "cycle": 141,
+      "ustx": {
+        "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs": "7999990000000"
+      },
+      "memberCount": 1,
+      "membersAddUp": true,
+      "walks": 1,
+      "final": false
+    }
+  ],
+  "generatedAt": "2026-08-12T19:26:14.127Z"
+}
