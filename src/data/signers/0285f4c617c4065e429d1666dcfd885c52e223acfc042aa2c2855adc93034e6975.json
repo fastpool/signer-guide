@@ -9,11 +9,11 @@
       "cycle": 142,
       "ustx": {
         "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-xverse-v1": "0",
-        "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-2": "11361740827532"
+        "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-2": "11400815827532"
       },
-      "memberCount": 348,
+      "memberCount": 352,
       "membersAddUp": true,
-      "walks": 10,
+      "walks": 11,
       "final": false
     },
     {
@@ -28,5 +28,5 @@
       "final": false
     }
   ],
-  "generatedAt": "2026-08-13T19:31:50.628Z"
+  "generatedAt": "2026-08-13T21:16:42.104Z"
 }
