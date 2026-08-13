@@ -7,11 +7,11 @@
     {
       "cycle": 142,
       "ustx": {
-        "SPEMC1B9BG0BNGMDVQE1SG2DY8X95ZS157N98P7N.signer-manager-stakin-1": "0"
+        "SPEMC1B9BG0BNGMDVQE1SG2DY8X95ZS157N98P7N.signer-manager-stakin-1": "1000000500110"
       },
-      "memberCount": 0,
+      "memberCount": 1,
       "membersAddUp": true,
-      "walks": 1,
+      "walks": 2,
       "final": false
     },
     {
@@ -25,5 +25,5 @@
       "final": false
     }
   ],
-  "generatedAt": "2026-08-13T15:19:13.821Z"
+  "generatedAt": "2026-08-13T17:17:22.821Z"
 }

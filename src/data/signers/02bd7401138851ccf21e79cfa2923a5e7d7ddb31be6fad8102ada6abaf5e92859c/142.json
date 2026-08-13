@@ -1,0 +1,11 @@
+{
+  "signerKey": "0x02bd7401138851ccf21e79cfa2923a5e7d7ddb31be6fad8102ada6abaf5e92859c",
+  "cycle": 142,
+  "members": [
+    {
+      "staker": "SM34N5NYPAAH6ATGM3VMZ264T75BWE2MFX6S39J5V",
+      "ustx": "1000000500110",
+      "contractId": "SPEMC1B9BG0BNGMDVQE1SG2DY8X95ZS157N98P7N.signer-manager-stakin-1"
+    }
+  ]
+}
