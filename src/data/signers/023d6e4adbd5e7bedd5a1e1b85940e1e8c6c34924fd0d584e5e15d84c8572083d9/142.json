@@ -643,12 +643,12 @@
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
     },
     {
-      "staker": "SP3JJTNRYGYAB263GK96GGRKG1124S3E8CB663WA0",
-      "ustx": "40000000",
+      "staker": "SP3P8PTK27866N94JZYFXCGNE7HMKRN88FTX777HM",
+      "ustx": "50000000",
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
     },
     {
-      "staker": "SP3P8PTK27866N94JZYFXCGNE7HMKRN88FTX777HM",
+      "staker": "SP3JJTNRYGYAB263GK96GGRKG1124S3E8CB663WA0",
       "ustx": "40000000",
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
     },

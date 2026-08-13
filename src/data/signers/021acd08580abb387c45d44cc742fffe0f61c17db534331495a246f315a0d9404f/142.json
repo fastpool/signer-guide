@@ -3,6 +3,11 @@
   "cycle": 142,
   "members": [
     {
+      "staker": "SP1XQNABEYV91J607JPJT9BCEWDE3ZJ169WY4D5Q4",
+      "ustx": "1099957000000",
+      "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1"
+    },
+    {
       "staker": "SP5RVSWW5V0QNXC32BR3JNHRHX0JJTGFE0AR5QFZ",
       "ustx": "1000000000000",
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1"
@@ -10,11 +15,6 @@
     {
       "staker": "SP1C0X1KX7EZFTJKYGR7HJ8YB4QVQHT4FDQNS2J1",
       "ustx": "950000000000",
-      "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1"
-    },
-    {
-      "staker": "SP1XQNABEYV91J607JPJT9BCEWDE3ZJ169WY4D5Q4",
-      "ustx": "740120000000",
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1"
     },
     {
