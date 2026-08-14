@@ -3,7 +3,6 @@ import {
   assetTotals,
   attentionFor,
   availableStx,
-  parseAddressList,
   parseArgs,
   resolveToken,
   stxTotal,
@@ -11,6 +10,7 @@ import {
   type Holdings,
   type Thresholds,
 } from './address-report.js';
+import { parseAddressList } from '../src/lib/principals.js';
 
 /*
  * What the report decides, with no node in it. `attentionFor` is the whole

@@ -176,6 +176,47 @@ describe('the page as a reader sees it', () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
+  it('offers a way to check your own addresses from the list page', () => {
+    const html = renderToStaticMarkup(<App />);
+    expect(html).toContain('Check an address');
+    expect(html).toContain('href="#/status"');
+  });
+
+  it('opens the status page with a box, asking the chain nothing', () => {
+    // The one page that reads an address a person typed. With none given there
+    // is nothing to read, and it must not go looking anyway.
+    const fetch = vi.fn();
+    vi.stubGlobal('fetch', fetch);
+    vi.stubGlobal('window', {
+      location: { hash: '#/status' },
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      scrollTo: () => {},
+    });
+    const html = renderToStaticMarkup(<App />);
+    expect(html).toContain('Where is my STX staked?');
+    expect(html).toContain('Stacks addresses');
+    expect(html).toContain('Up to 20');
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('takes addresses straight from a link, so one can be shared', () => {
+    vi.stubGlobal('window', {
+      location: {
+        hash: '#/status/SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR,SPN4Y5QPGQA8882ZXW90ADC2DHYXMSTN8VAR8C3X.ccd014-pox5-staking-mia',
+      },
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      scrollTo: () => {},
+    });
+    const html = renderToStaticMarkup(<App />);
+    expect(html).toContain('2 addresses');
+    // Both listed, and neither yet claimed to be staking nothing.
+    expect(html).toContain('SP2C2YF');
+    expect(html).toContain('ccd014-pox5-staking-mia');
+    expect(html).not.toContain('Not staking.');
+  });
+
   it('points a reader at the code behind every claim', () => {
     const html = renderToStaticMarkup(<App />);
     expect(html).toContain('https://github.com/fastpool/signer-guide');

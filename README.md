@@ -355,6 +355,48 @@ the committed roster is simply behind — so it is reported as that rather than 
 a destination, with a warning that the counts are off by however many there are.
 `--fresh` walks both cycles on the chain and settles it.
 
+### Where is my STX staked
+
+`#/status` is the one page in the guide that asks a node about something a
+reader typed. Everything else comes from the two committed files; this cannot,
+because the question is about an address nobody knew existed until it was
+pasted in.
+
+Addresses arrive two ways, and both end in the same place:
+
+```
+#/status                                       the box, empty
+#/status/SP2C2…                                one address
+#/status/SP2C2…,SPN4Y…ccd014-pox5-staking-mia  a whole list in one link
+```
+
+Contract principals work as well as wallets. The box takes a pasted list — one
+per line or comma-separated, up to 20 — and looking it up rewrites the hash, so
+what comes back is a link that can be sent to somebody else. It shares
+`parseAddressList` with `pnpm addresses`, so a file that works on the command
+line works in the box: quotes, trailing commas, `#` comments kept as names.
+
+It says what the staking dialog says, in the dialog's own words — the
+`stake.position.*` messages, which already describe a stake that exists. One
+vocabulary for one thing, rather than a second set of sentences drifting away
+from the first.
+
+Three answers are kept apart, for the reason they are kept apart everywhere
+else here:
+
+| what it shows       | means                                                        |
+| ------------------- | ------------------------------------------------------------ |
+| a position          | staking, with whom, how much, until which cycle, rewards where |
+| not staking         | pox-5 has no position — and if STX is locked anyway, it says so |
+| could not read      | the node would not answer; **never** shown as not staking     |
+
+Reads are paced. One address costs up to four requests — `get-staker-info`, a
+payout getter or two, then the balance — so twenty fired at once is eighty
+requests in a second, which earns a 429 for most of them and would report a
+page of people as staking nothing. They go in order, 350ms apart, and each row
+is filled in as it lands: a limit that bites late costs the last few rows
+rather than all of them.
+
 ### Which of my addresses needs attention
 
 The other direction: `pnpm addresses` takes a list of addresses and says which

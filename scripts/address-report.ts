@@ -43,6 +43,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Cl, cvToHex } from '@stacks/transactions';
+import { parseAddressList, type AddressEntry } from '../src/lib/principals.js';
 import type { Signer, SignerData } from '../src/lib/types.js';
 import {
   formatStx,
@@ -118,66 +119,6 @@ export function parseArgs(argv: string[]): Options {
     throw new Error('--min-token needs a --token to be a minimum of');
   }
   return options;
-}
-
-/** A principal, near enough: the API is the one that decides. */
-const PRINCIPAL = /^S[PM][0-9A-Z]{20,50}(\.[a-zA-Z]([a-zA-Z0-9]|[-_])*)?$/;
-
-export interface AddressEntry {
-  address: string;
-  /** What the list calls it, if it calls it anything. */
-  label: string | null;
-}
-
-/**
- * The addresses in a file, in the order they appear.
- *
- * Deliberately relaxed about what a line looks like, because the lists people
- * keep are not a format — they are whatever was to hand. A line pasted out of
- * a JSON array keeps its quotes and its trailing comma; a line typed by hand
- * has neither; both mean the same address and both are taken. `//` and `#`
- * start a comment, and `[` or `]` on its own is the array it was pasted from.
- *
- * What the comment says is kept as a label. Somebody who has written
- * `// Fast Pool Reserve` beside an address has already said what they call
- * it, and a report that made them match `SP2ZNPXG…` back up to that by eye
- * would be throwing away the most useful thing in their file.
- *
- * A line that is not an address is returned rather than dropped: a typo
- * silently skipped is an address nobody hears about again.
- */
-export function parseAddressList(text: string): {
-  entries: AddressEntry[];
-  rejected: string[];
-} {
-  const entries: AddressEntry[] = [];
-  const rejected: string[] = [];
-
-  for (const raw of text.split('\n')) {
-    const [body, ...rest] = raw.split(/\/\/|#/);
-    const comment = rest.join('#').trim();
-    const line = body.trim();
-    if (!line || line === '[' || line === ']') continue;
-
-    const [first] = line.split(/[\s,]+/).filter(Boolean);
-    const candidate = (first ?? '').replace(/^['"]|['"]$/g, '');
-    if (!PRINCIPAL.test(candidate.toUpperCase().split('.')[0])) {
-      rejected.push(raw.trim());
-      continue;
-    }
-
-    // Anything after the address on the line is a label too — a list written
-    // as `SP… treasury` says the same thing as one written with a comment.
-    const trailing = line
-      .slice(line.indexOf(first) + first.length)
-      .replace(/^[\s,]+/, '')
-      .trim();
-    entries.push({
-      address: candidate,
-      label: comment || trailing || null,
-    });
-  }
-  return { entries, rejected };
 }
 
 export interface Stake {

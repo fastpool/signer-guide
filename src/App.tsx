@@ -4,6 +4,7 @@ import Identicon from './components/Identicon';
 import LocaleSwitch from './components/LocaleSwitch';
 import SignerCard from './components/SignerCard';
 import SignerPage from './components/SignerPage';
+import StatusPage from './components/StatusPage';
 import UpdateBanner from './components/UpdateBanner';
 import { stxLabel, sumUstx } from './lib/amounts';
 import { useSnapshot } from './lib/data-source';
@@ -17,7 +18,7 @@ import {
 import { applyLocaleMetadata } from './lib/metadata';
 import { localizeProfile } from './lib/profile-i18n';
 import { PROFILES } from './lib/profiles';
-import { contractHref, useRoute } from './lib/route';
+import { contractHref, statusHref, useRoute } from './lib/route';
 import { groupForContract, signerSlug } from './lib/signer-groups';
 import { useServiceWorker } from './lib/service-worker';
 import { buildTemplates, templateFor } from './lib/templates';
@@ -120,6 +121,20 @@ export default function App() {
         </>
       );
     }
+  }
+
+  if (route.name === 'status') {
+    return (
+      <>
+        <StatusPage
+          principals={route.principals}
+          signers={signerData.signers}
+          locale={locale}
+          onLocaleChange={setLocale}
+        />
+        <UpdateBanner update={update} locale={locale} />
+      </>
+    );
   }
 
   if (route.name === 'signer') {
@@ -262,7 +277,7 @@ export default function App() {
         <span>{stale ? t('app.savedCopy') : t('app.refreshNote')}</span>
       </p>
 
-      <section className='mt-2'>
+      <section className='mt-2 flex flex-wrap gap-3'>
         <button
           type='button'
           onClick={() => window.open(NEWSLETTER_URL, '_blank')}
@@ -270,6 +285,14 @@ export default function App() {
         >
           {t('app.newsletter')}
         </button>
+        {/* The one question this guide could not answer until now: not which
+            pool to pick, but where your own STX already is. */}
+        <a
+          href={statusHref()}
+          className='rounded-full bg-white px-4 py-2 font-semibold text-ink shadow-[0_1px_3px_rgba(44,42,53,0.08)] transition-colors hover:bg-grape-soft'
+        >
+          {t('status.open')}
+        </a>
       </section>
 
       <section className='mt-12' aria-labelledby='filters-heading'>

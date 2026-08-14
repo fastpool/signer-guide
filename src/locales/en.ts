@@ -231,6 +231,43 @@ const messages = {
     'No history has been built for this pool yet. The hourly refresh writes it a signer at a time, so check back later.',
   'signerPage.noMembers': 'The list for this cycle is not on file.',
 
+  /*
+   * The status page. What it says about a stake that exists comes from
+   * `stake.position.*` above, which the staking dialog already shows for the
+   * same facts — one vocabulary for one thing. These are the page around it.
+   */
+  'status.back': '← All pools',
+  'status.heading': 'Where is my STX staked?',
+  'status.intro':
+    'Paste an address and see what it is staking, with whom, and until when. Nothing is sent anywhere — the addresses are read straight from the chain and never leave this page.',
+  'status.inputLabel': 'Stacks addresses',
+  'status.inputHint':
+    'One per line, or separated by commas. Up to {max}. Contract addresses work too, and anything after a # is kept as a name.',
+  'status.lookUp': 'Look them up',
+  'status.reading': 'Reading…',
+  'status.clear': 'Start again',
+  'status.tooMany':
+    'That is more than {max} addresses, so the last {dropped} were left out.',
+  'status.rejected.one': 'One line was not an address:',
+  'status.rejected.other': '{count} lines were not addresses:',
+  'status.resultsHeading.one': 'One address',
+  'status.resultsHeading.other': '{count} addresses',
+  'status.notStaking': 'Not staking.',
+  'status.lockedElsewhere':
+    'It has {amount} locked, but not through a pool this guide can read — so it is staking somewhere else rather than sitting idle.',
+  'status.unlocked': '{amount} is not locked.',
+  'status.unreadable':
+    'The node would not answer for this address, so we cannot say. That is not the same as it staking nothing — try again in a moment.',
+  'status.cyclesLeft.one': 'One cycle left',
+  'status.cyclesLeft.other': '{count} cycles left',
+  'status.endsThisCycle': 'Ends this cycle',
+  'status.ended': 'Already ended',
+  'status.unlocksAt': 'Unlocks in cycle {cycle}.',
+  'status.aboutPool': 'About {pool}',
+  'status.readNote':
+    'Read from the chain just now, one address at a time. Everything else in this guide comes from a file refreshed each hour; this cannot, because it is about addresses only you know.',
+  'status.open': 'Check an address',
+
   'stake.open': 'Stake with wallet',
   'stake.title': 'Stake with {name}',
   'stake.close': 'Close',

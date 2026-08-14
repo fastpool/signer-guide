@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { contractHref, parseHash, signerHref } from './route';
+import { contractHref, parseHash, signerHref, statusHref } from './route';
 
 /*
  * The hash is the one part of the page a stranger can hand somebody a link to,
@@ -9,6 +9,9 @@ import { contractHref, parseHash, signerHref } from './route';
 
 const MAX500 =
   'SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager';
+const ADDRESS = 'SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR';
+const STAKING_CONTRACT =
+  'SPN4Y5QPGQA8882ZXW90ADC2DHYXMSTN8VAR8C3X.ccd014-pox5-staking-mia';
 
 describe('parseHash', () => {
   it('reads the list for anything it does not recognise', () => {
@@ -63,6 +66,48 @@ describe('parseHash', () => {
     expect(parseHash('#/signer/%')).toEqual({ name: 'list' });
   });
 
+  it('reads the bare status route as the empty box', () => {
+    expect(parseHash('#/status')).toEqual({ name: 'status', principals: [] });
+    expect(parseHash('#/status/')).toEqual({ name: 'status', principals: [] });
+  });
+
+  it('reads one address, and a contract, out of the path', () => {
+    expect(parseHash(`#/status/${ADDRESS}`)).toEqual({
+      name: 'status',
+      principals: [ADDRESS],
+    });
+    expect(parseHash(`#/status/${STAKING_CONTRACT}`)).toEqual({
+      name: 'status',
+      principals: [STAKING_CONTRACT],
+    });
+  });
+
+  it('carries a whole list in one link', () => {
+    expect(parseHash(`#/status/${ADDRESS},${STAKING_CONTRACT}`)).toEqual({
+      name: 'status',
+      principals: [ADDRESS, STAKING_CONTRACT],
+    });
+  });
+
+  it('drops anything in the list that is not a principal', () => {
+    // These go into the path of a request, and a link handed to somebody is
+    // exactly where an unchecked string should not be trusted. Dropping the
+    // bad ones leaves a page that still works for the good ones.
+    expect(parseHash(`#/status/${ADDRESS},../../etc/passwd,%2e%2e`)).toEqual({
+      name: 'status',
+      principals: [ADDRESS],
+    });
+    expect(parseHash('#/status/nonsense')).toEqual({
+      name: 'status',
+      principals: [],
+    });
+  });
+
+  it('survives a status hash that is not valid percent-encoding', () => {
+    expect(() => parseHash('#/status/%')).not.toThrow();
+    expect(parseHash('#/status/%')).toEqual({ name: 'list' });
+  });
+
   it('round-trips the hrefs it hands out', () => {
     expect(parseHash(signerHref(MAX500))).toEqual({
       name: 'signer',
@@ -72,5 +117,10 @@ describe('parseHash', () => {
       name: 'contract',
       profileId: 'standard',
     });
+    expect(parseHash(statusHref([ADDRESS, STAKING_CONTRACT]))).toEqual({
+      name: 'status',
+      principals: [ADDRESS, STAKING_CONTRACT],
+    });
+    expect(parseHash(statusHref())).toEqual({ name: 'status', principals: [] });
   });
 });

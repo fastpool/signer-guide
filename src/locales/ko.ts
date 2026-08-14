@@ -267,6 +267,37 @@ export const ko: LocaleBundle = {
       '이 풀의 내역은 아직 만들어지지 않았습니다. 매시간 갱신이 서명자별로 기록하므로 나중에 다시 확인해 주세요.',
     'signerPage.noMembers': '이 사이클의 참여자 목록이 없습니다.',
 
+    'status.back': '← 전체 풀',
+    'status.heading': '내 STX는 어디에 스테이킹되어 있을까?',
+    'status.intro':
+      '주소를 붙여넣으면 무엇을, 어느 풀에, 언제까지 스테이킹했는지 확인할 수 있습니다. 주소는 이 페이지를 벗어나지 않으며 체인에서 직접 읽습니다.',
+    'status.inputLabel': 'Stacks 주소',
+    'status.inputHint':
+      '한 줄에 하나씩, 또는 쉼표로 구분해 최대 {max}개까지. 컨트랙트 주소도 가능하며 # 뒤의 내용은 이름으로 표시됩니다.',
+    'status.lookUp': '조회하기',
+    'status.reading': '읽는 중…',
+    'status.clear': '다시 시작',
+    'status.tooMany': '주소가 {max}개를 넘어 마지막 {dropped}개는 제외했습니다.',
+    'status.rejected.one': '주소가 아닌 줄이 1개 있습니다:',
+    'status.rejected.other': '주소가 아닌 줄이 {count}개 있습니다:',
+    'status.resultsHeading.one': '주소 1개',
+    'status.resultsHeading.other': '주소 {count}개',
+    'status.notStaking': '스테이킹하고 있지 않습니다.',
+    'status.lockedElsewhere':
+      '{amount}이 잠겨 있지만 이 가이드가 읽을 수 있는 풀은 아닙니다. 즉 놀고 있는 것이 아니라 다른 곳에 스테이킹되어 있습니다.',
+    'status.unlocked': '{amount}은 잠겨 있지 않습니다.',
+    'status.unreadable':
+      '노드가 이 주소에 대해 응답하지 않아 확인할 수 없습니다. 스테이킹이 없다는 뜻은 아니므로 잠시 후 다시 시도해 주세요.',
+    'status.cyclesLeft.one': '1사이클 남음',
+    'status.cyclesLeft.other': '{count}사이클 남음',
+    'status.endsThisCycle': '이번 사이클에 종료',
+    'status.ended': '이미 종료됨',
+    'status.unlocksAt': '{cycle} 사이클에 잠금이 해제됩니다.',
+    'status.aboutPool': '{pool} 자세히 보기',
+    'status.readNote':
+      '방금 체인에서 주소를 하나씩 읽었습니다. 이 가이드의 다른 정보는 매시간 갱신되는 파일에서 오지만, 이 페이지는 여러분만 아는 주소를 다루므로 그럴 수 없습니다.',
+    'status.open': '주소 조회',
+
     'stake.open': '지갑으로 스테이킹',
     'stake.title': '{name} 스테이킹',
     'stake.close': '닫기',
