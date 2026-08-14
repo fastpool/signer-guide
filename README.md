@@ -492,10 +492,20 @@ Four things make it cheap, and they are the whole design of
   and never asked about again. **In the steady state a run reads two cycles,
   not forty.**
 - **A cheap number decides whether the expensive walk runs.** The amounts come
-  first. If a signer's total is exactly what it was last run, nobody joined,
-  nobody left and nobody changed their stake — so the member list on file still
-  stands and the walk is skipped entirely. Only a signer whose money actually
-  moved pays for its members, and most hours most signers do not.
+  first. If a signer's total is what it was when its member list was made,
+  nobody joined, nobody left and nobody changed their stake — so the list still
+  stands and the walk is skipped entirely. The comparison is against
+  `walkedUstx`, the total as it stood at that walk, not against last run's
+  amounts: those are refreshed hourly whether or not the members are, so a
+  run-to-run comparison would notice a move once and then find the amounts
+  agreeing with each other for ever.
+- **A re-walk happens at most once a day.** The cycle being filled changes
+  constantly, so the rule above fires nearly every hour for the big signers —
+  the three Xverse ones are eleven hundred members between them, and re-reading
+  them hourly was the whole of a thirty-minute refresh. A member list for a
+  cycle that is still open is provisional anyway, so once a day is enough, and
+  the page prints when the list was made rather than implying it is current. In
+  the steady state a run walks nothing at all and takes about twenty seconds.
 - **The unit is the signer key, not the contract.** Walking the signer once
   rather than each of its contracts reads a staker who moved between two of them
   once, and gets the arithmetic right as a side effect.

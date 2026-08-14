@@ -252,6 +252,9 @@ export const ko: LocaleBundle = {
     'signerPage.memberCount.one': '참여자 1명',
     'signerPage.memberCount.other': '참여자 {count}명',
     'signerPage.notCounted': '이 사이클의 참여자는 아직 집계되지 않았습니다',
+    'signerPage.walkedAt': '· {at} 확인',
+    'signerPage.membersFresh':
+      '위 금액은 매시간 갱신됩니다. 누가 보유하는지는 스테이커 한 명당 한 번씩 조회해야 해서 더 느립니다. 사이클이 열려 있는 동안 목록은 하루에 한 번까지만 다시 만들어지므로 그만큼 늦을 수 있습니다.',
     'signerPage.showMembers': '참여자 보기',
     'signerPage.hideMembers': '숨기기',
     'signerPage.shortList':
@@ -277,7 +280,8 @@ export const ko: LocaleBundle = {
     'status.lookUp': '조회하기',
     'status.reading': '읽는 중…',
     'status.clear': '다시 시작',
-    'status.tooMany': '주소가 {max}개를 넘어 마지막 {dropped}개는 제외했습니다.',
+    'status.tooMany':
+      '주소가 {max}개를 넘어 마지막 {dropped}개는 제외했습니다.',
     'status.rejected.one': '주소가 아닌 줄이 1개 있습니다:',
     'status.rejected.other': '주소가 아닌 줄이 {count}개 있습니다:',
     'status.resultsHeading.one': '주소 1개',

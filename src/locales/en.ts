@@ -216,6 +216,11 @@ const messages = {
   'signerPage.memberCount.one': 'One member',
   'signerPage.memberCount.other': '{count} members',
   'signerPage.notCounted': 'Members not counted for this cycle yet',
+  // Beside the count, because a list for a cycle that is still open is a
+  // photograph rather than a fact — see signerPage.membersFresh.
+  'signerPage.walkedAt': '· checked {at}',
+  'signerPage.membersFresh':
+    'The amounts above are read every hour. Who holds them is a slower question — one call for every staker — so while a cycle is still open the list is rebuilt at most once a day, and can be that far behind.',
   'signerPage.showMembers': 'Show who was in it',
   'signerPage.hideMembers': 'Hide',
   'signerPage.shortList':

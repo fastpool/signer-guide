@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { stxLabel } from '../lib/amounts';
 import { explorerUrl } from '../lib/explorer';
-import { translator, type Locale } from '../lib/i18n';
+import { formatLastUpdate, translator, type Locale } from '../lib/i18n';
 import { contractHref, signerHref } from '../lib/route';
 import {
   cycleStanding,
@@ -299,6 +299,17 @@ function CycleSection({
                     {cycle.memberCount === null
                       ? t('signerPage.notCounted')
                       : t.plural('signerPage.memberCount', cycle.memberCount)}
+                    {/* When the list was made, which is the whole of how much
+                        to read into it: a cycle still open is rebuilt at most
+                        once a day, so this can be most of a day behind the
+                        amounts above it. */}
+                    {cycle.memberCount !== null && cycle.walkedAt && (
+                      <span className='ml-1'>
+                        {t('signerPage.walkedAt', {
+                          at: formatLastUpdate(cycle.walkedAt, locale),
+                        })}
+                      </span>
+                    )}
                   </span>
                   {cycle.memberCount !== null && cycle.memberCount > 0 && (
                     <button
@@ -316,6 +327,16 @@ function CycleSection({
                 {!cycle.membersAddUp && cycle.memberCount !== null && (
                   <p className='mt-2 text-sm text-amber-warm'>
                     {t('signerPage.shortList')}
+                  </p>
+                )}
+
+                {/* Only where it can actually be behind. A closed cycle is
+                    walked once and then never changes, so saying its list
+                    might be a day old would be worrying somebody about
+                    nothing. */}
+                {showing && !cycle.cycleFinal && cycle.walkedAt && (
+                  <p className='mt-3 text-xs text-muted'>
+                    {t('signerPage.membersFresh')}
                   </p>
                 )}
 

@@ -31,10 +31,22 @@
  *
  * 2. **A cheap number decides whether the expensive walk runs.** The amounts
  *    come first, and they are one call per contract. If a signer's total is
- *    exactly what it was last run, nobody joined, nobody left, and nobody
- *    changed what they staked — so the member list on file still stands and
- *    the walk is skipped entirely. Only a signer whose money actually moved
- *    pays for its members. Most hours, most signers do not.
+ *    what it was when its member list was made, nobody joined, nobody left and
+ *    nobody changed what they staked — so the list still stands and the walk is
+ *    skipped entirely. Only a signer whose money actually moved pays for its
+ *    members. Note *when its list was made*, not *last run*: the amounts are
+ *    refreshed hourly whether or not the members are, so a run-to-run
+ *    comparison would notice a move once, decline to act on it, and then find
+ *    the amounts agreeing with each other for ever. Hence `walkedUstx`.
+ *
+ * 2b. **A re-walk happens at most once a day.** The cycle being filled changes
+ *    constantly, so rule 2 fires nearly every hour for the big signers — the
+ *    three Xverse ones are eleven hundred members between them, and re-reading
+ *    them hourly was the whole of a thirty-minute refresh. A list for a cycle
+ *    that is still open is provisional anyway, so once a day is enough, and the
+ *    page says when it was last made rather than implying it is current. See
+ *    REWALK_AFTER_MS. In the steady state a run walks nothing at all and takes
+ *    about twenty seconds.
  *
  * 3. **The unit is the signer key, not the contract.** Four signers run more
  *    than one signer-manager contract, and a staker who moved between two of
@@ -205,17 +217,62 @@ export function membersWorthWalking(
   total: bigint | null,
   /** `fileFinal` — whether this record is done with, not whether the cycle is. */
   fileFinal: boolean,
+  now: number,
 ): boolean {
   // Never walked. Zero members is a fact and is recorded as 0; null is not.
   if (!onFile || onFile.memberCount === null) return true;
+
+  /*
+   * Everything from here is a *re*-walk, and that is the expensive case: the
+   * three Xverse signers alone are eleven hundred members, so an hourly
+   * re-walk of the cycle being filled was spending a thousand-odd chain calls
+   * to find that a handful of people had joined. Once a day is enough for a
+   * list that is provisional until the cycle closes anyway, and it is the
+   * difference between a refresh that takes half an hour and one that takes a
+   * minute.
+   *
+   * A missing `walkedAt` is a file written before this was recorded, and is
+   * read as long ago — the first run after this ships stamps one on.
+   */
+  if (!dayHasPassed(onFile.walkedAt, now)) return false;
+
   // A list that does not add up is short, and a retry is usually all it needs
   // — but not for ever, whatever the cycle.
-  if (!onFile.membersAddUp && (onFile.walks ?? 0) < MAX_WALKS) return true;
+  if (!onFile.membersAddUp) return (onFile.walks ?? 0) < MAX_WALKS;
+
   // Frozen, and as good as it is going to get.
   if (fileFinal) return false;
-  // Live: walk it only if the money moved. This is the saving.
-  const before = strictSum(onFile.ustx);
-  return before === null || total === null || before !== total;
+
+  /*
+   * Live: walk it only if the money has moved since the list was made — and
+   * against `walkedUstx`, the total as it stood at that walk, never against
+   * last run's `ustx`. The amounts are refreshed hourly whether or not the
+   * members are, so a run-to-run comparison would see the move once, decline
+   * to walk for want of a day, and then find the two amounts agreeing with
+   * each other for ever after. The list would never be rebuilt again.
+   */
+  if (onFile.walkedUstx === null || total === null) return true;
+  return onFile.walkedUstx !== total.toString();
+}
+
+/** How often a cycle that can still change is worth walking again. */
+export const REWALK_AFTER_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Whether a day has gone by since `walkedAt`.
+ *
+ * Unknown counts as yes. A timestamp we cannot read is not evidence that the
+ * list is fresh, and the cost of being wrong is one walk rather than a list
+ * that is never rebuilt.
+ */
+export function dayHasPassed(
+  walkedAt: string | null | undefined,
+  now: number,
+): boolean {
+  if (!walkedAt) return true;
+  const at = Date.parse(walkedAt);
+  if (Number.isNaN(at)) return true;
+  return now - at >= REWALK_AFTER_MS;
 }
 
 /**
@@ -317,6 +374,9 @@ async function updateGroup(
   currentCycle: number,
   options: Options,
   spend: Spend,
+  /** One timestamp for the whole run, so a walk's stamp does not depend on
+   *  how long the signers before it took. */
+  now: number,
 ): Promise<GroupResult> {
   const slug = signerSlug(group);
   const name = groupName(group);
@@ -387,6 +447,8 @@ async function updateGroup(
       memberCount: before?.memberCount ?? null,
       membersAddUp: before?.membersAddUp ?? false,
       walks: before?.walks ?? 0,
+      walkedAt: before?.walkedAt ?? null,
+      walkedUstx: before?.walkedUstx ?? null,
       fileFinal,
       cycleFinal,
     };
@@ -396,13 +458,17 @@ async function updateGroup(
      * ago may still never have been walked, and skipping it with them would
      * leave it without a member list for ever.
      */
-    if (membersWorthWalking(before, total, fileFinal)) {
+    if (membersWorthWalking(before, total, fileFinal, now)) {
       const walked = await walkCycle(group, slug, cycle, total, spend);
       if (walked === 'skipped') result.budgetBit = true;
       else {
         summary.memberCount = walked.memberCount;
         summary.membersAddUp = walked.membersAddUp;
         summary.walks = (before?.walks ?? 0) + 1;
+        // Stamped from the walk, not from the run: what the list is a
+        // photograph of, and when it was taken.
+        summary.walkedAt = new Date(now).toISOString();
+        summary.walkedUstx = total === null ? null : total.toString();
         result.walked += 1;
       }
     }
@@ -544,13 +610,14 @@ async function main() {
       `${options.budget === Number.POSITIVE_INFINITY ? '' : `, budget ${options.budget} staker read(s)`} ...`,
   );
 
+  const now = Date.now();
   const spend: Spend = { left: options.budget, spent: 0 };
   let walked = 0;
   let short = 0;
   let carriedForward = 0;
 
   for (const group of ordered) {
-    const result = await updateGroup(group, currentCycle, options, spend);
+    const result = await updateGroup(group, currentCycle, options, spend, now);
     walked += result.walked;
     carriedForward += result.carriedForward;
     if (result.budgetBit) short += 1;

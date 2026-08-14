@@ -171,6 +171,30 @@ export interface SignerCycleSummary {
    */
   walks: number;
   /**
+   * When the members were last walked, as an ISO timestamp.
+   *
+   * Shown to the reader, unlike the two flags below: a member list for a cycle
+   * that is still open is a photograph rather than a fact, and how old the
+   * photograph is decides how much to read into it. Also what the generator
+   * rates the once-a-day limit against — see REWALK_AFTER_MS.
+   *
+   * Null for a cycle nobody has walked, and absent in files written before
+   * this was recorded, which the page and the generator both read as "long
+   * enough ago that it is worth asking again".
+   */
+  walkedAt: string | null;
+  /**
+   * What the signer held at the moment the members were walked.
+   *
+   * The list is only as true as this number: while the two agree, nobody has
+   * joined, left or changed their stake since it was made. It cannot be
+   * inferred from `ustx`, which is refreshed every hour whether or not the
+   * members are — comparing this run's amounts against last run's would mean a
+   * move that happens while a walk is being held back is never noticed again,
+   * because the next run finds the amounts already agreeing with each other.
+   */
+  walkedUstx: string | null;
+  /**
    * True once **this record** is finished: the generator will not read the
    * cycle from the chain again.
    *

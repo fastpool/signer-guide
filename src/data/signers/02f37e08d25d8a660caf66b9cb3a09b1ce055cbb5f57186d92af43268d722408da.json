@@ -11,7 +11,9 @@
       },
       "memberCount": 364,
       "membersAddUp": true,
-      "walks": 25,
+      "walks": 26,
+      "walkedAt": "2026-08-14T21:38:57.325Z",
+      "walkedUstx": "11047125074619",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -22,11 +24,13 @@
       },
       "memberCount": 319,
       "membersAddUp": true,
-      "walks": 1,
+      "walks": 2,
+      "walkedAt": "2026-08-14T21:38:57.325Z",
+      "walkedUstx": "10486576751795",
       "fileFinal": false,
       "cycleFinal": true
     }
   ],
   "currentCycle": 141,
-  "generatedAt": "2026-08-14T20:58:44.313Z"
+  "generatedAt": "2026-08-14T21:44:07.878Z"
 }

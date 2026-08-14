@@ -3,8 +3,10 @@ import {
   amountOrKept,
   amountsSettled,
   byStaleness,
+  dayHasPassed,
   membersWorthWalking,
   parseArgs,
+  REWALK_AFTER_MS,
   strictSum,
 } from './generate-signer-history.js';
 import type { SignerGroup } from '../src/lib/signer-groups.js';
@@ -22,12 +24,18 @@ import type { Signer, SignerCycleSummary } from '../src/lib/types.js';
 const A = 'SP1.one';
 const B = 'SP1.two';
 
+const NOW = Date.parse('2026-08-15T12:00:00.000Z');
+const LONG_AGO = '2026-08-01T12:00:00.000Z';
+const AN_HOUR_AGO = '2026-08-15T11:00:00.000Z';
+
 const cycle = (over: Partial<SignerCycleSummary> = {}): SignerCycleSummary => ({
   cycle: 141,
   ustx: { [A]: '100' },
   memberCount: 3,
   membersAddUp: true,
   walks: 1,
+  walkedAt: LONG_AGO,
+  walkedUstx: '100',
   fileFinal: true,
   cycleFinal: true,
   ...over,
@@ -83,57 +91,76 @@ describe('amountsSettled', () => {
 });
 
 describe('membersWorthWalking', () => {
+  /** A live cycle whose list was made when the signer held `walkedUstx`. */
+  const live = (over = {}) =>
+    cycle({ cycle: 142, fileFinal: false, cycleFinal: false, ...over });
+
   it('walks a cycle nobody has walked', () => {
-    expect(membersWorthWalking(undefined, 100n, false)).toBe(true);
-    expect(membersWorthWalking(cycle({ memberCount: null }), 100n, true)).toBe(
-      true,
-    );
+    // The only case that ignores the once-a-day rule: there is nothing to
+    // wait for, and no list to be stale.
+    expect(membersWorthWalking(undefined, 100n, false, NOW)).toBe(true);
+    expect(
+      membersWorthWalking(cycle({ memberCount: null }), 100n, true, NOW),
+    ).toBe(true);
   });
 
   it('does not re-walk a cycle nobody staked in', () => {
     // Zero members is a fact and is recorded as 0. Reading it as "not walked"
-    // would walk every empty pool, every hour, for ever.
-    const empty = cycle({ memberCount: 0, ustx: { [A]: '0' } });
-    expect(membersWorthWalking(empty, 0n, false)).toBe(false);
+    // would walk every empty pool, every day, for ever.
+    const empty = live({ memberCount: 0, ustx: { [A]: '0' }, walkedUstx: '0' });
+    expect(membersWorthWalking(empty, 0n, false, NOW)).toBe(false);
   });
 
-  it('leaves a live cycle alone when its total has not moved', () => {
-    // The saving the whole script rests on. Same total means nobody joined,
-    // nobody left and nobody changed their stake, so the list still stands.
-    const onFile = cycle({
-      cycle: 142,
-      ustx: { [A]: '100' },
-      fileFinal: false,
-      cycleFinal: false,
+  it('leaves a live cycle alone when the money has not moved', () => {
+    // Same total as when the list was made: nobody joined, nobody left and
+    // nobody changed their stake, so the list still stands.
+    expect(
+      membersWorthWalking(live({ walkedUstx: '100' }), 100n, false, NOW),
+    ).toBe(false);
+  });
+
+  it('walks a live cycle whose money moved, once a day has passed', () => {
+    expect(
+      membersWorthWalking(live({ walkedUstx: '100' }), 101n, false, NOW),
+    ).toBe(true);
+  });
+
+  it('holds a moved live cycle back until a day has passed', () => {
+    // The saving this exists for. The three Xverse signers are eleven hundred
+    // members between them, and an hourly re-walk of the cycle being filled
+    // was the whole of a thirty-minute refresh.
+    const recent = live({ walkedUstx: '100', walkedAt: AN_HOUR_AGO });
+    expect(membersWorthWalking(recent, 101n, false, NOW)).toBe(false);
+  });
+
+  it('measures the day against the walk, not against the last run', () => {
+    /*
+     * The trap. `ustx` is refreshed every hour whether or not the members are,
+     * so a move noticed at one o'clock is baked into `ustx` by two — and a
+     * rule that compared this run's amounts against last run's would find them
+     * agreeing and never rebuild the list at all. The comparison is against
+     * `walkedUstx`, which only moves when a walk happens.
+     */
+    const held = live({
+      ustx: { [A]: '101' }, // this run's amount, already caught up
+      walkedUstx: '100', // what the signer held when the list was made
+      walkedAt: AN_HOUR_AGO,
     });
-    expect(membersWorthWalking(onFile, 100n, false)).toBe(false);
+    expect(membersWorthWalking(held, 101n, false, NOW)).toBe(false);
+    // A day later the same record still knows it is out of step.
+    const aDayOn = NOW + 25 * 60 * 60 * 1000;
+    expect(membersWorthWalking(held, 101n, false, aDayOn)).toBe(true);
   });
 
-  it('walks a live cycle whose total moved', () => {
-    const onFile = cycle({
-      cycle: 142,
-      ustx: { [A]: '100' },
-      fileFinal: false,
-      cycleFinal: false,
-    });
-    expect(membersWorthWalking(onFile, 101n, false)).toBe(true);
-  });
-
-  it('walks a live cycle when either total is unknown', () => {
+  it('walks when it cannot tell whether the money moved', () => {
     // An unreadable amount is not evidence that nothing changed, and treating
     // it as such would freeze a member list behind a failing call.
-    const unknown = cycle({
-      ustx: { [A]: null },
-      fileFinal: false,
-      cycleFinal: false,
-    });
-    expect(membersWorthWalking(unknown, 100n, false)).toBe(true);
-    const known = cycle({
-      ustx: { [A]: '100' },
-      fileFinal: false,
-      cycleFinal: false,
-    });
-    expect(membersWorthWalking(known, null, false)).toBe(true);
+    expect(
+      membersWorthWalking(live({ walkedUstx: '100' }), null, false, NOW),
+    ).toBe(true);
+    expect(
+      membersWorthWalking(live({ walkedUstx: null }), 100n, false, NOW),
+    ).toBe(true);
   });
 
   it('never walks a settled cycle again once its list adds up', () => {
@@ -142,23 +169,44 @@ describe('membersWorthWalking', () => {
       cycleFinal: true,
       membersAddUp: true,
     });
-    expect(membersWorthWalking(onFile, 999n, true)).toBe(false);
+    expect(membersWorthWalking(onFile, 999n, true, NOW)).toBe(false);
   });
 
-  it('retries a short list, but not for ever', () => {
+  it('retries a short list, but not for ever and not more than daily', () => {
     // A list that does not add up is usually a rate limit and worth another
     // go. It can also be a staker Hiro's index has never heard of, which no
-    // number of retries fixes — and a frozen cycle retried hourly is a bill
-    // that never stops.
+    // number of retries fixes — and a big signer retried hourly is the same
+    // bill this rule exists to stop.
+    const short = (walks: number, walkedAt = LONG_AGO) =>
+      cycle({ membersAddUp: false, walks, walkedAt });
+    expect(membersWorthWalking(short(1), 1n, true, NOW)).toBe(true);
+    expect(membersWorthWalking(short(2), 1n, true, NOW)).toBe(true);
+    expect(membersWorthWalking(short(3), 1n, true, NOW)).toBe(false);
+    expect(membersWorthWalking(short(1, AN_HOUR_AGO), 1n, true, NOW)).toBe(
+      false,
+    );
+  });
+});
+
+describe('dayHasPassed', () => {
+  it('waits a full day', () => {
+    expect(dayHasPassed(AN_HOUR_AGO, NOW)).toBe(false);
+    expect(dayHasPassed(LONG_AGO, NOW)).toBe(true);
     expect(
-      membersWorthWalking(cycle({ membersAddUp: false, walks: 1 }), 1n, true),
+      dayHasPassed(new Date(NOW - REWALK_AFTER_MS).toISOString(), NOW),
     ).toBe(true);
     expect(
-      membersWorthWalking(cycle({ membersAddUp: false, walks: 2 }), 1n, true),
-    ).toBe(true);
-    expect(
-      membersWorthWalking(cycle({ membersAddUp: false, walks: 3 }), 1n, true),
+      dayHasPassed(new Date(NOW - REWALK_AFTER_MS + 1000).toISOString(), NOW),
     ).toBe(false);
+  });
+
+  it('treats a stamp it cannot read as long ago', () => {
+    // A file written before this was recorded, or one somebody edited. Not
+    // knowing is not evidence the list is fresh, and the cost of being wrong
+    // is one walk rather than a list that is never rebuilt.
+    expect(dayHasPassed(null, NOW)).toBe(true);
+    expect(dayHasPassed(undefined, NOW)).toBe(true);
+    expect(dayHasPassed('not a date', NOW)).toBe(true);
   });
 });
 
@@ -194,9 +242,17 @@ describe('amountOrKept', () => {
     expect(strictSum(after)).toBe(strictSum(known));
     expect(
       membersWorthWalking(
-        cycle({ ustx: known, fileFinal: false, cycleFinal: false }),
+        // The list was made when the signer held exactly this, so a run that
+        // carries the amounts forward leaves it still matching.
+        cycle({
+          ustx: known,
+          walkedUstx: '123',
+          fileFinal: false,
+          cycleFinal: false,
+        }),
         strictSum(after),
         false,
+        NOW,
       ),
     ).toBe(false);
   });
