@@ -11,6 +11,7 @@
     "generate:totals": "tsx scripts/generate-totals.ts",
     "generate:history": "tsx scripts/generate-signer-history.ts",
     "members": "tsx scripts/signer-members.ts",
+    "movement": "tsx scripts/membership-movement.ts",
     "addresses": "tsx scripts/address-report.ts",
     "test": "vitest run",
     "check:pwa": "node scripts/pwa-check.mjs"

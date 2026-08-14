@@ -23,6 +23,7 @@ pnpm generate:history   # refresh src/data/signers/ — cycles and members per s
 pnpm dev
 
 pnpm members max500     # who stakes with a pool, and how much each of them has
+pnpm movement max500 141 142   # who joined and left between two cycles, and where they went
 pnpm addresses --file addresses.txt --token sbtc   # what a list of addresses holds
 ```
 
@@ -314,6 +315,45 @@ anything keyed on the key counts them together.
 Reading amounts costs one node call per indexed staker, paced like every other
 read here, so a large pool takes a minute anonymously. `--no-amounts` prints
 the index alone and asks the chain nothing.
+
+### What changed between two cycles
+
+`pnpm members` says who is in a pool now. `pnpm movement` says what moved, which
+is the question behind a member count that changed — 127 to 140 could be
+thirteen arrivals, or thirty arrivals and seventeen departures to a competitor,
+and those are not the same news.
+
+```bash
+pnpm movement max500 141 142
+pnpm movement "fast pool" --from 141 --to 142 --json
+pnpm movement max500 141 142 --fresh   # ignore the committed rosters
+```
+
+For every leaver it asks pox-5 where they stand in the later cycle, and keeps
+four answers apart, because collapsing them is how a rate limit gets reported as
+an exodus:
+
+| answer                    | means                                                                |
+| ------------------------- | -------------------------------------------------------------------- |
+| with another signer       | they moved, and it is named                                          |
+| stopped                   | no pox-5 position, and nothing locked either                         |
+| locked, no position       | their stake starts in a later cycle — not a leaver at all            |
+| the node would not say    | unknown, and never filed under any of the above                      |
+
+That third row is not a corner case. Stacking a few blocks after a cycle begins
+takes effect from the next one, so somebody who re-staked slightly late is
+absent from the cycle they meant to join and present in the one after. Counted
+as gone, they are a headline about people who never left.
+
+Joiners get the same treatment against the earlier cycle, so "new to stacking"
+and "taken from another pool" are told apart.
+
+Rosters come from `src/data/signers/<slug>/<cycle>.json` when the refresh has
+built them and from the chain when it has not, and which was used is printed. A
+mover the chain then places with **this** signer in both cycles never moved —
+the committed roster is simply behind — so it is reported as that rather than as
+a destination, with a warning that the counts are off by however many there are.
+`--fresh` walks both cycles on the chain and settles it.
 
 ### Which of my addresses needs attention
 
