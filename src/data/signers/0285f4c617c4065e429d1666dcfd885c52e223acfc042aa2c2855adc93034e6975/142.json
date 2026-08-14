@@ -843,6 +843,11 @@
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-2"
     },
     {
+      "staker": "SP32WPB7ZWMJBY8QGMKP50JYNC00RFGW11VKFSR4D",
+      "ustx": "4500000000",
+      "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-2"
+    },
+    {
       "staker": "SP3E9Z8DJRG417N0DJVXGA8R76D50RJ13ECTGBH9M",
       "ustx": "4490000000",
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-2"
