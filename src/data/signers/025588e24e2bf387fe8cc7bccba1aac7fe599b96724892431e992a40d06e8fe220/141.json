@@ -647,5 +647,6 @@
       "ustx": "480000",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     }
-  ]
+  ],
+  "final": true
 }

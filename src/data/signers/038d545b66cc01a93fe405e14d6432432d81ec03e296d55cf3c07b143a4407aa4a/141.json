@@ -152,5 +152,6 @@
       "ustx": "100975859",
       "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
     }
-  ]
+  ],
+  "final": true
 }

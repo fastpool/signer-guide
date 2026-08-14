@@ -72,5 +72,6 @@
       "ustx": "2150000000000",
       "contractId": "SP30A7BPA23W9G3GR090ZRVE5AAJ2TCXH412ABYJH.signer-manager"
     }
-  ]
+  ],
+  "final": true
 }
