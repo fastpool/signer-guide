@@ -367,12 +367,30 @@ Addresses arrive two ways, and both end in the same place:
 ```
 #/status                                       the box, empty
 #/status/SP2C2…                                one address
-#/status/SP2C2…,SPN4Y…ccd014-pox5-staking-mia  a whole list in one link
+#/status/friedger.btc                          a BNS name
+#/status/friedger.btc,SP2C2…                   a whole list in one link
 ```
 
-Contract principals work as well as wallets. The box takes a pasted list — one
-per line or comma-separated, up to 20 — and looking it up rewrites the hash, so
-what comes back is a link that can be sent to somebody else. It shares
+Contract principals and BNS v2 names work as well as wallets. The box takes a
+pasted list — one per line or comma-separated, up to 20 — and looking it up
+rewrites the hash, so what comes back is a link that can be sent to somebody
+else.
+
+**Names are resolved against the BNS v2 registry itself**, with
+`can-resolve-name(namespace, name)` on
+`SP2QEZ06AGJ3RKJPBV14SY1V5BBFNAW33D96YPGZF.BNS-V2`, which answers with the
+owner or errors `u106` for a name nobody holds. An indexer would be quicker to
+reach for, but the page uses what comes back to look up somebody's stake — so a
+stale owner would report one person's position under another person's name,
+silently. The registry decides who owns a name, so the registry is what is
+asked.
+
+A name and a contract principal both have a dot in them, and telling them apart
+is a case rule: a Stacks address is upper-case c32 and a BNS name is lower
+case, so `SP2C2….my-contract` cannot be read as a name and `friedger.btc`
+cannot be read as a contract. Three answers are kept apart — resolved, nobody
+owns it, and the registry would not say — because a lapsed name and a rate
+limit are not the same news. It shares
 `parseAddressList` with `pnpm addresses`, so a file that works on the command
 line works in the box: quotes, trailing commas, `#` comments kept as names.
 

@@ -217,6 +217,25 @@ describe('the page as a reader sees it', () => {
     expect(html).not.toContain('Not staking.');
   });
 
+  it('takes a BNS name from the link and shows the name itself', () => {
+    // A name is what its owner recognises, so it leads the card — the address
+    // it resolves to is secondary, and arrives once the registry answers.
+    vi.stubGlobal('window', {
+      location: {
+        hash: '#/status/friedger.btc,SP2C2YFP12AJZB4MABJBAJ55XECVS7E4PMMZ89YZR',
+      },
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      scrollTo: () => {},
+    });
+    const html = renderToStaticMarkup(<App />);
+    expect(html).toContain('2 addresses');
+    expect(html).toContain('friedger.btc');
+    // Not yet resolved, and nothing claimed about it either way.
+    expect(html).not.toContain('Not staking.');
+    expect(html).not.toContain('Nobody owns this name');
+  });
+
   it('points a reader at the code behind every claim', () => {
     const html = renderToStaticMarkup(<App />);
     expect(html).toContain('https://github.com/fastpool/signer-guide');

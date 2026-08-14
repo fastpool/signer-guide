@@ -26,6 +26,40 @@ export function isPrincipal(value: string): boolean {
   return PRINCIPAL.test(candidate);
 }
 
+/**
+ * A BNS name: `label.namespace`, both lower case.
+ *
+ * The lengths are the BNS v2 registry's own — `(buff 48)` for the label and
+ * `(buff 20)` for the namespace — so anything longer is a string the contract
+ * could not be asked about rather than a name it would fail to find.
+ *
+ * Lower case is what keeps this from colliding with a contract principal,
+ * which is the other thing here with a dot in it: a Stacks address is
+ * upper-case c32, so `SP2C2….my-contract` cannot be read as a name and
+ * `friedger.btc` cannot be read as a contract.
+ *
+ * The test lives here rather than beside the resolver so that this file stays
+ * free of imports — `scripts/address-report.ts` reads it, and a node script
+ * cannot follow `@stacks/transactions` and `import.meta.env` in behind it.
+ */
+const BNS_NAME = /^[a-z0-9][a-z0-9\-_]{0,47}\.[a-z0-9][a-z0-9\-_]{0,19}$/;
+
+export function isBnsName(value: string): boolean {
+  return BNS_NAME.test(value);
+}
+
+/**
+ * Anything the status page can look up: an address, a contract on one, or a
+ * BNS name.
+ *
+ * Principal first, because it is the stricter pattern of the two. That the
+ * order cannot matter is the point of the case rule above; asking in this
+ * order makes it a property of the code rather than only of the alphabet.
+ */
+export function isLookupTarget(value: string): boolean {
+  return isPrincipal(value) || isBnsName(value);
+}
+
 /** How many addresses one look-up will take on. */
 export const MAX_ADDRESSES = 20;
 
@@ -77,7 +111,7 @@ export function parseAddressList(text: string): {
       .map((token) => token.replace(/^['"]|['"]$/g, ''));
     if (tokens.length === 0) continue;
 
-    const principals = tokens.filter(isPrincipal);
+    const principals = tokens.filter(isLookupTarget);
     if (principals.length === 0) {
       rejected.push(line);
       continue;
@@ -91,7 +125,7 @@ export function parseAddressList(text: string): {
 
     // One, and it has to be the first thing on the line — anything before it
     // is not a label, it is a line this cannot make sense of.
-    if (!isPrincipal(tokens[0])) {
+    if (!isLookupTarget(tokens[0])) {
       rejected.push(line);
       continue;
     }

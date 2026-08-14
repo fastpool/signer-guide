@@ -11,6 +11,7 @@ import {
 import { signerHref, statusHref } from '../lib/route';
 import { cyclesRemaining, fetchCycleState } from '../lib/staking';
 import {
+  pendingStatus,
   readAllStatuses,
   unlocksAtCycle,
   type AddressStatus,
@@ -76,13 +77,8 @@ export default function StatusPage({
     () =>
       asked.map(
         (entry) =>
-          answers.get(entry.address) ?? {
-            ...entry,
-            position: null,
-            unlockedUstx: null,
-            lockedUstx: null,
-            failed: false,
-          },
+          answers.get(entry.address) ??
+          pendingStatus(entry.address, entry.label),
       ),
     [asked, answers],
   );
@@ -107,7 +103,7 @@ export default function StatusPage({
       asked,
       (row) => {
         if (id !== readId.current) return;
-        setAnswers((current) => new Map(current).set(row.address, row));
+        setAnswers((current) => new Map(current).set(row.query, row));
       },
       controller.signal,
     ).finally(() => {
@@ -162,7 +158,7 @@ export default function StatusPage({
           onChange={(event) => setInput(event.target.value)}
           rows={4}
           spellCheck={false}
-          placeholder={'SP2C2…\nSP3VR…  # savings'}
+          placeholder={'friedger.btc\nSP2C2…\nSP3VR…  # savings'}
           className='mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-2 font-mono text-sm'
         />
         <div className='mt-3 flex flex-wrap items-center gap-3'>
@@ -213,7 +209,7 @@ export default function StatusPage({
           <ul className='mt-4 space-y-3'>
             {rows.map((row) => (
               <StatusCard
-                key={row.address}
+                key={row.query}
                 row={row}
                 signers={signers}
                 currentCycle={currentCycle}
@@ -252,6 +248,7 @@ function StatusCard({
    */
   const pending =
     !row.failed &&
+    !row.unregistered &&
     row.position === null &&
     row.unlockedUstx === null &&
     row.lockedUstx === null;
@@ -264,15 +261,29 @@ function StatusCard({
   return (
     <li className='rounded-3xl bg-white p-5 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
       <div className='flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1'>
-        <a
-          className='font-mono text-sm font-semibold break-all underline underline-offset-2'
-          href={explorerUrl(row.address)}
-          target='_blank'
-          rel='noreferrer'
-          title={row.address}
-        >
-          {ellipsedAddr(row.address, 18)}
-        </a>
+        {/* A name is the thing its owner recognises, so it leads and the
+            address it resolved to sits under it. Asked by address, there is
+            only ever the address. */}
+        <span className='flex flex-wrap items-baseline gap-x-2'>
+          {row.name && (
+            <span className='text-sm font-semibold text-ink'>{row.name}</span>
+          )}
+          {row.address === null ? (
+            <span className='font-mono text-xs text-muted'>{row.query}</span>
+          ) : (
+            <a
+              className={`font-mono break-all underline underline-offset-2 ${
+                row.name ? 'text-xs text-muted' : 'text-sm font-semibold'
+              }`}
+              href={explorerUrl(row.address)}
+              target='_blank'
+              rel='noreferrer'
+              title={row.address}
+            >
+              {ellipsedAddr(row.address, 18)}
+            </a>
+          )}
+        </span>
         {row.label && <span className='text-xs text-muted'>{row.label}</span>}
       </div>
 
@@ -280,27 +291,36 @@ function StatusCard({
         <p className='mt-2 text-sm text-muted'>{t('stake.checking')}</p>
       )}
 
+      {row.unregistered && (
+        <p className='mt-2 text-sm text-amber-warm'>
+          {t('status.unregistered')}
+        </p>
+      )}
+
       {row.failed && (
         <p className='mt-2 text-sm text-amber-warm'>{t('status.unreadable')}</p>
       )}
 
-      {!pending && !row.failed && row.position === null && (
-        <>
-          <p className='mt-2 text-sm font-semibold text-ink'>
-            {t('status.notStaking')}
-          </p>
-          {row.lockedUstx !== null && row.lockedUstx > 0n && (
-            // Locked, but pox-5 has no position for it — staking somewhere
-            // this page cannot see rather than idle, and the difference
-            // matters to whoever is deciding what to do about it.
-            <p className='mt-1 text-sm text-muted'>
-              {t('status.lockedElsewhere', {
-                amount: exactStxLabel(row.lockedUstx, locale),
-              })}
+      {!pending &&
+        !row.failed &&
+        !row.unregistered &&
+        row.position === null && (
+          <>
+            <p className='mt-2 text-sm font-semibold text-ink'>
+              {t('status.notStaking')}
             </p>
-          )}
-        </>
-      )}
+            {row.lockedUstx !== null && row.lockedUstx > 0n && (
+              // Locked, but pox-5 has no position for it — staking somewhere
+              // this page cannot see rather than idle, and the difference
+              // matters to whoever is deciding what to do about it.
+              <p className='mt-1 text-sm text-muted'>
+                {t('status.lockedElsewhere', {
+                  amount: exactStxLabel(row.lockedUstx, locale),
+                })}
+              </p>
+            )}
+          </>
+        )}
 
       {row.position && (
         <>

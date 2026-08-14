@@ -240,9 +240,9 @@ const messages = {
   'status.heading': 'Where is my STX staked?',
   'status.intro':
     'Paste an address and see what it is staking, with whom, and until when. Nothing is sent anywhere — the addresses are read straight from the chain and never leave this page.',
-  'status.inputLabel': 'Stacks addresses',
+  'status.inputLabel': 'Stacks addresses or BNS names',
   'status.inputHint':
-    'One per line, or separated by commas. Up to {max}. Contract addresses work too, and anything after a # is kept as a name.',
+    'One per line, or separated by commas. Up to {max}. BNS names like friedger.btc work, so do contract addresses, and anything after a # is kept as a label.',
   'status.lookUp': 'Look them up',
   'status.reading': 'Reading…',
   'status.clear': 'Start again',
@@ -256,6 +256,8 @@ const messages = {
   'status.lockedElsewhere':
     'It has {amount} locked, but not through a pool this guide can read — so it is staking somewhere else rather than sitting idle.',
   'status.unlocked': '{amount} is not locked.',
+  'status.unregistered':
+    'Nobody owns this name in the BNS v2 registry, so there is no address to look up. Check the spelling, or whether it has lapsed.',
   'status.unreadable':
     'The node would not answer for this address, so we cannot say. That is not the same as it staking nothing — try again in a moment.',
   'status.cyclesLeft.one': 'One cycle left',

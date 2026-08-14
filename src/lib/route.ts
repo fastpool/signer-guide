@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { isPrincipal } from './principals';
+import { isLookupTarget } from './principals';
 
 /**
  * Hash routing, so the whole guide stays a static file that can be dropped on
@@ -71,7 +71,7 @@ export function parseHash(hash: string): Route {
       const principals = listed
         .split(',')
         .map((value) => value.trim())
-        .filter(isPrincipal);
+        .filter(isLookupTarget);
       return { name: 'status', principals };
     }
   }

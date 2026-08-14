@@ -271,9 +271,9 @@ export const ko: LocaleBundle = {
     'status.heading': '내 STX는 어디에 스테이킹되어 있을까?',
     'status.intro':
       '주소를 붙여넣으면 무엇을, 어느 풀에, 언제까지 스테이킹했는지 확인할 수 있습니다. 주소는 이 페이지를 벗어나지 않으며 체인에서 직접 읽습니다.',
-    'status.inputLabel': 'Stacks 주소',
+    'status.inputLabel': 'Stacks 주소 또는 BNS 이름',
     'status.inputHint':
-      '한 줄에 하나씩, 또는 쉼표로 구분해 최대 {max}개까지. 컨트랙트 주소도 가능하며 # 뒤의 내용은 이름으로 표시됩니다.',
+      '한 줄에 하나씩, 또는 쉼표로 구분해 최대 {max}개까지. friedger.btc 같은 BNS 이름과 컨트랙트 주소도 가능하며 # 뒤의 내용은 라벨로 표시됩니다.',
     'status.lookUp': '조회하기',
     'status.reading': '읽는 중…',
     'status.clear': '다시 시작',
@@ -286,6 +286,8 @@ export const ko: LocaleBundle = {
     'status.lockedElsewhere':
       '{amount}이 잠겨 있지만 이 가이드가 읽을 수 있는 풀은 아닙니다. 즉 놀고 있는 것이 아니라 다른 곳에 스테이킹되어 있습니다.',
     'status.unlocked': '{amount}은 잠겨 있지 않습니다.',
+    'status.unregistered':
+      'BNS v2 레지스트리에 이 이름의 소유자가 없어 조회할 주소가 없습니다. 철자나 만료 여부를 확인해 주세요.',
     'status.unreadable':
       '노드가 이 주소에 대해 응답하지 않아 확인할 수 없습니다. 스테이킹이 없다는 뜻은 아니므로 잠시 후 다시 시도해 주세요.',
     'status.cyclesLeft.one': '1사이클 남음',

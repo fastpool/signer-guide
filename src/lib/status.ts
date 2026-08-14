@@ -19,6 +19,8 @@
  * which is a claim about somebody's money that a rate limit is no evidence for.
  */
 
+import { resolveBnsName } from './bns';
+import { isBnsName } from './principals';
 import { fetchStakedPosition, type StakedPosition } from './staking';
 
 const STACKS_API_URL =
@@ -31,7 +33,15 @@ const STACKS_API_URL =
 const SPACING_MS = 350;
 
 export interface AddressStatus {
-  address: string;
+  /** Exactly what was typed or linked: a principal or a BNS name. */
+  query: string;
+  /** The BNS name asked about, when the query was one. */
+  name: string | null;
+  /**
+   * The principal the row is really about. Null only for a name that did not
+   * resolve — there is nothing to look up then, and nothing to claim.
+   */
+  address: string | null;
   label: string | null;
   /** Null when this address is not staking; undefined never occurs. */
   position: StakedPosition | null;
@@ -39,15 +49,37 @@ export interface AddressStatus {
   unlockedUstx: bigint | null;
   /** uSTX the chain has locked, whoever it is locked with. */
   lockedUstx: bigint | null;
+  /** The registry answered, and nobody owns this name. */
+  unregistered: boolean;
   /**
    * True when the node would not answer about this address.
    *
    * Kept apart from `position: null` for the reason the rest of this repo
    * keeps unknown apart from none: one is "they are not staking" and the other
    * is "we could not find out", and printing the second as the first tells
-   * somebody their stake is gone.
+   * somebody their stake is gone. `unregistered` is kept apart from both for
+   * the same reason — a name nobody has registered is a third thing again.
    */
   failed: boolean;
+}
+
+/** A row before anything has been read, so the list can be drawn at once. */
+export function pendingStatus(
+  query: string,
+  label: string | null,
+): AddressStatus {
+  const name = isBnsName(query) ? query : null;
+  return {
+    query,
+    name,
+    address: name === null ? query : null,
+    label,
+    position: null,
+    unlockedUstx: null,
+    lockedUstx: null,
+    unregistered: false,
+    failed: false,
+  };
 }
 
 interface Balances {
@@ -83,18 +115,36 @@ async function fetchBalances(
 
 /** Everything one row of the page needs, or a row marked unreadable. */
 export async function readAddressStatus(
-  address: string,
+  query: string,
   label: string | null,
   signal?: AbortSignal,
 ): Promise<AddressStatus> {
-  const row: AddressStatus = {
-    address,
-    label,
-    position: null,
-    unlockedUstx: null,
-    lockedUstx: null,
-    failed: false,
-  };
+  const row = pendingStatus(query, label);
+
+  /*
+   * A name has to become an address before anything else can be asked. The
+   * three ways that can go are kept apart all the way to the screen: resolved,
+   * nobody owns it, or the registry would not say. Reading the last as the
+   * middle would tell somebody their name had lapsed.
+   */
+  if (row.name !== null) {
+    const resolved = await resolveBnsName(row.name, signal);
+    if (resolved.state === 'failed') {
+      row.failed = true;
+      return row;
+    }
+    if (resolved.state === 'unregistered') {
+      row.unregistered = true;
+      return row;
+    }
+    row.address = resolved.address;
+  }
+
+  const address = row.address;
+  if (address === null) {
+    row.failed = true;
+    return row;
+  }
 
   try {
     row.position = await fetchStakedPosition({ address });
@@ -130,6 +180,7 @@ export async function readAllStatuses(
 ): Promise<void> {
   for (const [index, entry] of entries.entries()) {
     if (signal?.aborted) return;
+    // `entry.address` is whatever was typed — a principal or a name.
     const row = await readAddressStatus(entry.address, entry.label, signal);
     if (signal?.aborted) return;
     onRow(row, index);
