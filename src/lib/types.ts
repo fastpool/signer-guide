@@ -114,6 +114,22 @@ export interface SignerHistory {
   contractIds: string[];
   /** Newest first, so the cycle a reader wants is the one they land on. */
   cycles: SignerCycleSummary[];
+  /**
+   * The cycle the chain was in when this was written.
+   *
+   * What each cycle *is* to a reader is a comparison against this and nothing
+   * else: the one above it is filling and can still be joined, this one is
+   * locked and earning now, the ones below are done. That is a different
+   * question from `SignerCycleSummary.final`, which is only about what the
+   * generator will bother to read again — see the note there.
+   *
+   * Optional because the page reads the published branch, so it will meet
+   * files written before this field existed. Absent means the standings cannot
+   * be worked out, which is a reason to leave the labels off — not a reason to
+   * throw away the amounts and member counts in the same file, and not a
+   * reason to guess. See `cycleStanding`.
+   */
+  currentCycle?: number;
   generatedAt: string;
 }
 
@@ -155,10 +171,29 @@ export interface SignerCycleSummary {
    */
   walks: number;
   /**
-   * True once the cycle is behind us and nothing in it can move again. Final
-   * cycles are written once and never read from the chain a second time.
+   * True once **this record** is finished: the generator will not read the
+   * cycle from the chain again.
+   *
+   * The generator's business, like `walks`, and not a statement about the
+   * cycle. Deliberately conservative — it stays false for the current cycle,
+   * which is almost certainly settled, as one cycle of insurance against that
+   * reasoning being wrong. `cycle < currentCycle`.
    */
-  final: boolean;
+  fileFinal: boolean;
+  /**
+   * True once **the cycle** is finished: nobody can join it any more.
+   *
+   * A fact about the chain rather than about our data, and the one the page
+   * speaks from. Stacking for a cycle is locked in before that cycle begins,
+   * so exactly one cycle is ever open — the next one. The cycle a reader is
+   * standing in is closed and earning, not filling. `cycle <= currentCycle`.
+   *
+   * The two flags differ for exactly one cycle, the current one, and that is
+   * the whole reason there are two: the record is still being re-read while
+   * the cycle itself is shut. Collapsing them is what once labelled the cycle
+   * a reader was in as one they could still join.
+   */
+  cycleFinal: boolean;
 }
 
 /** One cycle's members, as `src/data/signers/<slug>/<cycle>.json` holds it. */

@@ -14,7 +14,8 @@
       "memberCount": 1,
       "membersAddUp": true,
       "walks": 1,
-      "final": false
+      "fileFinal": false,
+      "cycleFinal": false
     },
     {
       "cycle": 141,
@@ -25,8 +26,10 @@
       "memberCount": 2,
       "membersAddUp": true,
       "walks": 1,
-      "final": false
+      "fileFinal": false,
+      "cycleFinal": true
     }
   ],
-  "generatedAt": "2026-08-14T12:10:31.770Z"
+  "currentCycle": 141,
+  "generatedAt": "2026-08-14T12:37:21.763Z"
 }

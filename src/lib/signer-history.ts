@@ -99,6 +99,13 @@ export function isSignerHistory(value: unknown): value is SignerHistory {
   const history = value as Partial<SignerHistory>;
   return (
     Array.isArray(history.contractIds) &&
+    // A number, or absent. A file written before this field existed still has
+    // every amount and member count it ever had, and rejecting the lot over a
+    // missing label would tell a reader "that would not load" — and to retry,
+    // which could never help — about data that loaded perfectly. What it costs
+    // is the standings, and `cycleStanding` reports those as unknown.
+    (history.currentCycle === undefined ||
+      typeof history.currentCycle === 'number') &&
     Array.isArray(history.cycles) &&
     history.cycles.every(
       (cycle) =>

@@ -28,7 +28,8 @@ const cycle = (over: Partial<SignerCycleSummary> = {}): SignerCycleSummary => ({
   memberCount: 3,
   membersAddUp: true,
   walks: 1,
-  final: true,
+  fileFinal: true,
+  cycleFinal: true,
   ...over,
 });
 
@@ -99,26 +100,48 @@ describe('membersWorthWalking', () => {
   it('leaves a live cycle alone when its total has not moved', () => {
     // The saving the whole script rests on. Same total means nobody joined,
     // nobody left and nobody changed their stake, so the list still stands.
-    const onFile = cycle({ cycle: 142, ustx: { [A]: '100' }, final: false });
+    const onFile = cycle({
+      cycle: 142,
+      ustx: { [A]: '100' },
+      fileFinal: false,
+      cycleFinal: false,
+    });
     expect(membersWorthWalking(onFile, 100n, false)).toBe(false);
   });
 
   it('walks a live cycle whose total moved', () => {
-    const onFile = cycle({ cycle: 142, ustx: { [A]: '100' }, final: false });
+    const onFile = cycle({
+      cycle: 142,
+      ustx: { [A]: '100' },
+      fileFinal: false,
+      cycleFinal: false,
+    });
     expect(membersWorthWalking(onFile, 101n, false)).toBe(true);
   });
 
   it('walks a live cycle when either total is unknown', () => {
     // An unreadable amount is not evidence that nothing changed, and treating
     // it as such would freeze a member list behind a failing call.
-    const unknown = cycle({ ustx: { [A]: null }, final: false });
+    const unknown = cycle({
+      ustx: { [A]: null },
+      fileFinal: false,
+      cycleFinal: false,
+    });
     expect(membersWorthWalking(unknown, 100n, false)).toBe(true);
-    const known = cycle({ ustx: { [A]: '100' }, final: false });
+    const known = cycle({
+      ustx: { [A]: '100' },
+      fileFinal: false,
+      cycleFinal: false,
+    });
     expect(membersWorthWalking(known, null, false)).toBe(true);
   });
 
   it('never walks a settled cycle again once its list adds up', () => {
-    const onFile = cycle({ final: true, membersAddUp: true });
+    const onFile = cycle({
+      fileFinal: true,
+      cycleFinal: true,
+      membersAddUp: true,
+    });
     expect(membersWorthWalking(onFile, 999n, true)).toBe(false);
   });
 
@@ -171,7 +194,7 @@ describe('amountOrKept', () => {
     expect(strictSum(after)).toBe(strictSum(known));
     expect(
       membersWorthWalking(
-        cycle({ ustx: known, final: false }),
+        cycle({ ustx: known, fileFinal: false, cycleFinal: false }),
         strictSum(after),
         false,
       ),

@@ -246,7 +246,8 @@ export const ko: LocaleBundle = {
     'signerPage.cyclesIntro':
       '각 보상 사이클에서 이 풀이 보유한 금액과 그 참여자입니다. 금액은 pox-5에서 읽었고, 참여자 역시 pox-5에 한 명씩 물어 확인한 값입니다.',
     'signerPage.cycle': '{cycle} 사이클',
-    'signerPage.filling': '아직 모집 중',
+    'signerPage.filling': '참여 가능',
+    'signerPage.active': '보상 진행 중',
     'signerPage.ofSigner': '(서명자 전체 {total} 중)',
     'signerPage.memberCount.one': '참여자 1명',
     'signerPage.memberCount.other': '참여자 {count}명',

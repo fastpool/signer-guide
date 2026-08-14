@@ -14,7 +14,7 @@
  * React and of `import.meta`, or `scripts/` can no longer import it.
  */
 
-import type { CycleMember, Signer } from './types';
+import type { CycleMember, Signer, SignerCycleSummary } from './types';
 
 /** One signer key, and every contract registered against it. */
 export interface SignerGroup {
@@ -77,6 +77,40 @@ export function groupForContract(
 export function signerSlug(group: SignerGroup): string {
   if (group.signerKey) return group.signerKey.replace(/^0x/, '');
   return group.contracts[0].contractId;
+}
+
+/**
+ * What a cycle is to a reader.
+ *
+ * Read off `cycleFinal` — the cycle's own state — never off `fileFinal`, which
+ * is only about whether the generator will look again. The two differ for the
+ * current cycle, and reading the wrong one labels the cycle somebody is
+ * standing in as one they can still join.
+ *
+ *   filling   nobody has closed it yet; the next cycle, still accepting stakers
+ *   active    closed, and the one earning right now
+ *   done      closed, and behind us
+ *   unknown   a file written before these flags existed
+ *
+ * `unknown` is why both arguments are optional. The page reads the published
+ * branch, so it meets older files, and the standings are the one thing in them
+ * that cannot be worked out. Every other number is still good, so the answer is
+ * to show the rest and say nothing about the standing — not to guess, and not
+ * to discard the file. Defaulting to `done` would quietly mark the cycle a
+ * reader could still join as finished.
+ */
+export type CycleStanding = 'filling' | 'active' | 'done' | 'unknown';
+
+export function cycleStanding(
+  cycle: Pick<SignerCycleSummary, 'cycle' | 'cycleFinal'>,
+  currentCycle: number | undefined,
+): CycleStanding {
+  if (typeof cycle.cycleFinal !== 'boolean') return 'unknown';
+  if (!cycle.cycleFinal) return 'filling';
+  // Closed. Which of the two closed states it is needs the current cycle, and
+  // without it "closed" is all we can honestly say.
+  if (typeof currentCycle !== 'number') return 'unknown';
+  return cycle.cycle === currentCycle ? 'active' : 'done';
 }
 
 /** Sum of the amounts we could read; contracts we could not are left out. */

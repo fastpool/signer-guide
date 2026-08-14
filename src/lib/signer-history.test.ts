@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { cycleStanding } from './signer-groups';
 import { isCycleMembers, isSignerHistory } from './signer-history';
 import type { SignerCycleMembers, SignerHistory } from './types';
 
@@ -102,6 +103,75 @@ describe('isCycleMembers', () => {
     for (const bad of [null, 42, {}, { cycle: 141 }, { members: [] }]) {
       expect(isCycleMembers(bad), JSON.stringify(bad)).toBe(false);
     }
+  });
+});
+
+describe('what the committed files say each cycle is', () => {
+  /*
+   * The bug this guards, twice over.
+   *
+   * The page once read `fileFinal` — whether the generator will look again —
+   * as though it said whether a cycle was still filling. It is false for the
+   * current cycle, so the cycle a reader was standing in was advertised as one
+   * they could still join, when stacking for it had locked in before it began.
+   *
+   * Run against the data actually committed rather than a fixture, because the
+   * failure was never in the arithmetic — it was in which flag the page
+   * believed, and only real files can show that.
+   */
+  const summaries = () =>
+    readdirSync(GENERATED)
+      .filter((f) => f.endsWith('.json'))
+      .map(
+        (f) =>
+          [f, JSON.parse(readFileSync(join(GENERATED, f), 'utf8'))] as [
+            string,
+            SignerHistory,
+          ],
+      );
+
+  it('never offers the current cycle as one to join', () => {
+    for (const [file, history] of summaries()) {
+      if (typeof history.currentCycle !== 'number') continue;
+      for (const cycle of history.cycles) {
+        if (cycle.cycle !== history.currentCycle) continue;
+        expect(cycleStanding(cycle, history.currentCycle), file).toBe('active');
+      }
+    }
+  });
+
+  it('offers exactly the next cycle, and only it', () => {
+    for (const [file, history] of summaries()) {
+      if (typeof history.currentCycle !== 'number') continue;
+      const open = history.cycles.filter(
+        (c) => cycleStanding(c, history.currentCycle) === 'filling',
+      );
+      expect(
+        open.map((c) => c.cycle),
+        file,
+      ).toEqual(
+        history.cycles
+          .filter((c) => c.cycle > (history.currentCycle as number))
+          .map((c) => c.cycle),
+      );
+    }
+  });
+
+  it('keeps the two flags apart on the cycle where they differ', () => {
+    // The current cycle is the only one that should carry a closed cycle and
+    // an unfinished record at once. If they ever agree everywhere, one of them
+    // has stopped earning its keep.
+    let differed = 0;
+    for (const [file, history] of summaries()) {
+      for (const cycle of history.cycles) {
+        if (cycle.fileFinal === cycle.cycleFinal) continue;
+        expect(cycle.cycle, file).toBe(history.currentCycle);
+        expect(cycle.fileFinal, file).toBe(false);
+        expect(cycle.cycleFinal, file).toBe(true);
+        differed += 1;
+      }
+    }
+    expect(differed).toBeGreaterThan(0);
   });
 });
 

@@ -203,7 +203,8 @@ export function amountOrKept(
 export function membersWorthWalking(
   onFile: SignerCycleSummary | undefined,
   total: bigint | null,
-  final: boolean,
+  /** `fileFinal` — whether this record is done with, not whether the cycle is. */
+  fileFinal: boolean,
 ): boolean {
   // Never walked. Zero members is a fact and is recorded as 0; null is not.
   if (!onFile || onFile.memberCount === null) return true;
@@ -211,7 +212,7 @@ export function membersWorthWalking(
   // — but not for ever, whatever the cycle.
   if (!onFile.membersAddUp && (onFile.walks ?? 0) < MAX_WALKS) return true;
   // Frozen, and as good as it is going to get.
-  if (final) return false;
+  if (fileFinal) return false;
   // Live: walk it only if the money moved. This is the saving.
   const before = strictSum(onFile.ustx);
   return before === null || total === null || before !== total;
@@ -338,15 +339,24 @@ async function updateGroup(
   for (let cycle = options.from; cycle <= currentCycle + 1; cycle += 1) {
     const before = onFile.get(cycle);
 
-    // Strictly past. The current cycle is almost certainly settled too, but
-    // one cycle of insurance is cheap and being wrong here freezes a number
-    // that later moved. See the note at the top.
-    const final = cycle < currentCycle;
+    /*
+     * The two flags, and they part company for exactly one cycle.
+     *
+     * `fileFinal` is whether this record is done with. Strictly past, because
+     * the current cycle is almost certainly settled but one cycle of insurance
+     * is cheap, and being wrong here freezes a number that later moved.
+     *
+     * `cycleFinal` is whether the cycle itself is shut. Stacking for a cycle is
+     * locked in before that cycle begins, so the current one takes no more
+     * stakers — it is earning, not filling. Only the next cycle is open.
+     */
+    const fileFinal = cycle < currentCycle;
+    const cycleFinal = cycle <= currentCycle;
 
     /*
      * The amounts. A past cycle with a complete set of answers on file keeps
      * them and costs nothing — this is the saving that makes the whole thing
-     * affordable, and it is why `final` is the conservative one above.
+     * affordable, and it is why `fileFinal` is the conservative one above.
      */
     let ustx: Record<string, string | null>;
     if (amountsSettled(before, contractIds, currentCycle)) {
@@ -357,7 +367,7 @@ async function updateGroup(
         // A past cycle already answered for keeps its answer rather than
         // spending a call to be told the same thing.
         const known = before?.ustx[contractId];
-        if (final && typeof known === 'string') {
+        if (fileFinal && typeof known === 'string') {
           ustx[contractId] = known;
           continue;
         }
@@ -377,7 +387,8 @@ async function updateGroup(
       memberCount: before?.memberCount ?? null,
       membersAddUp: before?.membersAddUp ?? false,
       walks: before?.walks ?? 0,
-      final,
+      fileFinal,
+      cycleFinal,
     };
 
     /*
@@ -385,7 +396,7 @@ async function updateGroup(
      * ago may still never have been walked, and skipping it with them would
      * leave it without a member list for ever.
      */
-    if (membersWorthWalking(before, total, final)) {
+    if (membersWorthWalking(before, total, fileFinal)) {
       const walked = await walkCycle(group, slug, cycle, total, spend);
       if (walked === 'skipped') result.budgetBit = true;
       else {
@@ -404,6 +415,9 @@ async function updateGroup(
     contractIds,
     // Newest first, so the cycle a reader wants is the one they land on.
     cycles: cycles.reverse(),
+    // Recorded rather than left for the page to infer. `cycleFinal` says a
+    // cycle is shut; which of the shut ones is earning right now needs this.
+    currentCycle,
     generatedAt: new Date().toISOString(),
   };
   writeJson(summaryPath(slug), history);

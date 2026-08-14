@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import realData from '../data/signers.json';
 import {
+  cycleStanding,
   groupBySignerKey,
   groupForContract,
   shareBips,
@@ -94,6 +95,42 @@ describe('signerSlug', () => {
     )) {
       expect(slug, slug).toMatch(/^[A-Za-z0-9.-]+$/);
     }
+  });
+});
+
+describe('cycleStanding', () => {
+  const at = (cycle: number, cycleFinal: boolean) => ({ cycle, cycleFinal });
+
+  it('calls only the cycle nobody has closed yet open to join', () => {
+    // Stacking for a cycle locks in before it begins, so exactly one is ever
+    // joinable — the next one.
+    expect(cycleStanding(at(142, false), 141)).toBe('filling');
+  });
+
+  it('does not call the cycle a reader is standing in a joinable one', () => {
+    // The bug this exists to stop. `fileFinal` is false for the current cycle
+    // because the generator still re-reads it, and a page that read that flag
+    // told a reader they could join a cycle that closed before it started.
+    expect(cycleStanding(at(141, true), 141)).toBe('active');
+  });
+
+  it('calls a closed cycle behind us done', () => {
+    expect(cycleStanding(at(140, true), 141)).toBe('done');
+  });
+
+  it('trusts the cycle flag over the current cycle for openness', () => {
+    // `cycleFinal` is the chain's own statement and is enough on its own to
+    // say a cycle is still open — no arithmetic against a possibly stale
+    // currentCycle can take that away.
+    expect(cycleStanding(at(142, false), undefined)).toBe('filling');
+  });
+
+  it('says it does not know rather than guessing done', () => {
+    // A file written before these flags existed. Reading a missing flag as a
+    // comparison would mark every cycle done, including one still open.
+    expect(cycleStanding({ cycle: 142 } as never, 141)).toBe('unknown');
+    // Closed, but with no current cycle there is no telling which closed one.
+    expect(cycleStanding(at(141, true), undefined)).toBe('unknown');
   });
 });
 

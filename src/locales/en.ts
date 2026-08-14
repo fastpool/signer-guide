@@ -208,7 +208,10 @@ const messages = {
   'signerPage.cyclesIntro':
     'What this pool held in each reward cycle, and who it was holding it for. Amounts come from pox-5; the members come from pox-5 too, asked one staker at a time.',
   'signerPage.cycle': 'Cycle {cycle}',
-  'signerPage.filling': 'still filling',
+  // The next cycle is the only one anyone can still join, and the only one
+  // this may be said of: stacking for a cycle locks in before it starts.
+  'signerPage.filling': 'open to join',
+  'signerPage.active': 'earning now',
   'signerPage.ofSigner': 'of {total} across the signer',
   'signerPage.memberCount.one': 'One member',
   'signerPage.memberCount.other': '{count} members',

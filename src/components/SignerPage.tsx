@@ -4,6 +4,7 @@ import { explorerUrl } from '../lib/explorer';
 import { translator, type Locale } from '../lib/i18n';
 import { contractHref, signerHref } from '../lib/route';
 import {
+  cycleStanding,
   shareBips,
   sumCycleUstx,
   type SignerGroup,
@@ -258,6 +259,7 @@ function CycleSection({
             const total = sumCycleUstx(cycle.ustx);
             const mine = cycle.ustx[signer.contractId];
             const showing = open === cycle.cycle;
+            const standing = cycleStanding(cycle, history.value.currentCycle);
 
             return (
               <li
@@ -267,8 +269,14 @@ function CycleSection({
                 <div className='flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2'>
                   <span className='flex items-baseline gap-2 text-lg font-bold'>
                     {t('signerPage.cycle', { cycle: cycle.cycle })}
-                    {!cycle.final && (
-                      <Badge tone='neutral'>{t('signerPage.filling')}</Badge>
+                    {/* From `cycleFinal`, never `fileFinal`: one is whether
+                        the cycle is shut, the other only whether the
+                        generator will look again. See cycleStanding. */}
+                    {standing === 'filling' && (
+                      <Badge tone='good'>{t('signerPage.filling')}</Badge>
+                    )}
+                    {standing === 'active' && (
+                      <Badge tone='neutral'>{t('signerPage.active')}</Badge>
                     )}
                   </span>
                   <span className='text-sm'>

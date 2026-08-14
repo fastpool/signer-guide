@@ -468,6 +468,33 @@ summary says everything an empty file would. `memberCount: null` is the
 different statement that nobody has walked it yet, and the page keeps the two
 apart rather than reporting one as the other.
 
+### Two kinds of final
+
+Each cycle in a summary carries two flags, and they are not the same claim:
+
+| flag         | means                                              | true when              |
+| ------------ | -------------------------------------------------- | ---------------------- |
+| `fileFinal`  | this record is done with; never read again         | `cycle < currentCycle` |
+| `cycleFinal` | the cycle itself is shut; nobody can join it        | `cycle <= currentCycle` |
+
+They differ for exactly one cycle — the current one — and that is why there are
+two. Stacking for a cycle locks in before that cycle begins, so the cycle a
+reader is standing in takes no more stakers: it is earning, not filling. The
+record for it is still re-read each run all the same, as one cycle of insurance
+against that reasoning being wrong.
+
+Collapsing them is a bug this repo has already shipped once. The page read
+`fileFinal` — false for the current cycle, because the generator still looks —
+and rendered "still filling" on the cycle a reader was in, inviting them to join
+something that had closed before it started. The page now speaks from
+`cycleFinal` alone, `SignerHistory.currentCycle` separates the two closed states
+(earning now, versus done), and `signer-history.test.ts` asserts against the
+committed data that the current cycle is never offered as one to join.
+
+Both are optional as far as the page is concerned: a file written before they
+existed reports its standings as unknown and shows no badge, rather than
+guessing or being thrown away whole.
+
 `membersAddUp` carries the same check `pnpm members` prints, so the page can
 say when a list is short instead of presenting it as everybody. Where it is
 true, the members in the file really do sum to what pox-5 says the signer holds
