@@ -408,6 +408,11 @@
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
     },
     {
+      "staker": "SP1R17D8PRB38QABDFJHVECSMHNXZMNYG08PDK4NW",
+      "ustx": "10011000000",
+      "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
+    },
+    {
       "staker": "SP07WAMJS8ATD0Y9JZMSMXKGNC7TBHJ3D16DZMAV",
       "ustx": "10000000000",
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
@@ -523,8 +528,18 @@
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
     },
     {
+      "staker": "SP26Q8NEJDEXVBF2AHR8R6KH5G4NB2JTWMFBNRHM8",
+      "ustx": "2844132341",
+      "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
+    },
+    {
       "staker": "SPHTZ4DDG06923WRXKHRSZ6DMQMJ911AJ0N8WT83",
       "ustx": "2500804638",
+      "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
+    },
+    {
+      "staker": "SP3RKSP32S9VCHBK1W6TFEVNTRH70K6V9P61K6N43",
+      "ustx": "2150000000",
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
     },
     {
@@ -540,6 +555,16 @@
     {
       "staker": "SP29K40XKYX85CHXJ5Z02WR73FE44RY0GP5SP9G4G",
       "ustx": "1605000000",
+      "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
+    },
+    {
+      "staker": "SP1EM8VHSYHQJ83229R9ZQCB18A2Q26CH77FTVR03",
+      "ustx": "1535000000",
+      "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
+    },
+    {
+      "staker": "SP2XAK2W9G7HERE8F59KW6S0VZDSYQVZ4R1ME46R",
+      "ustx": "1260053782",
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
     },
     {
@@ -650,6 +675,11 @@
     {
       "staker": "SP1Z494NDBJ75NCTE177ME3VTM5G5JKSQ61SQB923",
       "ustx": "275723689",
+      "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
+    },
+    {
+      "staker": "SP1VHVWM8VPRKXQF5DP049ZJWEHK46QMZPX4Q7GX1",
+      "ustx": "241670280",
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
     },
     {
