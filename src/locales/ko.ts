@@ -110,8 +110,10 @@ export const ko: LocaleBundle = {
     'app.stxOnlyEstimate.bondShare': '본드 보유자 예상 보상 몫',
     'app.stxOnlyEstimate.foundationShare': '재단 몫 (15%)',
     'app.stxOnlyEstimate.stxOnlySoFar': '현재까지 STX 전용 예상 보상',
+    'app.stxOnlyEstimate.progressLabel': '사이클 진행도',
     'app.stxOnlyEstimate.progress':
       '이번 분배 사이클 {total}블록 중 {now}블록 기준으로 환산',
+    'app.stxOnlyEstimate.projectedLabel': '한 사이클 전체 예상치',
     'app.stxOnlyEstimate.projected': '한 사이클 전체 예상치: {amount}',
     'app.stxOnlyEstimate.stxOnlyStaked': 'STX 전용 참여자의 스테이킹 총량',
     'app.stxOnlyEstimate.rate': '예상 보상 비율',
@@ -148,6 +150,7 @@ export const ko: LocaleBundle = {
     'app.stxOnlyEstimate.back': '← 전체 풀',
     'app.stxOnlyEstimate.note':
       '참고용 예상치입니다. pox-5 실시간 잔액과 현재 사이클 진행도에 따라 달라집니다.',
+    'app.stxOnlyEstimate.generatedAt': '생성 시각: {at}',
     'app.allPools': '전체 풀',
     'app.whatMatters': '어떤 기준이 중요한가요?',
     'app.showingAll': '전체 {total}개 풀 표시 중',

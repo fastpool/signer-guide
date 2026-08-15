@@ -75,8 +75,10 @@ const messages = {
   'app.stxOnlyEstimate.bondShare': 'Estimated bond-holder rewards share',
   'app.stxOnlyEstimate.foundationShare': 'Foundation share (15%)',
   'app.stxOnlyEstimate.stxOnlySoFar': 'Estimated STX-only rewards so far',
+  'app.stxOnlyEstimate.progressLabel': 'Cycle progress',
   'app.stxOnlyEstimate.progress':
     'Projected from {now}/{total} blocks in this distribution cycle',
+  'app.stxOnlyEstimate.projectedLabel': 'Projected full-cycle amount',
   'app.stxOnlyEstimate.projected': 'Projected full-cycle amount: {amount}',
   'app.stxOnlyEstimate.stxOnlyStaked': 'STX staked by STX-only holders',
   'app.stxOnlyEstimate.rate': 'Estimated reward rate',
@@ -113,6 +115,7 @@ const messages = {
   'app.stxOnlyEstimate.back': '← All pools',
   'app.stxOnlyEstimate.note':
     'Estimate only. It depends on the live pox-5 balance and current cycle progress.',
+  'app.stxOnlyEstimate.generatedAt': 'Generated at: {at}',
   'app.allPools': 'All pools',
   'app.whatMatters': 'What matters to you?',
   'app.showingAll': 'Showing all {total} pools',

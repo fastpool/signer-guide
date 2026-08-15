@@ -178,7 +178,7 @@ export default function StxOnlyRewardsEstimate({
       className={
         showFull
           ? 'mt-10 rounded-3xl bg-white p-6 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'
-          : 'mt-10'
+          : ''
       }
     >
       {showFull && (
@@ -255,9 +255,15 @@ export default function StxOnlyRewardsEstimate({
               </p>
 
               <div className='mt-3 rounded-3xl bg-white p-5 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
-                <p className='text-sm font-semibold text-ink'>
-                  {t('app.stxOnlyEstimate.untilNextRewards')}
-                </p>
+                <div className='flex items-baseline justify-between gap-3'>
+                  <p className='text-sm font-semibold text-ink'>
+                    {t('app.stxOnlyEstimate.untilNextRewards')}
+                  </p>
+                  <p className='text-xs font-semibold text-muted'>
+                    {estimate.blocksIntoCycle.toLocaleString(t.bundle.intlLocale)}/
+                    {cycleBlocks.toLocaleString(t.bundle.intlLocale)}
+                  </p>
+                </div>
                 <div className='mt-2 h-2 w-full overflow-hidden rounded-full bg-grape-soft'>
                   <div
                     role='progressbar'
@@ -315,20 +321,20 @@ export default function StxOnlyRewardsEstimate({
             </dd>
           </div>
           <div className='flex flex-wrap items-baseline justify-between gap-3'>
-            <dt className='text-muted'>{t('app.stxOnlyEstimate.progress')}</dt>
+            <dt className='text-muted'>
+              {t('app.stxOnlyEstimate.progressLabel')}
+            </dt>
             <dd className='font-semibold text-ink'>
-              {t('app.stxOnlyEstimate.progress', {
-                now: estimate.blocksIntoCycle.toLocaleString(t.bundle.intlLocale),
-                total: cycleBlocks.toLocaleString(t.bundle.intlLocale),
-              })}
+              {estimate.blocksIntoCycle.toLocaleString(t.bundle.intlLocale)}/
+              {cycleBlocks.toLocaleString(t.bundle.intlLocale)}
             </dd>
           </div>
           <div className='flex flex-wrap items-baseline justify-between gap-3'>
-            <dt className='text-muted'>{t('app.stxOnlyEstimate.projected')}</dt>
+            <dt className='text-muted'>
+              {t('app.stxOnlyEstimate.projectedLabel')}
+            </dt>
             <dd className='font-semibold text-ink'>
-              {t('app.stxOnlyEstimate.projected', {
-                amount: formatSbtc(estimate.projectedCycleSats, locale),
-              })}
+              {formatSbtc(estimate.projectedCycleSats, locale)}
             </dd>
           </div>
           <div className='flex flex-wrap items-baseline justify-between gap-3'>
@@ -337,6 +343,7 @@ export default function StxOnlyRewardsEstimate({
               {exactStxLabel(estimate.stxOnlyStakedUstx, locale)}
             </dd>
           </div>
+          <div aria-hidden='true' className='border-t border-grape-soft' />
           <div className='flex flex-wrap items-baseline justify-between gap-3'>
             <dt className='text-muted'>{t('app.stxOnlyEstimate.rate')}</dt>
             <dd className='font-semibold text-ink'>
@@ -380,7 +387,16 @@ export default function StxOnlyRewardsEstimate({
       )}
 
       {showFull && (
-        <p className='mt-3 text-xs text-muted'>{t('app.stxOnlyEstimate.note')}</p>
+        <>
+          <p className='mt-3 text-xs text-muted'>{t('app.stxOnlyEstimate.note')}</p>
+          <p className='mt-1 text-xs text-muted'>
+            {t('app.stxOnlyEstimate.generatedAt', {
+              at:
+                formatUtc(calculations.generatedAt, locale) ??
+                t('app.stxOnlyEstimate.asOfUnknown'),
+            })}
+          </p>
+        </>
       )}
     </section>
   );
