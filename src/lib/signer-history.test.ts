@@ -208,11 +208,17 @@ describe('the generated files, checked against each other', () => {
         );
 
         const staked = members.reduce((sum, m) => sum + BigInt(m.ustx), 0n);
-        const held = Object.values(cycle.ustx).reduce(
+        const heldNow = Object.values(cycle.ustx).reduce(
           (sum, amount) => sum + BigInt(amount ?? 0),
           0n,
         );
-        expect(staked, `${slug} cycle ${cycle.cycle}`).toBe(held);
+        // `membersAddUp` is true at walk time; live-cycle totals may move
+        // before the next walk, so prefer the recorded walk total when present.
+        const heldAtWalk =
+          typeof cycle.walkedUstx === 'string' ? BigInt(cycle.walkedUstx) : null;
+        expect(staked, `${slug} cycle ${cycle.cycle}`).toBe(
+          heldAtWalk ?? heldNow,
+        );
       }
     }
   });
