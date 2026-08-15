@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { contractHref, parseHash, signerHref, statusHref } from './route';
+import {
+  contractHref,
+  parseHash,
+  signerHref,
+  statusHref,
+  stxOnlyRewardsHref,
+} from './route';
 
 /*
  * The hash is the one part of the page a stranger can hand somebody a link to,
@@ -24,6 +30,12 @@ describe('parseHash', () => {
     expect(parseHash('#/contract/standard')).toEqual({
       name: 'contract',
       profileId: 'standard',
+    });
+  });
+
+  it('reads the STX-only rewards route', () => {
+    expect(parseHash('#/rewards/stx-only')).toEqual({
+      name: 'stxOnlyRewards',
     });
   });
 
@@ -122,5 +134,8 @@ describe('parseHash', () => {
       principals: [ADDRESS, STAKING_CONTRACT],
     });
     expect(parseHash(statusHref())).toEqual({ name: 'status', principals: [] });
+    expect(parseHash(stxOnlyRewardsHref())).toEqual({
+      name: 'stxOnlyRewards',
+    });
   });
 });

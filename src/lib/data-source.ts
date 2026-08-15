@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react';
 import bundledSigners from '../data/signers.json';
+import bundledStxOnlyCalculations from '../data/stx-only-calculations.json';
 import bundledTotals from '../data/totals.json';
-import type { LockedTotals, SignerData } from './types';
+import type {
+  LockedTotals,
+  SignerData,
+  StxOnlyCalculations,
+} from './types';
 
 /**
  * Where the pool data comes from once the app is installed.
@@ -28,13 +33,14 @@ export const RAW_BASE =
     : 'https://raw.githubusercontent.com/fastpool/signer-guide/main/src/data';
 
 /** Bumped when the shape changes, so an old cache is ignored, not misread. */
-const CACHE_KEY = 'signer-guide:snapshot:v1';
+const CACHE_KEY = 'signer-guide:snapshot:v2';
 
 export type SnapshotOrigin = 'bundled' | 'cache' | 'network';
 
 export type Snapshot = {
   signers: SignerData;
   totals: LockedTotals;
+  stxOnlyCalculations: StxOnlyCalculations;
   origin: SnapshotOrigin;
   /** When it was read from the branch; null for what shipped with the build. */
   fetchedAt: number | null;
@@ -43,6 +49,7 @@ export type Snapshot = {
 export const BUNDLED: Snapshot = {
   signers: bundledSigners as SignerData,
   totals: bundledTotals as LockedTotals,
+  stxOnlyCalculations: bundledStxOnlyCalculations as StxOnlyCalculations,
   origin: 'bundled',
   fetchedAt: null,
 };
@@ -83,6 +90,39 @@ function isLockedTotals(value: unknown): value is LockedTotals {
   );
 }
 
+function isBigintStringOrNull(value: unknown): value is string | null {
+  return value === null || (typeof value === 'string' && /^\d+$/.test(value));
+}
+
+function isStxOnlyCalculations(value: unknown): value is StxOnlyCalculations {
+  if (typeof value !== 'object' || value === null) return false;
+  const data = value as Partial<StxOnlyCalculations>;
+
+  const blocksIntoValid =
+    data.blocksIntoCycle === null || typeof data.blocksIntoCycle === 'number';
+  const blocksLeftValid =
+    data.blocksLeftInCycle === null || typeof data.blocksLeftInCycle === 'number';
+
+  return (
+    typeof data.cycle === 'number' &&
+    typeof data.distributionBlocks === 'number' &&
+    blocksIntoValid &&
+    blocksLeftValid &&
+    typeof data.totalStakedUstx === 'string' &&
+    /^\d+$/.test(data.totalStakedUstx) &&
+    typeof data.bondStakedUstx === 'string' &&
+    /^\d+$/.test(data.bondStakedUstx) &&
+    typeof data.stxOnlyStakedUstx === 'string' &&
+    /^\d+$/.test(data.stxOnlyStakedUstx) &&
+    isBigintStringOrNull(data.sbtcBalanceSats) &&
+    isBigintStringOrNull(data.bondShareSats) &&
+    isBigintStringOrNull(data.foundationShareSats) &&
+    isBigintStringOrNull(data.stxOnlySoFarSats) &&
+    isBigintStringOrNull(data.projectedCycleSats) &&
+    isBigintStringOrNull(data.rateSatsPer1000Stx)
+  );
+}
+
 function generatedAt(snapshot: Snapshot): number {
   return Date.parse(snapshot.signers.generatedAt);
 }
@@ -114,12 +154,17 @@ export function readCachedSnapshot(): Snapshot | null {
     const raw = store.getItem(CACHE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Partial<Snapshot>;
-    if (!isSignerData(parsed.signers) || !isLockedTotals(parsed.totals)) {
+    if (
+      !isSignerData(parsed.signers) ||
+      !isLockedTotals(parsed.totals) ||
+      !isStxOnlyCalculations(parsed.stxOnlyCalculations)
+    ) {
       return null;
     }
     return {
       signers: parsed.signers,
       totals: parsed.totals,
+      stxOnlyCalculations: parsed.stxOnlyCalculations,
       origin: 'cache',
       fetchedAt: typeof parsed.fetchedAt === 'number' ? parsed.fetchedAt : null,
     };
@@ -137,6 +182,7 @@ export function writeCachedSnapshot(snapshot: Snapshot): void {
       JSON.stringify({
         signers: snapshot.signers,
         totals: snapshot.totals,
+        stxOnlyCalculations: snapshot.stxOnlyCalculations,
         fetchedAt: snapshot.fetchedAt,
       }),
     );
@@ -162,14 +208,25 @@ async function fetchJson(path: string, signal?: AbortSignal): Promise<unknown> {
 }
 
 export async function fetchSnapshot(signal?: AbortSignal): Promise<Snapshot> {
-  const [signers, totals] = await Promise.all([
+  const [signers, totals, stxOnlyCalculations] = await Promise.all([
     fetchJson('signers.json', signal),
     fetchJson('totals.json', signal),
+    fetchJson('stx-only-calculations.json', signal),
   ]);
-  if (!isSignerData(signers) || !isLockedTotals(totals)) {
+  if (
+    !isSignerData(signers) ||
+    !isLockedTotals(totals) ||
+    !isStxOnlyCalculations(stxOnlyCalculations)
+  ) {
     throw new Error('The published data is not in a shape this build knows');
   }
-  return { signers, totals, origin: 'network', fetchedAt: Date.now() };
+  return {
+    signers,
+    totals,
+    stxOnlyCalculations,
+    origin: 'network',
+    fetchedAt: Date.now(),
+  };
 }
 
 export type SnapshotState = {

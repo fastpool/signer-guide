@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "generate:signers": "tsx scripts/generate-signers.ts",
     "generate:totals": "tsx scripts/generate-totals.ts",
+    "generate:stx-only": "tsx scripts/generate-stx-only-calculations.ts",
     "generate:history": "tsx scripts/generate-signer-history.ts",
     "members": "tsx scripts/signer-members.ts",
     "movement": "tsx scripts/membership-movement.ts",

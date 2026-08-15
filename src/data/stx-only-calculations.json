@@ -1,0 +1,16 @@
+{
+  "cycle": 141,
+  "distributionBlocks": 1050,
+  "blocksIntoCycle": 445,
+  "blocksLeftInCycle": 605,
+  "totalStakedUstx": "392447554847960",
+  "bondStakedUstx": "0",
+  "stxOnlyStakedUstx": "392447554847960",
+  "sbtcBalanceSats": "68265060",
+  "bondShareSats": "0",
+  "foundationShareSats": "10239759",
+  "stxOnlySoFarSats": "58025301",
+  "projectedCycleSats": "136913631",
+  "rateSatsPer1000Stx": "348",
+  "generatedAt": "2026-08-15T16:06:32.735Z"
+}

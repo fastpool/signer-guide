@@ -1,6 +1,8 @@
 # Reads the chain and updates the two committed data files:
 #   src/data/signers.json — the pools, what their code allows, and their fees
 #   src/data/totals.json  — how much STX each one is looking after
+#   src/data/stx-only-calculations.json — static inputs for the STX-only
+#     rewards estimate card
 #
 # The guide ships both as committed files, so the page is only ever as current
 # as the last run. That is why this runs hourly rather than daily: a pool can
@@ -103,6 +105,14 @@ jobs:
           HIRO_API_KEY: ${{ secrets.HIRO_API_KEY }}
         run: pnpm generate:totals
 
+      - name: Build static STX-only rewards calculations
+        # Uses signers.json + totals.json and one pox-5 balance read to write
+        # the static numbers the app displays for the STX-only estimate card.
+        continue-on-error: true
+        env:
+          HIRO_API_KEY: ${{ secrets.HIRO_API_KEY }}
+        run: pnpm generate:stx-only
+
       - name: Read each signer's cycles, and who was in them
         # The data behind the page for one pool: what its signer held each
         # cycle and who held it. Much the most expensive thing here — a member
@@ -135,7 +145,8 @@ jobs:
           # as with the contract ids below.
           SIGNERS_CHANGED: ${{ steps.changes.outputs.changed }}
         run: |
-          if git diff --quiet -- src/data/totals.json; then
+          if git diff --quiet -- src/data/totals.json \
+              src/data/stx-only-calculations.json; then
             amounts=false
           else
             amounts=true
@@ -208,7 +219,8 @@ jobs:
           # directory alone would leave a deleted member list staged as
           # present. The step above has already staged it; this is the case
           # where only the pools or the amounts moved.
-          git add src/data/signers.json src/data/totals.json
+          git add src/data/signers.json src/data/totals.json \
+            src/data/stx-only-calculations.json
           git add -A src/data/signers/
           git commit --file "$RUNNER_TEMP/commit-message.txt"
           git push

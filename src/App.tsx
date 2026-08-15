@@ -19,7 +19,12 @@ import {
 import { applyLocaleMetadata } from './lib/metadata';
 import { localizeProfile } from './lib/profile-i18n';
 import { PROFILES } from './lib/profiles';
-import { contractHref, statusHref, useRoute } from './lib/route';
+import {
+  contractHref,
+  statusHref,
+  stxOnlyRewardsHref,
+  useRoute,
+} from './lib/route';
 import { groupForContract, signerSlug } from './lib/signer-groups';
 import { useServiceWorker } from './lib/service-worker';
 import { buildTemplates, templateFor } from './lib/templates';
@@ -80,7 +85,12 @@ export default function App() {
   const { snapshot, stale } = useSnapshot();
   const signerData = snapshot.signers;
   const totals = snapshot.totals;
+  const stxOnlyCalculations = snapshot.stxOnlyCalculations;
   const lastUpdate = formatLastUpdate(signerData.generatedAt, locale);
+  const lastUpdateStxOnlyCalculations = formatLastUpdate(
+    stxOnlyCalculations.generatedAt,
+    locale,
+  );
 
   const templates = useMemo(
     () => buildTemplates(signerData.signers),
@@ -133,6 +143,32 @@ export default function App() {
           locale={locale}
           onLocaleChange={setLocale}
         />
+        <UpdateBanner update={update} locale={locale} />
+      </>
+    );
+  }
+
+  if (route.name === 'stxOnlyRewards') {
+    return (
+      <>
+        <main className='mx-auto max-w-3xl px-5 py-12 md:py-20'>
+          <div className='flex flex-wrap items-center justify-between gap-3'>
+            <a
+              href='#/'
+              className='text-sm font-semibold text-grape underline underline-offset-2'
+            >
+              {t('app.stxOnlyEstimate.back')}
+            </a>
+            <LocaleSwitch locale={locale} onChange={setLocale} />
+          </div>
+
+          <StxOnlyRewardsEstimate
+            calculations={stxOnlyCalculations}
+            locale={locale}
+            mode='full'
+            asOf={lastUpdate}
+          />
+        </main>
         <UpdateBanner update={update} locale={locale} />
       </>
     );
@@ -236,9 +272,11 @@ export default function App() {
       </header>
 
       <StxOnlyRewardsEstimate
-        signers={signerData.signers}
-        totals={totals.ustx}
+        calculations={stxOnlyCalculations}
         locale={locale}
+        mode='compact'
+        detailsHref={stxOnlyRewardsHref()}
+        asOf={lastUpdate}
       />
 
       <section className='mt-10' aria-labelledby='contracts-heading'>

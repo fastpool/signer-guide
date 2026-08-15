@@ -95,6 +95,29 @@ export interface LockedTotals {
 }
 
 /**
+ * Static inputs and outputs for the STX-only rewards estimate card.
+ *
+ * Written by scripts/generate-stx-only-calculations.ts in the hourly refresh.
+ * Values are strings where the page uses bigint arithmetic.
+ */
+export interface StxOnlyCalculations {
+  cycle: number;
+  distributionBlocks: number;
+  blocksIntoCycle: number | null;
+  blocksLeftInCycle: number | null;
+  totalStakedUstx: string;
+  bondStakedUstx: string;
+  stxOnlyStakedUstx: string;
+  sbtcBalanceSats: string | null;
+  bondShareSats: string | null;
+  foundationShareSats: string | null;
+  stxOnlySoFarSats: string | null;
+  projectedCycleSats: string | null;
+  rateSatsPer1000Stx: string | null;
+  generatedAt: string;
+}
+
+/**
  * One signer's history, as `src/data/signers/<slug>.json` holds it.
  *
  * The unit is the signer key rather than the contract, for the reason set out

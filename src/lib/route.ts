@@ -11,6 +11,7 @@ import { isLookupTarget } from './principals';
  *                            contracts sharing that key, and its history
  *   #/status[/<principals>]  what one or more addresses are staking, if
  *                            anything; empty for the box to paste them into
+ *   #/rewards/stx-only       full breakdown of the STX-only rewards estimate
  *
  * The first two are easy to confuse and are genuinely different pages. A
  * contract is a piece of reviewed code that a dozen pools may share; a signer
@@ -22,7 +23,8 @@ export type Route =
   | { name: 'list' }
   | { name: 'contract'; profileId: string }
   | { name: 'signer'; contractId: string }
-  | { name: 'status'; principals: string[] };
+  | { name: 'status'; principals: string[] }
+  | { name: 'stxOnlyRewards' };
 
 /** `SP…ADDRESS.contract-name`, which is all a contract id can be. */
 const CONTRACT_ID = /^[A-Z0-9]+\.[a-zA-Z0-9][a-zA-Z0-9-]*$/;
@@ -37,6 +39,8 @@ function decode(value: string): string | null {
 }
 
 export function parseHash(hash: string): Route {
+  if (hash === '#/rewards/stx-only') return { name: 'stxOnlyRewards' };
+
   const contract = /^#\/contract\/([a-z0-9-]+)$/.exec(hash);
   if (contract) return { name: 'contract', profileId: contract[1] };
 
@@ -92,6 +96,10 @@ export function statusHref(principals: string[] = []): string {
   return principals.length === 0
     ? '#/status'
     : `#/status/${principals.join(',')}`;
+}
+
+export function stxOnlyRewardsHref(): string {
+  return '#/rewards/stx-only';
 }
 
 export function useRoute(): Route {

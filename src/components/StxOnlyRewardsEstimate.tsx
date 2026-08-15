@@ -1,19 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { exactStxLabel } from '../lib/amounts';
 import { translator, type Locale } from '../lib/i18n';
-import type { Signer } from '../lib/types';
+import type { StxOnlyCalculations } from '../lib/types';
 
-const STACKS_API_URL =
-  typeof import.meta.env.VITE_STACKS_API_URL === 'string' &&
-  import.meta.env.VITE_STACKS_API_URL.length > 0
-    ? import.meta.env.VITE_STACKS_API_URL
-    : 'https://api.hiro.so';
-
-const POX5_CONTRACT = 'SP000000000000000000002Q6VF78.pox-5';
-const FOUNDATION_SHARE_BIPS = 1500; // 15%
-const DISTRIBUTION_BLOCKS = 1050;
-const USTX_PER_STX = 1_000_000n;
+const FALLBACK_DISTRIBUTION_BLOCKS = 1050;
 const SATS_PER_SBTC = 100_000_000n;
+const BITCOIN_BLOCK_MINUTES = 10;
+const PAYOUT_PERIODS_PER_YEAR = 52;
+const SATS_PER_BTC = 100_000_000;
 
 type Estimate = {
   sbtcBalanceSats: bigint;
@@ -25,20 +19,27 @@ type Estimate = {
   totalStakedUstx: bigint;
   bondStakedUstx: bigint;
   blocksIntoCycle: number;
-  rateSatsPerStx: bigint;
+  blocksLeftInCycle: number;
+  rateSatsPer1000Stx: bigint;
 };
 
-function sumKnownUstx(
-  contractIds: string[],
-  totals: Record<string, string | null>,
-): bigint {
-  let sum = 0n;
-  for (const contractId of contractIds) {
-    const amount = totals[contractId];
-    if (amount === null || amount === undefined) continue;
-    sum += BigInt(amount);
-  }
-  return sum;
+function asBigint(value: string | null): bigint | null {
+  if (value === null) return null;
+  if (!/^\d+$/.test(value)) return null;
+  return BigInt(value);
+}
+
+function apyPercent(opts: {
+  rateSatsPer1000Stx: bigint;
+  stxPriceSats: number;
+}): number | null {
+  if (!Number.isFinite(opts.stxPriceSats) || opts.stxPriceSats <= 0) return null;
+
+  const periodReturn =
+    Number(opts.rateSatsPer1000Stx) / (1000 * opts.stxPriceSats);
+  if (!Number.isFinite(periodReturn) || periodReturn < 0) return null;
+
+  return (Math.pow(1 + periodReturn, PAYOUT_PERIODS_PER_YEAR) - 1) * 100;
 }
 
 function formatSbtc(sats: bigint, locale: Locale): string {
@@ -51,196 +52,173 @@ function formatSbtc(sats: bigint, locale: Locale): string {
   return frac.length > 0 ? `${whole}.${frac} sBTC` : `${whole} sBTC`;
 }
 
-function parseBlocksIntoCycle(value: unknown): number | null {
-  if (typeof value !== 'number' || !Number.isFinite(value)) return null;
-  const blocks = Math.floor(value);
-  if (blocks < 1) return null;
-  if (blocks > DISTRIBUTION_BLOCKS) return DISTRIBUTION_BLOCKS;
-  return blocks;
-}
-
-function readSbtcBalance(
-  balances: unknown,
-  expectedContract: string | null,
-): bigint | null {
-  if (typeof balances !== 'object' || balances === null) return null;
-  const body = balances as {
-    fungible_tokens?: Record<string, { balance?: string }>;
-  };
-  const tokens = body.fungible_tokens;
-  if (!tokens || typeof tokens !== 'object') return null;
-
-  const preferred =
-    expectedContract === null ? null : `${expectedContract}::sbtc-token`;
-  if (preferred && /^\d+$/.test(tokens[preferred]?.balance ?? '')) {
-    return BigInt(tokens[preferred]!.balance!);
-  }
-
-  for (const [asset, info] of Object.entries(tokens)) {
-    if (!asset.endsWith('::sbtc-token')) continue;
-    if (!/^\d+$/.test(info?.balance ?? '')) continue;
-    return BigInt(info.balance!);
-  }
-
-  return null;
+function durationUntilPayout(blocksLeft: number, locale: Locale): string {
+  const t = translator(locale);
+  const hours = Math.max(
+    1,
+    Math.round((blocksLeft * BITCOIN_BLOCK_MINUTES) / 60),
+  );
+  if (hours < 48) return t.plural('app.stxOnlyEstimate.durationHours', hours);
+  const days = Math.max(1, Math.round(hours / 24));
+  return t.plural('app.stxOnlyEstimate.durationDays', days);
 }
 
 export default function StxOnlyRewardsEstimate({
-  signers,
-  totals,
+  calculations,
   locale,
+  mode = 'full',
+  detailsHref,
+  asOf,
 }: {
-  signers: Signer[];
-  totals: Record<string, string | null>;
+  calculations: StxOnlyCalculations;
   locale: Locale;
+  mode?: 'compact' | 'full';
+  detailsHref?: string;
+  asOf?: string;
 }) {
   const t = translator(locale);
-  const [estimate, setEstimate] = useState<Estimate | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [failed, setFailed] = useState(false);
-
-  const staked = useMemo(() => {
-    const contractIds = signers.map((s) => s.contractId);
-    const bondContractIds = signers
-      .filter((s) => s.contractId.includes('signer-manager-bond-'))
-      .map((s) => s.contractId);
-
-    const totalStakedUstx = sumKnownUstx(contractIds, totals);
-    const bondStakedUstx = sumKnownUstx(bondContractIds, totals);
-    const stxOnlyStakedUstx = totalStakedUstx - bondStakedUstx;
-
-    return { totalStakedUstx, bondStakedUstx, stxOnlyStakedUstx };
-  }, [signers, totals]);
+  const showFull = mode === 'full';
+  const [stxPriceSats, setStxPriceSats] = useState<number | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
     let live = true;
 
-    const load = async () => {
-      setLoading(true);
-      setFailed(false);
-
+    const loadPrice = async () => {
       try {
-        const { fetchPoxInfo } = await import('@stacks/bitcoin-staking');
-        const pox = await fetchPoxInfo({ network: 'mainnet' });
-
-        const poxContractId =
-          typeof pox.contractId === 'string' && pox.contractId.length > 0
-            ? pox.contractId
-            : POX5_CONTRACT;
-
-        const sbtcContractId =
-          typeof pox.sbtcContract === 'string' && pox.sbtcContract.length > 0
-            ? pox.sbtcContract
-            : null;
-
         const res = await fetch(
-          `${STACKS_API_URL}/extended/v1/address/${poxContractId}/balances`,
-          { signal: controller.signal },
+          'https://api.coingecko.com/api/v3/simple/price?ids=blockstack&vs_currencies=btc',
+          { signal: controller.signal, cache: 'no-cache' },
         );
-        if (!res.ok) throw new Error('balances failed');
-        const balances = (await res.json()) as unknown;
-        const sbtcBalanceSats = readSbtcBalance(balances, sbtcContractId);
-        if (sbtcBalanceSats === null) throw new Error('sbtc missing');
-
-        const currentBurnchainBlockHeight = Number(
-          (pox as { currentBurnchainBlockHeight?: unknown })
-            .currentBurnchainBlockHeight,
-        );
-        const firstBurnchainBlockHeight = Number(
-          (pox as { firstBurnchainBlockHeight?: unknown })
-            .firstBurnchainBlockHeight,
-        );
-        const rewardCycleId = Number(
-          (pox as { rewardCycleId?: unknown }).rewardCycleId,
-        );
-        const rewardCycleLength = Number(
-          (pox as { rewardCycleLength?: unknown }).rewardCycleLength,
-        );
-
-        let blocksIntoCycle: number | null = null;
-        if (
-          Number.isFinite(currentBurnchainBlockHeight) &&
-          Number.isFinite(firstBurnchainBlockHeight) &&
-          Number.isFinite(rewardCycleId) &&
-          Number.isFinite(rewardCycleLength) &&
-          rewardCycleLength > 0
-        ) {
-          const cycleStart =
-            firstBurnchainBlockHeight + rewardCycleId * rewardCycleLength;
-          blocksIntoCycle = parseBlocksIntoCycle(
-            currentBurnchainBlockHeight - cycleStart + 1,
-          );
+        if (!res.ok) throw new Error('price failed');
+        const body = (await res.json()) as {
+          blockstack?: { btc?: number };
+        };
+        const btc = body.blockstack?.btc;
+        if (typeof btc !== 'number' || !Number.isFinite(btc) || btc <= 0) {
+          throw new Error('price shape');
         }
-
-        if (blocksIntoCycle === null || staked.stxOnlyStakedUstx <= 0n) {
-          throw new Error('cycle progress or stake missing');
-        }
-
-        const bondShareSats =
-          staked.totalStakedUstx > 0n
-            ? (sbtcBalanceSats * staked.bondStakedUstx) / staked.totalStakedUstx
-            : 0n;
-        const foundationShareSats =
-          (sbtcBalanceSats * BigInt(FOUNDATION_SHARE_BIPS)) / 10_000n;
-        const stxOnlySoFarSats =
-          sbtcBalanceSats - bondShareSats - foundationShareSats;
-
-        const safeStxOnlySoFar = stxOnlySoFarSats > 0n ? stxOnlySoFarSats : 0n;
-        const projectedCycleSats =
-          (safeStxOnlySoFar * BigInt(DISTRIBUTION_BLOCKS)) /
-          BigInt(blocksIntoCycle);
-        const rateSatsPerStx =
-          (projectedCycleSats * USTX_PER_STX) / staked.stxOnlyStakedUstx;
-
         if (!live) return;
-        setEstimate({
-          sbtcBalanceSats,
-          bondShareSats,
-          foundationShareSats,
-          stxOnlySoFarSats: safeStxOnlySoFar,
-          projectedCycleSats,
-          stxOnlyStakedUstx: staked.stxOnlyStakedUstx,
-          totalStakedUstx: staked.totalStakedUstx,
-          bondStakedUstx: staked.bondStakedUstx,
-          blocksIntoCycle,
-          rateSatsPerStx,
-        });
+        setStxPriceSats(btc * SATS_PER_BTC);
       } catch {
         if (!live) return;
-        setEstimate(null);
-        setFailed(true);
-      } finally {
-        if (live) setLoading(false);
+        setStxPriceSats(null);
       }
     };
 
-    void load();
-
+    void loadPrice();
     return () => {
       live = false;
       controller.abort();
     };
-  }, [staked]);
+  }, []);
+
+  const estimate = useMemo<Estimate | null>(() => {
+    const sbtcBalanceSats = asBigint(calculations.sbtcBalanceSats);
+    const bondShareSats = asBigint(calculations.bondShareSats);
+    const foundationShareSats = asBigint(calculations.foundationShareSats);
+    const stxOnlySoFarSats = asBigint(calculations.stxOnlySoFarSats);
+    const projectedCycleSats = asBigint(calculations.projectedCycleSats);
+    const stxOnlyStakedUstx = asBigint(calculations.stxOnlyStakedUstx);
+    const totalStakedUstx = asBigint(calculations.totalStakedUstx);
+    const bondStakedUstx = asBigint(calculations.bondStakedUstx);
+    const rateSatsPer1000Stx = asBigint(calculations.rateSatsPer1000Stx);
+    const blocksIntoCycle = calculations.blocksIntoCycle;
+    const blocksLeftInCycle = calculations.blocksLeftInCycle;
+
+    if (
+      sbtcBalanceSats === null ||
+      bondShareSats === null ||
+      foundationShareSats === null ||
+      stxOnlySoFarSats === null ||
+      projectedCycleSats === null ||
+      stxOnlyStakedUstx === null ||
+      totalStakedUstx === null ||
+      bondStakedUstx === null ||
+      rateSatsPer1000Stx === null ||
+      blocksIntoCycle === null ||
+      blocksLeftInCycle === null
+    ) {
+      return null;
+    }
+
+    return {
+      sbtcBalanceSats,
+      bondShareSats,
+      foundationShareSats,
+      stxOnlySoFarSats,
+      projectedCycleSats,
+      stxOnlyStakedUstx,
+      totalStakedUstx,
+      bondStakedUstx,
+      blocksIntoCycle,
+      blocksLeftInCycle,
+      rateSatsPer1000Stx,
+    };
+  }, [calculations]);
+
+  const apy = useMemo(() => {
+    if (!estimate || stxPriceSats === null) return null;
+    return apyPercent({
+      rateSatsPer1000Stx: estimate.rateSatsPer1000Stx,
+      stxPriceSats,
+    });
+  }, [estimate, stxPriceSats]);
 
   return (
     <section className='mt-10 rounded-3xl bg-white p-6 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
-      <h2 className='text-2xl font-bold'>{t('app.stxOnlyEstimate.title')}</h2>
-      <p className='mt-1 text-sm text-muted'>{t('app.stxOnlyEstimate.intro')}</p>
-
-      {loading && (
-        <p className='mt-3 text-sm text-muted'>
-          {t('app.stxOnlyEstimate.loading')}
+      {showFull ? (
+        <h2 className='text-2xl font-bold'>{t('app.stxOnlyEstimate.title')}</h2>
+      ) : (
+        <p className='text-sm font-semibold text-muted'>
+          {t('app.stxOnlyEstimate.title')}
         </p>
       )}
+      {showFull && (
+        <p className='mt-1 text-sm text-muted'>{t('app.stxOnlyEstimate.intro')}</p>
+      )}
 
-      {!loading && failed && (
+      {!estimate && (
         <p className='mt-3 text-sm text-amber-warm'>
           {t('app.stxOnlyEstimate.unavailable')}
         </p>
       )}
 
-      {!loading && estimate && (
+      {estimate && !showFull && (
+        <div className='mt-3'>
+          <p className='mt-1 text-3xl font-extrabold tracking-tight text-ink md:text-4xl'>
+            {t('app.stxOnlyEstimate.rateValue', {
+              sats: estimate.rateSatsPer1000Stx.toLocaleString(
+                t.bundle.intlLocale,
+              ),
+            })}
+          </p>
+          <p className='mt-1 text-xs text-muted'>
+            {apy === null
+              ? t('app.stxOnlyEstimate.apyUnavailable')
+              : (
+                  <>
+                    {t('app.stxOnlyEstimate.apy')}:&nbsp;
+                    {t('app.stxOnlyEstimate.apyValue', {
+                      apy: `${apy.toFixed(2)}%`,
+                    })}
+                  </>
+                )
+            }
+          </p>
+          <p className='mt-1 text-xs text-muted'>
+            {t('app.stxOnlyEstimate.untilPayoutAsOf', {
+              duration: durationUntilPayout(estimate.blocksLeftInCycle, locale),
+              blocks: estimate.blocksLeftInCycle.toLocaleString(
+                t.bundle.intlLocale,
+              ),
+              at: asOf ?? t('app.stxOnlyEstimate.asOfUnknown'),
+            })}
+          </p>
+        </div>
+      )}
+
+      {estimate && showFull && (
         <dl className='mt-4 space-y-2 text-sm'>
           <div className='flex flex-wrap items-baseline justify-between gap-3'>
             <dt className='text-muted'>{t('app.stxOnlyEstimate.currentPool')}</dt>
@@ -272,7 +250,9 @@ export default function StxOnlyRewardsEstimate({
             <dt className='text-muted'>
               {t('app.stxOnlyEstimate.progress', {
                 now: estimate.blocksIntoCycle,
-                total: DISTRIBUTION_BLOCKS,
+                total:
+                  calculations.distributionBlocks ||
+                  FALLBACK_DISTRIBUTION_BLOCKS,
               })}
             </dt>
             <dd className='font-semibold text-ink'>
@@ -291,14 +271,51 @@ export default function StxOnlyRewardsEstimate({
             <dt className='text-muted'>{t('app.stxOnlyEstimate.rate')}</dt>
             <dd className='text-base font-bold text-ink'>
               {t('app.stxOnlyEstimate.rateValue', {
-                sats: estimate.rateSatsPerStx.toLocaleString(t.bundle.intlLocale),
+                sats: estimate.rateSatsPer1000Stx.toLocaleString(
+                  t.bundle.intlLocale,
+                ),
               })}
+            </dd>
+          </div>
+          <div className='flex flex-wrap items-baseline justify-between gap-3'>
+            <dt className='text-muted'>{t('app.stxOnlyEstimate.apy')}</dt>
+            <dd className='font-semibold text-ink'>
+              {apy === null
+                ? t('app.stxOnlyEstimate.apyUnavailable')
+                : t('app.stxOnlyEstimate.apyValue', {
+                    apy: `${apy.toFixed(2)}%`,
+                  })}
+            </dd>
+          </div>
+          <div className='flex flex-wrap items-baseline justify-between gap-3'>
+            <dt className='text-muted'>{t('app.stxOnlyEstimate.stxPrice')}</dt>
+            <dd className='font-semibold text-ink'>
+              {stxPriceSats === null
+                ? t('app.stxOnlyEstimate.priceUnavailable')
+                : t('app.stxOnlyEstimate.priceValue', {
+                    sats: Math.round(stxPriceSats).toLocaleString(
+                      t.bundle.intlLocale,
+                    ),
+                  })}
             </dd>
           </div>
         </dl>
       )}
 
-      <p className='mt-3 text-xs text-muted'>{t('app.stxOnlyEstimate.note')}</p>
+      {detailsHref && (
+        <p className='mt-3 text-sm'>
+          <a
+            className='font-semibold text-grape underline underline-offset-2'
+            href={detailsHref}
+          >
+            {t('app.stxOnlyEstimate.openFull')}
+          </a>
+        </p>
+      )}
+
+      {showFull && (
+        <p className='mt-3 text-xs text-muted'>{t('app.stxOnlyEstimate.note')}</p>
+      )}
     </section>
   );
 }
