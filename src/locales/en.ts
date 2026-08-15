@@ -64,6 +64,25 @@ const messages = {
   'app.updateReady': 'A new version of the app is ready.',
   'app.updateApply': 'Reload',
   'app.newsletter': 'Sign up for our newsletter',
+  'app.stxOnlyEstimate.title':
+    'Estimated next-cycle rewards for STX-only stakers',
+  'app.stxOnlyEstimate.intro':
+    'Estimate from the current sBTC held by pox-5: minus bond-holder share, minus the foundation share (15%), projected to a 1050-block distribution cycle, then divided by STX staked by non-bond pools.',
+  'app.stxOnlyEstimate.loading': 'Reading estimate from chain data…',
+  'app.stxOnlyEstimate.unavailable':
+    'Could not build this estimate right now. Try again in a moment.',
+  'app.stxOnlyEstimate.currentPool': 'sBTC currently held by pox-5',
+  'app.stxOnlyEstimate.bondShare': 'Estimated bond-holder rewards share',
+  'app.stxOnlyEstimate.foundationShare': 'Foundation share (15%)',
+  'app.stxOnlyEstimate.stxOnlySoFar': 'Estimated STX-only rewards so far',
+  'app.stxOnlyEstimate.progress':
+    'Projected from {now}/{total} blocks in this distribution cycle',
+  'app.stxOnlyEstimate.projected': 'Projected full-cycle amount: {amount}',
+  'app.stxOnlyEstimate.stxOnlyStaked': 'STX staked by STX-only holders',
+  'app.stxOnlyEstimate.rate': 'Estimated reward rate',
+  'app.stxOnlyEstimate.rateValue': '{sats} sats per 1 STX',
+  'app.stxOnlyEstimate.note':
+    'Estimate only. It depends on the live pox-5 balance and current cycle progress.',
   'app.allPools': 'All pools',
   'app.whatMatters': 'What matters to you?',
   'app.showingAll': 'Showing all {total} pools',

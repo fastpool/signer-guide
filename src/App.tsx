@@ -4,6 +4,7 @@ import Identicon from './components/Identicon';
 import LocaleSwitch from './components/LocaleSwitch';
 import SignerCard from './components/SignerCard';
 import SignerPage from './components/SignerPage';
+import StxOnlyRewardsEstimate from './components/StxOnlyRewardsEstimate';
 import StatusPage from './components/StatusPage';
 import UpdateBanner from './components/UpdateBanner';
 import { stxLabel, sumUstx } from './lib/amounts';
@@ -233,6 +234,12 @@ export default function App() {
           </p>
         )}
       </header>
+
+      <StxOnlyRewardsEstimate
+        signers={signerData.signers}
+        totals={totals.ustx}
+        locale={locale}
+      />
 
       <section className='mt-10' aria-labelledby='contracts-heading'>
         <h2 id='contracts-heading' className='text-2xl font-bold'>

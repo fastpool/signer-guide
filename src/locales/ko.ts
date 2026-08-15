@@ -99,6 +99,25 @@ export const ko: LocaleBundle = {
     'app.updateReady': '앱의 새 버전이 준비되었습니다.',
     'app.updateApply': '새로고침',
     'app.newsletter': '뉴스레터 구독',
+    'app.stxOnlyEstimate.title':
+      'STX 전용 스테이커의 다음 분배 사이클 예상 보상',
+    'app.stxOnlyEstimate.intro':
+      'pox-5가 현재 보유한 sBTC에서 본드 보유자 몫과 재단 몫(15%)을 뺀 뒤, 현재 분배 사이클 진행도(총 1050블록)로 한 사이클 전체를 추정하고, 본드 풀을 제외한 STX 스테이킹 총량으로 나눈 값입니다.',
+    'app.stxOnlyEstimate.loading': '체인 데이터로 예상치를 계산하는 중…',
+    'app.stxOnlyEstimate.unavailable':
+      '지금은 이 예상치를 계산할 수 없습니다. 잠시 후 다시 시도해 주세요.',
+    'app.stxOnlyEstimate.currentPool': 'pox-5가 현재 보유한 sBTC',
+    'app.stxOnlyEstimate.bondShare': '본드 보유자 예상 보상 몫',
+    'app.stxOnlyEstimate.foundationShare': '재단 몫 (15%)',
+    'app.stxOnlyEstimate.stxOnlySoFar': '현재까지 STX 전용 예상 보상',
+    'app.stxOnlyEstimate.progress':
+      '이번 분배 사이클 {total}블록 중 {now}블록 기준으로 환산',
+    'app.stxOnlyEstimate.projected': '한 사이클 전체 예상치: {amount}',
+    'app.stxOnlyEstimate.stxOnlyStaked': 'STX 전용 참여자의 스테이킹 총량',
+    'app.stxOnlyEstimate.rate': '예상 보상 비율',
+    'app.stxOnlyEstimate.rateValue': 'STX 1개당 {sats} sats',
+    'app.stxOnlyEstimate.note':
+      '참고용 예상치입니다. pox-5 실시간 잔액과 현재 사이클 진행도에 따라 달라집니다.',
     'app.allPools': '전체 풀',
     'app.whatMatters': '어떤 기준이 중요한가요?',
     'app.showingAll': '전체 {total}개 풀 표시 중',
