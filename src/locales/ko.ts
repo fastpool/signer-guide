@@ -124,6 +124,21 @@ export const ko: LocaleBundle = {
     'app.stxOnlyEstimate.priceUnavailable': '지금은 가격을 가져올 수 없습니다',
     'app.stxOnlyEstimate.untilPayoutAsOf':
       '예상 지급까지 약 {duration} ({blocks}블록 남음, 기준 시각: {at})',
+    'app.stxOnlyEstimate.weeklyLead':
+      '주간 용돈처럼, STX 1000개 기준 이번 사이클에서 더해질 수 있는 값:',
+    'app.stxOnlyEstimate.weeklyApy': '연환산 APY: {apy}',
+    'app.stxOnlyEstimate.weeklyProgress': '사이클 진행도',
+    'app.stxOnlyEstimate.weeklyBlocksAsOf':
+      '{blocks}블록 남음 ({duration}), 기준 시각: {at}',
+    'app.stxOnlyEstimate.weeklyEstimateNote':
+      '최신 사이클 데이터를 바탕으로 한 추정치 1회입니다.',
+    'app.stxOnlyEstimate.homeSentence':
+      '현재 사이클 기준 STX 전용 스테이커의 주간 보상은 대략 {rate} ({apy} APY)입니다. {link}',
+    'app.stxOnlyEstimate.untilNextRewards': '다음 보상까지',
+    'app.stxOnlyEstimate.untilNextDate':
+      '예상까지 약 {duration} (예상 시각: {at})',
+    'app.stxOnlyEstimate.untilNextHeights':
+      '남은 번 블록 {blocks}개: {current} -> {next} (기준: {asOf})',
     'app.stxOnlyEstimate.asOfUnknown': '최근 업데이트',
     'app.stxOnlyEstimate.durationHours.one': '{count}시간',
     'app.stxOnlyEstimate.durationHours.other': '{count}시간',

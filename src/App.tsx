@@ -38,6 +38,9 @@ const FASTPOOL_URL = 'https://fastpool.org';
 const NEWSLETTER_URL =
   'https://steady.page/en/stacks-signer-guide/newsletter/sign_up';
 
+/** Switch compact STX rewards style: 'original' or 'weekly'. */
+const STX_COMPACT_VARIANT: 'original' | 'weekly' = 'weekly';
+
 export type FilterId =
   'bitcoin' | 'lowFee' | 'cappedFee' | 'feeNotice' | 'open';
 
@@ -166,7 +169,7 @@ export default function App() {
             calculations={stxOnlyCalculations}
             locale={locale}
             mode='full'
-            asOf={lastUpdate}
+            asOf={lastUpdateStxOnlyCalculations}
           />
         </main>
         <UpdateBanner update={update} locale={locale} />
@@ -275,8 +278,9 @@ export default function App() {
         calculations={stxOnlyCalculations}
         locale={locale}
         mode='compact'
+        compactVariant={STX_COMPACT_VARIANT}
         detailsHref={stxOnlyRewardsHref()}
-        asOf={lastUpdate}
+        asOf={lastUpdateStxOnlyCalculations}
       />
 
       <section className='mt-10' aria-labelledby='contracts-heading'>

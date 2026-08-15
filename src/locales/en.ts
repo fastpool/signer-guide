@@ -89,6 +89,21 @@ const messages = {
   'app.stxOnlyEstimate.priceUnavailable': 'Price unavailable right now',
   'app.stxOnlyEstimate.untilPayoutAsOf':
     'Estimated payout in about {duration} ({blocks} blocks left as of {at}).',
+  'app.stxOnlyEstimate.weeklyLead':
+    'Like a weekly allowance, for every 1000 STX this cycle could add:',
+  'app.stxOnlyEstimate.weeklyApy': 'APY: {apy}',
+  'app.stxOnlyEstimate.weeklyProgress': 'Cycle progress',
+  'app.stxOnlyEstimate.weeklyBlocksAsOf':
+    '{blocks} blocks left ({duration}) as of {at}.',
+  'app.stxOnlyEstimate.weeklyEstimateNote':
+    'One estimate based on the latest cycle data.',
+  'app.stxOnlyEstimate.homeSentence':
+    'For the current cycle, the weekly rewards for STX-only stakers are around {rate} ({apy} APY). {link}',
+  'app.stxOnlyEstimate.untilNextRewards': 'Until next rewards',
+  'app.stxOnlyEstimate.untilNextDate':
+    'Estimated in about {duration} (around {at}).',
+  'app.stxOnlyEstimate.untilNextHeights':
+    '{blocks} burn blocks left: {current} -> {next} (as of {asOf}).',
   'app.stxOnlyEstimate.asOfUnknown': 'latest update',
   'app.stxOnlyEstimate.durationHours.one': '{count} hour',
   'app.stxOnlyEstimate.durationHours.other': '{count} hours',

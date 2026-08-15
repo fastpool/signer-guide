@@ -102,18 +102,26 @@ function isStxOnlyCalculations(value: unknown): value is StxOnlyCalculations {
     data.blocksIntoCycle === null || typeof data.blocksIntoCycle === 'number';
   const blocksLeftValid =
     data.blocksLeftInCycle === null || typeof data.blocksLeftInCycle === 'number';
+  const currentBurnHeightValid =
+    data.currentBurnHeight === null || typeof data.currentBurnHeight === 'number';
+  const nextRewardBurnHeightValid =
+    data.nextRewardBurnHeight === null ||
+    typeof data.nextRewardBurnHeight === 'number';
 
   return (
     typeof data.cycle === 'number' &&
     typeof data.distributionBlocks === 'number' &&
     blocksIntoValid &&
     blocksLeftValid &&
+    currentBurnHeightValid &&
+    nextRewardBurnHeightValid &&
     typeof data.totalStakedUstx === 'string' &&
     /^\d+$/.test(data.totalStakedUstx) &&
     typeof data.bondStakedUstx === 'string' &&
     /^\d+$/.test(data.bondStakedUstx) &&
     typeof data.stxOnlyStakedUstx === 'string' &&
     /^\d+$/.test(data.stxOnlyStakedUstx) &&
+    isBigintStringOrNull(data.stxPriceSats) &&
     isBigintStringOrNull(data.sbtcBalanceSats) &&
     isBigintStringOrNull(data.bondShareSats) &&
     isBigintStringOrNull(data.foundationShareSats) &&

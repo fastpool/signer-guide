@@ -22,6 +22,7 @@ import type {
 const DISTRIBUTION_BLOCKS = 1050;
 const FOUNDATION_SHARE_BIPS = 1500; // 15%
 const USTX_PER_1000_STX = 1_000_000_000n;
+const SATS_PER_BTC = 100_000_000;
 
 const DATA = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -84,6 +85,30 @@ function write(data: StxOnlyCalculations): void {
   fs.writeFileSync(OUTPUT, `${JSON.stringify(data, null, 2)}\n`);
 }
 
+async function fetchStxPriceSats(): Promise<string | null> {
+  try {
+    const response = await fetch(
+      'https://api.coingecko.com/api/v3/simple/price?ids=blockstack&vs_currencies=btc',
+      {
+        headers: nodeHeaders(),
+      },
+    );
+    if (!response.ok) return null;
+
+    const body = (await response.json()) as {
+      blockstack?: { btc?: number };
+    };
+    const btc = body.blockstack?.btc;
+    if (typeof btc !== 'number' || !Number.isFinite(btc) || btc <= 0) {
+      return null;
+    }
+
+    return String(Math.round(btc * SATS_PER_BTC));
+  } catch {
+    return null;
+  }
+}
+
 async function main() {
   const signers = JSON.parse(fs.readFileSync(SIGNERS, 'utf8')) as SignerData;
   const totals = JSON.parse(fs.readFileSync(TOTALS, 'utf8')) as LockedTotals;
@@ -127,6 +152,7 @@ async function main() {
   }
   const balances = (await balancesResponse.json()) as unknown;
   const sbtcBalanceSats = readSbtcBalance(balances, sbtcContractId);
+  const stxPriceSats = await fetchStxPriceSats();
 
   const currentBurnchainBlockHeight = Number(
     (pox as { currentBurnchainBlockHeight?: unknown })
@@ -159,6 +185,7 @@ async function main() {
   let stxOnlySoFarSats: bigint | null = null;
   let projectedCycleSats: bigint | null = null;
   let rateSatsPer1000Stx: bigint | null = null;
+  let nextRewardBurnHeight: number | null = null;
 
   if (
     sbtcBalanceSats !== null &&
@@ -180,6 +207,8 @@ async function main() {
 
     rateSatsPer1000Stx =
       (projectedCycleSats * USTX_PER_1000_STX) / stxOnlyStakedUstx;
+
+    nextRewardBurnHeight = currentBurnchainBlockHeight + (DISTRIBUTION_BLOCKS - blocksIntoCycle);
   }
 
   const out: StxOnlyCalculations = {
@@ -190,9 +219,15 @@ async function main() {
       blocksIntoCycle === null
         ? null
         : Math.max(0, DISTRIBUTION_BLOCKS - blocksIntoCycle),
+    currentBurnHeight:
+      Number.isFinite(currentBurnchainBlockHeight) && currentBurnchainBlockHeight > 0
+        ? Math.floor(currentBurnchainBlockHeight)
+        : null,
+    nextRewardBurnHeight,
     totalStakedUstx: totalStakedUstx.toString(),
     bondStakedUstx: bondStakedUstx.toString(),
     stxOnlyStakedUstx: stxOnlyStakedUstx.toString(),
+    stxPriceSats,
     sbtcBalanceSats: sbtcBalanceSats === null ? null : sbtcBalanceSats.toString(),
     bondShareSats: bondShareSats === null ? null : bondShareSats.toString(),
     foundationShareSats:

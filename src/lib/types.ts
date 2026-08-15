@@ -105,9 +105,12 @@ export interface StxOnlyCalculations {
   distributionBlocks: number;
   blocksIntoCycle: number | null;
   blocksLeftInCycle: number | null;
+  currentBurnHeight: number | null;
+  nextRewardBurnHeight: number | null;
   totalStakedUstx: string;
   bondStakedUstx: string;
   stxOnlyStakedUstx: string;
+  stxPriceSats: string | null;
   sbtcBalanceSats: string | null;
   bondShareSats: string | null;
   foundationShareSats: string | null;
