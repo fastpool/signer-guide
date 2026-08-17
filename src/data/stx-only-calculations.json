@@ -1,19 +1,19 @@
 {
   "cycle": 141,
   "distributionBlocks": 1050,
-  "blocksIntoCycle": 682,
-  "blocksLeftInCycle": 368,
-  "currentBurnHeight": 962831,
+  "blocksIntoCycle": 688,
+  "blocksLeftInCycle": 362,
+  "currentBurnHeight": 962837,
   "nextRewardBurnHeight": 963199,
   "totalStakedUstx": "392447554847960",
   "bondStakedUstx": "0",
   "stxOnlyStakedUstx": "392447554847960",
   "stxPriceSats": "191",
-  "sbtcBalanceSats": "104351167",
+  "sbtcBalanceSats": "105358625",
   "bondShareSats": "0",
-  "foundationShareSats": "15652675",
-  "stxOnlySoFarSats": "88698492",
-  "projectedCycleSats": "136559261",
-  "rateSatsPer1000Stx": "347",
-  "generatedAt": "2026-08-17T04:08:00.327Z"
+  "foundationShareSats": "15803793",
+  "stxOnlySoFarSats": "89554832",
+  "projectedCycleSats": "136675252",
+  "rateSatsPer1000Stx": "348",
+  "generatedAt": "2026-08-17T05:01:28.738Z"
 }
