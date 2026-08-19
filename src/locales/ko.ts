@@ -102,11 +102,11 @@ export const ko: LocaleBundle = {
     'app.stxOnlyEstimate.title':
       'STX 전용 스테이커의 다음 분배 사이클 예상 보상',
     'app.stxOnlyEstimate.intro':
-      'pox-5가 현재 보유한 sBTC에서 본드 보유자 몫과 재단 몫(15%)을 뺀 뒤, 현재 분배 사이클 진행도(총 1050블록)로 한 사이클 전체를 추정하고, 본드 풀을 제외한 STX 스테이킹 총량으로 나눈 값입니다.',
+      '지난 지급 이후 pox-5에 새로 들어온 sBTC에서 본드 보유자 몫과 재단 몫(15%)을 뺀 뒤, 현재 분배 사이클 진행도(총 1050블록)로 한 사이클 전체를 추정하고, 본드 풀을 제외한 STX 스테이킹 총량으로 나눈 값입니다. pox-5의 잔액이 아니라 새로 들어온 금액을 씁니다. 잔액에는 이미 확정되었지만 아직 청구하지 않은 보상도 섞여 있기 때문입니다. 다만 몇 블록치 입금만으로 환산하면 오차가 크므로, 이번 사이클 진행분은 진행한 만큼만 반영하고 나머지는 pox-5가 이미 확정한 직전 지급 실적으로 채웁니다.',
     'app.stxOnlyEstimate.loading': '체인 데이터로 예상치를 계산하는 중…',
     'app.stxOnlyEstimate.unavailable':
       '지금은 이 예상치를 계산할 수 없습니다. 잠시 후 다시 시도해 주세요.',
-    'app.stxOnlyEstimate.currentPool': 'pox-5가 현재 보유한 sBTC',
+    'app.stxOnlyEstimate.accrued': '지난 지급 이후 들어온 sBTC',
     'app.stxOnlyEstimate.bondShare': '본드 보유자 예상 보상 몫',
     'app.stxOnlyEstimate.foundationShare': '재단 몫 (15%)',
     'app.stxOnlyEstimate.stxOnlySoFar': '현재까지 STX 전용 예상 보상',
@@ -116,6 +116,9 @@ export const ko: LocaleBundle = {
     'app.stxOnlyEstimate.projectedLabel': '한 사이클 전체 예상치',
     'app.stxOnlyEstimate.projected': '한 사이클 전체 예상치: {amount}',
     'app.stxOnlyEstimate.stxOnlyStaked': 'STX 전용 참여자의 스테이킹 총량',
+    'app.stxOnlyEstimate.lastPayout': '직전 지급 실적',
+    'app.stxOnlyEstimate.lastPayoutInCycle': '직전 지급 실적 ({cycle} 사이클)',
+    'app.stxOnlyEstimate.projectedRate': '이번 사이클 진행분 환산',
     'app.stxOnlyEstimate.rate': '예상 보상 비율',
     'app.stxOnlyEstimate.rateValue': 'STX 1000개당 {sats} sats',
     'app.stxOnlyEstimate.apy': '예상 APY (연 52회 지급 가정)',
@@ -149,7 +152,7 @@ export const ko: LocaleBundle = {
     'app.stxOnlyEstimate.openFull': '전체 계산 보기',
     'app.stxOnlyEstimate.back': '← 전체 풀',
     'app.stxOnlyEstimate.note':
-      '참고용 예상치입니다. pox-5 실시간 잔액과 현재 사이클 진행도에 따라 달라집니다.',
+      '참고용 예상치입니다. 지난 지급 이후 pox-5에 들어온 금액과 현재 분배 사이클 진행도에 따라 달라지며, 사이클이 진행될수록 안정됩니다.',
     'app.stxOnlyEstimate.generatedAt': '생성 시각: {at}',
     'app.allPools': '전체 풀',
     'app.whatMatters': '어떤 기준이 중요한가요?',

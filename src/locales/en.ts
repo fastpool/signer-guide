@@ -67,11 +67,11 @@ const messages = {
   'app.stxOnlyEstimate.title':
     'Estimated next-cycle rewards for STX-only stakers',
   'app.stxOnlyEstimate.intro':
-    'Estimate from the current sBTC held by pox-5: minus bond-holder share, minus the foundation share (15%), projected to a 1050-block distribution cycle, then divided by STX staked by non-bond pools.',
+    'Estimate from the sBTC that has reached pox-5 since the last payout: minus bond-holder share, minus the foundation share (15%), projected to a 1050-block distribution cycle, then divided by STX staked by non-bond pools. Not from the balance pox-5 holds — that also carries rewards already earned and waiting to be claimed. A few blocks of deposits make a rough projection, so this cycle counts for as much of the rate as it has run and the last payout — a figure pox-5 has already settled — covers the rest.',
   'app.stxOnlyEstimate.loading': 'Reading estimate from chain data…',
   'app.stxOnlyEstimate.unavailable':
     'Could not build this estimate right now. Try again in a moment.',
-  'app.stxOnlyEstimate.currentPool': 'sBTC currently held by pox-5',
+  'app.stxOnlyEstimate.accrued': 'sBTC received since the last payout',
   'app.stxOnlyEstimate.bondShare': 'Estimated bond-holder rewards share',
   'app.stxOnlyEstimate.foundationShare': 'Foundation share (15%)',
   'app.stxOnlyEstimate.stxOnlySoFar': 'Estimated STX-only rewards so far',
@@ -81,6 +81,9 @@ const messages = {
   'app.stxOnlyEstimate.projectedLabel': 'Projected full-cycle amount',
   'app.stxOnlyEstimate.projected': 'Projected full-cycle amount: {amount}',
   'app.stxOnlyEstimate.stxOnlyStaked': 'STX staked by STX-only holders',
+  'app.stxOnlyEstimate.lastPayout': 'Last payout, as paid',
+  'app.stxOnlyEstimate.lastPayoutInCycle': 'Last payout, as paid (cycle {cycle})',
+  'app.stxOnlyEstimate.projectedRate': 'This cycle so far, extrapolated',
   'app.stxOnlyEstimate.rate': 'Estimated reward rate',
   'app.stxOnlyEstimate.rateValue': '{sats} sats per 1000 STX',
   'app.stxOnlyEstimate.apy': 'Estimated APY (52 payouts/year)',
@@ -114,7 +117,7 @@ const messages = {
   'app.stxOnlyEstimate.openFull': 'View full calculation',
   'app.stxOnlyEstimate.back': '← All pools',
   'app.stxOnlyEstimate.note':
-    'Estimate only. It depends on the live pox-5 balance and current cycle progress.',
+    'Estimate only. It depends on what has reached pox-5 since the last payout and on how far this distribution cycle has run, so it settles as the cycle goes on.',
   'app.stxOnlyEstimate.generatedAt': 'Generated at: {at}',
   'app.allPools': 'All pools',
   'app.whatMatters': 'What matters to you?',

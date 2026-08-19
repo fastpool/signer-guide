@@ -9,7 +9,7 @@ const BITCOIN_BLOCK_MINUTES = 10;
 const PAYOUT_PERIODS_PER_YEAR = 52;
 
 type Estimate = {
-  sbtcBalanceSats: bigint;
+  accruedRewardsSats: bigint;
   stxPriceSats: bigint | null;
   bondShareSats: bigint;
   foundationShareSats: bigint;
@@ -23,6 +23,10 @@ type Estimate = {
   currentBurnHeight: number;
   nextRewardBurnHeight: number;
   rateSatsPer1000Stx: bigint;
+  /** Null before the first payout, or when the file predates it. */
+  lastPayoutRateSatsPer1000Stx: bigint | null;
+  lastPayoutCycle: number | null;
+  projectedRateSatsPer1000Stx: bigint | null;
 };
 
 function asBigint(value: string | null): bigint | null {
@@ -95,7 +99,7 @@ export default function StxOnlyRewardsEstimate({
   const showFull = mode === 'full';
 
   const estimate = useMemo<Estimate | null>(() => {
-    const sbtcBalanceSats = asBigint(calculations.sbtcBalanceSats);
+    const accruedRewardsSats = asBigint(calculations.accruedRewardsSats);
     const stxPriceSats = asBigint(calculations.stxPriceSats);
     const bondShareSats = asBigint(calculations.bondShareSats);
     const foundationShareSats = asBigint(calculations.foundationShareSats);
@@ -105,9 +109,15 @@ export default function StxOnlyRewardsEstimate({
     const totalStakedUstx = asBigint(calculations.totalStakedUstx);
     const bondStakedUstx = asBigint(calculations.bondStakedUstx);
     const rateSatsPer1000Stx = asBigint(calculations.rateSatsPer1000Stx);
+    const lastPayoutRateSatsPer1000Stx = asBigint(
+      calculations.lastPayoutRateSatsPer1000Stx ?? null,
+    );
+    const projectedRateSatsPer1000Stx = asBigint(
+      calculations.projectedRateSatsPer1000Stx ?? null,
+    );
 
     if (
-      sbtcBalanceSats === null ||
+      accruedRewardsSats === null ||
       bondShareSats === null ||
       foundationShareSats === null ||
       stxOnlySoFarSats === null ||
@@ -125,7 +135,7 @@ export default function StxOnlyRewardsEstimate({
     }
 
     return {
-      sbtcBalanceSats,
+      accruedRewardsSats,
       stxPriceSats,
       bondShareSats,
       foundationShareSats,
@@ -139,6 +149,9 @@ export default function StxOnlyRewardsEstimate({
       currentBurnHeight: calculations.currentBurnHeight,
       nextRewardBurnHeight: calculations.nextRewardBurnHeight,
       rateSatsPer1000Stx,
+      lastPayoutRateSatsPer1000Stx,
+      lastPayoutCycle: calculations.lastPayoutCycle ?? null,
+      projectedRateSatsPer1000Stx,
     };
   }, [calculations]);
 
@@ -297,9 +310,9 @@ export default function StxOnlyRewardsEstimate({
       {estimate && showFull && (
         <dl className='mt-4 space-y-2 text-sm'>
           <div className='flex flex-wrap items-baseline justify-between gap-3'>
-            <dt className='text-muted'>{t('app.stxOnlyEstimate.currentPool')}</dt>
+            <dt className='text-muted'>{t('app.stxOnlyEstimate.accrued')}</dt>
             <dd className='font-semibold text-ink'>
-              {formatSbtc(estimate.sbtcBalanceSats, locale)}
+              {formatSbtc(estimate.accruedRewardsSats, locale)}
             </dd>
           </div>
           <div className='flex flex-wrap items-baseline justify-between gap-3'>
@@ -344,6 +357,40 @@ export default function StxOnlyRewardsEstimate({
             </dd>
           </div>
           <div aria-hidden='true' className='border-t border-grape-soft' />
+          {estimate.lastPayoutRateSatsPer1000Stx !== null && (
+            <div className='flex flex-wrap items-baseline justify-between gap-3'>
+              <dt className='text-muted'>
+                {estimate.lastPayoutCycle === null
+                  ? t('app.stxOnlyEstimate.lastPayout')
+                  : t('app.stxOnlyEstimate.lastPayoutInCycle', {
+                      cycle: estimate.lastPayoutCycle.toLocaleString(
+                        t.bundle.intlLocale,
+                      ),
+                    })}
+              </dt>
+              <dd className='font-semibold text-ink'>
+                {t('app.stxOnlyEstimate.rateValue', {
+                  sats: estimate.lastPayoutRateSatsPer1000Stx.toLocaleString(
+                    t.bundle.intlLocale,
+                  ),
+                })}
+              </dd>
+            </div>
+          )}
+          {estimate.projectedRateSatsPer1000Stx !== null && (
+            <div className='flex flex-wrap items-baseline justify-between gap-3'>
+              <dt className='text-muted'>
+                {t('app.stxOnlyEstimate.projectedRate')}
+              </dt>
+              <dd className='font-semibold text-ink'>
+                {t('app.stxOnlyEstimate.rateValue', {
+                  sats: estimate.projectedRateSatsPer1000Stx.toLocaleString(
+                    t.bundle.intlLocale,
+                  ),
+                })}
+              </dd>
+            </div>
+          )}
           <div className='flex flex-wrap items-baseline justify-between gap-3'>
             <dt className='text-muted'>{t('app.stxOnlyEstimate.rate')}</dt>
             <dd className='font-semibold text-ink'>

@@ -104,6 +104,11 @@ function isStxOnlyCalculations(value: unknown): value is StxOnlyCalculations {
     data.blocksLeftInCycle === null || typeof data.blocksLeftInCycle === 'number';
   const currentBurnHeightValid =
     data.currentBurnHeight === null || typeof data.currentBurnHeight === 'number';
+  const lastRewardBurnHeightValid =
+    data.lastRewardBurnHeight === null ||
+    typeof data.lastRewardBurnHeight === 'number';
+  const lastPayoutCycleValid =
+    data.lastPayoutCycle === null || typeof data.lastPayoutCycle === 'number';
   const nextRewardBurnHeightValid =
     data.nextRewardBurnHeight === null ||
     typeof data.nextRewardBurnHeight === 'number';
@@ -114,6 +119,7 @@ function isStxOnlyCalculations(value: unknown): value is StxOnlyCalculations {
     blocksIntoValid &&
     blocksLeftValid &&
     currentBurnHeightValid &&
+    lastRewardBurnHeightValid &&
     nextRewardBurnHeightValid &&
     typeof data.totalStakedUstx === 'string' &&
     /^\d+$/.test(data.totalStakedUstx) &&
@@ -123,10 +129,15 @@ function isStxOnlyCalculations(value: unknown): value is StxOnlyCalculations {
     /^\d+$/.test(data.stxOnlyStakedUstx) &&
     isBigintStringOrNull(data.stxPriceSats) &&
     isBigintStringOrNull(data.sbtcBalanceSats) &&
+    isBigintStringOrNull(data.accruedRewardsSats) &&
     isBigintStringOrNull(data.bondShareSats) &&
     isBigintStringOrNull(data.foundationShareSats) &&
     isBigintStringOrNull(data.stxOnlySoFarSats) &&
     isBigintStringOrNull(data.projectedCycleSats) &&
+    isBigintStringOrNull(data.projectedRateSatsPer1000Stx) &&
+    lastPayoutCycleValid &&
+    isBigintStringOrNull(data.lastPayoutRateSatsPer1000Stx) &&
+    isBigintStringOrNull(data.cumulativeRewardsPerUstx) &&
     isBigintStringOrNull(data.rateSatsPer1000Stx)
   );
 }

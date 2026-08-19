@@ -119,3 +119,17 @@ export async function fetchCurrentCycle(): Promise<number | null> {
     }
   }
 }
+
+/**
+ * A bare `uint` answer, as the number pox-5 holds rather than a JS number.
+ *
+ * Throwing on anything else is deliberate, for the reason `optionalTuple`
+ * gives: a caller that cannot read the answer should record that, not a zero.
+ */
+export function uintValue(hex: string): bigint {
+  const json = cvToJSON(hexToCV(hex)) as { type: string; value: unknown };
+  if (json.type !== 'uint') {
+    throw new Error(`Expected a uint answer, got ${json.type}`);
+  }
+  return BigInt(String(json.value));
+}

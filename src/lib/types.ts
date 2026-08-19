@@ -106,16 +106,41 @@ export interface StxOnlyCalculations {
   blocksIntoCycle: number | null;
   blocksLeftInCycle: number | null;
   currentBurnHeight: number | null;
+  /** Burn height of the last `calculate-rewards`, which is when the accrual
+   * window `accruedRewardsSats` covers began. */
+  lastRewardBurnHeight: number | null;
   nextRewardBurnHeight: number | null;
   totalStakedUstx: string;
   bondStakedUstx: string;
   stxOnlyStakedUstx: string;
   stxPriceSats: string | null;
+  /** Everything pox-5 holds in sBTC: the accrual below, plus rewards earned
+   * and not yet claimed, plus the reserve, plus sBTC staked against bonds.
+   * Context only — nothing is computed from it, see the note in
+   * scripts/generate-stx-only-calculations.ts. */
   sbtcBalanceSats: string | null;
+  /** pox-5's `get-new-rewards`: sBTC that has arrived since the last
+   * `calculate-rewards` and is not yet accounted to anyone. The base every
+   * figure below is derived from. */
+  accruedRewardsSats: string | null;
   bondShareSats: string | null;
   foundationShareSats: string | null;
   stxOnlySoFarSats: string | null;
   projectedCycleSats: string | null;
+  /** What this cycle's own accrual so far works out to, extrapolated. Noisy
+   * in the first blocks after a payout, which is why it is not the headline. */
+  projectedRateSatsPer1000Stx: string | null;
+  /** The reward cycle the last `calculate-rewards` paid out for. */
+  lastPayoutCycle: number | null;
+  /** What that payout actually paid, from pox-5's own rewards-per-token. Not
+   * an estimate. */
+  lastPayoutRateSatsPer1000Stx: string | null;
+  /** pox-5's cumulative rewards-per-token for `lastPayoutCycle`. Bookkeeping:
+   * a cycle holds two payouts, so the next run subtracts this to read the
+   * second one on its own. See scripts/generate-stx-only-calculations.ts. */
+  cumulativeRewardsPerUstx: string | null;
+  /** The published rate: `projectedRateSatsPer1000Stx` weighted by how far
+   * the cycle has run, `lastPayoutRateSatsPer1000Stx` for the rest. */
   rateSatsPer1000Stx: string | null;
   generatedAt: string;
 }
