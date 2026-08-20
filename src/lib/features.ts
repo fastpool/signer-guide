@@ -46,6 +46,18 @@ export interface FeeExemption {
   evidence: string;
 }
 
+/**
+ * Where a single `uint` can be read off a contract.
+ *
+ * A no-argument read-only getter first, because a getter may compute rather
+ * than simply store; the data var behind it otherwise. Three fields are found
+ * this way now — the fee, the sBTC waiting for stakers, and the fees taken —
+ * and they all face the same problem, which is that contracts agree on what
+ * they keep and not on what they call it.
+ */
+export type Reading =
+  { kind: 'read-only'; name: string } | { kind: 'data-var'; name: string };
+
 export interface SourceFeatures {
   /** Rewards can be paid to a Bitcoin address on L1. */
   bitcoinRewards: FeatureEvidence;
@@ -63,10 +75,25 @@ export interface SourceFeatures {
    * is the `fees-bips` data var; Juice Pool exposes its own through a
    * no-argument read-only instead.
    */
-  feeReading:
-    | { kind: 'read-only'; name: string }
-    | { kind: 'data-var'; name: string }
-    | null;
+  feeReading: Reading | null;
+  /**
+   * Where to read the sBTC this contract is holding for its stakers and has
+   * not paid out yet — `get-unclaimed-staker-rewards` in the Standard
+   * contract. Null when the contract publishes no such total.
+   *
+   * Deliberately not Juice Pool's `get-unclaimed-signer-rewards`, which takes
+   * a cycle and a bond index and forwards them to pox-5. That answers the
+   * other question on this page: what pox-5 still owes the pool, not what the
+   * pool is already sitting on. Requiring a no-argument reading keeps the two
+   * apart without knowing either contract by name.
+   */
+  undistributedReading: Reading | null;
+  /**
+   * Where to read the fees this contract has taken and the operator has not
+   * withdrawn yet. A running balance, not a lifetime total: every
+   * `withdraw-fees` subtracts from it.
+   */
+  earnedFeesReading: Reading | null;
   /**
    * Ceiling the contract itself puts on its fee, in basis points, or null
    * when it has none worth the name. A limit of 100% is not a limit, so it is
@@ -329,6 +356,47 @@ function detectFeeReading(source: string): SourceFeatures['feeReading'] {
   return null;
 }
 
+/**
+ * The sBTC a contract is holding for its stakers, undistributed.
+ *
+ * `claim-rewards` pulls a cycle's rewards out of pox-5 in one go, and each
+ * staker then draws their share out of the contract one at a time. This is
+ * what has arrived and not yet left — so it falls to near zero once everybody
+ * has been paid, and a pool sitting on a large one has money in it that
+ * belongs to its stakers.
+ *
+ * Near zero rather than zero: the per-token reward maths truncates on every
+ * share, and the few sats that leaves behind stay here for good.
+ */
+function detectUndistributedReading(source: string): Reading | null {
+  const getter =
+    /\(define-read-only \((get-unclaimed-[a-z0-9-]*rewards)\s*\)/.exec(source);
+  if (getter) return { kind: 'read-only', name: getter[1] };
+
+  const variable =
+    /\(define-data-var\s+(unclaimed-[a-z0-9-]*rewards)\s+uint/i.exec(source);
+  if (variable) return { kind: 'data-var', name: variable[1] };
+
+  return null;
+}
+
+/**
+ * The fees taken and not yet withdrawn.
+ *
+ * Every implementation that keeps a fee at all calls this `earned-fees`,
+ * including Juice Pool, which agrees on nothing else. The getter is preferred
+ * over the var for the same reason as everywhere else here.
+ */
+function detectEarnedFeesReading(source: string): Reading | null {
+  const getter = /\(define-read-only \((get-earned-fees?)\s*\)/.exec(source);
+  if (getter) return { kind: 'read-only', name: getter[1] };
+
+  const variable = /\(define-data-var\s+(earned-fees?)\s+uint/i.exec(source);
+  if (variable) return { kind: 'data-var', name: variable[1] };
+
+  return null;
+}
+
 export function detectFeatures(source: string): SourceFeatures {
   const maxFee = detectMaxFeeBips(source);
   const feeChangeNotice = detectFeeChangeNotice(source);
@@ -368,6 +436,8 @@ export function detectFeatures(source: string): SourceFeatures {
       evidence: gates.length > 0 ? gates[0] : null,
     },
     feeReading: detectFeeReading(source),
+    undistributedReading: detectUndistributedReading(source),
+    earnedFeesReading: detectEarnedFeesReading(source),
     maxFeeBips: maxFee.bips,
     maxFeeEvidence: maxFee.evidence,
     feeChangeNotice,

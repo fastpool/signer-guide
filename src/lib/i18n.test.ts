@@ -67,7 +67,9 @@ describe('the language files', () => {
     // Every message differing between the two is the point of translating.
     // The ones that legitimately match are named here so a new untranslated
     // string cannot slip in unnoticed.
-    const shared = new Set(['amount.plain']);
+    // A unit symbol is the same word in both languages; translating 'sats' or
+    // 'sBTC' into anything else would be inventing a name for it.
+    const shared = new Set(['amount.plain', 'amount.sats', 'amount.sbtc']);
     const untranslated = Object.keys(BUNDLES.en.messages).filter((key) => {
       const messages = BUNDLES.ko.messages as Record<string, string>;
       const english = BUNDLES.en.messages as Record<string, string>;

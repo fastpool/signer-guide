@@ -12,6 +12,7 @@
 import { translator, type Locale } from './i18n';
 
 const MICRO_STX = 1_000_000n;
+const SATS_PER_SBTC = 100_000_000n;
 
 /** STX, rounded down, as a plain number — safe up to 9 quadrillion STX. */
 export function toStx(ustx: string | bigint): number {
@@ -68,6 +69,40 @@ export function stxLabel(
   }
 
   return t('amount.plain', { value: stx.toLocaleString(t.bundle.intlLocale) });
+}
+
+/**
+ * "19,011 sats", "1.234 sBTC", "nothing", "not known".
+ *
+ * Rewards are counted in sats and mostly *are* sats — a pool's undistributed
+ * remainder is often two figures — so sats is the unit until a whole sBTC is
+ * in play, at which point eight leading zeroes stop helping anybody.
+ *
+ * A reading we could not take is not zero, for the same reason `stxLabel`
+ * says so about STX: an amount reported as nothing is a claim about somebody's
+ * money, and "we did not manage to ask" is a different claim.
+ */
+export function satsLabel(
+  sats: string | bigint | null | undefined,
+  locale: Locale = 'en',
+): string {
+  const t = translator(locale);
+  if (sats === null || sats === undefined) return t('amount.unknown');
+
+  const total = BigInt(sats);
+  if (total === 0n) return t('amount.nothing');
+  if (total < SATS_PER_SBTC) {
+    return t('amount.sats', {
+      value: total.toLocaleString(t.bundle.intlLocale),
+    });
+  }
+
+  const whole = (total / SATS_PER_SBTC).toLocaleString(t.bundle.intlLocale);
+  const frac = (total % SATS_PER_SBTC)
+    .toString()
+    .padStart(8, '0')
+    .replace(/0+$/, '');
+  return t('amount.sbtc', { value: frac ? `${whole}.${frac}` : whole });
 }
 
 /** Sum of the amounts we could read; pools we could not are left out. */

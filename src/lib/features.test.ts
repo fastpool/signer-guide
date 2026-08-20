@@ -251,6 +251,75 @@ describe('feeReading', () => {
   });
 });
 
+describe('undistributedReading', () => {
+  it('finds the no-argument total the Standard contract publishes', () => {
+    const src = `
+      (define-data-var unclaimed-staker-rewards uint u0)
+      (define-read-only (get-unclaimed-staker-rewards)
+        (var-get unclaimed-staker-rewards)
+      )`;
+    expect(detectFeatures(src).undistributedReading).toEqual({
+      kind: 'read-only',
+      name: 'get-unclaimed-staker-rewards',
+    });
+  });
+
+  it('falls back to the data var when nothing publishes it', () => {
+    const src = '(define-data-var unclaimed-staker-rewards uint u0)';
+    expect(detectFeatures(src).undistributedReading).toEqual({
+      kind: 'data-var',
+      name: 'unclaimed-staker-rewards',
+    });
+  });
+
+  it('ignores a getter that takes a cycle, which asks pox-5 a different question', () => {
+    // juice-pool-stx-signer. This forwards to pox-5 and answers what pox-5
+    // still owes the pool — the opposite of what the pool is already holding.
+    // Reading it as the same number would show a pool that has paid everybody
+    // as one sitting on their money.
+    const src = `
+      (define-read-only (get-unclaimed-signer-rewards
+          (reward-cycle uint)
+          (bond-index (optional uint))
+        )
+        (contract-call? 'SP000000000000000000002Q6VF78.pox-5
+          get-signer-unclaimed-rewards-for-cycle current-contract reward-cycle
+          bond-index))`;
+    expect(detectFeatures(src).undistributedReading).toBeNull();
+  });
+
+  it('reports nothing when the contract keeps no such total', () => {
+    expect(detectFeatures('(define-public (noop) (ok true))')
+      .undistributedReading).toBeNull();
+  });
+});
+
+describe('earnedFeesReading', () => {
+  it('prefers the getter', () => {
+    const src = `
+      (define-data-var earned-fees uint u0)
+      (define-read-only (get-earned-fees) (var-get earned-fees))`;
+    expect(detectFeatures(src).earnedFeesReading).toEqual({
+      kind: 'read-only',
+      name: 'get-earned-fees',
+    });
+  });
+
+  it('reads the var when the contract publishes no getter', () => {
+    const src = '(define-data-var earned-fees uint u0)';
+    expect(detectFeatures(src).earnedFeesReading).toEqual({
+      kind: 'data-var',
+      name: 'earned-fees',
+    });
+  });
+
+  it('reports nothing when the contract takes no fee at all', () => {
+    // native-pool-signer-manager takes its fee somewhere else entirely.
+    expect(detectFeatures('(define-public (noop) (ok true))')
+      .earnedFeesReading).toBeNull();
+  });
+});
+
 describe('feeChangeNotice', () => {
   it('finds the wait Juice Pool puts on a fee change, in blocks', () => {
     const src = `

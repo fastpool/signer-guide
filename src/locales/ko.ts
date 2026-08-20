@@ -213,6 +213,9 @@ export const ko: LocaleBundle = {
     'amount.unknown': '금액 확인 불가',
     'amount.none': '아직 스테이킹 없음',
     'amount.plain': '{value} STX',
+    'amount.nothing': '없음',
+    'amount.sats': '{value} sats',
+    'amount.sbtc': '{value} sBTC',
 
     'signer.runsContract': '다음 서명자 컨트랙트를 사용합니다: {link}',
     'signer.contractLink': '{name} 서명자 컨트랙트',
@@ -297,6 +300,21 @@ export const ko: LocaleBundle = {
     'signerPage.thisOne': '— 현재 페이지',
     'signerPage.sharedNote':
       '이 컨트랙트들은 하나의 서명자입니다. 키가 가진 스테이킹 물량과 가중치, 확보한 슬롯은 모두 함께 결정되므로, 어느 하나가 보유한 금액은 독립된 풀이 아니라 전체의 일부입니다.',
+    'signerPage.rewards': '이 컨트랙트의 보상',
+    'signerPage.rewardsIntro':
+      '지금 이 풀 주변의 sBTC — 아직 수령하지 않은 금액, 참여자에게 지급할 금액, 그리고 풀이 가져간 금액입니다.',
+    'signerPage.unclaimed': 'pox-5에 남아 있는 금액',
+    'signerPage.claimCurrent': '· 마지막 분배는 수령 완료',
+    'signerPage.claimBehind': '· 수령하지 않은 분배가 남아 있음',
+    'signerPage.claimUnknown': '· 확인 불가',
+    'signerPage.undistributed': '참여자에게 지급 대기 중',
+    'signerPage.undistributedNote':
+      'pox-5에서 수령했지만 아직 참여자에게 지급하지 않은 금액입니다. 지급은 누구나 실행할 수 있어 점차 줄어들지만, 지분별 계산에서 남는 몇 사토시 때문에 완전히 0이 되지는 않습니다.',
+    'signerPage.earnedFees': '수취했으나 인출하지 않은 수수료',
+    'signerPage.earnedFeesNote':
+      '풀이 부과했고 운영자가 아직 옮기지 않은 금액입니다. 누적 총액이 아니라 잔액입니다.',
+    'signerPage.rewardsNone':
+      '이 컨트랙트는 보유 금액을 공개하지 않아 위 수치만 확인할 수 있습니다. 코드가 무엇을 노출하는지의 문제이며, 이상 징후는 아닙니다.',
     'signerPage.cycles': '사이클별 내역',
     'signerPage.cyclesIntro':
       '각 보상 사이클에서 이 풀이 보유한 금액과 그 참여자입니다. 금액은 pox-5에서 읽었고, 참여자 역시 pox-5에 한 명씩 물어 확인한 값입니다.',

@@ -34,6 +34,9 @@ const base: Signer = {
   maxFeeBips: null,
   feeChangeNotice: null,
   feeExemption: null,
+  undistributedSats: null,
+  unclaimedFromPoxSats: null,
+  earnedFeesSats: null,
   evidence: {
     bitcoinRewards: null,
     openToAnyone: null,

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { stxLabel } from '../lib/amounts';
+import { satsLabel, stxLabel } from '../lib/amounts';
 import { explorerUrl } from '../lib/explorer';
 import { formatLastUpdate, translator, type Locale } from '../lib/i18n';
 import { contractHref, signerHref } from '../lib/route';
@@ -128,6 +128,8 @@ export default function SignerPage({
 
       <SignerKeySection signer={signer} group={group} locale={locale} />
 
+      <RewardsSection signer={signer} locale={locale} />
+
       <CycleSection
         signer={signer}
         group={group}
@@ -211,6 +213,92 @@ function SignerKeySection({
             </p>
           )}
         </>
+      )}
+    </section>
+  );
+}
+
+/**
+ * The sBTC around this contract right now: what it owes its stakers, what it
+ * has not collected, and what it has kept for itself.
+ *
+ * Three numbers that answer one question between them — is this pool actually
+ * paying people? A pool can look fine on every other measure and still be
+ * sitting on a cycle it never claimed, or holding rewards it never handed out,
+ * and nothing else on this page would say so.
+ *
+ * The middle one is the load-bearing one, and it is the only one here that
+ * does not come from the contract. pox-5 keeps what it owes each signer and
+ * zeroes it when the signer claims, so `unclaimedFromPoxSats` means the same
+ * thing for every implementation regardless of what each calls its wrapper.
+ */
+function RewardsSection({
+  signer,
+  locale,
+}: {
+  signer: Signer;
+  locale: Locale;
+}) {
+  const t = translator(locale);
+  // `?? null`, because a signers.json written before these were recorded has
+  // the field absent rather than null — see the note on the type.
+  const unclaimed = signer.unclaimedFromPoxSats ?? null;
+  const undistributed = signer.undistributedSats ?? null;
+  const earnedFees = signer.earnedFeesSats ?? null;
+  // Only what the contract actually publishes gets a row. Most of the
+  // invite-only managers keep no such total, and fourteen pages of "not known"
+  // would say less than leaving it out and saying why once.
+  const publishes = undistributed !== null || earnedFees !== null;
+
+  return (
+    <section className='mt-10 rounded-3xl bg-white p-6 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
+      <h2 className='text-lg font-bold'>{t('signerPage.rewards')}</h2>
+      <p className='mt-1 text-sm text-muted'>{t('signerPage.rewardsIntro')}</p>
+
+      <dl className='mt-4 space-y-4 text-sm'>
+        <div>
+          <dt className='font-semibold'>{t('signerPage.unclaimed')}</dt>
+          <dd className='mt-0.5'>
+            <strong>{satsLabel(unclaimed, locale)}</strong>
+            <span className='ml-2 text-muted'>
+              {t(
+                unclaimed === null
+                  ? 'signerPage.claimUnknown'
+                  : BigInt(unclaimed) === 0n
+                    ? 'signerPage.claimCurrent'
+                    : 'signerPage.claimBehind',
+              )}
+            </span>
+          </dd>
+        </div>
+
+        {undistributed !== null && (
+          <div>
+            <dt className='font-semibold'>{t('signerPage.undistributed')}</dt>
+            <dd className='mt-0.5'>
+              <strong>{satsLabel(undistributed, locale)}</strong>
+              <p className='mt-1 text-muted'>
+                {t('signerPage.undistributedNote')}
+              </p>
+            </dd>
+          </div>
+        )}
+
+        {earnedFees !== null && (
+          <div>
+            <dt className='font-semibold'>{t('signerPage.earnedFees')}</dt>
+            <dd className='mt-0.5'>
+              <strong>{satsLabel(earnedFees, locale)}</strong>
+              <p className='mt-1 text-muted'>
+                {t('signerPage.earnedFeesNote')}
+              </p>
+            </dd>
+          </div>
+        )}
+      </dl>
+
+      {!publishes && (
+        <p className='mt-4 text-sm text-muted'>{t('signerPage.rewardsNone')}</p>
       )}
     </section>
   );

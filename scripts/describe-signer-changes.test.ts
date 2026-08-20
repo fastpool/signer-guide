@@ -20,6 +20,9 @@ const signer = (overrides: Partial<Signer> = {}): Signer => ({
   maxFeeBips: null,
   feeChangeNotice: null,
   feeExemption: null,
+  undistributedSats: null,
+  unclaimedFromPoxSats: null,
+  earnedFeesSats: null,
   evidence: {
     bitcoinRewards: null,
     openToAnyone: null,
@@ -122,5 +125,45 @@ describe('describeChanges', () => {
       data([signer({ contractId: 'SP333.x; rm -rf /', profileId: null })]),
     );
     expect(unreviewed).toEqual([]);
+  });
+});
+
+describe('the reward figures', () => {
+  const data = (...signers: Signer[]): SignerData => ({
+    generatedAt: '2026-08-20T00:00:00.000Z',
+    cycle: 141,
+    standardisedWith: null,
+    signers,
+  });
+
+  it('counts the pools whose sBTC moved rather than listing them', () => {
+    // A line each would be most of the pools, every hour.
+    const before = data(
+      signer({ contractId: 'SP000.a', undistributedSats: '100' }),
+      signer({ contractId: 'SP000.b', earnedFeesSats: '0' }),
+    );
+    const after = data(
+      signer({ contractId: 'SP000.a', undistributedSats: '0' }),
+      signer({ contractId: 'SP000.b', earnedFeesSats: '7' }),
+    );
+    const { changed, lines } = describeChanges(before, after);
+    expect(changed).toBe(true);
+    expect(lines).toEqual([
+      '~ rewards  2 pool(s) claimed, paid out or charged sBTC',
+    ]);
+  });
+
+  it('counts a pool that collected a payout it was behind on', () => {
+    const before = data(signer({ unclaimedFromPoxSats: '19011164' }));
+    const after = data(signer({ unclaimedFromPoxSats: '0' }));
+    expect(describeChanges(before, after).lines).toHaveLength(1);
+  });
+
+  it('says nothing when they held still', () => {
+    // Which is the point of counting: an hour where nobody claimed anything
+    // must not turn into a commit.
+    const before = data(signer({ undistributedSats: '59' }));
+    const after = data(signer({ undistributedSats: '59' }));
+    expect(describeChanges(before, after).changed).toBe(false);
   });
 });

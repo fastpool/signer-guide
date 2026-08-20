@@ -40,6 +40,19 @@ const exemptionOf = (signer: Signer) =>
     ? `${signer.feeExemption.test} via ${signer.feeExemption.source}`
     : 'none';
 
+/**
+ * The three sBTC figures as one comparable string, `?` for a reading we could
+ * not take. Compared together because they move together: a staker being paid
+ * lowers what the pool is holding and raises nothing else, and a payout raises
+ * what pox-5 owes every pool at once.
+ */
+const rewardsOf = (signer: Signer) =>
+  [
+    signer.unclaimedFromPoxSats ?? '?',
+    signer.undistributedSats ?? '?',
+    signer.earnedFeesSats ?? '?',
+  ].join('/');
+
 /** "fee 2.5%", but "no fee of its own" reads badly with "fee" in front. */
 const feePhrase = (bips: number | null) =>
   bips === null ? fee(bips) : `fee ${fee(bips)}`;
@@ -104,6 +117,29 @@ export function describeChanges(
         `~ feeExemption  ${id}  ${exemptionOf(was)} -> ${exemptionOf(now)}`,
       );
     }
+  }
+
+  /*
+   * The reward figures, counted rather than listed.
+   *
+   * These move with every payout and every staker who claims one, so a line
+   * per pool would be an hourly page of noise — the thing this file exists to
+   * keep out of the history. They are still news, though, and it matters that
+   * they count as one: when nothing here reports a change the refresh puts
+   * signers.json back, and the page would then show whatever reward figures
+   * the last unrelated commit happened to catch, indefinitely.
+   *
+   * So: one line, whoever moved.
+   */
+  let rewardsMoved = 0;
+  for (const [id, now] of after) {
+    const was = before.get(id);
+    if (was && rewardsOf(was) !== rewardsOf(now)) rewardsMoved += 1;
+  }
+  if (rewardsMoved > 0) {
+    lines.push(
+      `~ rewards  ${rewardsMoved} pool(s) claimed, paid out or charged sBTC`,
+    );
   }
 
   const unreviewed = [...after.values()]

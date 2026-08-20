@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { exactStxLabel, stxLabel, sumUstx, toStx } from './amounts';
+import { exactStxLabel, satsLabel, stxLabel, sumUstx, toStx } from './amounts';
 
 describe('stxLabel', () => {
   it('rounds millions, because nobody reads eight digits', () => {
@@ -59,6 +59,26 @@ describe('exactStxLabel', () => {
 
   it('groups the way the reader’s language groups', () => {
     expect(exactStxLabel('8215865483722', 'ko')).toBe('8,215,865.483722 STX');
+  });
+});
+
+describe('satsLabel', () => {
+  it('counts in sats, which is what a reward usually is', () => {
+    expect(satsLabel('59')).toBe('59 sats');
+    expect(satsLabel('19011164')).toBe('19,011,164 sats');
+  });
+
+  it('switches to sBTC once a whole one is in play', () => {
+    expect(satsLabel('100000000')).toBe('1 sBTC');
+    expect(satsLabel('123450000')).toBe('1.2345 sBTC');
+  });
+
+  it('says nothing for nothing and not-known for a reading we could not take', () => {
+    // The distinction the whole file exists for: a pool holding no rewards
+    // and a pool we failed to ask are not the same claim about their money.
+    expect(satsLabel('0')).toBe('nothing');
+    expect(satsLabel(null)).toBe('amount not known');
+    expect(satsLabel(undefined)).toBe('amount not known');
   });
 });
 

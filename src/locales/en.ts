@@ -82,7 +82,8 @@ const messages = {
   'app.stxOnlyEstimate.projected': 'Projected full-cycle amount: {amount}',
   'app.stxOnlyEstimate.stxOnlyStaked': 'STX staked by STX-only holders',
   'app.stxOnlyEstimate.lastPayout': 'Last payout, as paid',
-  'app.stxOnlyEstimate.lastPayoutInCycle': 'Last payout, as paid (cycle {cycle})',
+  'app.stxOnlyEstimate.lastPayoutInCycle':
+    'Last payout, as paid (cycle {cycle})',
   'app.stxOnlyEstimate.projectedRate': 'This cycle so far, extrapolated',
   'app.stxOnlyEstimate.rate': 'Estimated reward rate',
   'app.stxOnlyEstimate.rateValue': '{sats} sats per 1000 STX',
@@ -177,6 +178,9 @@ const messages = {
   'amount.unknown': 'amount not known',
   'amount.none': 'nothing staked yet',
   'amount.plain': '{value} STX',
+  'amount.nothing': 'nothing',
+  'amount.sats': '{value} sats',
+  'amount.sbtc': '{value} sBTC',
 
   'signer.runsContract': 'Runs the {link}',
   'signer.contractLink': '{name} signer contract',
@@ -259,6 +263,21 @@ const messages = {
   'signerPage.thisOne': '— this page',
   'signerPage.sharedNote':
     'These contracts are one signer. The stake behind the key, the weight it carries and the slots it holds are decided on all of them together, so what any one of them holds is a part of the whole rather than a pool of its own.',
+  'signerPage.rewards': 'Rewards in this contract',
+  'signerPage.rewardsIntro':
+    'The sBTC around this pool right now — what it has not collected, what it owes the people in it, and what it has kept for itself.',
+  'signerPage.unclaimed': 'Still waiting at pox-5',
+  'signerPage.claimCurrent': '· the last payout has been collected',
+  'signerPage.claimBehind': '· a payout is sitting there uncollected',
+  'signerPage.claimUnknown': '· we could not read this',
+  'signerPage.undistributed': 'Waiting for the people in the pool',
+  'signerPage.undistributedNote':
+    'Collected from pox-5 and not yet paid out to stakers. Anyone can trigger those payouts, so this empties as they happen — but never quite to nothing, because the per-share arithmetic leaves a few sats behind for good.',
+  'signerPage.earnedFees': 'Fees taken, not yet withdrawn',
+  'signerPage.earnedFeesNote':
+    'What the pool has charged and its operator has not moved out. A balance, not a lifetime total.',
+  'signerPage.rewardsNone':
+    'This contract does not publish what it is holding, so only the figure above can be read. That is a matter of what the code exposes, not a sign of anything wrong.',
   'signerPage.cycles': 'Cycle by cycle',
   'signerPage.cyclesIntro':
     'What this pool held in each reward cycle, and who it was holding it for. Amounts come from pox-5; the members come from pox-5 too, asked one staker at a time.',

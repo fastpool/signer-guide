@@ -35,10 +35,16 @@ import {
   claritySourceSha256,
   strictCanonicalizeClaritySource,
 } from '../src/lib/canonical.js';
-import { detectFeatures } from '../src/lib/features.js';
+import { detectFeatures, type Reading } from '../src/lib/features.js';
 import { profileFor } from '../src/lib/profiles.js';
 import type { Signer, SignerData } from '../src/lib/types.js';
+import {
+  parseUint,
+  serializeContractPrincipal,
+  serializeUint,
+} from '../src/lib/clarity.js';
 import { API_URL, describeNode, nodeHeaders, SPACING_MS } from './node.js';
+import { callReadOnly as callPox5 } from './pox5.js';
 import {
   clarinetVersion,
   identiconHashOf,
@@ -69,11 +75,27 @@ function readCommitted(): SignerData | null {
   }
 }
 
-async function getJson<T>(url: string, attempts = 5): Promise<T | null> {
+/**
+ * Ask the node, waiting out a rate limit rather than reporting ignorance.
+ *
+ * `init` is for the read-only calls, which are POSTs. They go through here
+ * rather than calling `fetch` themselves because a 429 answered with null is
+ * this script telling a reader a pool holds nothing when the node only asked
+ * it to slow down — and with three readings taken per contract now instead of
+ * one, an unretried limit eats three times as much.
+ */
+async function getJson<T>(
+  url: string,
+  init: RequestInit = {},
+  attempts = 5,
+): Promise<T | null> {
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     try {
       const response = await fetch(url, {
-        headers: nodeHeaders(),
+        ...init,
+        headers: nodeHeaders(
+          init.body ? { 'Content-Type': 'application/json' } : {},
+        ),
         signal: AbortSignal.timeout(30_000),
       });
       if (response.ok) return (await response.json()) as T;
@@ -129,13 +151,46 @@ async function fetchCurrentCycle(): Promise<number> {
   return pox?.current_cycle.id ?? 0;
 }
 
-/** A Clarity `(uint N)` off the wire: 0x01 then 16 bytes big-endian. */
-function parseUintHex(result: string | undefined): number | null {
-  if (!result) return null;
-  const hex = result.replace(/^0x/, '');
-  if (!/^01[0-9a-f]{32}$/i.test(hex)) return null;
-  return Number(BigInt(`0x${hex.slice(2)}`));
+/**
+ * Read one `uint` off a contract, wherever the source said it lives.
+ *
+ * Three fields come through here — the fee, the sBTC waiting for stakers, and
+ * the fees taken — because the awkward part is the same for all of them: some
+ * contracts publish a getter and some only hold a data var, and the node
+ * answers those over different endpoints.
+ *
+ * Null is "could not read", never zero. Every caller passes it straight to the
+ * page, which says "not known" rather than drawing a nought.
+ */
+async function fetchReading(
+  contractId: string,
+  reading: Reading,
+): Promise<bigint | null> {
+  const [address, name] = contractId.split('.');
+  try {
+    if (reading.kind === 'data-var') {
+      const body = await getJson<{ data?: string }>(
+        `${API_URL}/v2/data_var/${address}/${name}/${reading.name}?proof=0`,
+      );
+      return body?.data ? parseUint(body.data) : null;
+    }
+
+    const body = await getJson<{ okay?: boolean; result?: string }>(
+      `${API_URL}/v2/contracts/call-read/${address}/${name}/${reading.name}`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ sender: address, arguments: [] }),
+      },
+    );
+    return body?.okay && body.result ? parseUint(body.result) : null;
+  } catch {
+    return null;
+  }
 }
+
+/** `(uint N)` as the JSON wants it, or null for a reading we could not take. */
+const sats = (amount: bigint | null): string | null =>
+  amount === null ? null : amount.toString();
 
 /**
  * The fee the signer charges right now, in basis points (100 = 1%).
@@ -149,32 +204,45 @@ function parseUintHex(result: string | undefined): number | null {
  */
 async function fetchFeeBips(
   contractId: string,
-  reading: NonNullable<ReturnType<typeof detectFeatures>['feeReading']>,
+  reading: Reading,
 ): Promise<number | null> {
-  const [address, name] = contractId.split('.');
-  try {
-    if (reading.kind === 'data-var') {
-      const body = await getJson<{ data?: string }>(
-        `${API_URL}/v2/data_var/${address}/${name}/${reading.name}?proof=0`,
-      );
-      return parseUintHex(body?.data);
-    }
+  const bips = await fetchReading(contractId, reading);
+  return bips === null ? null : Number(bips);
+}
 
-    const response = await fetch(
-      `${API_URL}/v2/contracts/call-read/${address}/${name}/${reading.name}`,
-      {
-        method: 'POST',
-        headers: nodeHeaders({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify({ sender: address, arguments: [] }),
-        signal: AbortSignal.timeout(30_000),
-      },
-    );
-    if (!response.ok) return null;
-    const body = (await response.json()) as { okay?: boolean; result?: string };
-    return body.okay ? parseUintHex(body.result) : null;
+/** Clarity `none`, for the bond-index argument. */
+const NONE = '0x09';
+
+/**
+ * What pox-5 has earned for this signer and nobody has claimed, in sats.
+ *
+ * This is how the guide answers "has the pool claimed the last distribution?"
+ * and it is asked of pox-5 rather than of the signer manager on purpose. Every
+ * implementation wraps `claim-rewards` in its own way — Juice Pool calls its
+ * wrapper `pox-claim-rewards` — but the money they are all reaching for is in
+ * one map, and pox-5 zeroes that map when the claim lands. So one call means
+ * the same thing for forty-four contracts, and no new contract can quietly
+ * fall out of it by naming its function something else.
+ *
+ * The STX leg only (`bond-index` is `none`): no protocol bonds exist on
+ * mainnet, and the guide's subject is STX stacking.
+ */
+async function fetchUnclaimedFromPox(
+  contractId: string,
+  cycle: number,
+): Promise<bigint | null> {
+  let signerArg: string;
+  try {
+    signerArg = `0x${serializeContractPrincipal(contractId)}`;
   } catch {
     return null;
   }
+  const result = await callPox5('get-earned', [
+    signerArg,
+    `0x${serializeUint(cycle)}`,
+    NONE,
+  ]);
+  return result === null ? null : parseUint(result);
 }
 
 async function main() {
@@ -274,6 +342,15 @@ async function main() {
     const feeBips = features.feeReading
       ? await fetchFeeBips(contractId, features.feeReading)
       : null;
+    // What the contract is holding: for its stakers, and for itself.
+    const undistributed = features.undistributedReading
+      ? await fetchReading(contractId, features.undistributedReading)
+      : null;
+    const earnedFees = features.earnedFeesReading
+      ? await fetchReading(contractId, features.earnedFeesReading)
+      : null;
+    // And what it has not collected yet, which is pox-5's answer, not its own.
+    const unclaimedFromPox = await fetchUnclaimedFromPox(contractId, cycle);
 
     if (!profile) unmatched.push(`${contractId}  ${groupSha256}`);
 
@@ -298,6 +375,9 @@ async function main() {
       maxFeeBips: features.maxFeeBips,
       feeChangeNotice: features.feeChangeNotice,
       feeExemption: features.feeExemption,
+      undistributedSats: sats(undistributed),
+      unclaimedFromPoxSats: sats(unclaimedFromPox),
+      earnedFeesSats: sats(earnedFees),
       evidence: {
         bitcoinRewards: features.bitcoinRewards.evidence,
         openToAnyone: features.openToAnyone.evidence,

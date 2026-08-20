@@ -56,6 +56,48 @@ export interface Signer {
   /** Stakers charged nothing whatever the fee is; null when all pay alike. */
   feeExemption: FeeExemption | null;
 
+  /**
+   * sBTC the contract is holding for its stakers and has not paid out, in
+   * sats. `get-unclaimed-staker-rewards` in the Standard contract, and
+   * whatever the equivalent no-argument getter is called elsewhere.
+   *
+   * A pool empties this out as each staker is paid, so a large one means
+   * money is sitting in the contract that belongs to the people in it. It
+   * never reaches exactly zero — the per-token maths truncates on every
+   * share and the last few sats stay behind — so read a few sats as done and
+   * only a real number as outstanding.
+   *
+   * Null when the contract publishes no such total, or the node would not
+   * answer. Not zero: a pool shown as holding nothing when it is holding
+   * somebody's rewards would be a lie about their money.
+   *
+   * Optional, like the two below it, because the page reads `signers.json`
+   * from the published branch at runtime as well as from its own bundle — so
+   * an installed app will meet files written before these were recorded.
+   * Absent means the same as null to every reader of it.
+   */
+  undistributedSats?: string | null;
+  /**
+   * sBTC pox-5 has earned for this signer that no `claim-rewards` has pulled
+   * in yet, in sats — the STX leg of the cycle in `SignerData.cycle`.
+   *
+   * This is the answer to "has this pool claimed the last distribution?".
+   * pox-5 zeroes it when the pool claims and it grows again at the next
+   * distribution, so zero means caught up and anything else is a payout the
+   * pool's stakers cannot reach yet. Read from pox-5 rather than from the
+   * signer manager, so it means the same thing for every implementation.
+   */
+  unclaimedFromPoxSats?: string | null;
+  /**
+   * Fees this contract has taken and the operator has not withdrawn, in sats.
+   *
+   * A balance, not a lifetime total: `withdraw-fees` subtracts from it. So
+   * this is what the pool is holding for itself, next to `undistributedSats`,
+   * which is what it is holding for everybody else. Null when the contract
+   * keeps no fee, which is not the same as a fee of nothing — see `feeBips`.
+   */
+  earnedFeesSats?: string | null;
+
   /** Contract text the feature decisions came from. */
   evidence: {
     bitcoinRewards: string | null;
