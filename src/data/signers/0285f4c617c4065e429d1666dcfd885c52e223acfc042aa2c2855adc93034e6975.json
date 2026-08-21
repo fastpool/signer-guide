@@ -11,11 +11,11 @@
         "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-xverse-v1": "0",
         "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-2": "12912497056168"
       },
-      "memberCount": 435,
+      "memberCount": 460,
       "membersAddUp": true,
-      "walks": 27,
-      "walkedAt": "2026-08-20T22:48:52.295Z",
-      "walkedUstx": "12483223325211",
+      "walks": 28,
+      "walkedAt": "2026-08-21T23:43:11.478Z",
+      "walkedUstx": "12912497056168",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -35,5 +35,5 @@
     }
   ],
   "currentCycle": 141,
-  "generatedAt": "2026-08-21T22:45:48.148Z"
+  "generatedAt": "2026-08-21T23:48:15.194Z"
 }
