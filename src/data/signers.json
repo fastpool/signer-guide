@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-21T15:52:01.537Z",
+  "generatedAt": "2026-08-21T16:55:58.542Z",
   "cycle": 141,
   "standardisedWith": "clarinet 3.23.1",
   "signers": [
@@ -414,8 +414,8 @@
       "maxFeeBips": null,
       "feeChangeNotice": null,
       "feeExemption": null,
-      "undistributedSats": "0",
-      "unclaimedFromPoxSats": "40592854",
+      "undistributedSats": "6209331",
+      "unclaimedFromPoxSats": "0",
       "earnedFeesSats": "0",
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
