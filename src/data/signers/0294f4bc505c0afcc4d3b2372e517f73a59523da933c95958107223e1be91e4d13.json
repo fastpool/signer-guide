@@ -7,7 +7,7 @@
     {
       "cycle": 142,
       "ustx": {
-        "SP3TB3AJ0XMZ9S6CGY2CQ6R06H1Z6DJQ1SH15ZP2H.signer-manager-stillearly": "50021600000"
+        "SP3TB3AJ0XMZ9S6CGY2CQ6R06H1Z6DJQ1SH15ZP2H.signer-manager-stillearly": "50020500000"
       },
       "memberCount": 4,
       "membersAddUp": true,
@@ -32,5 +32,5 @@
     }
   ],
   "currentCycle": 141,
-  "generatedAt": "2026-08-24T15:59:25.909Z"
+  "generatedAt": "2026-08-24T16:59:19.125Z"
 }
