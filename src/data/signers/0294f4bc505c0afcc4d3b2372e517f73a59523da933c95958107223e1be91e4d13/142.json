@@ -8,6 +8,11 @@
       "contractId": "SP3TB3AJ0XMZ9S6CGY2CQ6R06H1Z6DJQ1SH15ZP2H.signer-manager-stillearly"
     },
     {
+      "staker": "SP3TB3AJ0XMZ9S6CGY2CQ6R06H1Z6DJQ1SH15ZP2H",
+      "ustx": "14000000",
+      "contractId": "SP3TB3AJ0XMZ9S6CGY2CQ6R06H1Z6DJQ1SH15ZP2H.signer-manager-stillearly"
+    },
+    {
       "staker": "SP3X0FAG3PJ62RD7SKRF90QE94KEB9D07K9EAGWS7",
       "ustx": "6000000",
       "contractId": "SP3TB3AJ0XMZ9S6CGY2CQ6R06H1Z6DJQ1SH15ZP2H.signer-manager-stillearly"
