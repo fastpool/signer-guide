@@ -1,0 +1,36 @@
+{
+  "signerKey": "0x0344dc9c4ccd3c537205b22c673b4b717d88211c4110537ff034aa924c9678aa54",
+  "contractIds": [
+    "SP3RXEYRBECSGNPDPZD5XRR7MT5DC1FT1SNZZXGVX.signer-manager"
+  ],
+  "cycles": [
+    {
+      "cycle": 142,
+      "ustx": {
+        "SP3RXEYRBECSGNPDPZD5XRR7MT5DC1FT1SNZZXGVX.signer-manager": "0"
+      },
+      "memberCount": 0,
+      "membersAddUp": true,
+      "walks": 1,
+      "walkedAt": "2026-08-24T14:08:59.963Z",
+      "walkedUstx": "0",
+      "fileFinal": false,
+      "cycleFinal": false
+    },
+    {
+      "cycle": 141,
+      "ustx": {
+        "SP3RXEYRBECSGNPDPZD5XRR7MT5DC1FT1SNZZXGVX.signer-manager": "0"
+      },
+      "memberCount": 0,
+      "membersAddUp": true,
+      "walks": 1,
+      "walkedAt": "2026-08-24T14:08:59.963Z",
+      "walkedUstx": "0",
+      "fileFinal": false,
+      "cycleFinal": true
+    }
+  ],
+  "currentCycle": 141,
+  "generatedAt": "2026-08-24T14:09:00.472Z"
+}

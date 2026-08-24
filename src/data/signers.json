@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-24T13:18:01.767Z",
+  "generatedAt": "2026-08-24T14:08:47.886Z",
   "cycle": 141,
   "standardisedWith": "clarinet 3.23.1",
   "signers": [
@@ -528,6 +528,34 @@
       "feeExemption": null,
       "undistributedSats": "0",
       "unclaimedFromPoxSats": "2807320",
+      "earnedFeesSats": "0",
+      "evidence": {
+        "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
+        "openToAnyone": null,
+        "maxFee": null
+      }
+    },
+    {
+      "contractId": "SP3RXEYRBECSGNPDPZD5XRR7MT5DC1FT1SNZZXGVX.signer-manager",
+      "displayName": "signer-manager",
+      "displayNameSource": "contract",
+      "implementationName": "Standard",
+      "registered": true,
+      "signerKey": "0x0344dc9c4ccd3c537205b22c673b4b717d88211c4110537ff034aa924c9678aa54",
+      "sourceSha256": "48d22cf832f2b61118327265b6b7f303c911a98bdb5af2a54a931a1cf432e316",
+      "canonicalSha256": "004da6bde5f91b9cdf555a020494cab73d29cc75733ad0c05e4f4b32a94e251b",
+      "groupSha256": "09aa95c7bdeb5ba47970ef47eec3122bf1e1c38ac796799622bc9a4a48c0867e",
+      "identiconHash": "d89fc8775ea2b1b5db173427cef51e3b7e164d33b7b4b11ff925e0ea78b2c20c",
+      "match": "canonical",
+      "profileId": "standard",
+      "bitcoinRewards": true,
+      "openToAnyone": true,
+      "feeBips": 0,
+      "maxFeeBips": null,
+      "feeChangeNotice": null,
+      "feeExemption": null,
+      "undistributedSats": "0",
+      "unclaimedFromPoxSats": "0",
       "earnedFeesSats": "0",
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
