@@ -1,9 +1,9 @@
 {
   "cycle": 141,
   "distributionBlocks": 1050,
-  "blocksIntoCycle": 848,
-  "blocksLeftInCycle": 202,
-  "currentBurnHeight": 964047,
+  "blocksIntoCycle": 851,
+  "blocksLeftInCycle": 199,
+  "currentBurnHeight": 964050,
   "lastRewardBurnHeight": 963199,
   "nextRewardBurnHeight": 964249,
   "totalStakedUstx": "392447554847960",
@@ -15,11 +15,11 @@
   "bondShareSats": "0",
   "foundationShareSats": "21045440",
   "stxOnlySoFarSats": "119257494",
-  "projectedCycleSats": "147665529",
-  "projectedRateSatsPer1000Stx": "376",
+  "projectedCycleSats": "147144969",
+  "projectedRateSatsPer1000Stx": "374",
   "lastPayoutCycle": 141,
   "lastPayoutRateSatsPer1000Stx": "350",
   "cumulativeRewardsPerUstx": "350915540939",
-  "rateSatsPer1000Stx": "370",
-  "generatedAt": "2026-08-25T19:49:06.201Z"
+  "rateSatsPer1000Stx": "369",
+  "generatedAt": "2026-08-25T20:50:03.200Z"
 }
