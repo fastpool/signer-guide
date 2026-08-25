@@ -9,11 +9,11 @@
       "ustx": {
         "SP3TB3AJ0XMZ9S6CGY2CQ6R06H1Z6DJQ1SH15ZP2H.signer-manager-stillearly": "50020500000"
       },
-      "memberCount": 4,
+      "memberCount": 3,
       "membersAddUp": true,
-      "walks": 3,
-      "walkedAt": "2026-08-24T15:04:47.053Z",
-      "walkedUstx": "50021600000",
+      "walks": 4,
+      "walkedAt": "2026-08-25T15:09:23.376Z",
+      "walkedUstx": "50020500000",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -32,5 +32,5 @@
     }
   ],
   "currentCycle": 141,
-  "generatedAt": "2026-08-25T14:10:16.002Z"
+  "generatedAt": "2026-08-25T15:09:27.766Z"
 }
