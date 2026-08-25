@@ -7,7 +7,7 @@
     {
       "cycle": 142,
       "ustx": {
-        "SP1N8F8BBBC60XF6HJBNJHKPRGJ7WZBRGNDJX4YDR.signer-manager": "41723700000000"
+        "SP1N8F8BBBC60XF6HJBNJHKPRGJ7WZBRGNDJX4YDR.signer-manager": "65474120000000"
       },
       "memberCount": 2,
       "membersAddUp": true,
@@ -32,5 +32,5 @@
     }
   ],
   "currentCycle": 141,
-  "generatedAt": "2026-08-25T10:54:17.610Z"
+  "generatedAt": "2026-08-25T11:48:40.360Z"
 }
