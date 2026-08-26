@@ -63,13 +63,23 @@ async function readCycle(
 }
 
 /**
- * Read every pool's total, for the cycle worth showing.
+ * Read every pool's total, for the cycle worth showing and the one after it.
  *
  * pox-5 went live part-way through cycle 140, and nothing is locked with it
  * until 141 — so during that window the current cycle reads as zero
  * everywhere. A page of zeros tells a reader nothing, so when every pool we
  * could read has nothing, the cycle being filled is the one shown. Once a
  * pox-5 cycle is the current one this never runs.
+ *
+ * The next cycle is worth reading because it is not a copy: pox-5 answers for
+ * a future cycle with what is delegated for it *so far*, so somebody who
+ * unstaked this cycle is already gone from it. Only one cycle ahead, though —
+ * a cycle after that answers the same as the next one, since nothing can yet
+ * have changed between them, and printing the same number twice under two
+ * headings would tell a reader something that is not true.
+ *
+ * When the fallback above ran, the cycle being shown is already the one
+ * filling, so there is no further cycle to show and `next` is left out.
  */
 export async function readLockedTotals(
   contractIds: string[],
@@ -85,7 +95,14 @@ export async function readLockedTotals(
   if (answered.every((v) => v === '0')) {
     cycle = currentCycle + 1;
     ustx = await readCycle(contractIds, cycle);
+    return { cycle, ustx };
   }
 
-  return { cycle, ustx };
+  const nextCycle = cycle + 1;
+  const nextUstx = await readCycle(contractIds, nextCycle);
+  // A cycle nobody would answer for is one we do not know about, and saying
+  // nothing beats a second line built out of a handful of pools.
+  if (Object.values(nextUstx).every((v) => v === null)) return { cycle, ustx };
+
+  return { cycle, ustx, next: { cycle: nextCycle, ustx: nextUstx } };
 }

@@ -115,10 +115,13 @@ export default function App() {
     applyLocaleMetadata(locale);
   }, [locale]);
 
-  const staked = sumUstx(
-    signerData.signers.map((s) => s.contractId),
-    totals.ustx,
-  );
+  const contractIds = signerData.signers.map((s) => s.contractId);
+  const staked = sumUstx(contractIds, totals.ustx);
+  // The cycle now filling, when the refresh could read it. Left out rather
+  // than shown as unchanged: "the same as this cycle" is a claim of its own.
+  const stakedNext = totals.next
+    ? sumUstx(contractIds, totals.next.ustx)
+    : null;
 
   if (route.name === 'contract') {
     const template = templateFor(templates, route.profileId);
@@ -269,6 +272,18 @@ export default function App() {
                 </strong>
               ),
               cycle: totals.cycle,
+            })}
+          </p>
+        )}
+        {stakedNext !== null && totals.next && (
+          <p className='text-lg text-muted'>
+            {t.rich('app.stakedNext', {
+              amount: (
+                <strong className='text-ink'>
+                  {stxLabel(stakedNext.toString(), locale)}
+                </strong>
+              ),
+              cycle: totals.next.cycle,
             })}
           </p>
         )}

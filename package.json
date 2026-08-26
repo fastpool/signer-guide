@@ -14,6 +14,8 @@
     "members": "tsx scripts/signer-members.ts",
     "movement": "tsx scripts/membership-movement.ts",
     "addresses": "tsx scripts/address-report.ts",
+    "plan:recovery": "tsx scripts/generate-recovery-plan.ts",
+    "report:unclaimed": "tsx scripts/report-unclaimed.ts",
     "test": "vitest run",
     "check:pwa": "node scripts/pwa-check.mjs"
   },

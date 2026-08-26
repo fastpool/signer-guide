@@ -125,6 +125,30 @@ describe('what a saved copy has to look like to be believed', () => {
       stxOnlyCalculations: BUNDLED.stxOnlyCalculations,
     });
     expect(readCachedSnapshot()).not.toBeNull();
+
+    // The next cycle is held to the same standard, and its absence is not a
+    // fault: a copy saved before it was read is still worth showing.
+    write({
+      signers: BUNDLED.signers,
+      totals: {
+        cycle: 141,
+        ustx: { 'SP0.a': '250' },
+        next: { cycle: 142, ustx: { 'SP0.a': '12.5' } },
+      },
+      stxOnlyCalculations: BUNDLED.stxOnlyCalculations,
+    });
+    expect(readCachedSnapshot()).toBeNull();
+
+    write({
+      signers: BUNDLED.signers,
+      totals: {
+        cycle: 141,
+        ustx: { 'SP0.a': '250' },
+        next: { cycle: 142, ustx: { 'SP0.a': null } },
+      },
+      stxOnlyCalculations: BUNDLED.stxOnlyCalculations,
+    });
+    expect(readCachedSnapshot()).not.toBeNull();
   });
 
   it('refuses one that is not JSON at all', () => {

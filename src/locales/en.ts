@@ -51,6 +51,8 @@ const messages = {
   'app.introContracts': '{count} signer contracts',
   'app.staked':
     'Between them they are looking after {amount} for cycle {cycle}.',
+  'app.stakedNext':
+    'Cycle {cycle} is still filling: {amount} committed to them so far.',
   'app.contractsHeading': 'The signer contracts',
   'app.contractsIntro':
     'Each one behaves differently. Tap a contract to see what it does and who runs it.',
@@ -380,6 +382,17 @@ const messages = {
   'stake.position.maxFee':
     'Up to {sats} sats of each payout covers sending it on.',
   'stake.position.minClaim': 'Paid out once it is worth at least {sats} sats.',
+  'stake.position.userDataBitcoin':
+    'You sent {address} with your {tx}, and a fee cap of {sats} sats.',
+  'stake.position.userDataSbtc':
+    'You sent no address with your {tx}, which asks to be paid in sBTC.',
+  'stake.position.userDataFloor': 'You sent a {sats} sats floor with it.',
+  'stake.position.userDataNoFloor':
+    'You sent no floor with it, so the pool used its own.',
+  'stake.position.userDataStakeTx': 'stake',
+  'stake.position.userDataUpdateTx': 'stake update',
+  'stake.position.userDataUnknown':
+    'We could not find the transaction that carried your details.',
 
   'stake.amountQuestion': 'How much would you like to stake?',
   'stake.amountQuestionMore': 'How much would you like to add?',
