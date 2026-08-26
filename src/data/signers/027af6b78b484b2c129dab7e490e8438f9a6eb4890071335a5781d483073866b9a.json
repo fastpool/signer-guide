@@ -7,13 +7,13 @@
     {
       "cycle": 142,
       "ustx": {
-        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-hashkey-v1": "0"
+        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-hashkey-v1": "11499999999999"
       },
-      "memberCount": 0,
+      "memberCount": 1,
       "membersAddUp": true,
-      "walks": 2,
-      "walkedAt": "2026-08-14T21:29:04.389Z",
-      "walkedUstx": "0",
+      "walks": 3,
+      "walkedAt": "2026-08-26T15:55:45.364Z",
+      "walkedUstx": "11499999999999",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -32,5 +32,5 @@
     }
   ],
   "currentCycle": 141,
-  "generatedAt": "2026-08-26T13:27:28.178Z"
+  "generatedAt": "2026-08-26T15:56:07.995Z"
 }
