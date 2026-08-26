@@ -9,13 +9,13 @@
       "cycle": 142,
       "ustx": {
         "SP21D6BW36TSGWAZS8K4JAJVTNXWKQN9G3TH5MG6A.signer-manager-bd-contract": "360000500110",
-        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-blockdaemon-v1": "0"
+        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-blockdaemon-v1": "11500000000006"
       },
-      "memberCount": 1,
+      "memberCount": 2,
       "membersAddUp": true,
-      "walks": 2,
-      "walkedAt": "2026-08-14T21:38:57.325Z",
-      "walkedUstx": "360000500110",
+      "walks": 3,
+      "walkedAt": "2026-08-26T15:55:45.364Z",
+      "walkedUstx": "11860000500116",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -35,5 +35,5 @@
     }
   ],
   "currentCycle": 141,
-  "generatedAt": "2026-08-26T09:06:44.639Z"
+  "generatedAt": "2026-08-26T20:10:34.454Z"
 }
