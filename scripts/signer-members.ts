@@ -13,9 +13,11 @@
  * Two sources, and they answer different questions:
  *
  *  - `/extended/v3/staking/signers/{signer}/stakers` — Hiro's index of who
- *    has ever staked with this signer contract. It is a list of principals
- *    and nothing else: no amounts, and no claim that any of them is still
- *    there. It is keyed by the signer *contract*, so unlike the pox-4-era
+ *    stakes with this signer contract. It is a list of principals and nothing
+ *    else: no amounts, and no cycle — it says who is there now, and somebody
+ *    who has moved on is off it, so a past cycle is a question for the
+ *    committed rosters. It is keyed by the signer *contract*, so unlike the
+ *    pox-4-era
  *    `/extended/v2/pox/cycles/…/signers/{signer_key}/stackers`, two contracts
  *    sharing one signer key do not get one another's members — which is why a
  *    signer's members are collected by walking each of its contracts.

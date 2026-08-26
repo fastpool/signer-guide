@@ -302,7 +302,7 @@ Two sources, answering different questions:
 
 | source                                                 | says                                          |
 | ------------------------------------------------------ | --------------------------------------------- |
-| `/extended/v3/staking/signers/{signer}/stakers` (Hiro) | who has ever staked with this signer contract |
+| `/extended/v3/staking/signers/{signer}/stakers` (Hiro) | who stakes with this signer contract right now |
 | `pox-5.get-signer-cycle-membership` (the chain)        | who is with it this cycle, and for how much   |
 
 The index says who to ask about; the chain says what is true. That ordering is

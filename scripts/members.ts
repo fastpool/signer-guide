@@ -6,10 +6,16 @@
  * the same for both and is worth having once:
  *
  *  - `/extended/v3/staking/signers/{contract}/stakers` — Hiro's index of who
- *    has ever staked with a signer *contract*. A list of principals and
- *    nothing else: no amounts, and no claim that any of them is still there.
- *    Keyed by contract, so a signer's members are collected by walking each of
- *    its contracts.
+ *    stakes with a signer *contract*. A list of principals and nothing else:
+ *    no amounts, and no cycle. Keyed by contract, so a signer's members are
+ *    collected by walking each of its contracts.
+ *
+ *    Present tense, and that is not a nicety. It lists a staker under the
+ *    signer they are with now, and a move takes them off the old signer's
+ *    list — checked against pox-5's transaction history, where 58 of 2,023
+ *    memberships were missing here, every one somebody who had since moved
+ *    on. Anything asking about a past cycle needs the committed rosters, not
+ *    this.
  *  - `pox-5.get-signer-cycle-membership` — the chain, asked per staker: for
  *    this cycle, which signer are they with and for how much. This is what
  *    membership actually means.
