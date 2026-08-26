@@ -69,17 +69,30 @@ function isSignerData(value: unknown): value is SignerData {
   );
 }
 
+// The page does BigInt arithmetic on these, so anything that is not a plain
+// uSTX count or an honest null has to be rejected here rather than thrown at
+// the first render.
+function isCycleAmounts(value: unknown): boolean {
+  if (typeof value !== 'object' || value === null) return false;
+  return Object.values(value).every(
+    (amount) =>
+      amount === null || (typeof amount === 'string' && /^\d+$/.test(amount)),
+  );
+}
+
 function isLockedTotals(value: unknown): value is LockedTotals {
   if (typeof value !== 'object' || value === null) return false;
   const data = value as Partial<LockedTotals>;
   if (typeof data.cycle !== 'number') return false;
-  if (typeof data.ustx !== 'object' || data.ustx === null) return false;
-  // The page does BigInt arithmetic on these, so anything that is not a plain
-  // uSTX count or an honest null has to be rejected here rather than thrown at
-  // the first render.
-  return Object.values(data.ustx).every(
-    (amount) =>
-      amount === null || (typeof amount === 'string' && /^\d+$/.test(amount)),
+  if (!isCycleAmounts(data.ustx)) return false;
+  // A file written before the next cycle was read has no `next` at all, which
+  // is not a reason to throw away everything else in it.
+  if (data.next === undefined) return true;
+  return (
+    typeof data.next === 'object' &&
+    data.next !== null &&
+    typeof data.next.cycle === 'number' &&
+    isCycleAmounts(data.next.ustx)
   );
 }
 

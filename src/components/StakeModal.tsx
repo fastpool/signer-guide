@@ -687,6 +687,64 @@ export default function StakeModal({
                     )}
                   </p>
                 )}
+                {/*
+                 * What the pool holds is above; this is what the person
+                 * themselves sent. Usually the same thing said twice, but not
+                 * always: a two-field calldata carries no floor, and the pool
+                 * puts one in. Worth seeing before staking again.
+                 */}
+                <p className='mt-2 text-xs text-muted'>
+                  {position.userData === null
+                    ? t('stake.position.userDataUnknown')
+                    : t.rich(
+                        position.userData.route.kind === 'sbtc'
+                          ? 'stake.position.userDataSbtc'
+                          : 'stake.position.userDataBitcoin',
+                        {
+                          address:
+                            position.userData.route.kind === 'bitcoin' ? (
+                              <span
+                                className='font-mono'
+                                title={position.userData.route.address}
+                              >
+                                {ellipsedAddr(position.userData.route.address, 16)}
+                              </span>
+                            ) : (
+                              ''
+                            ),
+                          sats:
+                            position.userData.route.kind === 'bitcoin'
+                              ? position.userData.route.maxFeeSats.toLocaleString(
+                                  t.bundle.intlLocale,
+                                )
+                              : '',
+                          tx: (
+                            <a
+                              className='underline underline-offset-2'
+                              href={explorerUrl(position.userData.txId)}
+                              target='_blank'
+                              rel='noreferrer'
+                            >
+                              {t(
+                                position.userData.functionName === 'stake-update'
+                                  ? 'stake.position.userDataUpdateTx'
+                                  : 'stake.position.userDataStakeTx',
+                              )}
+                            </a>
+                          ),
+                        },
+                      )}{' '}
+                  {position.userData?.route.kind === 'bitcoin' &&
+                    (position.userData.route.minClaimSats === null
+                      ? position.payout?.route.kind === 'bitcoin' &&
+                        position.payout.route.minClaimSats !== null &&
+                        t('stake.position.userDataNoFloor')
+                      : t('stake.position.userDataFloor', {
+                          sats: position.userData.route.minClaimSats.toLocaleString(
+                            t.bundle.intlLocale,
+                          ),
+                        }))}
+                </p>
               </div>
             )}
 

@@ -87,6 +87,8 @@ export const ko: LocaleBundle = {
     'app.introContracts': '{count}개의 서명자 컨트랙트',
     'app.staked':
       '합쳐서 현재 {amount}를 {cycle} 사이클 기준으로 맡고 있습니다.',
+    'app.stakedNext':
+      '{cycle} 사이클은 아직 채워지는 중입니다. 지금까지 {amount}가 맡겨졌습니다.',
     'app.contractsHeading': '서명자 컨트랙트',
     'app.contractsIntro':
       '컨트랙트마다 동작이 다릅니다. 컨트랙트를 눌러 어떤 기능인지, 누가 운영하는지 확인하세요.',
@@ -245,6 +247,17 @@ export const ko: LocaleBundle = {
     'stake.position.maxFee':
       '보상을 보낼 때 최대 {sats} sats까지 전송 비용으로 사용됩니다.',
     'stake.position.minClaim': '{sats} sats 이상 모이면 지급됩니다.',
+    'stake.position.userDataBitcoin':
+      '{tx} 때 {address} 주소와 수수료 상한 {sats} sats를 보냈습니다.',
+    'stake.position.userDataSbtc':
+      '{tx} 때 주소를 보내지 않았습니다. sBTC로 받겠다는 뜻입니다.',
+    'stake.position.userDataFloor': '함께 {sats} sats 하한도 보냈습니다.',
+    'stake.position.userDataNoFloor':
+      '하한은 보내지 않아서 풀이 자체 값을 사용했습니다.',
+    'stake.position.userDataStakeTx': '스테이킹',
+    'stake.position.userDataUpdateTx': '스테이킹 변경',
+    'stake.position.userDataUnknown':
+      '보낸 정보가 담긴 트랜잭션을 찾지 못했습니다.',
 
     'stake.amountQuestion': '얼마를 스테이킹할까요?',
     'stake.max': '최대',

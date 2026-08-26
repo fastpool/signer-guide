@@ -1,5 +1,6 @@
 /**
- * Builds src/data/totals.json: how much STX each pool is looking after.
+ * Builds src/data/totals.json: how much STX each pool is looking after, for
+ * the cycle running now and for the one filling behind it.
  *
  * The pools come from src/data/signers.json, so this runs after
  * `generate-signers.ts` and covers exactly the pools the page will show.
@@ -73,7 +74,10 @@ async function main() {
   const unknown = Object.values(merged.ustx).filter((v) => v === null).length;
   fs.writeFileSync(OUTPUT, `${JSON.stringify(merged, null, 2)}\n`);
 
-  console.log(`\nWrote cycle ${merged.cycle} amounts to ${OUTPUT}`);
+  const cycles = merged.next
+    ? `cycles ${merged.cycle} and ${merged.next.cycle}`
+    : `cycle ${merged.cycle}`;
+  console.log(`\nWrote ${cycles} amounts to ${OUTPUT}`);
   if (carriedForward) {
     console.log(
       `  ${carriedForward} pool(s) failed this run, kept previous amount`,

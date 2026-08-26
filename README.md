@@ -16,7 +16,8 @@ what actually matters to you.
 ```bash
 pnpm install
 pnpm generate:signers   # refresh src/data/signers.json from mainnet
-pnpm generate:totals    # refresh src/data/totals.json — what each pool holds
+pnpm generate:totals    # refresh src/data/totals.json — what each pool holds,
+                        # this cycle and the next
 pnpm dev
 ```
 
@@ -182,6 +183,22 @@ Amounts are shown for the current reward cycle, falling back to the cycle being
 filled while the current one is empty — during the pox-5 changeover, cycle 140
 read as zero for every pool, which tells a reader nothing.
 
+The cycle filling behind it is read too, and shown under the first as _still
+filling_. It is not a copy: pox-5 answers for a future cycle with what is
+delegated for it **so far**, so somebody who has unstaked is already out of it
+while still counting in the current one — 356 million STX for cycle 141 against
+329 million for 142, the day this was written. Only the one cycle ahead, though.
+A cycle beyond that answers exactly the same as the next one, since nothing can
+have moved between them yet, and printing one number under two headings would
+tell a reader something untrue. When the fallback above has run, the cycle being
+shown is already the one filling, and no second line appears.
+
+An amount is only ever carried forward onto the cycle it was read for. A pool
+the node refused this hour keeps the last figure for *that same cycle* — which,
+at a rollover, is the one the previous run recorded as next — and otherwise
+reads as _amount not known_ rather than being given a neighbouring cycle's
+number.
+
 ## Refreshing
 
 ### Which node it asks
@@ -303,6 +320,179 @@ the commits worth reading:
 The commit message is the list of what moved — a fee going from 0% to 2.5%, a
 pool registering, a feature reading that changed under us (which can only mean
 a detector here changed, since a deployed contract cannot).
+
+## What a staker sent, and what the pool made of it
+
+The stake panel shows two things that usually agree, and are worth telling
+apart when they do not: the Bitcoin payout the pool holds for you, and the
+**user data** you sent yourself.
+
+pox-5 does not keep the user data. `stake` and `stake-update` take it as their
+last argument, `signer-calldata (optional (buff 500))`, and pass it straight to
+the signer manager's `validate-stake!` through a reentrancy guard. There is no
+map for it, no `print` carries it, and `get-staker-info` returns only
+`{amount-ustx, first-reward-cycle, num-cycles, signer}`. What survives on chain
+is whatever the signer manager chose to keep — fastpool's stores the parsed
+tuple in its own `payout-configs` map, read back with `get-payout-config`.
+
+So the sent bytes are only readable from the transaction. The page walks the
+address's transactions newest-first for a successful pox-5 `stake` or
+`stake-update` and decodes that last argument. The type to decode it against
+comes from the signer manager, not pox-5: `parse-payout-calldata` accepts
+exactly two shapes and nothing else —
+
+    {pox-addr: {version, hashbytes}, max-fee, min-claim}   this contract's
+    {pox-addr: {version, hashbytes}, max-fee}              v1's
+
+and a `none` argument is a request, not a blank: it deletes the address on file
+and asks to be paid in sBTC.
+
+The two can disagree in a way a staker should see. Send the two-field shape and
+the pool accepts it, then fills in `default-min-claim` — `max-fee + 546 + 1` —
+so `get-payout-config` reports a floor you never chose. The page reports the
+sent floor as absent rather than substituting the pool's, and says the pool
+used its own.
+
+## Where the rewards are sitting
+
+Rewards do not arrive; they are fetched, in two hops, neither of which happens
+on its own:
+
+    pox-5  --claim-rewards-->  signer manager  --claim-staker-rewards-->  you
+
+pox-5 accrues per cycle against the signer's shares. `claim-rewards` on the
+signer manager pulls that across as real sBTC; until somebody calls it, the
+money is in pox-5 and the pool's own balance does not show it. Then each
+staker's share sits pooled in the manager until `claim-staker-rewards` moves
+it. Both calls are permissionless — anyone may make them for anyone — which is
+exactly why nobody does.
+
+    pnpm report:unclaimed --skip-stakers      the amounts, in a couple of minutes
+    HIRO_API_KEY=… pnpm report:unclaimed      the amounts and the head count
+
+The Capped Fee implementation adds a stage the others do not have.
+`settle-staker-rewards` moves a share out of the pooled bucket into that
+staker's `pending-payouts`, so small cycles can accumulate and pay one Bitcoin
+fee between them. Standard and Xverse have no such stage — `claim-staker-rewards`
+pays out on the spot — and no such getter, which is why every read is probed
+for rather than assumed. Native Pool, the invite-only bond managers and Juice
+Pool keep no per-staker sBTC at all and are reported as such, not as zero.
+
+Two piles are deliberately not counted as owed to stakers: the withdrawal
+liability, which has already left the balance into an sBTC withdrawal (in
+flight, or refused and stuck — see below), and the operator's earned fees.
+
+The head count is the slow half. Nothing enumerates a Clarity map, so the only
+list of who staked with whom is pox-5's transaction history — every successful
+`stake` and `stake-update`, whose result names both. A staker who moved pools
+is still owed by the old one for the cycles they were there, so every signer
+they have been with is kept, not just the current one. `--skip-stakers` gives
+the amounts alone, which need only a handful of calls.
+
+Everything reads the STX-only side (`bond-index: none`). Bond-period rewards
+are keyed per bond index and would each need their own read, so rather than
+quietly reporting a subset the script checks `total-sbtc-staked` first and says
+plainly when there is a subset to miss.
+
+The two halves are counted from different ends — contract totals on one side,
+person by person on the other — and they do not quite agree. A share is
+computed with integer division, so the shares of a pooled bucket never add back
+up to it exactly; the dust stays in the bucket and belongs to nobody in
+particular. The report prints the gap rather than leaving a reader to find it.
+
+### Native Pool keeps no books
+
+Most managers keep their own ledger. Native Pool keeps none at all: `claim-rewards`
+pulls a whole cycle's sBTC into the contract, and each staker then pulls their
+own share out with `claim-staker-rewards`, which reads what they are owed
+straight from pox-5 and takes no fee. So there is no `get-unclaimed-staker-rewards`
+to ask, and three things have to be read from somewhere else:
+
+    the pile          the contract's plain sBTC balance
+    what you're owed  pox-5's get-earned-staker-rewards(signer, cycle, none, staker)
+    who has claimed   the contract's own `claim-staker-rewards` print events
+
+That last one is the only record there is, which is why the claim list is
+parsed off the event log rather than read from a map. The report names them
+with `--list-claims`.
+
+Its members are invisible to the pox-5 walk, too. They never call pox-5
+themselves: `native-pool-v1 delegate` calls `stake` for them inside the same
+transaction, so the transaction's result is the wrapper's and names nobody.
+pox-5's own print event does name them, but its event log cannot be paged back
+far enough to reach. So a gated pool is enumerated from its membership roll
+instead — and which contract that is comes out of the manager's deployed
+source rather than a hardcoded address, since `validate-stake!` has to name its
+gate for pox-5 to admit anyone:
+
+    (asserts! (contract-call? .native-pool-v1 is-delegating staker …) …)
+
+Everyone who has *ever* delegated is counted, not only those still delegating:
+leaving does not forfeit what a cycle already earned you.
+
+One thing worth knowing before offering to help: `claim-staker-rewards` takes
+the staker from `tx-sender`, so **only they can claim it**. Both hops are
+permissionless everywhere else in pox-5 — this one is not, and no operator can
+sweep it out to people on their behalf.
+
+The shape is detected, not hardcoded: a manager with a public
+`claim-staker-rewards` but no read-only getters is holding stakers' money
+without books, whoever deployed it.
+
+### Unread is not empty
+
+Under a rate limit the interface read is what fails first, and a pool that
+cannot be read must never print as a pool that keeps nothing — those look
+identical through a boolean, and the difference was five million sats the first
+time this ran. So a pool is one of four things — it keeps its own books, it
+holds without books (above), it genuinely keeps nothing, or it could not be
+read — and a single unread pool makes the totals unknown rather than low.
+
+## Recovering a failed distribution
+
+An L1 payout does not always land. The signer manager hands the whole amount
+to sBTC as a withdrawal request with the staker's `max-fee` budget attached,
+and the sBTC signers either fulfil it on Bitcoin or refuse it. A refusal is not
+a loss — the sBTC stays with the pool, reserved against that request — but
+nothing hands it back on its own. Until somebody calls
+`reclaim-failed-withdrawal`, the money shows as neither pending payout nor
+refund, because it is neither.
+
+The usual cause is a fee cap no Bitcoin transaction could be built with.
+`check-payout-config` polices only `min-claim > max-fee + DUST_LIMIT`, so a
+`max-fee` of 1 sat passes every check on the Stacks side and fails on the
+Bitcoin side, one cycle later.
+
+    pnpm plan:recovery
+    HIRO_API_KEY=… pnpm plan:recovery --from 2500 --sender SP…
+
+This walks the sBTC registry and writes a Clarinet deployment plan holding one
+`reclaim-failed-withdrawal` per rejection. What it keeps is exactly what the
+contract will accept: the registry's `status` is `(some false)`, and the pool's
+`get-withdrawal-request-staker` still names somebody, so the entry has not
+already been reclaimed.
+
+The scan is one read-only call per request ever issued — there is no index of
+rejections to ask for — so it is slow anonymously and quick with a key or a
+node of your own. `--from` bounds it, since a rejection never un-rejects.
+
+Nothing in it signs or sends. It writes a file and prints what is in it;
+applying it is a deliberate second step:
+
+    clarinet deployments apply -p deployments/recover-failed-distributions.mainnet-plan.yaml
+
+Each transaction is expected from the staker it pays, which says plainly whose
+money it is and needs their key. `reclaim-failed-withdrawal` is permissionless
+and pays the staker whoever sends it, so `--sender` rewrites them all to one
+operator — a change in who pays the fees, not in who gets the sats. Every call
+carries a comment naming the request, the staker and the sats, because a plan
+nobody can read before running it is not a safeguard.
+
+An *accepted* withdrawal nobody has settled is a different thing and not in the
+plan. Those distributions worked; only the unused fee budget is outstanding,
+recovered with `settle-accepted-withdrawal` then `claim-refund` — and that pair
+has an ordering caveat the reclaim does not, since it infers the refund from a
+balance rather than reading it off the request.
 
 ## Installing it
 

@@ -56,11 +56,46 @@ describe('readLockedTotals', () => {
 
     const totals = await readLockedTotals([POOL_A, POOL_B]);
     // No timestamp: this is committed, and one that moved every hour would be
-    // an hourly commit saying nothing.
+    // an hourly commit saying nothing. No next cycle either, because this
+    // node would not answer for one.
     expect(totals).toEqual({
       cycle: 141,
       ustx: { [POOL_A]: '500', [POOL_B]: '0' },
     });
+  });
+
+  it('reads the cycle filling behind it too', async () => {
+    // 142 is not a copy of 141: somebody who unstaked is already out of it.
+    vi.stubGlobal(
+      'fetch',
+      fakeNode(141, {
+        141: { [POOL_A]: 500n, [POOL_B]: 1_171_575n },
+        142: { [POOL_A]: 500n, [POOL_B]: 0n },
+      }),
+    );
+
+    const totals = await readLockedTotals([POOL_A, POOL_B]);
+    expect(totals?.next).toEqual({
+      cycle: 142,
+      ustx: { [POOL_A]: '500', [POOL_B]: '0' },
+    });
+  });
+
+  it('leaves the next cycle out when the current one had to be guessed', async () => {
+    // The fallback already shows the cycle being filled. A cycle after that
+    // reads the same as it, and printing it twice would say something untrue.
+    vi.stubGlobal(
+      'fetch',
+      fakeNode(140, {
+        140: { [POOL_A]: 0n },
+        141: { [POOL_A]: 253n },
+        142: { [POOL_A]: 253n },
+      }),
+    );
+
+    const totals = await readLockedTotals([POOL_A]);
+    expect(totals?.cycle).toBe(141);
+    expect(totals?.next).toBeUndefined();
   });
 
   it('falls back to the cycle being filled when the current one is empty', async () => {
@@ -127,7 +162,8 @@ describe('being told to slow down', () => {
     await vi.runAllTimersAsync();
     const totals = await pending;
 
-    expect(calls).toBe(2);
+    // The 429, its retry, and then the same pool again for the next cycle.
+    expect(calls).toBe(3);
     expect(totals?.ustx[POOL_A]).toBe('500');
     vi.useRealTimers();
   });

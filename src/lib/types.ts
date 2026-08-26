@@ -60,4 +60,15 @@ export interface LockedTotals {
   cycle: number;
   /** uSTX per contract id as a string; null for a pool we could not read. */
   ustx: Record<string, string | null>;
+  /**
+   * The cycle after it, which is still filling — same shape, one cycle on.
+   *
+   * Absent rather than empty when it could not be read, and absent from the
+   * files written before it existed, so a reader that has one of those in
+   * local storage keeps working.
+   */
+  next?: {
+    cycle: number;
+    ustx: Record<string, string | null>;
+  };
 }
