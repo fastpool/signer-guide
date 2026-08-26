@@ -3,13 +3,16 @@
  *
  *   pnpm report:unclaimed --skip-stakers      the amounts, in a few seconds
  *   HIRO_API_KEY=… pnpm report:unclaimed      the amounts and the head count
+ *   pnpm report:unclaimed --deep              also read pox-5's transactions
  *   pnpm report:unclaimed --json --out unclaimed.json
  *
- * The head count is the slow half: nothing enumerates a Clarity map, so every
- * `stake` / `stake-update` in pox-5's history has to be paged through before a
- * single staker can be asked anything. Anonymously that is a quarter of an
- * hour; with a key or a node of your own it is a couple of minutes. See
- * `node.ts`.
+ * The head count is the slow half: nothing enumerates a Clarity map, so who
+ * staked with whom has to be assembled from the committed rosters and the
+ * staking index before a single staker can be asked anything — see
+ * `enumerateStakers`. Then a couple of calls per staker, which is what the
+ * time goes on. `--deep` adds a four-minute walk through pox-5's own
+ * transactions, which is the only source that is neither generated here nor
+ * indexed by anybody.
  *
  * Reads only. Nothing here claims anything on anybody's behalf — both hops
  * are permissionless, so a report is the honest half of the job.
@@ -91,22 +94,43 @@ async function main() {
 
   let stakers: Report['stakers'] = null;
   if (!has('skip-stakers')) {
-    console.log('\nWalking pox-5 for who has staked…');
-    let lastLogged = 0;
-    const staked = await enumerateStakers({
-      onProgress: (seen, total, found) => {
-        if (seen - lastLogged < 1_000 && seen !== total) return;
-        lastLogged = seen;
-        console.log(`  ${seen}/${total} transactions — ${found} stakers`);
+    console.log('\nFinding who has staked, and with whom…');
+    const found = await enumerateStakers({
+      contractIds: signers.map((signer) => signer.contractId),
+      deep: has('deep'),
+      onProgress: (phase, done, total) => {
+        const every = phase === 'transactions' ? 20 : 10;
+        if (done % every !== 0 && done !== total) return;
+        const unit = phase === 'transactions' ? 'pages of pox-5' : 'pools';
+        console.log(`  ${done}/${total} ${unit}`);
       },
     });
 
-    if (staked === null) {
+    if (found === null) {
       console.warn(
-        'Could not page all of pox-5, so no head count. The amounts above ' +
-          'stand on their own — they never needed the list.',
+        'One of the lists would not come back, so no head count. The amounts ' +
+          'above stand on their own — they never needed the list.',
       );
     } else {
+      const staked = found.stakers;
+      // Which sources this count stands on. A cycle nobody has walked is a
+      // cycle whose leavers are missing from it, and that is worth saying
+      // rather than leaving the reader to assume the list is everybody.
+      console.log(
+        `  ${staked.size} stakers: the staking index for ${signers.length} ` +
+          `pools, rosters for ${
+            found.rosterCycles.length
+              ? `cycle(s) ${found.rosterCycles.join(', ')}`
+              : 'no cycle at all'
+          }` + (found.walked ? ", and pox-5's transactions" : ''),
+      );
+      if (!found.rosterCycles.length && !found.walked) {
+        console.warn(
+          '  No committed rosters and no deep walk, so this is who stakes ' +
+            'now: anybody who has left a pool is missing. `pnpm ' +
+            'generate:history` writes the rosters, or pass --deep.',
+        );
+      }
       // Probe each pool once, so the per-staker loop asks only for getters
       // that exist rather than eating a failed call per staker per pool.
       const getters = new Map<string, Set<string>>();
@@ -137,7 +161,7 @@ async function main() {
         const added = mergeMembers(staked, pool.pool, members.ever);
         console.log(
           `  ${membership}: ${members.ever.length} member(s) ever, ` +
-            `${members.current.length} still delegating (${added} new to the walk)`,
+            `${members.current.length} still delegating (${added} new to the count)`,
         );
       }
 

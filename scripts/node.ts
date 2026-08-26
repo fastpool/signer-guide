@@ -106,3 +106,79 @@ export function describeNode(): string {
   if (API_KEY) return `${API_URL} (with an API key)`;
   return `${API_URL}${IDENTIFIED ? '' : ' (anonymous, so paced slowly)'}`;
 }
+
+/**
+ * Run one job per item, starting them `spacingMs` apart, and keep the order.
+ *
+ * The sleep-then-fetch loop every walk here is written as pays for the wait
+ * *and* the wait for the answer: 300ms of pacing plus a quarter-second of
+ * round trip is half a second per request, of which only the first half was
+ * asked for. Starting the next job while the last one is still in the air
+ * costs the endpoint nothing — the rate it sees is the same one job every
+ * `spacingMs`, which is what a rate limit counts — and gives the round trips
+ * back. On a walk of fifty pages that is the difference between half a minute
+ * and a quarter of one; with an API key, where the spacing is 50ms and the
+ * round trip is most of the time, it is most of the walk.
+ *
+ * `maxInFlight` is the backstop for the other direction: an endpoint that has
+ * gone slow should not end up with a hundred of our requests queued against
+ * it, each of them retrying.
+ *
+ * `job` is expected to answer rather than throw, as everything under
+ * `scripts/` does — null for "could not be read". One that throws anyway is
+ * not swallowed: the first error surfaces once the rest have finished, so a
+ * failure cannot leave jobs running behind it.
+ */
+export async function mapPaced<T, R>(
+  items: readonly T[],
+  job: (item: T, index: number) => Promise<R>,
+  opts: {
+    spacingMs?: number;
+    maxInFlight?: number;
+    /** Called as each job finishes, for a progress line. */
+    onDone?: (done: number, total: number) => void;
+  } = {},
+): Promise<R[]> {
+  const spacingMs = opts.spacingMs ?? SPACING_MS;
+  const maxInFlight = Math.max(1, opts.maxInFlight ?? 8);
+  const results = new Array<R>(items.length);
+  const started: Promise<void>[] = [];
+
+  let inFlight = 0;
+  let done = 0;
+  let failure: unknown = null;
+  // A holder rather than a bare variable: the waiter is set inside a promise
+  // executor and read inside a job, and only a property survives both.
+  const slot: { freed: (() => void) | null } = { freed: null };
+
+  for (let index = 0; index < items.length; index += 1) {
+    if (index > 0) await sleep(spacingMs);
+    while (inFlight >= maxInFlight) {
+      await new Promise<void>((resolve) => {
+        slot.freed = resolve;
+      });
+    }
+
+    inFlight += 1;
+    started.push(
+      (async () => {
+        try {
+          results[index] = await job(items[index], index);
+        } catch (err) {
+          if (failure === null) failure = err;
+        } finally {
+          inFlight -= 1;
+          done += 1;
+          opts.onDone?.(done, items.length);
+          const freed = slot.freed;
+          slot.freed = null;
+          freed?.();
+        }
+      })(),
+    );
+  }
+
+  await Promise.all(started);
+  if (failure !== null) throw failure;
+  return results;
+}

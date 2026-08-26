@@ -66,7 +66,10 @@ export async function fetchIndexedStakers(contractId: string): Promise<{
     const url = new URL(
       `${API_URL}/extended/v3/staking/signers/${contractId}/stakers`,
     );
-    url.searchParams.set('limit', '100');
+    // 200 is what the endpoint allows, and the difference is requests: the
+    // three largest signers hold five hundred-odd members each, which is
+    // three pages here and six at a hundred.
+    url.searchParams.set('limit', '200');
     if (cursor) url.searchParams.set('cursor', cursor);
 
     const page = (await getJson<IndexPage>(url.toString())).value;

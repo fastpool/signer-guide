@@ -805,12 +805,38 @@ Two piles are deliberately not counted as owed to stakers: the withdrawal
 liability, which has already left the balance into an sBTC withdrawal (in
 flight, or refused and stuck — see below), and the operator's earned fees.
 
-The head count is the slow half. Nothing enumerates a Clarity map, so the only
-list of who staked with whom is pox-5's transaction history — every successful
-`stake` and `stake-update`, whose result names both. A staker who moved pools
-is still owed by the old one for the cycles they were there, so every signer
-they have been with is kept, not just the current one. `--skip-stakers` gives
-the amounts alone, which need only a handful of calls.
+The head count was the slow half. Nothing enumerates a Clarity map, so who
+staked with whom has to be assembled, and no single list has all of it:
+
+- **The committed rosters** — `src/data/signers/<key>/<cycle>.json`, which the
+  refresh already writes: who was in each signer each cycle, with the contract
+  each of them was with. This is the half that remembers. A staker who moved
+  pools is still owed by the old one for the cycles they were there, and the
+  roster for that cycle still has them. It costs nothing — the files are on
+  disk.
+- **Hiro's staking index** (`/extended/v3/staking/signers/{contract}/stakers`)
+  — who is with each signer *now*, which is what catches somebody who staked an
+  hour ago. Keyed by the signer contract, so it also has the wrapper joins that
+  pox-5's transaction results never name: 165 stakers of Native Pool alone.
+  One request per pool.
+
+Together they are about fourteen seconds. What they replaced was a walk through
+pox-5's whole transaction history — every successful `stake` and `stake-update`,
+whose result names the staker and the signer they ended up with. That is ten
+thousand transactions at the endpoint's hard limit of fifty a page, and asking
+for the pages together does not help: anonymous, the limit is about fifty
+requests a minute, so the walk takes four minutes either way (252 seconds
+sequential, 202 in parallel, most of that spent being told to slow down).
+
+`--deep` still runs it, because it is the one source that is neither generated
+by this repo nor indexed by anybody — the chain's own record. It finds 2,023
+memberships against the other two's 2,173. Of its 45 extras, every one was put
+back to `get-signer-cycle-membership` for both cycles and not one had ever been
+a member of that pool: they staked and moved again before the cycle they would
+have counted in began. The transaction says what somebody asked for; the roster
+says what happened.
+
+`--skip-stakers` gives the amounts alone, which need only a handful of calls.
 
 Everything reads the STX-only side (`bond-index: none`). Bond-period rewards
 are keyed per bond index and would each need their own read, so rather than

@@ -1,5 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+import * as path from 'node:path';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  enumerateStakers,
   mergeMembers,
   parseClaimEvent,
   parseMembershipEvent,
@@ -236,5 +240,182 @@ describe('mergeMembers', () => {
     mergeMembers(stakers, 'SP0.native', ['SP1AAA']);
     expect(mergeMembers(stakers, 'SP0.native', ['SP1AAA'])).toBe(0);
     expect(stakers.size).toBe(1);
+  });
+});
+
+/*
+ * No single list has everyone. The committed rosters remember who was in a
+ * pool in a cycle, the staking index knows who is in it now — wrapper joins
+ * included, which pox-5's transaction results never name — and only the slow
+ * walk through those transactions is independent of both. So what is worth
+ * pinning down is that a staker keeps the pool they have left (it still owes
+ * them for the cycles they were there), and that a list which would not come
+ * back fails the count rather than shrinking it.
+ */
+describe('enumerateStakers', () => {
+  const POOL_A = 'SP0.pool-a';
+  const POOL_B = 'SP0.pool-b';
+  const GATED = 'SP0.gated';
+
+  let rosterDir = '';
+
+  const writeRoster = (cycle: number, members: [string, string][]) => {
+    const dir = path.join(rosterDir, `key-${cycle}`);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(
+      path.join(dir, `${cycle}.json`),
+      JSON.stringify({
+        signerKey: null,
+        cycle,
+        members: members.map(([staker, contractId]) => ({
+          staker,
+          ustx: '1',
+          contractId,
+        })),
+      }),
+    );
+  };
+
+  const stakeTx = (staker: string, signer: string) => ({
+    tx: {
+      tx_status: 'success',
+      tx_result: {
+        repr: `(ok (tuple (amount-ustx u100) (signer '${signer}) (staker '${staker})))`,
+      },
+      contract_call: {
+        contract_id: 'SP000000000000000000002Q6VF78.pox-5',
+        function_name: 'stake',
+      },
+    },
+  });
+
+  /**
+   * Stands in for both endpoints: the staking index, one page per contract,
+   * and pox-5's transaction history, fifty to a page. `null` for either is
+   * "the API would not answer" — 400 rather than 429 or 500, because those
+   * are worth waiting out and these tests are about what happens once the
+   * waiting is over.
+   */
+  const serving = (opts: {
+    index?: Record<string, string[] | null>;
+    transactions?: ReturnType<typeof stakeTx>[] | null;
+  }) =>
+    vi.fn(async (url: string) => {
+      const refused = { ok: false, status: 400, json: async () => ({}) };
+      const answer = (body: unknown) => ({
+        ok: true,
+        status: 200,
+        json: async () => body,
+      });
+
+      if (url.includes('/transactions')) {
+        if (!opts.transactions) return refused;
+        const offset = Number(/offset=(\d+)/.exec(url)?.[1] ?? 0);
+        return answer({
+          total: opts.transactions.length,
+          results: opts.transactions.slice(offset, offset + 50),
+        });
+      }
+
+      const contract = /signers\/([^/]+)\/stakers/.exec(url)?.[1] ?? '';
+      const stakers = opts.index?.[contract];
+      if (!stakers) return refused;
+      return answer({
+        total: stakers.length,
+        results: stakers.map((staker) => ({ staker, types: ['stx'] })),
+        cursor: { next: null },
+      });
+    });
+
+  beforeEach(() => {
+    rosterDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rosters-'));
+  });
+
+  afterEach(() => {
+    fs.rmSync(rosterDir, { recursive: true, force: true });
+    vi.unstubAllGlobals();
+  });
+
+  it('keeps the pool somebody has left, and has the one who joined through a wrapper', async () => {
+    // SP2BBB was with A in 141 and is with B now; SP3CCC joined the gated
+    // pool through its wrapper, so no pox-5 transaction ever named them.
+    writeRoster(141, [
+      ['SP1AAA', POOL_A],
+      ['SP2BBB', POOL_A],
+    ]);
+    vi.stubGlobal(
+      'fetch',
+      serving({
+        index: {
+          [POOL_A]: ['SP1AAA'],
+          [POOL_B]: ['SP2BBB'],
+          [GATED]: ['SP3CCC'],
+        },
+      }),
+    );
+
+    const found = await enumerateStakers({
+      contractIds: [POOL_A, POOL_B, GATED],
+      rosterDir,
+    });
+
+    expect(found?.stakers.size).toBe(3);
+    expect([...(found?.stakers.get('SP1AAA') ?? [])]).toEqual([POOL_A]);
+    // A owes them for the cycles they were there, whatever the index says now.
+    expect([...(found?.stakers.get('SP2BBB') ?? [])]).toEqual([POOL_A, POOL_B]);
+    expect([...(found?.stakers.get('SP3CCC') ?? [])]).toEqual([GATED]);
+    expect(found?.rosterCycles).toEqual([141]);
+    expect(found?.walked).toBe(false);
+  });
+
+  it('says which cycles it read, so a count can say what it stands on', async () => {
+    writeRoster(141, [['SP1AAA', POOL_A]]);
+    writeRoster(142, [['SP1AAA', POOL_A]]);
+    vi.stubGlobal('fetch', serving({ index: { [POOL_A]: [] } }));
+
+    const found = await enumerateStakers({
+      contractIds: [POOL_A],
+      rosterDir,
+    });
+
+    expect(found?.rosterCycles).toEqual([141, 142]);
+  });
+
+  it('reads pox-5 itself when asked, for a witness of its own', async () => {
+    vi.stubGlobal(
+      'fetch',
+      serving({
+        index: { [POOL_A]: [] },
+        // Staked and gone: no roster, and the index has moved on.
+        transactions: [stakeTx('SP9ZZZ', POOL_A)],
+      }),
+    );
+
+    const found = await enumerateStakers({
+      contractIds: [POOL_A],
+      rosterDir,
+      deep: true,
+    });
+
+    expect([...(found?.stakers.get('SP9ZZZ') ?? [])]).toEqual([POOL_A]);
+    expect(found?.walked).toBe(true);
+  });
+
+  it('gives up rather than reporting fewer people than there are', async () => {
+    vi.stubGlobal(
+      'fetch',
+      serving({ index: { [POOL_A]: ['SP1AAA'], [POOL_B]: null } }),
+    );
+    expect(
+      await enumerateStakers({ contractIds: [POOL_A, POOL_B], rosterDir }),
+    ).toBeNull();
+
+    vi.stubGlobal(
+      'fetch',
+      serving({ index: { [POOL_A]: ['SP1AAA'] }, transactions: null }),
+    );
+    expect(
+      await enumerateStakers({ contractIds: [POOL_A], rosterDir, deep: true }),
+    ).toBeNull();
   });
 });

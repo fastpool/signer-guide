@@ -35,21 +35,28 @@
  *   earned fees            the operator's cut, not a staker's money
  *
  * Counting stakers is the expensive half. Nothing enumerates a Clarity map, so
- * the only list of who staked with whom is the transaction history: every
- * successful `stake` / `stake-update` on pox-5, whose result names both. That
- * is one page per fifty transactions, then a couple of calls per staker. Pass
- * `--skip-stakers` for the amounts alone, which need only a handful of calls.
+ * who staked with whom has to be assembled from two indexes that each know
+ * half of it — pox-5's transaction history, which remembers the pools people
+ * have left, and Hiro's staking index, which knows the ones they joined
+ * through a wrapper. See `enumerateStakers`. Then a couple of calls per
+ * staker. Pass `--skip-stakers` for the amounts alone, which need only a
+ * handful of calls.
  */
 
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { Cl, ClarityType, type ClarityValue } from '@stacks/transactions';
-import { SPACING_MS } from './node.js';
+import type { SignerCycleMembers } from '../src/lib/types.js';
+import { fetchIndexedStakers } from './members.js';
+import { mapPaced, SPACING_MS } from './node.js';
 import { POX5 } from './pox5.js';
 import {
   callReadOnly,
+  fetchJson,
   contractFunctions,
   contractPrints,
   contractSource,
-  fetchJson,
   readDataVar,
   sleep,
 } from './read-only.js';
@@ -61,8 +68,6 @@ export const SBTC_TOKEN = 'SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token'
 
 /** STX-only staking is `none`; a bond period would be `(some index)`. */
 const STX_ONLY = Cl.none();
-
-const STAKE_FUNCTIONS = new Set(['stake', 'stake-update']);
 
 function uintOrNull(cv: ClarityValue | null): bigint | null {
   return cv?.type === ClarityType.UInt ? BigInt(cv.value) : null;
@@ -242,52 +247,184 @@ export async function fetchPoolHoldings(
   };
 }
 
+/** Where `generate-signer-history.ts` commits its rosters. */
+const HISTORY = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '..',
+  'src',
+  'data',
+  'signers',
+);
+
+/** How many transactions a page of the address history holds — its maximum. */
+const TX_PAGE = 50;
+
+/** The two pox-5 entry points whose result names a staker and their signer. */
+const STAKE_FUNCTIONS = new Set(['stake', 'stake-update']);
+
+function remember(
+  stakers: Map<string, Set<string>>,
+  staker: string,
+  pool: string,
+): void {
+  const pools = stakers.get(staker) ?? new Set<string>();
+  pools.add(pool);
+  stakers.set(staker, pools);
+}
+
 /**
- * Everyone who has ever staked, and every pool they have staked with.
+ * Every pool anybody was in, cycle by cycle, out of the committed rosters.
  *
- * A staker who moved pools is still owed by the old one for the cycles they
- * were there, so this keeps every signer they have been with rather than only
- * the current one.
+ * This is the half that remembers, and it costs nothing: the refresh already
+ * asks pox-5 who was in each signer each cycle and commits the answer under
+ * `src/data/signers/<key>/<cycle>.json`, member by member, each with the
+ * contract they were with. A staker who has since moved on is still in the
+ * cycle they were there for — which is the whole question, because that pool
+ * still owes them for it.
  *
- * The transaction list is the only index there is: `staker-info` is a Clarity
- * map, and a map cannot be enumerated from outside. Newest-first, fifty at a
- * time, all the way back.
- *
- * INCOMPLETE BY ITSELF, and knowingly so. This reads each transaction's
- * result, which only names a staker when pox-5 was what the person called.
- * Somebody who joined through a wrapper — `native-pool-v1 delegate` calls
- * pox-5 `stake` inside the same transaction — leaves the wrapper's result
- * behind instead, and does not appear here at all. Their pox-5 print event
- * does name them, but pox-5's event log cannot be paged back far enough to
- * find it. So gated pools are enumerated from their own membership roll
- * instead (`fetchMembers`), and the caller merges the two.
+ * Rosters are read for whatever cycles are on disk. A cycle nobody has walked
+ * is not an empty cycle, so the cycles that were read are reported back and
+ * the caller says which it has.
  */
-export async function enumerateStakers(opts: {
-  onProgress?: (seen: number, total: number, stakers: number) => void;
-} = {}): Promise<Map<string, Set<string>> | null> {
+function membershipsFromRosters(rosterDir: string): {
+  stakers: Map<string, Set<string>>;
+  cycles: number[];
+} {
+  const stakers = new Map<string, Set<string>>();
+  const cycles = new Set<number>();
+  if (!fs.existsSync(rosterDir)) return { stakers, cycles: [] };
+
+  for (const entry of fs.readdirSync(rosterDir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const dir = path.join(rosterDir, entry.name);
+    for (const file of fs.readdirSync(dir)) {
+      if (!file.endsWith('.json')) continue;
+      let roster: SignerCycleMembers;
+      try {
+        roster = JSON.parse(
+          fs.readFileSync(path.join(dir, file), 'utf8'),
+        ) as SignerCycleMembers;
+      } catch {
+        // A half-written roster is one signer's cycle missing, not a reason
+        // to abandon the rest of the history.
+        continue;
+      }
+      if (typeof roster?.cycle !== 'number' || !Array.isArray(roster.members)) {
+        continue;
+      }
+      cycles.add(roster.cycle);
+      for (const member of roster.members) {
+        if (member?.staker && member.contractId) {
+          remember(stakers, member.staker, member.contractId);
+        }
+      }
+    }
+  }
+
+  return { stakers, cycles: [...cycles].sort((a, b) => a - b) };
+}
+
+/**
+ * Everyone stacking with a pool now, per pool, from Hiro's staking index.
+ *
+ * The rosters are as new as the last refresh; this is as new as the chain,
+ * and it is what catches somebody who staked an hour ago. It sees a wrapper,
+ * too — somebody who joined through `native-pool-v1 delegate` called the
+ * wrapper rather than pox-5, and the index is keyed by the signer contract
+ * and has them where a reading of pox-5's transaction results does not.
+ *
+ * What it does NOT have is anybody's past: it lists a staker under the signer
+ * they are with, and a move takes them off the old signer's list the same day.
+ * Checked, not assumed — against 2,023 memberships read out of pox-5's
+ * transaction history, 58 were missing here, and every one of them was
+ * somebody who had since moved on. So this is never the only source: the
+ * rosters are what remember them.
+ */
+async function indexedMemberships(
+  contractIds: string[],
+  opts: { onProgress?: (done: number, total: number) => void },
+): Promise<Map<string, Set<string>> | null> {
+  const stakers = new Map<string, Set<string>>();
+
+  const walks = await mapPaced(contractIds, fetchIndexedStakers, {
+    onDone: opts.onProgress,
+  });
+
+  for (const [index, walk] of walks.entries()) {
+    // A pool whose list would not page through is a pool whose members we do
+    // not know, which is not the same as a pool nobody stakes with.
+    if (!walk.complete) return null;
+    for (const { staker } of walk.stakers) {
+      remember(stakers, staker, contractIds[index]);
+    }
+  }
+
+  return stakers;
+}
+
+interface TxPage {
+  total: number;
+  results: {
+    tx: {
+      tx_status: string;
+      tx_result?: { repr?: string };
+      contract_call?: { contract_id: string; function_name: string };
+    };
+  }[];
+}
+
+/** One page of pox-5's transactions. Null when it could not be read. */
+async function stakeTransactionPage(offset: number): Promise<TxPage | null> {
+  return fetchJson<TxPage>(
+    `/extended/v2/addresses/${POX5}/transactions?limit=${TX_PAGE}&offset=${offset}`,
+  );
+}
+
+/**
+ * The same question asked of pox-5's own transactions, which is slow.
+ *
+ * Every successful `stake` / `stake-update` answers with a tuple naming the
+ * staker and the signer they ended up with, so this is a history as well —
+ * and an independent one, read from the chain's own record rather than from
+ * anything this repo generated or Hiro indexed. That is what it is for.
+ *
+ * It cannot be the default. There are ten thousand transactions, the endpoint
+ * caps a page at fifty, and asking for the pages together does not help:
+ * anonymous, the limit is about fifty requests a minute, so a paced walk and
+ * a parallel one both take four minutes — the parallel one only spends most
+ * of it being told to slow down. Measured, both: 252 seconds sequential, 202
+ * with the pages asked for together, most of that second one spent on 429s.
+ * The rosters answer the same question from disk in no time at all.
+ *
+ * It also has a hole the other two do not: it reads each transaction's
+ * result, which names a staker only when pox-5 is what the person called.
+ * Somebody who joined through a wrapper left the wrapper's result behind and
+ * is not here at all — 165 stakers of one pool.
+ *
+ * And what it has that they do not turns out to be nothing owed to anybody.
+ * Of 2,023 memberships it found, 45 were in neither roster nor index; each
+ * was put to `get-signer-cycle-membership` for both cycles, and not one had
+ * ever been a member of that pool. They had staked and moved again before the
+ * cycle they would have counted in began, so the transaction says what they
+ * asked for and the roster says what happened. Kept anyway, because being
+ * able to check that from the chain's own record is the point.
+ */
+async function walkStakeTransactions(opts: {
+  onProgress?: (done: number, total: number) => void;
+}): Promise<Map<string, Set<string>> | null> {
   const stakers = new Map<string, Set<string>>();
   let offset = 0;
-  let total = Infinity;
+  let pages = Infinity;
+  let done = 0;
 
-  while (offset < total) {
+  while (offset === 0 || done < pages) {
     await sleep(SPACING_MS);
-    const page = await fetchJson<{
-      total: number;
-      results: {
-        tx: {
-          tx_status: string;
-          tx_result?: { repr?: string };
-          contract_call?: { contract_id: string; function_name: string };
-        };
-      }[];
-    }>(
-      `/extended/v2/addresses/${POX5}/transactions?limit=50&offset=${offset}`,
-    );
-    // A page we could not read is stakers we would not count, and a count
-    // short by an unknown amount is worse than no count.
+    const page = await stakeTransactionPage(offset);
+    // A page that could not be read is stakers that would not be counted, and
+    // a head count short by an unknown number is worse than no head count.
     if (!page) return null;
 
-    total = page.total;
+    pages = Math.ceil(page.total / TX_PAGE);
     for (const { tx } of page.results) {
       const call = tx.contract_call;
       if (
@@ -297,22 +434,92 @@ export async function enumerateStakers(opts: {
       ) {
         continue;
       }
-      // Both entry points answer with a tuple naming the staker and the
-      // signer they ended up with — cheaper and surer than re-reading args.
       const repr = tx.tx_result?.repr ?? '';
       const staker = /\(staker '([0-9A-Z]+)\)/.exec(repr)?.[1];
       const signer = /\(signer '([0-9A-Z]+\.[a-z0-9-]+)\)/.exec(repr)?.[1];
-      if (!staker || !signer) continue;
-      const pools = stakers.get(staker) ?? new Set<string>();
-      pools.add(signer);
-      stakers.set(staker, pools);
+      if (staker && signer) remember(stakers, staker, signer);
     }
 
-    offset += 50;
-    opts.onProgress?.(Math.min(offset, total), total, stakers.size);
+    done += 1;
+    offset += TX_PAGE;
+    opts.onProgress?.(done, pages);
   }
 
   return stakers;
+}
+
+/** What the head count was built out of, so a report can say which. */
+export interface StakerIndex {
+  /** Staker → every pool they have been in, the current one included. */
+  stakers: Map<string, Set<string>>;
+  /** Cycles a committed roster was read for. Empty when there are none. */
+  rosterCycles: number[];
+  /** Whether pox-5's transaction history was walked as well. */
+  walked: boolean;
+}
+
+/**
+ * Everyone who has ever staked, and every pool they have staked with.
+ *
+ * A staker who moved pools is still owed by the old one for the cycles they
+ * were there, so this keeps every signer they have been with rather than only
+ * the current one. `staker-info` is a Clarity map and cannot be enumerated
+ * from outside, so that list has to be assembled out of what can:
+ *
+ *   the committed rosters   who was in each pool in each cycle. Free, and the
+ *                           half that remembers.
+ *   the staking index       who is in each pool now, wrapper joins included.
+ *                           One request per pool.
+ *   pox-5's transactions    the same history the long way round, from the
+ *                           chain's own record. Four minutes, so only when
+ *                           asked for — see `deep`.
+ *
+ * The first two together are the whole answer in about fourteen seconds,
+ * where reading the transactions took four minutes and missed everyone who
+ * joined through a wrapper: 2,173 memberships against the walk's 2,023, and
+ * every one of the walk's extras checked against pox-5 and found to be
+ * somebody that pool never counted as a member (see `walkStakeTransactions`).
+ *
+ * What the rosters cannot cover is a cycle nobody has walked yet, which is
+ * why the cycles they did cover come back with the answer rather than being
+ * assumed. With no rosters at all and no `deep`, this is who stakes now, and
+ * the caller has to say so.
+ */
+export async function enumerateStakers(opts: {
+  /** The signer contracts to ask the index about — every pool in the report. */
+  contractIds: string[];
+  /** Also read pox-5's transactions: slow, and the one independent witness. */
+  deep?: boolean;
+  /** Where the committed rosters are; the repo's own, unless a test says. */
+  rosterDir?: string;
+  onProgress?: (
+    phase: 'index' | 'transactions',
+    done: number,
+    total: number,
+  ) => void;
+}): Promise<StakerIndex | null> {
+  const { stakers, cycles } = membershipsFromRosters(opts.rosterDir ?? HISTORY);
+
+  const indexed = await indexedMemberships(opts.contractIds, {
+    onProgress: (done, total) => opts.onProgress?.('index', done, total),
+  });
+  if (!indexed) return null;
+  for (const [staker, pools] of indexed) {
+    for (const pool of pools) remember(stakers, staker, pool);
+  }
+
+  if (opts.deep) {
+    const walked = await walkStakeTransactions({
+      onProgress: (done, total) =>
+        opts.onProgress?.('transactions', done, total),
+    });
+    if (!walked) return null;
+    for (const [staker, pools] of walked) {
+      for (const pool of pools) remember(stakers, staker, pool);
+    }
+  }
+
+  return { stakers, rosterCycles: cycles, walked: Boolean(opts.deep) };
 }
 
 /** One staker's claims out of a pox5-direct pool, added up. */
