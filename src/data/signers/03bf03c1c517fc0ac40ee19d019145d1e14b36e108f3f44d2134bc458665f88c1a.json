@@ -5,6 +5,19 @@
   ],
   "cycles": [
     {
+      "cycle": 143,
+      "ustx": {
+        "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs": "7999990000000"
+      },
+      "memberCount": 1,
+      "membersAddUp": true,
+      "walks": 1,
+      "walkedAt": "2026-08-27T08:19:29.040Z",
+      "walkedUstx": "7999990000000",
+      "fileFinal": false,
+      "cycleFinal": false
+    },
+    {
       "cycle": 142,
       "ustx": {
         "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs": "7999990000000"
@@ -15,7 +28,7 @@
       "walkedAt": "2026-08-14T21:29:04.389Z",
       "walkedUstx": "7999990000000",
       "fileFinal": false,
-      "cycleFinal": false
+      "cycleFinal": true
     },
     {
       "cycle": 141,
@@ -27,10 +40,10 @@
       "walks": 2,
       "walkedAt": "2026-08-14T21:29:04.389Z",
       "walkedUstx": "7999990000000",
-      "fileFinal": false,
+      "fileFinal": true,
       "cycleFinal": true
     }
   ],
-  "currentCycle": 141,
-  "generatedAt": "2026-08-26T23:43:12.027Z"
+  "currentCycle": 142,
+  "generatedAt": "2026-08-27T08:23:09.253Z"
 }

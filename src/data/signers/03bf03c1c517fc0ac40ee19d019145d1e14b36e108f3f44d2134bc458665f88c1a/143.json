@@ -1,0 +1,11 @@
+{
+  "signerKey": "0x03bf03c1c517fc0ac40ee19d019145d1e14b36e108f3f44d2134bc458665f88c1a",
+  "cycle": 143,
+  "members": [
+    {
+      "staker": "SM3WAR0ANX4HYJ4Q8DSSN2BW83GTV2WYXYCX3YBP4",
+      "ustx": "7999990000000",
+      "contractId": "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs"
+    }
+  ]
+}

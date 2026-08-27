@@ -1,0 +1,161 @@
+{
+  "signerKey": "0x038d545b66cc01a93fe405e14d6432432d81ec03e296d55cf3c07b143a4407aa4a",
+  "cycle": 143,
+  "members": [
+    {
+      "staker": "SP28MP1HQDJWQAFSQJN2HBAXBVP7H7THD1W2NYZVK.cheapstx-safe",
+      "ustx": "270003716703",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SP28MP1HQDJWQAFSQJN2HBAXBVP7H7THD1W2NYZVK.agua-safe",
+      "ustx": "117809871427",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SP28MP1HQDJWQAFSQJN2HBAXBVP7H7THD1W2NYZVK.doubledown-safe",
+      "ustx": "112612000110",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SP28MP1HQDJWQAFSQJN2HBAXBVP7H7THD1W2NYZVK.latortue-safe",
+      "ustx": "75303094719",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SP28MP1HQDJWQAFSQJN2HBAXBVP7H7THD1W2NYZVK.keepgoing-safe",
+      "ustx": "60329800000",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SP28MP1HQDJWQAFSQJN2HBAXBVP7H7THD1W2NYZVK.consistency-safe",
+      "ustx": "60203000000",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SP3TA7SMY7APYR9SFKDT0527NC0GWR84S3AHEM0NE",
+      "ustx": "50055762570",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SP3A4CP63QJB1R0EJR3TJ1PN16FC5HVJSPT77C8C0",
+      "ustx": "42025933179",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SPEFWDTXMFQQD9QZV9W6H0VEJDMPRC4S6CTQPMPA",
+      "ustx": "35004880611",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SP28MP1HQDJWQAFSQJN2HBAXBVP7H7THD1W2NYZVK.persevere-safe",
+      "ustx": "21450000000",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SP28MP1HQDJWQAFSQJN2HBAXBVP7H7THD1W2NYZVK.deadwood-safe",
+      "ustx": "17744000000",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SP28MP1HQDJWQAFSQJN2HBAXBVP7H7THD1W2NYZVK.fak1-safe",
+      "ustx": "15842000220",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SP28MP1HQDJWQAFSQJN2HBAXBVP7H7THD1W2NYZVK.davidgoggins-safe",
+      "ustx": "15832000000",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SP3TS3T9GSGFEDW7ZBJNFXMH6RY0AP7HNCQEE77DH",
+      "ustx": "10000357028",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SP3Z7511VWR5WG9J3MAKER3NRZYKWT83K2XTP36EV",
+      "ustx": "10000000000",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SPZ2X7Q0Z69KTN7SZF90MR9AZGZ2ETXFGMFXKKN8",
+      "ustx": "7098931945",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SP2Z2CBMGWB9MQZAF5Z8X56KS69XRV3SJF4WKJ7J9",
+      "ustx": "3924694727",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SP4FWJSAFVCRX1R2C6K6BYJ2N2PK6JSY8THWEJ3T",
+      "ustx": "3880000000",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SPV00QHST52GD7D0SEWV3R5N04RD4Q1PMA3TE2MP",
+      "ustx": "2000881614",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SP1RB1V65A1PAAXYT8PVFFFC6T1FN9E8RQX7HMDKC",
+      "ustx": "1507840772",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SMAQBT70FCQQQZ56DJW0YKDY5SXPSN1KD8DJ8WPP",
+      "ustx": "837000000",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SPY3VW50YQCEWD905SSBPVF55D1E502ZV24TE2M6",
+      "ustx": "500158323",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22",
+      "ustx": "381536677",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SP3WAAYXPC6WZNEC7SHGR36D32RJPZVXRR1BG0QSY",
+      "ustx": "370074740",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SP1JAG6TV2XRYFGJN7CAAN6Z3CEW2YMZWMHJAJV91",
+      "ustx": "290373791",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SM3EQ9BJHDEQN982YFZCRKY0WVYY64H8VR5FYQAFQ",
+      "ustx": "283000000",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SP389APB4DHZ836P4AE9RJW7EKEZAPV5NPDNG7N46",
+      "ustx": "229649161",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SP781P5F0AR41A7H5AD4P8ZVVBM6D8H5TYNJHPCK",
+      "ustx": "114427822",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SP38B5H07H1XJ756EEPMS8VBJE9HPGH03C50VPNAJ",
+      "ustx": "106825378",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SP18QG8A8943KY9S15M08AMAWWF58W9X1M90BRCSJ",
+      "ustx": "101208721",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SP218F71JZ4R2ERQDKEBGA1FKVAQNZBM3HK7W8EA7",
+      "ustx": "100975859",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "signerKey": "0x024f164c6e73df283d34d7d9cc86553a82dce76045ba7dfbf4de0004f89eabb8e0",
+  "cycle": 143,
+  "members": [
+    {
+      "staker": "SM1TNJ9YHZ5RC1YY6Y8W5NN9DMZ2BJM1BWV8TH6D3",
+      "ustx": "360000500110",
+      "contractId": "SP20XZGWBWSMRE94WDJ6YJ1EKPJ55RGRGK4JDJHNK.signer-manager-pox5"
+    }
+  ]
+}

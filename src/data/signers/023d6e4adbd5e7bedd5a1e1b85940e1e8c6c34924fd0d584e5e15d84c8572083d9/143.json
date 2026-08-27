@@ -1,6 +1,6 @@
 {
   "signerKey": "0x023d6e4adbd5e7bedd5a1e1b85940e1e8c6c34924fd0d584e5e15d84c8572083d9",
-  "cycle": 142,
+  "cycle": 143,
   "members": [
     {
       "staker": "SM2AD8YHZACVGG9R5VY3H6R9NJ5E6P12ABJQR4ZW1",
@@ -1090,11 +1090,6 @@
     {
       "staker": "SP3QR9G3XJ2J0HH1EEER1V648HDJQN2W46HP9R2SE",
       "ustx": "1161488",
-      "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
-    },
-    {
-      "staker": "SP3FJQK31NMDM594YKP1640V5WESX38ENSSJ3YC6B",
-      "ustx": "1100000",
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
     },
     {
