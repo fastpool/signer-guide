@@ -159,6 +159,9 @@ const messages = {
   'app.footer.madeBy':
     'Made by {link}, which runs some of the pools listed above. They are described by the same code as everyone else’s and ranked by size like everyone else’s — the reason all of this is public is so you do not have to take that on trust either.',
 
+  'filter.inUse.label': 'In use',
+  'filter.inUse.help':
+    'Hides pools with nothing staked in this cycle, the one before or the one filling now. Pools the guide has only just seen keep their place — a pool registered this week could not be in a cycle that was locked in before it existed.',
   'filter.bitcoin.label': 'Rewards in Bitcoin',
   'filter.bitcoin.help':
     'Pays your rewards to a Bitcoin address, instead of as sBTC on Stacks.',
@@ -175,6 +178,7 @@ const messages = {
   'filter.open.help':
     'No invitation or membership needed — you can stake with this pool yourself.',
 
+  'badge.new': 'New',
   'badge.anyoneCanJoin': 'Anyone can join',
   'badge.inviteOnly': 'Invite only',
   'badge.bitcoinRewards': 'Rewards in Bitcoin',

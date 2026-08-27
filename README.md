@@ -285,6 +285,40 @@ at a rollover, is the one the previous run recorded as next — and otherwise
 reads as _amount not known_ rather than being given a neighbouring cycle's
 number.
 
+The cycle *before* the current one is kept too, and never read from the chain:
+a cycle that is over cannot change, so `previous` is whatever the last file had
+as its current cycle. At a rollover it simply moves across. That is what lets
+the list tell a pool nobody has used for two cycles from one that emptied
+yesterday.
+
+### Which pools the list shows
+
+Fifteen of the forty-five registered signers hold nothing and never have. They
+are real contracts with real pages, but a reader choosing where to stake is not
+helped by scrolling past them, so **_In use_ is the one filter that starts on**
+— and the count above the list says how many of the total are showing.
+
+Hiding is the strongest thing this page does to a pool, so it takes more than an
+absence to earn it:
+
+- **Every cycle on file says empty, and every one of them was read.** A `null`
+  is the node refusing to answer and a missing entry is a pool the file has
+  never covered; hiding a pool on either would be a rate limit deciding what a
+  reader sees. Three cycles are checked — the one before, the current one, and
+  the one filling — so a pool that emptied yesterday and a pool taking its first
+  stake both stay.
+- **And the guide has had a cycle in which somebody could have staked with it.**
+  Stacking for a cycle is locked in before that cycle begins, so a pool first
+  seen during 141 could not appear in 141's amounts however popular it is.
+  Those carry a _New_ badge and are never hidden.
+
+"First seen" is the guide's own record, not the chain's — nothing on chain says
+when a signer registered. `generate-signers.ts` keeps `firstSeenCycle` from the
+previous file and sets it to the current cycle for a pool it has not seen
+before, so it says when this guide first noticed a pool and never moves again.
+The existing entries were backfilled from the commit history of `signers.json`:
+43 pools were first seen in cycle 140, two in 141.
+
 ### Who is in a pool
 
 Each pool's own page shows this — see

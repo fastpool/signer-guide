@@ -15,12 +15,15 @@ export default function SignerCard({
   signer,
   summary,
   lockedUstx,
+  isNew = false,
   locale,
 }: {
   signer: Signer;
   summary: string | null;
   /** uSTX staked with this pool right now; undefined until it is read. */
   lockedUstx?: string | null;
+  /** First seen this cycle or last — see `isNewSigner`. */
+  isNew?: boolean;
   locale: Locale;
 }) {
   const [showDetails, setShowDetails] = useState(false);
@@ -83,6 +86,9 @@ export default function SignerCard({
       )}
 
       <div className='mt-4 flex flex-wrap gap-2'>
+        {/* First, because it is the one badge that explains an empty pool
+            rather than describing what staking with it would be like. */}
+        {isNew && <Badge tone='warm'>{t('badge.new')}</Badge>}
         {signer.openToAnyone ? (
           <Badge tone='good'>{t('badge.anyoneCanJoin')}</Badge>
         ) : (

@@ -27,9 +27,10 @@ import {
   useRoute,
 } from './lib/route';
 import { groupForContract, signerSlug } from './lib/signer-groups';
+import { inUse, isNewSigner } from './lib/activity';
 import { useServiceWorker } from './lib/service-worker';
 import { buildTemplates, templateFor } from './lib/templates';
-import type { SignerData } from './lib/types';
+import type { LockedTotals, SignerData } from './lib/types';
 
 /** A fee we would call low. Not a promise — see the note under the filters. */
 const LOW_FEE_BIPS = 500; // 5%
@@ -43,12 +44,13 @@ const NEWSLETTER_URL =
 const STX_COMPACT_VARIANT: 'original' | 'weekly' = 'weekly';
 
 export type FilterId =
-  'bitcoin' | 'lowFee' | 'cappedFee' | 'feeNotice' | 'open';
+  'inUse' | 'bitcoin' | 'lowFee' | 'cappedFee' | 'feeNotice' | 'open';
 
 /** A ceiling we would call reassuring. Juice Pool enforces exactly this. */
 const CAPPED_FEE_BIPS = 2000; // 20%
 
 const FILTER_IDS: FilterId[] = [
+  'inUse',
   'bitcoin',
   'lowFee',
   'cappedFee',
@@ -56,10 +58,25 @@ const FILTER_IDS: FilterId[] = [
   'open',
 ];
 
+/**
+ * The one filter that starts on.
+ *
+ * Half the registered signers hold nothing and never have, and a reader
+ * choosing a pool is not helped by scrolling past them. Everything else here
+ * narrows a list the reader has already been shown; this one decides what the
+ * list is, so it is the only one that has any business being on by default —
+ * and the count beside it says what it is keeping out.
+ */
+const DEFAULT_FILTERS: FilterId[] = ['inUse'];
+
 export function matches(
   signer: SignerData['signers'][number],
   active: Set<FilterId>,
+  totals?: LockedTotals,
 ): boolean {
+  // Totals are optional so a caller with none is not silently told a pool is
+  // unused: with nothing to check against, this filter keeps everything.
+  if (active.has('inUse') && totals && !inUse(signer, totals)) return false;
   if (active.has('bitcoin') && !signer.bitcoinRewards) return false;
   if (active.has('open') && !signer.openToAnyone) return false;
   if (active.has('cappedFee')) {
@@ -79,7 +96,9 @@ export function matches(
 
 export default function App() {
   const route = useRoute();
-  const [active, setActive] = useState<Set<FilterId>>(new Set());
+  const [active, setActive] = useState<Set<FilterId>>(
+    () => new Set(DEFAULT_FILTERS),
+  );
   const [locale, setLocale] = useState<Locale>(() => detectLocale());
   const t = translator(locale);
 
@@ -102,7 +121,9 @@ export default function App() {
   );
 
   const shown = useMemo(() => {
-    const matching = signerData.signers.filter((s) => matches(s, active));
+    const matching = signerData.signers.filter((s) =>
+      matches(s, active, totals),
+    );
     // Biggest first: the list is easier to read when the pools people
     // actually use are at the top.
     return [...matching].sort((a, b) => {
@@ -425,6 +446,7 @@ export default function App() {
             key={signer.contractId}
             signer={signer}
             lockedUstx={totals.ustx[signer.contractId]}
+            isNew={isNewSigner(signer, totals.cycle)}
             summary={profileSummaryFor(signer.profileId)}
             locale={locale}
           />

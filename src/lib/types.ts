@@ -26,6 +26,16 @@ export interface Signer {
   /** The implementation it runs, when we recognise the code. */
   implementationName: string | null;
   registered: boolean;
+  /**
+   * The reward cycle this pool was first seen in.
+   *
+   * The guide's own record, not the chain's: nothing on chain says when a
+   * signer registered. Kept from the previous file once set, so it says when
+   * the guide first noticed a pool and never moves afterwards. Absent on a
+   * pool last written before this field existed — which is itself evidence
+   * that it is not new.
+   */
+  firstSeenCycle?: number;
   signerKey?: string;
 
   sourceSha256: string;
@@ -142,6 +152,19 @@ export interface LockedTotals {
    * local storage keeps working.
    */
   next?: {
+    cycle: number;
+    ustx: Record<string, string | null>;
+  };
+  /**
+   * The cycle before it, which is over and cannot change again.
+   *
+   * Never read from the chain: a settled cycle's amounts are whatever the last
+   * refresh recorded while it was the current one, so this is carried forward
+   * from the previous file rather than asked for again. It is what lets the
+   * page tell a pool nobody has used for two cycles from one that emptied
+   * yesterday.
+   */
+  previous?: {
     cycle: number;
     ustx: Record<string, string | null>;
   };

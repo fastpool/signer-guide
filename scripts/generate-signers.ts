@@ -258,6 +258,15 @@ async function main() {
    */
   const committed = readCommitted();
   const known = identiconsBySource(committed?.signers ?? []);
+  // When each pool was first seen, so that a pool the guide has only just
+  // noticed is not confused with one that has been empty for cycles.
+  const firstSeen = new Map<string, number>(
+    (committed?.signers ?? []).flatMap((signer) =>
+      typeof signer.firstSeenCycle === 'number'
+        ? [[signer.contractId, signer.firstSeenCycle] as [string, number]]
+        : [],
+    ),
+  );
   const formatter = clarinetVersion();
   const restandardise =
     formatter !== null &&
@@ -362,6 +371,12 @@ async function main() {
       displayNameSource: 'contract',
       implementationName: profile?.name ?? null,
       registered: true,
+      // The cycle this pool first turned up in, kept from the last run rather
+      // than worked out: nothing on chain says when a signer registered, and
+      // the guide's own record of when it first saw one is the honest answer
+      // to "is this new". A pool the file already knows keeps its first
+      // sighting whatever else about it changes.
+      firstSeenCycle: firstSeen.get(contractId) ?? cycle,
       signerKey,
       sourceSha256,
       canonicalSha256,

@@ -4,7 +4,8 @@ import data from './data/signers.json';
 import totals from './data/totals.json';
 import { identiconSvg, isIdenticonHash } from './lib/identicon';
 import { buildTemplates } from './lib/templates';
-import type { Signer, SignerData } from './lib/types';
+import { hasStake, isKnownEmpty, isNewSigner } from './lib/activity';
+import type { LockedTotals, Signer, SignerData } from './lib/types';
 
 /*
  * The filters are what a reader actually touches, and each one is a claim
@@ -100,6 +101,46 @@ describe('filters', () => {
  * files should always agree. If they ever do not, the page shows a pool with
  * no amount beside it for an hour, and this says so first.
  */
+/*
+ * The one filter that is on when a reader arrives, so it decides what the
+ * guide looks like. Run against the real data, where it is the difference
+ * between thirty pools and forty-five.
+ */
+describe('the in-use filter', () => {
+  const committed = totals as LockedTotals;
+
+  it('hides the pools every cycle on file says are empty', () => {
+    const kept = signers.filter((s) => matches(s, new Set(['inUse']), committed));
+
+    expect(kept.length).toBeGreaterThan(0);
+    expect(kept.length).toBeLessThan(signers.length);
+    for (const signer of kept) {
+      expect(
+        !isKnownEmpty(signer.contractId, committed) ||
+          isNewSigner(signer, committed.cycle),
+      ).toBe(true);
+    }
+  });
+
+  it('keeps every pool that holds something in any cycle on file', () => {
+    const kept = new Set(
+      signers
+        .filter((s) => matches(s, new Set(['inUse']), committed))
+        .map((s) => s.contractId),
+    );
+    const staked = signers.filter((s) => hasStake(s.contractId, committed));
+
+    expect(staked.length).toBeGreaterThan(0);
+    for (const signer of staked) expect(kept.has(signer.contractId)).toBe(true);
+  });
+
+  it('keeps everything when there are no amounts to judge by', () => {
+    // A caller with no totals must not be told a pool is unused; the filter
+    // has nothing to go on and says nothing.
+    expect(signers.every((s) => matches(s, new Set(['inUse'])))).toBe(true);
+  });
+});
+
 describe('the committed amounts', () => {
   it('covers every pool the page will list', () => {
     const missing = signers

@@ -73,6 +73,45 @@ describe('preserveKnownTotals', () => {
     expect(carriedForward).toBe(1);
   });
 
+  it('remembers the cycle that has just ended, from the file that had it', () => {
+    // 142 has begun; what the last run had as its current cycle is 141, and
+    // nothing in 141 can change again — so it is kept rather than re-read.
+    const latest: LockedTotals = { cycle: 142, ustx: { A: '7' } };
+    const previous: LockedTotals = {
+      cycle: 141,
+      ustx: { A: '500' },
+      next: { cycle: 142, ustx: { A: '7' } },
+    };
+
+    const { totals } = preserveKnownTotals(latest, previous);
+
+    expect(totals.previous).toEqual({ cycle: 141, ustx: { A: '500' } });
+  });
+
+  it('keeps remembering it once it is no longer the file it came from', () => {
+    const latest: LockedTotals = { cycle: 142, ustx: { A: '7' } };
+    const previous: LockedTotals = {
+      cycle: 142,
+      ustx: { A: '7' },
+      previous: { cycle: 141, ustx: { A: '500' } },
+    };
+
+    const { totals } = preserveKnownTotals(latest, previous);
+
+    expect(totals.previous).toEqual({ cycle: 141, ustx: { A: '500' } });
+  });
+
+  it('leaves it out rather than inventing it', () => {
+    // A refresh that has never seen 141 cannot say what was in it, and an
+    // empty block would read as a cycle nobody staked in.
+    const latest: LockedTotals = { cycle: 142, ustx: { A: '7' } };
+    const previous: LockedTotals = { cycle: 142, ustx: { A: '7' } };
+
+    const { totals } = preserveKnownTotals(latest, previous);
+
+    expect(totals.previous).toBeUndefined();
+  });
+
   it('returns latest unchanged when there is no previous file', () => {
     const latest = base({ A: null, B: '3' });
 

@@ -3,12 +3,14 @@ import type { LockedTotals } from '../src/lib/types.js';
 type Amounts = LockedTotals['ustx'];
 
 /**
- * What a previous file knows about one cycle, whichever half it kept it in.
+ * What a previous file knows about one cycle, whichever block it kept it in.
  *
- * A refresh reads two cycles, so the cycle that is current now is the one the
- * last run recorded as next. Matching on the cycle rather than on the position
- * means an amount is only ever carried forward onto the cycle it was read for
- * — a 141 amount reprinted under 142 would be a wrong number, not a stale one.
+ * A refresh reads two cycles and remembers a third, so the cycle that is
+ * current now is the one the last run recorded as next, and the one before it
+ * is the one that run had as current. Matching on the cycle rather than on the
+ * position means an amount is only ever carried forward onto the cycle it was
+ * read for — a 141 amount reprinted under 142 would be a wrong number, not a
+ * stale one.
  */
 function knownFor(
   previous: LockedTotals | null,
@@ -17,6 +19,7 @@ function knownFor(
   if (!previous) return null;
   if (previous.cycle === cycle) return previous.ustx;
   if (previous.next?.cycle === cycle) return previous.next.ustx;
+  if (previous.previous?.cycle === cycle) return previous.previous.ustx;
   return null;
 }
 
@@ -56,6 +59,16 @@ export function preserveKnownTotals(
     );
     totals.next = { ...latest.next, ustx: next.ustx };
     carriedForward += next.carriedForward;
+  }
+
+  // The cycle before this one is over: nobody can join it and nothing in it
+  // can move, so it is remembered rather than read again. It comes from
+  // whatever the last file knew about that cycle — at a rollover, the block it
+  // had as current — and is dropped when there is nothing to remember, because
+  // an absent cycle and an empty one are different things to tell a reader.
+  const settled = knownFor(previous, latest.cycle - 1);
+  if (settled) {
+    totals.previous = { cycle: latest.cycle - 1, ustx: settled };
   }
 
   return { totals, carriedForward };

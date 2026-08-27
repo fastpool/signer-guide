@@ -16,7 +16,7 @@ import App from './App';
  */
 vi.mock('./data/totals.json', () => ({
   default: {
-    cycle: 141,
+    cycle: 142,
     ustx: {
       'SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager':
         '8215865483722',
@@ -24,15 +24,29 @@ vi.mock('./data/totals.json', () => ({
         '253000000',
       // Read, and the node would not answer for it.
       'SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85.signer-manager-hiro': null,
+      // Read, and empty in every cycle — the one the default filter hides.
+      'SP3KF99SM1T2V25NF2JZYAD1ZADC8326PH6HD7HF6.not-used': '0',
     },
     next: {
-      cycle: 142,
+      cycle: 143,
       ustx: {
         'SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager':
           '7100000000000',
         'SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer':
           '253000000',
         'SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85.signer-manager-hiro': null,
+        'SP3KF99SM1T2V25NF2JZYAD1ZADC8326PH6HD7HF6.not-used': '0',
+      },
+    },
+    previous: {
+      cycle: 141,
+      ustx: {
+        'SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager':
+          '8000000000000',
+        'SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer':
+          '253000000',
+        'SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85.signer-manager-hiro': null,
+        'SP3KF99SM1T2V25NF2JZYAD1ZADC8326PH6HD7HF6.not-used': '0',
       },
     },
   },
@@ -54,15 +68,33 @@ describe('the page as a reader sees it', () => {
     expect(html).toContain('8.2 million STX');
     expect(html).toContain('253 STX');
     expect(html).toContain('looking after');
-    expect(html).toContain('for cycle 141');
+    expect(html).toContain('for cycle 142');
   });
 
   it('shows what the cycle now filling holds as well', () => {
     // Two cycles, two numbers: somebody who has left is already out of the
     // second one, which is the whole reason it is worth printing.
     const html = renderToStaticMarkup(<App />);
-    expect(html).toContain('Cycle 142 is still filling');
+    expect(html).toContain('Cycle 143 is still filling');
     expect(html).toContain('7.1 million STX');
+  });
+
+  it('leaves out a pool that every cycle on file says is empty', () => {
+    // Fifteen of the registered signers hold nothing and never have. They are
+    // real contracts and the guide says so on their own pages; the list a
+    // reader chooses from is not the place for them.
+    const html = renderToStaticMarkup(<App />);
+    expect(html).not.toContain('Not Used');
+    // And the count says the list is not everything.
+    expect(html).toContain('of 45 pools match');
+  });
+
+  it('keeps a pool the guide has only just seen, and says it is new', () => {
+    // It holds nothing because the cycles on file were locked in before it
+    // existed, which is not the same as nobody wanting it.
+    const html = renderToStaticMarkup(<App />);
+    expect(html).toContain('Stakin 1');
+    expect(html).toContain('>New<');
   });
 
   it('says a pool is unknown rather than empty when it would not read', () => {

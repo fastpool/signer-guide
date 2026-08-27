@@ -7,9 +7,9 @@
   },
   "1b7c3674ac0dbb5da092b5e2e07684c06c7079cfb0053bd7c8b7e36211bdd74c": {
     "id": "xverse",
-    "name": "Xverse",
-    "summary": "Xverse\u2019s version of the Standard contract. Open to everyone, and can pay rewards to a Bitcoin address.",
-    "detail": "The build used by the Xverse signers. For anyone staking it behaves like the Standard contract: open to everyone, and rewards can go to a Bitcoin address. It is close to the Standard contract but not the same — when it pays a staker out it reports only the amount, where the Standard contract also reports the Bitcoin withdrawal it opened. That is a real difference in the code, not just formatting, so it is listed on its own."
+    "name": "Standard (changed ABI)",
+    "summary": "The Standard contract with one function's answer changed. Open to everyone, and can pay rewards to a Bitcoin address.",
+    "detail": "The build the Xverse signers run. For anyone staking it behaves like the Standard contract: open to everyone, and rewards can go to a Bitcoin address. What differs is the interface, not the behaviour — when it pays a staker out it reports only the amount, where the Standard contract also reports the Bitcoin withdrawal it opened. Anything reading that answer has to know which of the two it is talking to, so it is listed on its own rather than folded into Standard."
   },
   "d5718c4d8771628da0a24e4345534b4c9ec630f7942cdfd47c5fe3075c69b6b4": {
     "id": "invite-only",
@@ -26,7 +26,7 @@
   "d6c5e82af733250d80b38be57d02c5ff6677ec2712e31d00381899e3fecc6874": {
     "id": "capped-fee",
     "name": "Capped Fee",
-    "summary": "Open to everyone, can pay rewards to a Bitcoin address, and the fee can never go above 5% — with a month\u2019s warning before any rise.",
+    "summary": "Open to everyone, can pay rewards to a Bitcoin address, and the fee can never go above 5% — with a month’s warning before any rise.",
     "detail": "Open to everyone, with no invitation needed, and it can pay your rewards to a Bitcoin address as well as sBTC on Stacks. What sets it apart is that it has advantageous rules for the users. The fee can never exceed 5% however the operator behaves, because the contract refuses a higher one. A rise in the fee has to be queued two reward cycles ahead, roughly a month, so you have time to move before it applies — a cut takes effect at once. You can also change where your Bitcoin goes, and the smallest payout you will accept."
   },
   "2aea99cfe42ccb9b9dd541d34c21cd852c5726f1c0933f4cc15c77202fcd30ac": {

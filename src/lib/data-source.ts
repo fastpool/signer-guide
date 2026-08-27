@@ -92,15 +92,19 @@ function isLockedTotals(value: unknown): value is LockedTotals {
   const data = value as Partial<LockedTotals>;
   if (typeof data.cycle !== 'number') return false;
   if (!isCycleAmounts(data.ustx)) return false;
-  // A file written before the next cycle was read has no `next` at all, which
-  // is not a reason to throw away everything else in it.
-  if (data.next === undefined) return true;
+  // A file written before these existed has neither, which is not a reason to
+  // throw away everything else in it.
   return (
-    typeof data.next === 'object' &&
-    data.next !== null &&
-    typeof data.next.cycle === 'number' &&
-    isCycleAmounts(data.next.ustx)
+    isCycleBlock(data.next) &&
+    isCycleBlock(data.previous)
   );
+}
+
+function isCycleBlock(value: unknown): boolean {
+  if (value === undefined) return true;
+  if (typeof value !== 'object' || value === null) return false;
+  const block = value as { cycle?: unknown; ustx?: unknown };
+  return typeof block.cycle === 'number' && isCycleAmounts(block.ustx);
 }
 
 function isBigintStringOrNull(value: unknown): value is string | null {
