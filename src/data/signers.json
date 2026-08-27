@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-08-27T08:19:13.647Z",
+  "generatedAt": "2026-08-27T09:20:22.666Z",
   "cycle": 142,
-  "standardisedWith": "clarinet 3.23.1",
+  "standardisedWith": "clarinet 3.23.2",
   "signers": [
     {
       "contractId": "SP1N8F8BBBC60XF6HJBNJHKPRGJ7WZBRGNDJX4YDR.signer-manager",
@@ -24,7 +24,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": "26551192",
       "earnedFeesSats": "0",
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
@@ -256,7 +256,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": "758608",
       "earnedFeesSats": "0",
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
@@ -314,7 +314,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": "273106",
       "earnedFeesSats": "0",
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
@@ -343,7 +343,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": "273099",
       "earnedFeesSats": "0",
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
@@ -372,7 +372,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "7079",
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": "486736",
       "earnedFeesSats": "0",
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
@@ -401,7 +401,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "2",
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": "1630674",
       "earnedFeesSats": "70177",
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
@@ -488,7 +488,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": "7586076",
       "earnedFeesSats": "0",
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
@@ -546,7 +546,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": "6068853",
       "earnedFeesSats": "0",
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
@@ -604,7 +604,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": "37936",
       "earnedFeesSats": "0",
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
@@ -866,7 +866,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": null,
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": null,
       "earnedFeesSats": null,
       "evidence": {
         "bitcoinRewards": null,
@@ -1023,7 +1023,7 @@
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1",
       "displayName": "Xverse 1",
       "displayNameSource": "contract",
-      "implementationName": "Xverse",
+      "implementationName": "Standard (changed ABI)",
       "registered": true,
       "firstSeenCycle": 140,
       "signerKey": "0x021acd08580abb387c45d44cc742fffe0f61c17db534331495a246f315a0d9404f",
@@ -1052,7 +1052,7 @@
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-2",
       "displayName": "Xverse 2",
       "displayNameSource": "contract",
-      "implementationName": "Xverse",
+      "implementationName": "Standard (changed ABI)",
       "registered": true,
       "firstSeenCycle": 140,
       "signerKey": "0x0285f4c617c4065e429d1666dcfd885c52e223acfc042aa2c2855adc93034e6975",
@@ -1081,7 +1081,7 @@
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-3",
       "displayName": "Xverse 3",
       "displayNameSource": "contract",
-      "implementationName": "Xverse",
+      "implementationName": "Standard (changed ABI)",
       "registered": true,
       "firstSeenCycle": 140,
       "signerKey": "0x02f37e08d25d8a660caf66b9cb3a09b1ce055cbb5f57186d92af43268d722408da",
@@ -1160,7 +1160,7 @@
       },
       "feeExemption": null,
       "undistributedSats": "59",
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": "22087087",
       "earnedFeesSats": "0",
       "evidence": {
         "bitcoinRewards": null,
@@ -1189,7 +1189,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": "3071602",
       "earnedFeesSats": "0",
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
@@ -1256,7 +1256,7 @@
         "evidence": "(if (is-og staker) u0 (var-get fee-bips))"
       },
       "undistributedSats": null,
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": "374086",
       "earnedFeesSats": "0",
       "evidence": {
         "bitcoinRewards": null,
@@ -1285,7 +1285,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": "463691",
       "earnedFeesSats": "0",
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
@@ -1318,7 +1318,7 @@
       },
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": "409648",
       "earnedFeesSats": "0",
       "evidence": {
         "bitcoinRewards": null,

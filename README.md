@@ -871,6 +871,22 @@ exactly why nobody does.
     pnpm report:unclaimed --skip-stakers      the amounts, in a couple of minutes
     HIRO_API_KEY=… pnpm report:unclaimed      the amounts and the head count
 
+Each pool's own page carries the first of those numbers — _Still waiting at
+pox-5_ — from `signers.json`, and it is asked of pox-5 rather than of the signer
+manager on purpose: every implementation wraps `claim-rewards` in its own way,
+but the money they are all reaching for is in one map that pox-5 zeroes when
+the claim lands.
+
+**Across every cycle, not the current one.** `get-earned` is keyed by the cycle
+the rewards were earned in, so asking only about the cycle we are standing in
+answers 0 for a pool sitting on an uncollected payout from the cycle before —
+which is exactly the pool the number exists to catch. Cycle 141's second
+distribution landed hours into cycle 142, and until this was fixed the page told
+a reader Fast Pool Max500 had collected everything while pox-5 held 22 million
+sats for it. It costs one call per pool per cycle, so it grows by a call a
+fortnight; if that ever bites, the cycles a pool has already emptied are the
+ones to stop asking about.
+
 The Capped Fee implementation adds a stage the others do not have.
 `settle-staker-rewards` moves a share out of the pooled bucket into that
 staker's `pending-payouts`, so small cycles can accumulate and pay one Bitcoin

@@ -214,6 +214,26 @@ async function fetchFeeBips(
 const NONE = '0x09';
 
 /**
+ * Every cycle pox-5 could be holding rewards for: its first, through now.
+ *
+ * Rewards are keyed by the cycle they were earned in and stay there until
+ * somebody claims them, so "what is pox-5 holding for this pool" is a question
+ * about all of them, not about the current one. Null when the chain would not
+ * say, because a shorter list would understate what a pool is owed.
+ */
+async function rewardCycles(currentCycle: number): Promise<number[] | null> {
+  const answer = await callPox5('get-first-pox-5-reward-cycle', []);
+  const first = answer === null ? null : parseUint(answer);
+  if (first === null) return null;
+
+  const cycles: number[] = [];
+  for (let cycle = Number(first); cycle <= currentCycle; cycle += 1) {
+    cycles.push(cycle);
+  }
+  return cycles;
+}
+
+/**
  * What pox-5 has earned for this signer and nobody has claimed, in sats.
  *
  * This is how the guide answers "has the pool claimed the last distribution?"
@@ -224,12 +244,24 @@ const NONE = '0x09';
  * the same thing for forty-four contracts, and no new contract can quietly
  * fall out of it by naming its function something else.
  *
+ * Asked for **every cycle**, and that is the whole point. `get-earned` is keyed
+ * by the cycle the rewards were earned in, so asking only about the current one
+ * answers 0 for a pool sitting on an uncollected payout from the cycle before —
+ * which is precisely the pool this is meant to catch. Cycle 141's second
+ * distribution landed hours into cycle 142, and this page told a reader that
+ * Fast Pool Max500 had collected everything while pox-5 held 22 million sats
+ * for it.
+ *
+ * It costs one call per pool per cycle, so it grows by a call a fortnight. If
+ * that ever bites, the cycles a pool has already emptied are the ones to stop
+ * asking about — not the count of pools.
+ *
  * The STX leg only (`bond-index` is `none`): no protocol bonds exist on
  * mainnet, and the guide's subject is STX stacking.
  */
 async function fetchUnclaimedFromPox(
   contractId: string,
-  cycle: number,
+  cycles: number[],
 ): Promise<bigint | null> {
   let signerArg: string;
   try {
@@ -237,12 +269,36 @@ async function fetchUnclaimedFromPox(
   } catch {
     return null;
   }
-  const result = await callPox5('get-earned', [
-    signerArg,
-    `0x${serializeUint(cycle)}`,
-    NONE,
-  ]);
-  return result === null ? null : parseUint(result);
+
+  return sumAcrossCycles(cycles, async (cycle) => {
+    const result = await callPox5('get-earned', [
+      signerArg,
+      `0x${serializeUint(cycle)}`,
+      NONE,
+    ]);
+    await sleep(SPACING_MS);
+    return result === null ? null : parseUint(result);
+  });
+}
+
+/**
+ * Add up one reading across the cycles, or say it could not be read.
+ *
+ * The fold rather than the reading, so the rule can be tested without a node:
+ * a cycle pox-5 will not answer for is not a cycle owed nothing, and a total
+ * short by one cycle is worse than saying plainly that we do not know.
+ */
+export async function sumAcrossCycles(
+  cycles: number[],
+  read: (cycle: number) => Promise<bigint | null>,
+): Promise<bigint | null> {
+  let total = 0n;
+  for (const cycle of cycles) {
+    const value = await read(cycle);
+    if (value === null) return null;
+    total += value;
+  }
+  return total;
 }
 
 async function main() {
@@ -321,7 +377,15 @@ async function main() {
   console.log(`Reading registered signers from ${describeNode()} ...`);
   const registered = await fetchRegisteredSigners();
   const cycle = await fetchCurrentCycle();
-  console.log(`  ${registered.size} registered, cycle ${cycle} is current`);
+  // Every cycle pox-5 might still be holding rewards for, read once for the
+  // whole run rather than per pool.
+  const pox5Cycles = await rewardCycles(cycle);
+  console.log(
+    `  ${registered.size} registered, cycle ${cycle} is current` +
+      (pox5Cycles
+        ? `, pox-5 has cycles ${pox5Cycles.join(', ')}`
+        : ', and pox-5 would not say which cycles it has'),
+  );
 
   const signers: Signer[] = [];
   const unmatched: string[] = [];
@@ -359,7 +423,9 @@ async function main() {
       ? await fetchReading(contractId, features.earnedFeesReading)
       : null;
     // And what it has not collected yet, which is pox-5's answer, not its own.
-    const unclaimedFromPox = await fetchUnclaimedFromPox(contractId, cycle);
+    const unclaimedFromPox = pox5Cycles
+      ? await fetchUnclaimedFromPox(contractId, pox5Cycles)
+      : null;
 
     if (!profile) unmatched.push(`${contractId}  ${groupSha256}`);
 
@@ -476,7 +542,11 @@ async function main() {
   }
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+// Only when run, so the pure parts above can be imported by a test.
+const invokedAs = process.argv[1] ? path.resolve(process.argv[1]) : '';
+if (invokedAs === fileURLToPath(import.meta.url)) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}
