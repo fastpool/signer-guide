@@ -1007,6 +1007,54 @@ time this ran. So a pool is one of four things — it keeps its own books, it
 holds without books (above), it genuinely keeps nothing, or it could not be
 read — and a single unread pool makes the totals unknown rather than low.
 
+## Did everybody get their share?
+
+`report-unclaimed` answers how much is waiting and for how many people.
+`pnpm rewards` answers the question behind it, pool by pool and staker by
+staker:
+
+```bash
+pnpm rewards "native pool" 141 142     # Stacking DAO's ststxBTC product
+pnpm rewards max500 --cycles 141 --json
+```
+
+For each member of a cycle it puts three numbers side by side — what pox-5
+counted for them, what they have taken (from the pool's own
+`claim-staker-rewards` prints, the only record there is), and what
+`get-earned-staker-rewards` still holds for them — and divides the last two by
+the first to get a rate per 1000 STX. **Every member of a cycle should have the
+same one**, because pox-5 pays per share, so the report prints the spread and
+says what a real one would mean.
+
+Two things it will not do. It will not read a cycle from before pox-5: the
+chain says which was its first (`get-first-pox-5-reward-cycle` answers 141), and
+asking about 140 prints one line saying so rather than a page of zeros that
+looks like a pool which paid nobody. And it will not count a member it could
+not read as a member who earned nothing — the first version of this script
+asked for all of them at once, earned a 429 for a dozen, and reported paid
+stakers as unpaid with a rate that looked like a fee. The reads are paced, one
+at a time, and an unread member makes the cycle's totals _not known_ rather than
+smaller.
+
+## What am I owed?
+
+`#/rewards/mine` is the address check's sibling: a box, a link you can share,
+and one address at a time. It asks the chain — nothing about an address anybody
+types can come from a committed file — and looks in both places a staker's sBTC
+can be:
+
+- **at pox-5**, `get-earned-staker-rewards(signer, cycle, none, staker)` per
+  cycle. Theirs, and only they can move it: the claim reads `tx-sender`, so no
+  operator can take it and none can take it for them.
+- **at the pool**, once a signer has run `claim-rewards` and that cycle's sBTC
+  has left pox-5. Which getter holds it depends on the implementation, so the
+  manager is probed for the two that exist and a contract that has neither is
+  reported as not saying rather than as holding nothing.
+
+Both, because either alone reads as "you are owed nothing" when the truth is "it
+has moved". A cycle the node would not answer for says so; the page never
+converts a busy endpoint into an empty balance.
+
 ## Recovering a failed distribution
 
 An L1 payout does not always land. The signer manager hands the whole amount

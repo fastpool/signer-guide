@@ -4,6 +4,7 @@ import Identicon from './components/Identicon';
 import LocaleSwitch from './components/LocaleSwitch';
 import SignerCard from './components/SignerCard';
 import SignerPage from './components/SignerPage';
+import MyRewardsPage from './components/MyRewardsPage';
 import StxOnlyHistoryPage from './components/StxOnlyHistoryPage';
 import StxOnlyRewardsEstimate from './components/StxOnlyRewardsEstimate';
 import StatusPage from './components/StatusPage';
@@ -22,6 +23,7 @@ import { localizeProfile } from './lib/profile-i18n';
 import { PROFILES } from './lib/profiles';
 import {
   contractHref,
+  myRewardsHref,
   statusHref,
   stxOnlyRewardsHref,
   useRoute,
@@ -37,8 +39,6 @@ const LOW_FEE_BIPS = 500; // 5%
 
 const REPO_URL = 'https://github.com/fastpool/signer-guide';
 const FASTPOOL_URL = 'https://fastpool.org';
-const NEWSLETTER_URL =
-  'https://steady.page/en/stacks-signer-guide/newsletter/sign_up';
 
 /** Switch compact STX rewards style: 'original' or 'weekly'. */
 const STX_COMPACT_VARIANT: 'original' | 'weekly' = 'weekly';
@@ -176,6 +176,20 @@ export default function App() {
     );
   }
 
+  if (route.name === 'myRewards') {
+    return (
+      <>
+        <MyRewardsPage
+          address={route.address}
+          signers={signerData.signers}
+          locale={locale}
+          onLocaleChange={setLocale}
+        />
+        <UpdateBanner update={update} locale={locale} />
+      </>
+    );
+  }
+
   if (route.name === 'stxOnlyHistory') {
     return (
       <>
@@ -275,7 +289,25 @@ export default function App() {
             />
             Fast Pool
           </a>
-          <LocaleSwitch locale={locale} onChange={setLocale} />
+          <div className='flex flex-wrap items-center gap-3'>
+            {/* The one question this guide could not answer until now: not
+                which pool to pick, but where your own STX already is. It was
+                below the pool list, which is the last place somebody arriving
+                with that question would look. */}
+            <a
+              href={statusHref()}
+              className='rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink shadow-[0_1px_3px_rgba(44,42,53,0.08)] transition-colors hover:bg-grape-soft'
+            >
+              {t('status.open')}
+            </a>
+            <a
+              href={myRewardsHref()}
+              className='rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink shadow-[0_1px_3px_rgba(44,42,53,0.08)] transition-colors hover:bg-grape-soft'
+            >
+              {t('myRewards.open')}
+            </a>
+            <LocaleSwitch locale={locale} onChange={setLocale} />
+          </div>
         </div>
         <h1 className='text-4xl font-extrabold md:text-5xl'>
           {t('app.heading')}
@@ -371,24 +403,6 @@ export default function App() {
         </span>
         <span>{stale ? t('app.savedCopy') : t('app.refreshNote')}</span>
       </p>
-
-      <section className='mt-2 flex flex-wrap gap-3'>
-        <button
-          type='button'
-          onClick={() => window.open(NEWSLETTER_URL, '_blank')}
-          className='rounded-full bg-grape text-white px-4 py-2 font-semibold transition-colors hover:bg-grape-dark'
-        >
-          {t('app.newsletter')}
-        </button>
-        {/* The one question this guide could not answer until now: not which
-            pool to pick, but where your own STX already is. */}
-        <a
-          href={statusHref()}
-          className='rounded-full bg-white px-4 py-2 font-semibold text-ink shadow-[0_1px_3px_rgba(44,42,53,0.08)] transition-colors hover:bg-grape-soft'
-        >
-          {t('status.open')}
-        </a>
-      </section>
 
       <section className='mt-12' aria-labelledby='filters-heading'>
         <h2 id='filters-heading' className='text-2xl font-bold'>

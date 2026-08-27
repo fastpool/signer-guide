@@ -402,6 +402,34 @@ export const ko: LocaleBundle = {
     'status.readNote':
       '방금 체인에서 주소를 하나씩 읽었습니다. 이 가이드의 다른 정보는 매시간 갱신되는 파일에서 오지만, 이 페이지는 여러분만 아는 주소를 다루므로 그럴 수 없습니다.',
     'status.open': '주소 조회',
+    'myRewards.open': '내 보상',
+    'myRewards.back': '← 풀 목록으로',
+    'myRewards.heading': '내 보상은 얼마인가요?',
+    'myRewards.intro':
+      '보상은 저절로 오지 않습니다. 누군가 가져와야 하며, 지난 사이클 대부분은 아직 아무도 가져오지 않았습니다. 주소를 넣으면 무엇이 어디에 얼마나 남아 있고 누가 움직일 수 있는지 보여줍니다.',
+    'myRewards.inputLabel': 'Stacks 주소 또는 BNS 이름',
+    'myRewards.inputHint':
+      '한 번에 하나씩. 한 건의 답을 위해 체인에 여러 번 물어보며, 거절당하지 않을 만큼 천천히 진행합니다.',
+    'myRewards.lookUp': '내 보상 보기',
+    'myRewards.reading': '읽는 중…',
+    'myRewards.readingRow': 'pox-5에 사이클별로 물어보는 중…',
+    'myRewards.orCheckAddress': '또는 내 STX가 어디에 스테이킹되어 있는지 확인',
+    'myRewards.resultsHeading': '{address}의 보상',
+    'myRewards.unread':
+      '지금은 체인이 이 주소에 대해 답하지 않았습니다. 잔액이 없다는 뜻이 아니라 엔드포인트가 바쁘다는 뜻이니 잠시 후 다시 시도하세요.',
+    'myRewards.notStaking':
+      '이 주소는 현재 어떤 풀에도 스테이킹하고 있지 않아 pox-5가 보관 중인 금액이 없습니다. 이전 사이클에 스테이킹했다면 그때 받은 보상은 해당 풀에 있습니다.',
+    'myRewards.withPool': '{pool}에 {amount}를 스테이킹 중입니다.',
+    'myRewards.atPox5': 'pox-5에서 기다리는 금액',
+    'myRewards.perCycle': '{cycle} 사이클: {amount}',
+    'myRewards.unreadCycle': '읽지 못했습니다',
+    'myRewards.onlyYou':
+      '이 금액은 본인만 가져갈 수 있습니다. 청구 시 발신자를 확인하므로 운영자가 대신 옮길 수도, 가져갈 수도 없습니다.',
+    'myRewards.atPool': '풀에서 기다리는 금액',
+    'myRewards.atPoolNote':
+      '풀이 이미 이번 사이클 보상을 pox-5에서 가져와 본인 몫을 보관 중이며, 이 값은 풀의 {getter}에서 읽었습니다. 지급은 본인을 포함해 누구나 실행할 수 있습니다.',
+    'myRewards.movedNote':
+      '여기 0이라고 해서 항상 보상이 없다는 뜻은 아닙니다. 풀이 claim-rewards를 실행하면 그 사이클 보상은 pox-5에서 풀로 옮겨지고, 스테이커별 장부를 두지 않는 풀에는 본인 몫을 물어볼 수 없습니다. 풀이 가져왔지만 아직 나눠주지 않은 금액은 해당 풀 페이지에서 확인할 수 있습니다.',
 
     'stake.open': '지갑으로 스테이킹',
     'stake.title': '{name} 스테이킹',

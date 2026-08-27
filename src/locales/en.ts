@@ -373,6 +373,35 @@ const messages = {
   'status.readNote':
     'Read from the chain just now, one address at a time. Everything else in this guide comes from a file refreshed each hour; this cannot, because it is about addresses only you know.',
   'status.open': 'Check an address',
+  'myRewards.open': 'My rewards',
+  'myRewards.back': '← Back to the pools',
+  'myRewards.heading': 'What are my rewards?',
+  'myRewards.intro':
+    'Rewards are not sent to you — they wait until somebody fetches them, and for most of the last cycle nobody has. Put in an address to see what is being held for it, where, and who can move it.',
+  'myRewards.inputLabel': 'A Stacks address or a BNS name',
+  'myRewards.inputHint':
+    'One at a time. Each answer is several questions to the chain, asked slowly enough not to be turned away.',
+  'myRewards.lookUp': 'Show my rewards',
+  'myRewards.reading': 'Reading…',
+  'myRewards.readingRow': 'Asking pox-5, cycle by cycle…',
+  'myRewards.orCheckAddress': 'or check where your STX is staked',
+  'myRewards.resultsHeading': 'For {address}',
+  'myRewards.unread':
+    'The chain would not answer about this address just now. That is a busy endpoint, not an empty balance — try again in a moment.',
+  'myRewards.notStaking':
+    'This address is not staking with any pool right now, so pox-5 is holding nothing for it. If it staked in an earlier cycle, what it earned then is with that pool.',
+  'myRewards.withPool':
+    'Staking {amount} with {pool}.',
+  'myRewards.atPox5': 'Waiting for you at pox-5',
+  'myRewards.perCycle': 'Cycle {cycle}: {amount}',
+  'myRewards.unreadCycle': 'could not be read',
+  'myRewards.onlyYou':
+    'Only you can take this: the claim reads the sender, so no operator can move it for you — and none can take it from you either.',
+  'myRewards.atPool': 'Waiting at the pool',
+  'myRewards.atPoolNote':
+    'The pool has already collected this cycle from pox-5 and is holding your share, read from its own {getter}. Anyone can trigger the payout, including you.',
+  'myRewards.movedNote':
+    'A zero here does not always mean nothing was earned. Once a pool runs claim-rewards, that cycle moves out of pox-5 and into the pool — and a pool that keeps no per-staker books cannot be asked what it is holding for you. The pool’s own page shows what it has collected and not yet handed out.',
 
   'stake.open': 'Stake with wallet',
   'stake.title': 'Stake with {name}',

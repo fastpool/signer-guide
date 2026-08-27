@@ -13,6 +13,7 @@ import { isLookupTarget } from './principals';
  *                            anything; empty for the box to paste them into
  *   #/rewards/stx-only       full breakdown of the STX-only rewards estimate
  *   #/rewards/stx-only/history   what every distribution has paid so far
+ *   #/rewards/mine[/<address>]   what one address is owed, and where it sits
  *
  * The first two are easy to confuse and are genuinely different pages. A
  * contract is a piece of reviewed code that a dozen pools may share; a signer
@@ -26,7 +27,8 @@ export type Route =
   | { name: 'signer'; contractId: string }
   | { name: 'status'; principals: string[] }
   | { name: 'stxOnlyRewards' }
-  | { name: 'stxOnlyHistory' };
+  | { name: 'stxOnlyHistory' }
+  | { name: 'myRewards'; address: string | null };
 
 /** `SP…ADDRESS.contract-name`, which is all a contract id can be. */
 const CONTRACT_ID = /^[A-Z0-9]+\.[a-zA-Z0-9][a-zA-Z0-9-]*$/;
@@ -44,6 +46,22 @@ export function parseHash(hash: string): Route {
   // Before the estimate, which is a prefix of it.
   if (hash === '#/rewards/stx-only/history') return { name: 'stxOnlyHistory' };
   if (hash === '#/rewards/stx-only') return { name: 'stxOnlyRewards' };
+
+  if (hash === '#/rewards/mine' || hash === '#/rewards/mine/') {
+    return { name: 'myRewards', address: null };
+  }
+  const mine = /^#\/rewards\/mine\/(.+)$/.exec(hash);
+  if (mine) {
+    // Checked rather than trusted, like the status route: this goes into the
+    // path of a request, and a hash is the one part of the page a stranger can
+    // hand somebody a link to. Anything that is not a principal or a name
+    // lands on the empty box, which is a page that still works.
+    const typed = decode(mine[1]);
+    return {
+      name: 'myRewards',
+      address: typed !== null && isLookupTarget(typed) ? typed : null,
+    };
+  }
 
   const contract = /^#\/contract\/([a-z0-9-]+)$/.exec(hash);
   if (contract) return { name: 'contract', profileId: contract[1] };
@@ -108,6 +126,11 @@ export function stxOnlyRewardsHref(): string {
 
 export function stxOnlyHistoryHref(): string {
   return '#/rewards/stx-only/history';
+}
+
+/** A link to what one address is owed, or to the empty box for none. */
+export function myRewardsHref(address?: string): string {
+  return address ? `#/rewards/mine/${address}` : '#/rewards/mine';
 }
 
 export function useRoute(): Route {

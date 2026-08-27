@@ -250,6 +250,31 @@ describe('the page as a reader sees it', () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
+  it('offers both address questions from the header, and no newsletter', () => {
+    const html = renderToStaticMarkup(<App />);
+    expect(html).toContain('href="#/status"');
+    expect(html).toContain('href="#/rewards/mine"');
+    // The signup was the first thing under the amounts and is gone.
+    expect(html).not.toContain('newsletter');
+  });
+
+  it('opens the rewards page with a box, asking the chain nothing', () => {
+    const fetch = vi.fn();
+    vi.stubGlobal('fetch', fetch);
+    vi.stubGlobal('window', {
+      location: { hash: '#/rewards/mine' },
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      scrollTo: () => {},
+    });
+
+    const html = renderToStaticMarkup(<App />);
+    expect(html).toContain('What are my rewards?');
+    expect(html).toContain('A Stacks address or a BNS name');
+    // Nothing to look up until somebody types something.
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it('opens the payout history, and asks for it only when opened', () => {
     // The file is fetched by the page rather than shipped to every reader, so
     // what the first render owes them is the page and a word about waiting —

@@ -39,6 +39,23 @@ describe('parseHash', () => {
     });
   });
 
+  it('reads an address out of the my-rewards link, and refuses a bad one', () => {
+    expect(parseHash('#/rewards/mine')).toEqual({
+      name: 'myRewards',
+      address: null,
+    });
+    expect(parseHash('#/rewards/mine/friedger.btc')).toEqual({
+      name: 'myRewards',
+      address: 'friedger.btc',
+    });
+    // It goes into the path of a request, so anything that is not a principal
+    // or a name lands on the empty box rather than being asked about.
+    expect(parseHash('#/rewards/mine/../../etc')).toEqual({
+      name: 'myRewards',
+      address: null,
+    });
+  });
+
   it('tells the payout history from the estimate it hangs off', () => {
     // One hash is a prefix of the other, and getting that order wrong lands a
     // reader on the estimate whichever link they followed.
