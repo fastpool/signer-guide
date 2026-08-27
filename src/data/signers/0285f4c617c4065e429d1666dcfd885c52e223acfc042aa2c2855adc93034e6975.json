@@ -11,11 +11,11 @@
         "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-xverse-v1": "0",
         "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-2": "14063218046486"
       },
-      "memberCount": null,
-      "membersAddUp": false,
-      "walks": 0,
-      "walkedAt": null,
-      "walkedUstx": null,
+      "memberCount": 530,
+      "membersAddUp": true,
+      "walks": 1,
+      "walkedAt": "2026-08-27T09:58:18.049Z",
+      "walkedUstx": "14063218046486",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -25,11 +25,11 @@
         "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-xverse-v1": "11499999999999",
         "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-2": "14058325575104"
       },
-      "memberCount": 522,
+      "memberCount": 526,
       "membersAddUp": true,
-      "walks": 32,
-      "walkedAt": "2026-08-26T04:59:35.372Z",
-      "walkedUstx": "13935169729616",
+      "walks": 33,
+      "walkedAt": "2026-08-27T09:58:18.049Z",
+      "walkedUstx": "25558325575103",
       "fileFinal": false,
       "cycleFinal": true
     },
@@ -49,5 +49,5 @@
     }
   ],
   "currentCycle": 142,
-  "generatedAt": "2026-08-27T08:23:53.706Z"
+  "generatedAt": "2026-08-27T10:02:09.537Z"
 }
