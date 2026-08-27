@@ -883,9 +883,25 @@ answers 0 for a pool sitting on an uncollected payout from the cycle before —
 which is exactly the pool the number exists to catch. Cycle 141's second
 distribution landed hours into cycle 142, and until this was fixed the page told
 a reader Fast Pool Max500 had collected everything while pox-5 held 22 million
-sats for it. It costs one call per pool per cycle, so it grows by a call a
-fortnight; if that ever bites, the cycles a pool has already emptied are the
-ones to stop asking about.
+sats for it.
+
+**But not the same cycles for ever.** That would be a call per pool per cycle,
+growing by one a fortnight with no end, so each pool carries a floor —
+`unclaimedFromCycle` — and the refresh asks from there. A cycle moves under the
+floor when two things are true of it:
+
+- **it is settled** — `last-reward-compute-height` has reached the cycle's final
+  burn block, so every distribution in it has been computed. Before that a zero
+  means "not worked out yet" and will become something later; the current cycle
+  is never settled, because its second distribution lands on its last block.
+- **and the pool read zero for it** — it has collected, and pox-5 zeroed the
+  entry. A settled zero cannot become anything else.
+
+Only a leading run moves the floor, never a gap in the middle: it is a floor,
+not a verdict on each cycle. A cycle that could not be read moves nothing, and
+the pool's total reads as _not known_ rather than short — a floor moved on an
+answer nobody got would skip a cycle for good. The total stays complete, because
+everything below the floor was read as zero on the run that set it.
 
 The Capped Fee implementation adds a stage the others do not have.
 `settle-staker-rewards` moves a share out of the pooled bucket into that

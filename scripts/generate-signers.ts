@@ -214,23 +214,58 @@ async function fetchFeeBips(
 const NONE = '0x09';
 
 /**
- * Every cycle pox-5 could be holding rewards for: its first, through now.
+ * Every cycle pox-5 could be holding rewards for, and which are finished with.
  *
  * Rewards are keyed by the cycle they were earned in and stay there until
  * somebody claims them, so "what is pox-5 holding for this pool" is a question
  * about all of them, not about the current one. Null when the chain would not
  * say, because a shorter list would understate what a pool is owed.
+ *
+ * A cycle is `settled` once every distribution in it has been computed —
+ * `last-reward-compute-height` has reached its final burn block. That is what
+ * makes a zero permanent: before it, a cycle reads zero because nothing has
+ * been worked out yet and will read something later; after it, a zero is a
+ * pool that has collected and can never be owed for that cycle again. The
+ * current cycle is never settled, because its second distribution lands on its
+ * last block.
  */
-async function rewardCycles(currentCycle: number): Promise<number[] | null> {
+async function rewardCycles(currentCycle: number): Promise<{
+  cycles: number[];
+  settled: (cycle: number) => boolean;
+} | null> {
   const answer = await callPox5('get-first-pox-5-reward-cycle', []);
   const first = answer === null ? null : parseUint(answer);
   if (first === null) return null;
 
+  const computedTo = await readUint('get-last-reward-compute-height', []);
+  if (computedTo === null) return null;
+
   const cycles: number[] = [];
+  const lastBlock = new Map<number, bigint>();
   for (let cycle = Number(first); cycle <= currentCycle; cycle += 1) {
     cycles.push(cycle);
+    // The cycle's own final block: where the next one starts, less one.
+    const startsNext = await readUint('reward-cycle-to-burn-height', [
+      `0x${serializeUint(cycle + 1)}`,
+    ]);
+    if (startsNext === null) return null;
+    lastBlock.set(cycle, startsNext - 1n);
+    await sleep(SPACING_MS);
   }
-  return cycles;
+
+  return {
+    cycles,
+    settled: (cycle) => {
+      const last = lastBlock.get(cycle);
+      return last !== undefined && computedTo >= last;
+    },
+  };
+}
+
+/** A pox-5 read-only call that answers a uint. Null when it could not be read. */
+async function readUint(fn: string, args: string[]): Promise<bigint | null> {
+  const result = await callPox5(fn, args);
+  return result === null ? null : parseUint(result);
 }
 
 /**
@@ -252,17 +287,22 @@ async function rewardCycles(currentCycle: number): Promise<number[] | null> {
  * Fast Pool Max500 had collected everything while pox-5 held 22 million sats
  * for it.
  *
- * It costs one call per pool per cycle, so it grows by a call a fortnight. If
- * that ever bites, the cycles a pool has already emptied are the ones to stop
- * asking about — not the count of pools.
+ * Asking about every cycle for ever would be a call per pool per cycle, so
+ * each pool carries a floor — `unclaimedFromCycle` — and this asks from there.
+ * See `summariseEarned` for what moves it.
  *
  * The STX leg only (`bond-index` is `none`): no protocol bonds exist on
  * mainnet, and the guide's subject is STX stacking.
  */
 async function fetchUnclaimedFromPox(
   contractId: string,
-  cycles: number[],
-): Promise<bigint | null> {
+  opts: {
+    cycles: number[];
+    settled: (cycle: number) => boolean;
+    /** The earliest cycle this pool might still be owed for. */
+    from: number;
+  },
+): Promise<{ sats: bigint; from: number } | null> {
   let signerArg: string;
   try {
     signerArg = `0x${serializeContractPrincipal(contractId)}`;
@@ -270,35 +310,61 @@ async function fetchUnclaimedFromPox(
     return null;
   }
 
-  return sumAcrossCycles(cycles, async (cycle) => {
+  const asked = opts.cycles.filter((cycle) => cycle >= opts.from);
+  const readings: { cycle: number; earned: bigint }[] = [];
+  for (const cycle of asked) {
     const result = await callPox5('get-earned', [
       signerArg,
       `0x${serializeUint(cycle)}`,
       NONE,
     ]);
     await sleep(SPACING_MS);
-    return result === null ? null : parseUint(result);
-  });
+    // A cycle pox-5 will not answer for is not a cycle owed nothing, and a
+    // total short by one cycle is worse than saying we do not know.
+    const earned = result === null ? null : parseUint(result);
+    if (earned === null) return null;
+    readings.push({ cycle, earned });
+  }
+
+  return summariseEarned(readings, opts.settled, opts.from);
 }
 
 /**
- * Add up one reading across the cycles, or say it could not be read.
+ * The total owed, and the earliest cycle worth asking about next time.
  *
- * The fold rather than the reading, so the rule can be tested without a node:
- * a cycle pox-5 will not answer for is not a cycle owed nothing, and a total
- * short by one cycle is worse than saying plainly that we do not know.
+ * The fold rather than the reading, so the rule can be tested without a node.
+ *
+ * A settled cycle a pool has emptied can never owe it anything again — the
+ * rewards were computed, they were claimed, and pox-5 zeroed the entry — so a
+ * leading run of those is dropped and the next run starts after them. The walk
+ * stops at the first cycle that is *not* both: an unsettled cycle will have
+ * rewards computed into it later, and a cycle with something in it is the
+ * whole reason for asking. Only a leading run is dropped, never a gap in the
+ * middle, because the point is to move a floor forward and not to decide a
+ * cycle is uninteresting.
+ *
+ * The total is still the whole of what pox-5 owes: everything below the floor
+ * was read as zero on the run that set it.
  */
-export async function sumAcrossCycles(
-  cycles: number[],
-  read: (cycle: number) => Promise<bigint | null>,
-): Promise<bigint | null> {
-  let total = 0n;
-  for (const cycle of cycles) {
-    const value = await read(cycle);
-    if (value === null) return null;
-    total += value;
+export function summariseEarned(
+  readings: readonly { cycle: number; earned: bigint }[],
+  settled: (cycle: number) => boolean,
+  from: number,
+): { sats: bigint; from: number } {
+  let sats = 0n;
+  let floor = from;
+  let stillLeading = true;
+
+  for (const reading of readings) {
+    sats += reading.earned;
+    if (stillLeading && reading.earned === 0n && settled(reading.cycle)) {
+      floor = reading.cycle + 1;
+    } else {
+      stillLeading = false;
+    }
   }
-  return total;
+
+  return { sats, from: floor };
 }
 
 async function main() {
@@ -314,6 +380,14 @@ async function main() {
    */
   const committed = readCommitted();
   const known = identiconsBySource(committed?.signers ?? []);
+  // How far back each pool still has to be asked about. See `summariseEarned`.
+  const unclaimedFrom = new Map<string, number>(
+    (committed?.signers ?? []).flatMap((signer) =>
+      typeof signer.unclaimedFromCycle === 'number'
+        ? [[signer.contractId, signer.unclaimedFromCycle] as [string, number]]
+        : [],
+    ),
+  );
   // When each pool was first seen, so that a pool the guide has only just
   // noticed is not confused with one that has been empty for cycles.
   const firstSeen = new Map<string, number>(
@@ -383,7 +457,7 @@ async function main() {
   console.log(
     `  ${registered.size} registered, cycle ${cycle} is current` +
       (pox5Cycles
-        ? `, pox-5 has cycles ${pox5Cycles.join(', ')}`
+        ? `, pox-5 has cycles ${pox5Cycles.cycles.join(', ')}`
         : ', and pox-5 would not say which cycles it has'),
   );
 
@@ -423,9 +497,16 @@ async function main() {
       ? await fetchReading(contractId, features.earnedFeesReading)
       : null;
     // And what it has not collected yet, which is pox-5's answer, not its own.
-    const unclaimedFromPox = pox5Cycles
-      ? await fetchUnclaimedFromPox(contractId, pox5Cycles)
+    // Asked only from the cycle this pool might still be owed for: everything
+    // below that was read as zero when the cycle was already settled, and a
+    // settled zero cannot become anything else.
+    const owed = pox5Cycles
+      ? await fetchUnclaimedFromPox(contractId, {
+          ...pox5Cycles,
+          from: unclaimedFrom.get(contractId) ?? pox5Cycles.cycles[0] ?? cycle,
+        })
       : null;
+    const unclaimedFromPox = owed?.sats ?? null;
 
     if (!profile) unmatched.push(`${contractId}  ${groupSha256}`);
 
@@ -458,6 +539,10 @@ async function main() {
       feeExemption: features.feeExemption,
       undistributedSats: sats(undistributed),
       unclaimedFromPoxSats: sats(unclaimedFromPox),
+      // Bookkeeping, not a fact about the pool: where the next run starts
+      // asking. Left where it was when the read failed, because a floor moved
+      // on an answer nobody got would skip a cycle for good.
+      unclaimedFromCycle: owed?.from ?? unclaimedFrom.get(contractId),
       earnedFeesSats: sats(earnedFees),
       evidence: {
         bitcoinRewards: features.bitcoinRewards.evidence,

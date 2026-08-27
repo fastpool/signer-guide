@@ -89,15 +89,31 @@ export interface Signer {
   undistributedSats?: string | null;
   /**
    * sBTC pox-5 has earned for this signer that no `claim-rewards` has pulled
-   * in yet, in sats — the STX leg of the cycle in `SignerData.cycle`.
+   * in yet, in sats — the STX leg, across every cycle pox-5 has.
    *
    * This is the answer to "has this pool claimed the last distribution?".
    * pox-5 zeroes it when the pool claims and it grows again at the next
    * distribution, so zero means caught up and anything else is a payout the
    * pool's stakers cannot reach yet. Read from pox-5 rather than from the
    * signer manager, so it means the same thing for every implementation.
+   *
+   * Every cycle, not the current one: `get-earned` is keyed by the cycle the
+   * rewards were earned in, and a cycle's second distribution lands on its
+   * last block — so asking about the cycle we are standing in answers zero for
+   * a pool sitting on last cycle's payout, which is the pool this exists to
+   * catch.
    */
   unclaimedFromPoxSats?: string | null;
+  /**
+   * The earliest cycle this pool might still be owed for. Generator
+   * bookkeeping, not a fact about the pool.
+   *
+   * A settled cycle a pool has emptied can never owe it anything again, so the
+   * refresh stops asking about it and records where to start next time. Absent
+   * on a file written before this existed, which costs a run that asks from
+   * the beginning — a slower answer, never a wrong one.
+   */
+  unclaimedFromCycle?: number;
   /**
    * Fees this contract has taken and the operator has not withdrawn, in sats.
    *
