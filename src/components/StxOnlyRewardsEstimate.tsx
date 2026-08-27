@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { exactStxLabel } from '../lib/amounts';
 import { translator, type Locale } from '../lib/i18n';
+import { stxOnlyHistoryHref } from '../lib/route';
 import type { StxOnlyCalculations } from '../lib/types';
 
 const FALLBACK_DISTRIBUTION_BLOCKS = 1050;
@@ -435,6 +436,18 @@ export default function StxOnlyRewardsEstimate({
 
       {showFull && (
         <>
+          {/* The realised figures, which the estimate above is trying to
+              predict. Worth a link from here rather than from the list: a
+              reader on this page has already asked how the rate is arrived
+              at. */}
+          <p className='mt-4 text-sm'>
+            <a
+              className='font-semibold text-grape underline underline-offset-2'
+              href={stxOnlyHistoryHref()}
+            >
+              {t('app.stxOnlyEstimate.openHistory')}
+            </a>
+          </p>
           <p className='mt-3 text-xs text-muted'>{t('app.stxOnlyEstimate.note')}</p>
           <p className='mt-1 text-xs text-muted'>
             {t('app.stxOnlyEstimate.generatedAt', {

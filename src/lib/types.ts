@@ -153,6 +153,46 @@ export interface LockedTotals {
  * Written by scripts/generate-stx-only-calculations.ts in the hourly refresh.
  * Values are strings where the page uses bigint arithmetic.
  */
+/**
+ * One pox-5 distribution, as `src/data/stx-only-history.json` holds it.
+ *
+ * pox-5 computes rewards every 1050 burn blocks — half a reward cycle — so a
+ * cycle has two of these, and what a staker was paid for the cycle is the two
+ * added together.
+ */
+export interface StxOnlyDistribution {
+  /** The reward cycle it belongs to. */
+  cycle: number;
+  /** pox-5's own distribution index, two to a reward cycle. */
+  distributionIndex: number;
+  /** First of the cycle's two, or second. */
+  firstOfCycle: boolean;
+  /** Burn height of the computation that closed it. */
+  burnHeight: number;
+  /**
+   * pox-5's `rewards-per-token-for-cycle` at that point, which accumulates
+   * across the cycle — so the second of a pair carries the first as well.
+   */
+  cumulativeRewardsPerUstx: string;
+  /**
+   * What this one distribution paid, in sats per 1000 STX.
+   *
+   * Null is "not worked out", never "nothing". The second of a pair is the
+   * cumulative figure minus the first, and the first is only ever seen by a
+   * run that happened between the two payouts; a refresh that missed that
+   * window cannot recover it afterwards, and says so rather than printing the
+   * pair's total as though one payout had paid it.
+   */
+  rateSatsPer1000Stx: string | null;
+}
+
+/** Every distribution the refresh has seen, as its own committed file. */
+export interface StxOnlyHistory {
+  generatedAt: string;
+  /** Oldest first. */
+  distributions: StxOnlyDistribution[];
+}
+
 export interface StxOnlyCalculations {
   cycle: number;
   distributionBlocks: number;

@@ -1,20 +1,19 @@
 /**
- * The two pieces of the STX-only rate that are worth testing on their own.
+ * The pieces of the STX-only rate that are worth testing on their own.
  *
  * `generate-stx-only-calculations.ts` reads the chain and writes a file; these
  * are the decisions it makes in between, which are arithmetic and have edges:
- * which of a reward cycle's two payouts the last one was, and how much of the
- * published rate this cycle has earned the right to set.
+ * which of a reward cycle's two payouts the last one was, how much of the
+ * published rate this cycle has earned the right to set, and what a run adds
+ * to the history of what each distribution paid.
  */
 
-const USTX_PER_1000_STX = 1_000_000_000n;
-/** pox-5's PRECISION: rewards-per-token are fixed point with 18 decimals. */
-const PRECISION = 10n ** 18n;
+import { rateFromRewardsPerUstx } from '../src/lib/rewards-rate.js';
+import type { StxOnlyDistribution } from '../src/lib/types.js';
 
-/** A rewards-per-token figure, as sats per 1000 STX. */
-export function rateFromRewardsPerUstx(rewardsPerUstx: bigint): bigint {
-  return (rewardsPerUstx * USTX_PER_1000_STX) / PRECISION;
-}
+// One definition of the fixed-point conversion, shared with the page that
+// prints the history — see the note in `rewards-rate.ts`.
+export { rateFromRewardsPerUstx };
 
 /**
  * Which payout the computation at `burnHeight` was.
@@ -29,11 +28,12 @@ export function payoutPosition(opts: {
   burnHeight: number;
   firstBurnchainBlockHeight: number;
   distributionBlocks: number;
-}): { cycle: number; isFirstOfCycle: boolean } {
+}): { cycle: number; index: number; isFirstOfCycle: boolean } {
   const since = opts.burnHeight - opts.firstBurnchainBlockHeight;
   const index = Math.floor(since / opts.distributionBlocks);
   return {
     cycle: Math.floor(since / (opts.distributionBlocks * 2)),
+    index,
     isFirstOfCycle: index % 2 === 0,
   };
 }
@@ -135,4 +135,37 @@ export function publishedRate(opts: {
       opts.lastPayoutRateSatsPer1000Stx * left) /
     BigInt(opts.distributionBlocks)
   );
+}
+
+/**
+ * The history with this distribution in it, or unchanged if it is already.
+ *
+ * Append-only, and deliberately so: a payout that has been computed does not
+ * change afterwards, so a run that sees one it has already recorded leaves the
+ * record alone. The one exception is a rate that was written as "not worked
+ * out" and can now be filled in — that is the file learning something, not
+ * changing its mind.
+ *
+ * Keyed on the burn height of the computation, which is the one thing about a
+ * distribution that cannot repeat.
+ */
+export function recordDistribution(
+  distributions: readonly StxOnlyDistribution[],
+  entry: StxOnlyDistribution | null,
+): StxOnlyDistribution[] {
+  if (entry === null) return [...distributions];
+
+  const known = distributions.find((d) => d.burnHeight === entry.burnHeight);
+  if (known) {
+    if (known.rateSatsPer1000Stx !== null || entry.rateSatsPer1000Stx === null) {
+      return [...distributions];
+    }
+    return distributions.map((d) =>
+      d.burnHeight === entry.burnHeight
+        ? { ...d, rateSatsPer1000Stx: entry.rateSatsPer1000Stx }
+        : d,
+    );
+  }
+
+  return [...distributions, entry].sort((a, b) => a.burnHeight - b.burnHeight);
 }

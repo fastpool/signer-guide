@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   payoutPosition,
+  recordDistribution,
   publishedRate,
   rateFromRewardsPerUstx,
   realisedPayoutRate,
@@ -34,7 +35,7 @@ describe('payoutPosition', () => {
         firstBurnchainBlockHeight: FIRST_BURN,
         distributionBlocks: DISTRIBUTION_BLOCKS,
       }),
-    ).toEqual({ cycle: 141, isFirstOfCycle: true });
+    ).toEqual({ cycle: 141, index: 282, isFirstOfCycle: true });
   });
 
   it('places the payout one distribution later in the same cycle', () => {
@@ -44,7 +45,7 @@ describe('payoutPosition', () => {
         firstBurnchainBlockHeight: FIRST_BURN,
         distributionBlocks: DISTRIBUTION_BLOCKS,
       }),
-    ).toEqual({ cycle: 141, isFirstOfCycle: false });
+    ).toEqual({ cycle: 141, index: 283, isFirstOfCycle: false });
   });
 
   it('rolls into the next cycle two distributions later', () => {
@@ -54,7 +55,7 @@ describe('payoutPosition', () => {
         firstBurnchainBlockHeight: FIRST_BURN,
         distributionBlocks: DISTRIBUTION_BLOCKS,
       }),
-    ).toEqual({ cycle: 142, isFirstOfCycle: true });
+    ).toEqual({ cycle: 142, index: 284, isFirstOfCycle: true });
   });
 });
 
@@ -239,5 +240,62 @@ describe('publishedRate', () => {
         lastPayoutRateSatsPer1000Stx: null,
       }),
     ).toBeNull();
+  });
+});
+
+/*
+ * The history file is the only record of what a single distribution paid: the
+ * chain keeps a cycle's two payouts added together, and the first of a pair is
+ * visible only to a run that happens between them. So the rule that matters is
+ * that a recorded payout is never rewritten by a later run that knows less.
+ */
+describe('recordDistribution', () => {
+  const first = {
+    cycle: 141,
+    distributionIndex: 282,
+    firstOfCycle: true,
+    burnHeight: 963_199,
+    cumulativeRewardsPerUstx: '350915540939',
+    rateSatsPer1000Stx: '350',
+  };
+  const second = {
+    cycle: 141,
+    distributionIndex: 283,
+    firstOfCycle: false,
+    burnHeight: 964_249,
+    cumulativeRewardsPerUstx: '758607677183',
+    rateSatsPer1000Stx: '407',
+  };
+
+  it('adds a payout it has not seen, oldest first', () => {
+    expect(recordDistribution([second], first)).toEqual([first, second]);
+  });
+
+  it('leaves a payout it already has alone', () => {
+    const already = recordDistribution([first, second], {
+      ...second,
+      rateSatsPer1000Stx: '999',
+    });
+    expect(already).toEqual([first, second]);
+  });
+
+  it('fills in a rate that was not worked out at the time', () => {
+    const unknown = { ...second, rateSatsPer1000Stx: null };
+    expect(recordDistribution([first, unknown], second)).toEqual([
+      first,
+      second,
+    ]);
+  });
+
+  it('does not blank a rate it knows because a later run does not', () => {
+    const forgotten = { ...second, rateSatsPer1000Stx: null };
+    expect(recordDistribution([first, second], forgotten)).toEqual([
+      first,
+      second,
+    ]);
+  });
+
+  it('has nothing to add when there was no payout to record', () => {
+    expect(recordDistribution([first], null)).toEqual([first]);
   });
 });

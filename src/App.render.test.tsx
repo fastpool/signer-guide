@@ -218,6 +218,28 @@ describe('the page as a reader sees it', () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
+  it('opens the payout history, and asks for it only when opened', () => {
+    // The file is fetched by the page rather than shipped to every reader, so
+    // what the first render owes them is the page and a word about waiting —
+    // never a blank, and never a number it does not have yet.
+    const fetch = vi.fn(() => new Promise(() => {}));
+    vi.stubGlobal('fetch', fetch);
+    vi.stubGlobal('window', {
+      location: { hash: '#/rewards/stx-only/history' },
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      scrollTo: () => {},
+    });
+
+    const html = renderToStaticMarkup(<App />);
+    expect(html).toContain('What every distribution has paid');
+    expect(html).toContain('Reading the payout history');
+    expect(html).toContain('href="#/rewards/stx-only"');
+    // renderToStaticMarkup runs no effects, so the request belongs to the
+    // browser, not to this: what matters here is that nothing else fetched.
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it('takes addresses straight from a link, so one can be shared', () => {
     vi.stubGlobal('window', {
       location: {

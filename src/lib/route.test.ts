@@ -39,6 +39,14 @@ describe('parseHash', () => {
     });
   });
 
+  it('tells the payout history from the estimate it hangs off', () => {
+    // One hash is a prefix of the other, and getting that order wrong lands a
+    // reader on the estimate whichever link they followed.
+    expect(parseHash('#/rewards/stx-only/history')).toEqual({
+      name: 'stxOnlyHistory',
+    });
+  });
+
   it('reads a deployed pool by contract id', () => {
     expect(parseHash(`#/signer/${MAX500}`)).toEqual({
       name: 'signer',

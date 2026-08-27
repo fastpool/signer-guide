@@ -776,6 +776,50 @@ so `get-payout-config` reports a floor you never chose. The page reports the
 sent floor as absent rather than substituting the pool's, and says the pool
 used its own.
 
+## What a cycle pays
+
+pox-5 computes rewards every 1050 burn blocks — half a reward cycle — so **a
+cycle is paid in two goes**, and `rewards-per-token-for-cycle` accumulates
+across both of them. Everything on `#/rewards/stx-only` follows from that.
+
+The rate the page leads with is a blend: this cycle's own accrual counts for as
+much of it as the cycle has run, and the last payout — settled, not projected —
+covers the rest. An hour after a payout, five blocks of sBTC deposits
+multiplied by 1050 is not an estimate anybody should act on; by the end of the
+cycle it is the only figure that describes the cycle at all. The arithmetic is
+`scripts/stx-only-rate.ts`, tested on its own.
+
+### Why the last payout can name the cycle before this one
+
+_Last payout, as paid (cycle 141)_ beside a page that says the current cycle is
+142 looks like an off-by-one and is not. Cycle 142 begins at burn height
+964,250; the last computation ran at 964,249, the block before it, closing the
+second of cycle 141's two payouts. Cycle 142's first payout is due at 965,299.
+The label names **the cycle whose rewards were paid**, not the cycle a reader is
+standing in, and until 965,299 those are different numbers. `pox-5` settles it
+either way: `burn-height-to-reward-cycle` answers 141 for 964,249 and 142 for
+964,250.
+
+### What every distribution has paid
+
+`#/rewards/stx-only/history` lists them, two to a cycle, at the rate each one
+actually paid. It reads `src/data/stx-only-history.json`, fetched when the page
+is opened rather than shipped to every reader.
+
+That file exists because **the chain does not keep this**. A cycle's cumulative
+figure is the two payouts added together, so once the second has landed there
+is no way to recover what the first one paid — the only witness is a refresh
+that ran between the two. So the hourly job writes each payout down as it sees
+it, the record is append-only, and a rate that was never worked out reads as
+_not known_ rather than as a zero. The first entry, cycle 141's first half at
+350 sats per 1000 STX, was recovered from the committed history of
+`stx-only-calculations.json`, which had recorded the intermediate figure hourly
+before this file existed.
+
+A cycle's total comes from the chain's cumulative figure rather than from
+adding its two halves: each half is rounded down to a whole sat on its own, so
+cycle 141 reads 350 + 407 and paid 758.
+
 ## Where the rewards are sitting
 
 Rewards do not arrive; they are fetched, in two hops, neither of which happens

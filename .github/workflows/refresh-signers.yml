@@ -1,8 +1,12 @@
-# Reads the chain and updates the two committed data files:
+# Reads the chain and updates the committed data files:
 #   src/data/signers.json — the pools, what their code allows, and their fees
 #   src/data/totals.json  — how much STX each one is looking after
 #   src/data/stx-only-calculations.json — static inputs for the STX-only
 #     rewards estimate card
+#   src/data/stx-only-history.json — what each distribution has paid. Append
+#     only, and only this job can write it: a cycle's two payouts can be told
+#     apart only by a run that happens between them, so a missed hour there is
+#     a figure nobody can recover afterwards.
 #
 # The guide ships both as committed files, so the page is only ever as current
 # as the last run. That is why this runs hourly rather than daily: a pool can
@@ -146,7 +150,8 @@ jobs:
           SIGNERS_CHANGED: ${{ steps.changes.outputs.changed }}
         run: |
           if git diff --quiet -- src/data/totals.json \
-              src/data/stx-only-calculations.json; then
+              src/data/stx-only-calculations.json \
+              src/data/stx-only-history.json; then
             amounts=false
           else
             amounts=true
@@ -220,7 +225,8 @@ jobs:
           # present. The step above has already staged it; this is the case
           # where only the pools or the amounts moved.
           git add src/data/signers.json src/data/totals.json \
-            src/data/stx-only-calculations.json
+            src/data/stx-only-calculations.json \
+            src/data/stx-only-history.json
           git add -A src/data/signers/
           git commit --file "$RUNNER_TEMP/commit-message.txt"
           git push

@@ -152,6 +152,25 @@ export const ko: LocaleBundle = {
     'app.stxOnlyEstimate.durationDays.one': '{count}일',
     'app.stxOnlyEstimate.durationDays.other': '{count}일',
     'app.stxOnlyEstimate.openFull': '전체 계산 보기',
+    'app.stxOnlyEstimate.openHistory': '지금까지 분배별 지급 내역',
+    'app.stxOnlyHistory.back': '← 보상 추정으로 돌아가기',
+    'app.stxOnlyHistory.title': '지금까지 분배별 지급 내역',
+    'app.stxOnlyHistory.intro':
+      '보상은 한 사이클에 두 번 계산되므로, 각 사이클은 두 번에 나누어 지급됩니다. 아래는 추정이 아니라 실제로 지급된 비율로, pox-5가 스테이킹된 1000 STX당 적립한 금액입니다.',
+    'app.stxOnlyHistory.loading': '지급 내역을 불러오는 중…',
+    'app.stxOnlyHistory.none':
+      '아직 기록된 분배가 없습니다. 사이클이 한 번 지급되면 여기에 표시됩니다.',
+    'app.stxOnlyHistory.failed':
+      '지급 내역을 가져오지 못했습니다. 잠시 후 다시 시도하세요.',
+    'app.stxOnlyHistory.cycle': '{cycle} 사이클',
+    'app.stxOnlyHistory.cycleTotal': '사이클 합계',
+    'app.stxOnlyHistory.stillPaying': '진행 중 — 두 번 중 한 번 지급',
+    'app.stxOnlyHistory.firstHalf': '전반',
+    'app.stxOnlyHistory.secondHalf': '후반',
+    'app.stxOnlyHistory.atHeight': '번 높이 {height}',
+    'app.stxOnlyHistory.rateUnknown': '알 수 없음',
+    'app.stxOnlyHistory.note':
+      '사이클 합계는 두 번의 지급액을 더한 값이 아니라 pox-5가 해당 사이클에 적립한 값에서 가져옵니다. 각 지급액은 개별적으로 1사토시 단위로 내림되기 때문입니다. 두 지급 사이에 갱신이 실행되지 않으면 전반 지급액은 \'알 수 없음\'으로 표시됩니다. 두 번을 구분할 수 있는 시점은 그때뿐입니다.',
     'app.stxOnlyEstimate.back': '← 전체 풀',
     'app.stxOnlyEstimate.note':
       '참고용 예상치입니다. 지난 지급 이후 pox-5에 들어온 금액과 현재 분배 사이클 진행도에 따라 달라지며, 사이클이 진행될수록 안정됩니다.',

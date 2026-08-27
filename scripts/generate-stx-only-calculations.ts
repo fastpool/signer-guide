@@ -54,11 +54,14 @@ import {
   payoutPosition,
   publishedRate,
   realisedPayoutRate,
+  recordDistribution,
 } from './stx-only-rate.js';
 import type {
   SignerData,
   LockedTotals,
   StxOnlyCalculations,
+  StxOnlyDistribution,
+  StxOnlyHistory,
 } from '../src/lib/types.js';
 
 const FALLBACK_DISTRIBUTION_BLOCKS = 1050;
@@ -75,6 +78,7 @@ const DATA = path.join(
 const SIGNERS = path.join(DATA, 'signers.json');
 const TOTALS = path.join(DATA, 'totals.json');
 const OUTPUT = path.join(DATA, 'stx-only-calculations.json');
+const HISTORY_OUTPUT = path.join(DATA, 'stx-only-history.json');
 
 function sumKnownUstx(
   contractIds: string[],
@@ -140,6 +144,46 @@ function readPrevious(): StxOnlyCalculations | null {
 
 function write(data: StxOnlyCalculations): void {
   fs.writeFileSync(OUTPUT, `${JSON.stringify(data, null, 2)}\n`);
+}
+
+function readHistory(): StxOnlyHistory | null {
+  try {
+    const parsed = JSON.parse(
+      fs.readFileSync(HISTORY_OUTPUT, 'utf8'),
+    ) as StxOnlyHistory;
+    return Array.isArray(parsed?.distributions) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Add the payout this run is describing to the history, if it is new.
+ *
+ * The history exists because the chain does not keep one: a cycle's two
+ * payouts are added together in `rewards-per-token-for-cycle`, and the first
+ * of a pair can only be told apart by a run that happens between the two. This
+ * runs hourly and a payout is a week apart from the next, so every one of them
+ * is seen — but only if each run writes down what it saw.
+ *
+ * The file is left alone when nothing new has been computed, so an hour with
+ * no payout in it is not an hourly commit saying nothing.
+ */
+function writeHistory(entry: StxOnlyDistribution | null): number {
+  const previous = readHistory();
+  const distributions = recordDistribution(previous?.distributions ?? [], entry);
+
+  const unchanged =
+    previous !== null &&
+    JSON.stringify(previous.distributions) === JSON.stringify(distributions);
+  if (unchanged) return distributions.length;
+
+  const out: StxOnlyHistory = {
+    generatedAt: new Date().toISOString(),
+    distributions,
+  };
+  fs.writeFileSync(HISTORY_OUTPUT, `${JSON.stringify(out, null, 2)}\n`);
+  return distributions.length;
 }
 
 async function fetchStxPriceSats(): Promise<string | null> {
@@ -391,6 +435,29 @@ async function main() {
 
   write(out);
   console.log(`Wrote STX-only calculations to ${OUTPUT}`);
+
+  // What that payout paid, kept as its own line in the history. Only a payout
+  // whose cumulative figure was readable can be recorded: an entry without one
+  // could never have its rate worked out later, so it would be a permanent
+  // gap dressed up as a row.
+  const recorded =
+    position !== null &&
+    lastRewardBurnHeight !== null &&
+    cumulativeRewardsPerUstx !== null
+      ? {
+          cycle: position.cycle,
+          distributionIndex: position.index,
+          firstOfCycle: position.isFirstOfCycle,
+          burnHeight: lastRewardBurnHeight,
+          cumulativeRewardsPerUstx: cumulativeRewardsPerUstx.toString(),
+          rateSatsPer1000Stx:
+            lastPayoutRateSatsPer1000Stx === null
+              ? null
+              : lastPayoutRateSatsPer1000Stx.toString(),
+        }
+      : null;
+  const kept = writeHistory(recorded);
+  console.log(`  ${kept} distribution(s) on file in ${HISTORY_OUTPUT}`);
 }
 
 main().catch((err) => {

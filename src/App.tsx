@@ -4,6 +4,7 @@ import Identicon from './components/Identicon';
 import LocaleSwitch from './components/LocaleSwitch';
 import SignerCard from './components/SignerCard';
 import SignerPage from './components/SignerPage';
+import StxOnlyHistoryPage from './components/StxOnlyHistoryPage';
 import StxOnlyRewardsEstimate from './components/StxOnlyRewardsEstimate';
 import StatusPage from './components/StatusPage';
 import UpdateBanner from './components/UpdateBanner';
@@ -149,6 +150,15 @@ export default function App() {
           locale={locale}
           onLocaleChange={setLocale}
         />
+        <UpdateBanner update={update} locale={locale} />
+      </>
+    );
+  }
+
+  if (route.name === 'stxOnlyHistory') {
+    return (
+      <>
+        <StxOnlyHistoryPage locale={locale} onLocaleChange={setLocale} />
         <UpdateBanner update={update} locale={locale} />
       </>
     );

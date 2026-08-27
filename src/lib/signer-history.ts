@@ -16,76 +16,14 @@
  * Which contracts make up a signer, and what its files are called, is in
  * src/lib/signer-groups.ts — shared with the script that writes them.
  *
- * These come from the branch like the rest of the data, which means a working
- * copy reads the *published* history rather than the one just generated. To
- * see your own:
- *
- *   pnpm generate:history --only "fast pool"
- *   VITE_DATA_BASE_URL=/src/data pnpm dev
+ * The fetching itself is `remote-json.ts`, which the rewards history uses too.
+ * `Remote` is re-exported here because this module's callers name it.
  */
 
-import { useEffect, useState } from 'react';
-import { RAW_BASE } from './data-source';
+import { useRemoteJson, type Remote } from './remote-json';
 import type { SignerCycleMembers, SignerHistory } from './types';
 
-/**
- * A read that has not finished, has failed, or has an answer.
- *
- * `missing` is a state of its own on purpose. A signer whose history the
- * refresh has not built yet answers 404, and that is not a failure to ask a
- * reader to retry — it is "nothing on file for this one", which the page can
- * say plainly.
- */
-export type Remote<T> =
-  | { state: 'loading' }
-  | { state: 'missing' }
-  | { state: 'failed' }
-  | { state: 'ready'; value: T };
-
-class NotFound extends Error {}
-
-async function fetchJson(path: string, signal: AbortSignal): Promise<unknown> {
-  const res = await fetch(`${RAW_BASE}/${path}`, { signal, cache: 'no-cache' });
-  if (res.status === 404) throw new NotFound();
-  if (!res.ok) throw new Error(`${path} failed (${res.status})`);
-  return res.json();
-}
-
-function useRemoteJson<T>(
-  path: string | null,
-  isValid: (value: unknown) => value is T,
-): Remote<T> {
-  const [result, setResult] = useState<Remote<T>>({ state: 'loading' });
-
-  useEffect(() => {
-    if (path === null) return;
-    const controller = new AbortController();
-    let live = true;
-
-    setResult({ state: 'loading' });
-    fetchJson(path, controller.signal)
-      .then((value) => {
-        if (!live) return;
-        setResult(
-          isValid(value) ? { state: 'ready', value } : { state: 'failed' },
-        );
-      })
-      .catch((err: unknown) => {
-        // An abort is this component going away, not a failure to report.
-        if (!live) return;
-        setResult({ state: err instanceof NotFound ? 'missing' : 'failed' });
-      });
-
-    return () => {
-      live = false;
-      controller.abort();
-    };
-    // On the path alone. `isValid` is a module-level function in both callers,
-    // and listing it would invite an inline one that refetches every render.
-  }, [path]);
-
-  return path === null ? { state: 'missing' } : result;
-}
+export type { Remote };
 
 /*
  * These files are written by a script in this repo and served from its own

@@ -118,6 +118,25 @@ const messages = {
   'app.stxOnlyEstimate.durationDays.one': '{count} day',
   'app.stxOnlyEstimate.durationDays.other': '{count} days',
   'app.stxOnlyEstimate.openFull': 'View full calculation',
+  'app.stxOnlyEstimate.openHistory': 'What every distribution has paid',
+  'app.stxOnlyHistory.back': '← Back to the rewards estimate',
+  'app.stxOnlyHistory.title': 'What every distribution has paid',
+  'app.stxOnlyHistory.intro':
+    'Rewards are computed twice a reward cycle, so each cycle is paid in two goes. These are the rates as paid, not estimates — each one is what pox-5 credited per 1000 STX staked.',
+  'app.stxOnlyHistory.loading': 'Reading the payout history…',
+  'app.stxOnlyHistory.none':
+    'No distribution has been recorded yet. The first one appears here once a cycle has paid.',
+  'app.stxOnlyHistory.failed':
+    'The payout history could not be fetched. Try again in a moment.',
+  'app.stxOnlyHistory.cycle': 'Cycle {cycle}',
+  'app.stxOnlyHistory.cycleTotal': 'for the cycle',
+  'app.stxOnlyHistory.stillPaying': 'still paying — one of two so far',
+  'app.stxOnlyHistory.firstHalf': 'First half',
+  'app.stxOnlyHistory.secondHalf': 'Second half',
+  'app.stxOnlyHistory.atHeight': 'at burn height {height}',
+  'app.stxOnlyHistory.rateUnknown': 'not known',
+  'app.stxOnlyHistory.note':
+    'A cycle’s total comes from what pox-5 has accrued for that cycle, not from adding the two halves — each half is rounded down to a whole sat on its own. A half reads as “not known” when no refresh ran between the two payouts, which is the only moment the first of them can be told from the pair.',
   'app.stxOnlyEstimate.back': '← All pools',
   'app.stxOnlyEstimate.note':
     'Estimate only. It depends on what has reached pox-5 since the last payout and on how far this distribution cycle has run, so it settles as the cycle goes on.',
