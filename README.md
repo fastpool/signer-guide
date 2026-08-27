@@ -557,6 +557,24 @@ Four things make it cheap, and they are the whole design of
   cycle that is still open is provisional anyway, so once a day is enough, and
   the page prints when the list was made rather than implying it is current. In
   the steady state a run walks nothing at all and takes about twenty seconds.
+- **Except once, before a record is frozen.** The daily rule has a hole at the
+  cycle boundary: a stake that changes in a cycle's last day is on file as an
+  amount while the list is the one walked before it moved, and when the cycle
+  rolls over the record turns final — after which a list that adds up is "as
+  good as it is going to get" and nothing would ever walk it again. It would
+  freeze a member short of the total it is filed with, for good. So a final
+  record whose `walkedUstx` no longer matches its amounts is walked once more,
+  whatever the clock says. It terminates by construction: a walk writes
+  `walkedUstx` from the amounts, and a settled cycle's amounts do not move
+  again. Live cycles are left to the daily rule — one where the money moves
+  every hour would be walked every hour, which is the bill the rule exists to
+  stop, and a live list catches up on its own tomorrow.
+
+  It is `walkedUstx` that says this, not `membersAddUp`. That flag describes
+  the walk, not the present: fastpool-1's cycle 142 was walked at 10:54 on 26
+  August, between an unstake and a 99 STX increase forty-five minutes later,
+  and the list it made added up to the amounts as they stood at 10:54. Both
+  facts were true. The staleness is only visible in the two totals.
 - **The unit is the signer key, not the contract.** Walking the signer once
   rather than each of its contracts reads a staker who moved between two of them
   once, and gets the arithmetic right as a side effect.

@@ -169,7 +169,78 @@ describe('membersWorthWalking', () => {
       cycleFinal: true,
       membersAddUp: true,
     });
-    expect(membersWorthWalking(onFile, 999n, true, NOW)).toBe(false);
+    // The total it was walked against, unmoved — the list still accounts for
+    // the amounts it is filed beside, so there is nothing left to do.
+    expect(membersWorthWalking(onFile, 100n, true, NOW)).toBe(false);
+  });
+
+  it('walks a frozen record once more when the amounts moved after the walk', () => {
+    /*
+     * The hole this closes. A stake that changes in a cycle's last day is on
+     * file as an amount while the list is the one walked before it moved; the
+     * daily gate declines, the cycle rolls over, `fileFinal` turns true, and
+     * every path after the gate says the record is as good as it will get. The
+     * list would be frozen a member short for good.
+     *
+     * Real: fastpool-1's cycle 142, walked at 10:54 between an unstake and a
+     * 99 STX increase, with the next run 21.4 hours later.
+     */
+    const walked = cycle({
+      fileFinal: true,
+      cycleFinal: true,
+      membersAddUp: true,
+      walkedAt: AN_HOUR_AGO,
+      walkedUstx: '1173737160843',
+    });
+
+    expect(membersWorthWalking(walked, 1_173_836_160_843n, true, NOW)).toBe(
+      true,
+    );
+
+    // And once that walk has happened it is done: a walk writes `walkedUstx`
+    // from the amounts, and a settled cycle's amounts do not move again.
+    expect(
+      membersWorthWalking(
+        { ...walked, walkedUstx: '1173836160843' },
+        1_173_836_160_843n,
+        true,
+        NOW,
+      ),
+    ).toBe(false);
+  });
+
+  it('will not force that walk on a figure it does not have', () => {
+    // `walkedUstx` null is a record written before it was kept, and a null
+    // total is a contract that would not answer. Neither is evidence the list
+    // is stale, and walking every historical cycle of every signer on a
+    // missing field would cost more than the whole refresh.
+    const frozen = cycle({ fileFinal: true, cycleFinal: true });
+    expect(
+      membersWorthWalking(
+        { ...frozen, walkedUstx: null, walkedAt: AN_HOUR_AGO },
+        999n,
+        true,
+        NOW,
+      ),
+    ).toBe(false);
+    expect(
+      membersWorthWalking({ ...frozen, walkedAt: AN_HOUR_AGO }, null, true, NOW),
+    ).toBe(false);
+  });
+
+  it('leaves a live cycle to the daily rule, however much has moved', () => {
+    // The gate is what makes an hourly refresh affordable: eleven hundred
+    // members across the three Xverse signers, walked every time the money
+    // moved, is the bill it exists to stop. A live list catches up tomorrow;
+    // a frozen one never would, which is why only the frozen case jumps it.
+    expect(
+      membersWorthWalking(
+        live({ walkedAt: AN_HOUR_AGO, walkedUstx: '100' }),
+        999n,
+        false,
+        NOW,
+      ),
+    ).toBe(false);
   });
 
   it('retries a short list, but not for ever and not more than daily', () => {
@@ -179,10 +250,12 @@ describe('membersWorthWalking', () => {
     // bill this rule exists to stop.
     const short = (walks: number, walkedAt = LONG_AGO) =>
       cycle({ membersAddUp: false, walks, walkedAt });
-    expect(membersWorthWalking(short(1), 1n, true, NOW)).toBe(true);
-    expect(membersWorthWalking(short(2), 1n, true, NOW)).toBe(true);
-    expect(membersWorthWalking(short(3), 1n, true, NOW)).toBe(false);
-    expect(membersWorthWalking(short(1, AN_HOUR_AGO), 1n, true, NOW)).toBe(
+    // Against the total it was walked at, so this is the retry rule on its
+    // own rather than the frozen-record rule above.
+    expect(membersWorthWalking(short(1), 100n, true, NOW)).toBe(true);
+    expect(membersWorthWalking(short(2), 100n, true, NOW)).toBe(true);
+    expect(membersWorthWalking(short(3), 100n, true, NOW)).toBe(false);
+    expect(membersWorthWalking(short(1, AN_HOUR_AGO), 100n, true, NOW)).toBe(
       false,
     );
   });

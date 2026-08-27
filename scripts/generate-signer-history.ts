@@ -223,6 +223,39 @@ export function membersWorthWalking(
   if (!onFile || onFile.memberCount === null) return true;
 
   /*
+   * One last walk before the record is frozen, whatever the clock says.
+   *
+   * The amounts are refreshed hourly and the members daily, so a stake that
+   * changes in a cycle's last day is on file as an amount while the list is
+   * still the one walked before it moved. That is a normal day's staleness and
+   * the daily gate below is the price of affordability — until the cycle rolls
+   * over. Then `fileFinal` turns true, and every path after the gate declines:
+   * a list that adds up and a record that is final is "as good as it is going
+   * to get". The list would be frozen for good, a member short of the total it
+   * is filed with, and nothing would ever say so.
+   *
+   * It happened: fastpool-1's cycle 142 was walked at 10:54 on 26 August,
+   * between an unstake and a 99 STX increase forty-five minutes later. The
+   * next run was 21.4 hours later — inside the day — so the gate returned
+   * before the mismatch below could be noticed.
+   *
+   * The test is `walkedUstx`, the total as it stood at the walk, against the
+   * total now: it is the one thing that shows the list no longer accounts for
+   * the amounts it is filed beside. `membersAddUp` cannot show it, and is not
+   * wrong to say so — it describes the walk, which was right when it was made.
+   *
+   * This terminates. A walk writes `walkedUstx` from the amounts, so one
+   * successful walk clears the mismatch by construction, and a settled cycle's
+   * amounts do not move again. A walk skipped for want of budget leaves the
+   * mismatch, and the next run owes it — which is the right way round.
+   *
+   * Deliberately final cycles only. A live cycle where the money moves every
+   * hour would be walked every hour, which is the thousand-call bill the gate
+   * exists to avoid; a live list catches up on its own the next day.
+   */
+  if (fileFinal && amountsMovedSinceWalk(onFile, total)) return true;
+
+  /*
    * Everything from here is a *re*-walk, and that is the expensive case: the
    * three Xverse signers alone are eleven hundred members, so an hourly
    * re-walk of the cycle being filled was spending a thousand-odd chain calls
@@ -252,6 +285,23 @@ export function membersWorthWalking(
    * each other for ever after. The list would never be rebuilt again.
    */
   if (onFile.walkedUstx === null || total === null) return true;
+  return onFile.walkedUstx !== total.toString();
+}
+
+/**
+ * Whether the amounts have moved since the list was walked.
+ *
+ * Only when both figures are known. `walkedUstx` is null on a record written
+ * before it was kept, and `total` is null when a contract would not answer —
+ * neither is evidence that the list is stale, and walking every historical
+ * cycle of every signer on a missing field would cost more than the whole
+ * refresh.
+ */
+function amountsMovedSinceWalk(
+  onFile: SignerCycleSummary,
+  total: bigint | null,
+): boolean {
+  if (typeof onFile.walkedUstx !== 'string' || total === null) return false;
   return onFile.walkedUstx !== total.toString();
 }
 
