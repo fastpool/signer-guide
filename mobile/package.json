@@ -12,7 +12,8 @@
     "test:watch": "jest --watch",
     "typecheck": "tsc --noEmit",
     "e2e": "maestro test e2e",
-    "e2e:record": "maestro test --format junit --output e2e-report.xml e2e"
+    "e2e:record": "maestro test --format junit --output e2e-report.xml e2e",
+    "prebuild:check": "node scripts/check-prebuild.mjs"
   },
   "dependencies": {
     "@expo-google-fonts/nunito": "^0.4.2",

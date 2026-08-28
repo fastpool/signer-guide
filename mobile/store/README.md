@@ -218,7 +218,14 @@ Things a person has to do, that no file here can:
       which is what `zapstore.yaml`'s `license: MIT` and the F-Droid recipe's
       `License: MIT` were already claiming and what F-Droid will not take the
       app without.
-- [ ] **Zapstore**: create a release keystore and build a signed release APK.
+- [x] **Zapstore**: create a release keystore and build a signed release APK.
       Nothing should be published from a debug build — see above.
+- [ ] **F-Droid**: a GitLab account, and a fork of `fdroid/fdroiddata`. The
+      recipe is written and lints clean; `fdroid/README.md` has the steps and
+      the four non-obvious things it took to get there. It has not been through
+      `fdroid build`, which needs their buildserver VM.
+- [ ] **F-Droid**: the build entry points at a tag, and that tag has to contain
+      `mobile/android/` and the top-level `fastlane/` tree. Anything tagged
+      before those were committed will fail with `Missing subdir`.
 - [ ] A **media kit** and a **share card** were specified in the design
       hand-off and are not built. Neither blocks a submission.

@@ -7,6 +7,14 @@
  * page from whatever is there — which means the listing is versioned with the
  * code, and a release that changes the copy changes the page.
  *
+ * It goes at the top of the repository, not next to the app in `mobile/`.
+ * F-Droid accepts the tree in exactly three places (update.py, around the
+ * `found_in_subdir` test): the repository root, `<subdir>/`, or under a build
+ * flavour. Our `subdir` is `mobile/android`, so `mobile/fastlane` is none of
+ * the three and gets skipped in silence — the app would publish with no
+ * description and no screenshots, and nothing would say why. `mobile/android`
+ * is out too: `expo prebuild --clean` deletes that directory wholesale.
+ *
  * Generated, like the Zapstore config, from the same text the Play and App
  * Store listings use. Four listings hand-written separately is four listings
  * that disagree by the third release.
@@ -20,6 +28,8 @@ import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
 const root = path.resolve(import.meta.dirname, '..');
+/** The listing is read from the top of the repository — see above. */
+const repoRoot = path.resolve(root, '..');
 const read = (relative) =>
   readFileSync(path.join(root, relative), 'utf8').trim();
 
@@ -82,7 +92,7 @@ function within(name, text, limit) {
 }
 
 for (const [locale, copy] of Object.entries(LOCALES)) {
-  const dir = path.join(root, 'fastlane/metadata/android', locale);
+  const dir = path.join(repoRoot, 'fastlane/metadata/android', locale);
   mkdirSync(path.join(dir, 'changelogs'), { recursive: true });
   mkdirSync(path.join(dir, 'images/phoneScreenshots'), { recursive: true });
 
