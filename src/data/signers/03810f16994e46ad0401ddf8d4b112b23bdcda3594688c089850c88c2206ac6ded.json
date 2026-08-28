@@ -1,18 +1,18 @@
 {
-  "signerKey": "0x022a87e9a49848592cdbda9eb25a0b674032cf3f7be2ee47f4baa713aba6ffbd2a",
+  "signerKey": "0x03810f16994e46ad0401ddf8d4b112b23bdcda3594688c089850c88c2206ac6ded",
   "contractIds": [
-    "SP1PHZZW24DHBA4SJB27XEAD0Z4HTG7219S428RFA.signer-manager"
+    "SPEMC1B9BG0BNGMDVQE1SG2DY8X95ZS157N98P7N.signer-manager-stakin-1"
   ],
   "cycles": [
     {
       "cycle": 143,
       "ustx": {
-        "SP1PHZZW24DHBA4SJB27XEAD0Z4HTG7219S428RFA.signer-manager": "1000000500110"
+        "SPEMC1B9BG0BNGMDVQE1SG2DY8X95ZS157N98P7N.signer-manager-stakin-1": "1000000500110"
       },
       "memberCount": 1,
       "membersAddUp": true,
       "walks": 1,
-      "walkedAt": "2026-08-27T08:19:29.040Z",
+      "walkedAt": "2026-08-28T05:28:27.271Z",
       "walkedUstx": "1000000500110",
       "fileFinal": false,
       "cycleFinal": false
@@ -20,12 +20,12 @@
     {
       "cycle": 142,
       "ustx": {
-        "SP1PHZZW24DHBA4SJB27XEAD0Z4HTG7219S428RFA.signer-manager": "1000000500110"
+        "SPEMC1B9BG0BNGMDVQE1SG2DY8X95ZS157N98P7N.signer-manager-stakin-1": "1000000500110"
       },
       "memberCount": 1,
       "membersAddUp": true,
-      "walks": 2,
-      "walkedAt": "2026-08-14T21:29:04.389Z",
+      "walks": 1,
+      "walkedAt": "2026-08-28T05:28:27.271Z",
       "walkedUstx": "1000000500110",
       "fileFinal": false,
       "cycleFinal": true
@@ -33,17 +33,17 @@
     {
       "cycle": 141,
       "ustx": {
-        "SP1PHZZW24DHBA4SJB27XEAD0Z4HTG7219S428RFA.signer-manager": "0"
+        "SPEMC1B9BG0BNGMDVQE1SG2DY8X95ZS157N98P7N.signer-manager-stakin-1": "0"
       },
       "memberCount": 0,
       "membersAddUp": true,
-      "walks": 2,
-      "walkedAt": "2026-08-14T21:29:04.389Z",
+      "walks": 1,
+      "walkedAt": "2026-08-28T05:28:27.271Z",
       "walkedUstx": "0",
       "fileFinal": true,
       "cycleFinal": true
     }
   ],
   "currentCycle": 142,
-  "generatedAt": "2026-08-28T05:28:31.891Z"
+  "generatedAt": "2026-08-28T05:28:28.243Z"
 }

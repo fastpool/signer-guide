@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-27T20:36:14.045Z",
+  "generatedAt": "2026-08-28T05:28:11.607Z",
   "cycle": 142,
   "standardisedWith": "clarinet 3.23.2",
   "signers": [
@@ -1151,7 +1151,7 @@
       "implementationName": "Standard",
       "registered": true,
       "firstSeenCycle": 141,
-      "signerKey": "0x02bd7401138851ccf21e79cfa2923a5e7d7ddb31be6fad8102ada6abaf5e92859c",
+      "signerKey": "0x03810f16994e46ad0401ddf8d4b112b23bdcda3594688c089850c88c2206ac6ded",
       "sourceSha256": "48d22cf832f2b61118327265b6b7f303c911a98bdb5af2a54a931a1cf432e316",
       "canonicalSha256": "004da6bde5f91b9cdf555a020494cab73d29cc75733ad0c05e4f4b32a94e251b",
       "groupSha256": "09aa95c7bdeb5ba47970ef47eec3122bf1e1c38ac796799622bc9a4a48c0867e",
@@ -1298,8 +1298,8 @@
         "evidence": "(if (is-og staker) u0 (var-get fee-bips))"
       },
       "undistributedSats": null,
-      "unclaimedFromPoxSats": "374086",
-      "unclaimedFromCycle": 141,
+      "unclaimedFromPoxSats": "0",
+      "unclaimedFromCycle": 142,
       "earnedFeesSats": "0",
       "evidence": {
         "bitcoinRewards": null,
