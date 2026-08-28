@@ -127,7 +127,7 @@ export default function MyRewardsPage({
       </h1>
       <p className='mt-4 text-lg text-muted'>{t('myRewards.intro')}</p>
 
-      <section className='mt-8 rounded-3xl bg-white p-6 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
+      <section className='mt-8 rounded-3xl bg-card p-6 shadow-lift'>
         <label
           htmlFor='rewards-address'
           className='block text-sm font-bold text-ink'
@@ -144,14 +144,14 @@ export default function MyRewardsPage({
           }}
           spellCheck={false}
           placeholder='friedger.btc'
-          className='mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-2 font-mono text-sm'
+          className='mt-2 w-full rounded-xl border border-hairline bg-card px-3 py-2 font-mono text-sm'
         />
         <div className='mt-3 flex flex-wrap items-center gap-3'>
           <button
             type='button'
             onClick={onLookUp}
             disabled={reading}
-            className='rounded-full bg-grape px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50'
+            className='rounded-full bg-grape px-5 py-2.5 text-sm font-semibold text-on-grape disabled:opacity-50'
           >
             {reading ? t('myRewards.reading') : t('myRewards.lookUp')}
           </button>
@@ -181,13 +181,13 @@ export default function MyRewardsPage({
           )}
 
           {rewards && !rewards.signer && !position?.unread && (
-            <p className='mt-4 rounded-3xl bg-white p-6 text-muted shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
+            <p className='mt-4 rounded-3xl bg-card p-6 text-muted shadow-lift'>
               {t('myRewards.notStaking')}
             </p>
           )}
 
           {rewards?.signer && (
-            <div className='mt-4 rounded-3xl bg-white p-6 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
+            <div className='mt-4 rounded-3xl bg-card p-6 shadow-lift'>
               <p className='text-sm text-muted'>
                 {t.rich('myRewards.withPool', {
                   pool: (

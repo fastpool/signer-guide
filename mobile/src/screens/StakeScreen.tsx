@@ -4,6 +4,7 @@ import {
   cyclesRemaining,
   defaultMinClaimSats,
   extendCyclesForUpdate,
+  isValidMaxFee,
   isValidMinClaim,
   lockDuration,
   MAX_LOCK_CYCLES,
@@ -62,21 +63,6 @@ import type { ScreenProps } from '../navigation-types';
  * own `MAX_NUM_CYCLES`, so the last one is whatever pox-5 will actually take.
  */
 const LOCK_PRESETS = [1, 12, 26, 52, MAX_LOCK_CYCLES];
-
-/**
- * The least this app will let somebody set as a payout's Bitcoin fee.
- *
- * Not pox-5's rule — the signer contract accepts any fee, and only requires
- * that the payout floor clears the fee plus the dust limit. This one belongs
- * to the **sBTC signers**, who will not send a withdrawal whose fee is under
- * it, so a lower figure is a payout that is simply never made.
- *
- * "Current" is the word that matters: it is the signers' operating minimum,
- * not a constant in a contract, so it can move without anything in this
- * repository changing. If payouts start being refused at a fee this allows,
- * this number is the first place to look.
- */
-const MIN_PAYOUT_FEE_SATS = 1000n;
 
 export default function StakeScreen({ route, navigation }: ScreenProps<'Stake'>) {
   const { contractId } = route.params;
@@ -178,7 +164,7 @@ export default function StakeScreen({ route, navigation }: ScreenProps<'Stake'>)
      * form costs a field, and being told no by the signers costs a reward
      * nobody receives and no message anybody sees.
      */
-    if (toBitcoin && maxFeeSats !== null && maxFeeSats < MIN_PAYOUT_FEE_SATS) {
+    if (toBitcoin && maxFeeSats !== null && !isValidMaxFee(maxFeeSats)) {
       return t('stake.problem.maxFeeFloor');
     }
     if (toBitcoin && supportsMinClaim && maxFeeSats !== null) {

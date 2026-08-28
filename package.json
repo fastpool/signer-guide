@@ -11,6 +11,7 @@
     "generate:totals": "tsx scripts/generate-totals.ts",
     "generate:stx-only": "tsx scripts/generate-stx-only-calculations.ts",
     "generate:history": "tsx scripts/generate-signer-history.ts",
+    "generate:share-card": "node scripts/make-share-card.mjs",
     "members": "tsx scripts/signer-members.ts",
     "movement": "tsx scripts/membership-movement.ts",
     "rewards": "tsx scripts/reward-distribution.ts",

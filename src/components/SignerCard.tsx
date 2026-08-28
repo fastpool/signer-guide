@@ -31,7 +31,7 @@ export default function SignerCard({
   const t = translator(locale);
 
   return (
-    <li className='rounded-3xl bg-white p-6 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
+    <li className='rounded-3xl bg-card p-6 shadow-lift'>
       <div className='flex flex-wrap items-center justify-between gap-2'>
         <h3 className='flex items-center gap-2 text-xl font-bold'>
           <Identicon
@@ -136,7 +136,7 @@ export default function SignerCard({
       </div>
 
       {showDetails && (
-        <dl className='mt-4 space-y-3 border-t border-black/5 pt-4 text-sm'>
+        <dl className='mt-4 space-y-3 border-t border-hairline pt-4 text-sm'>
           <div>
             <dt className='font-semibold'>{t('signer.contract')}</dt>
             <dd className='mt-0.5 break-all font-mono text-xs text-muted'>

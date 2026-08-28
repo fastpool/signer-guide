@@ -85,6 +85,30 @@ const PAYOUT_GETTERS: { functionName: string; shape: PayoutShape }[] = [
 /** `DUST_LIMIT` in .sbtc-withdrawal, mirrored by the signer manager. */
 export const DUST_LIMIT_SATS = 546n;
 
+/**
+ * The least a payout may budget for the Bitcoin transaction that carries it.
+ *
+ * Not pox-5's rule — the signer contract accepts any fee, and only requires
+ * that the payout floor clears the fee plus the dust limit. This one belongs
+ * to the **sBTC signers**, who will not send a withdrawal whose fee is under
+ * it, so a lower figure is a payout that is simply never made.
+ *
+ * Which is why it has to be asserted by a form rather than left to the chain:
+ * a max-fee under this does not fail at stake time. It fails later, silently,
+ * and the staker sees no message at all — just a reward that never arrives.
+ *
+ * "Current" is the word that matters: it is the signers' operating minimum,
+ * not a constant in a contract, so it can move without anything in this
+ * repository changing. If payouts start being refused at a fee this allows,
+ * this number is the first place to look.
+ */
+export const MIN_PAYOUT_FEE_SATS = 1000n;
+
+/** Whether a max-fee is worth handing to a signer contract at all. */
+export function isValidMaxFee(maxFeeSats: bigint): boolean {
+  return maxFeeSats >= MIN_PAYOUT_FEE_SATS;
+}
+
 /** The floor a payout config must clear: `min-claim > max-fee + DUST_LIMIT`. */
 export function minClaimFloorSats(maxFeeSats: bigint): bigint {
   return maxFeeSats + DUST_LIMIT_SATS;

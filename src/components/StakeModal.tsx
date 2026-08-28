@@ -27,9 +27,11 @@ import {
   fetchPayoutRecord,
   fetchStakedPosition,
   isValidLockCycles,
+  isValidMaxFee,
   isValidMinClaim,
   lockDuration,
   MAX_LOCK_CYCLES,
+  MIN_PAYOUT_FEE_SATS,
   minClaimFloorSats,
   stakePostConditions,
   stakeUpdatePostConditions,
@@ -46,6 +48,12 @@ import {
   requestAddresses,
   walletOptions,
 } from '../lib/wallet-connect';
+import {
+  BROWSER_WALLETS,
+  BROWSER_WALLET_NAMES,
+  shouldOfferWalletBrowser,
+  walletBrowserUrl,
+} from '../lib/wallet-browser';
 import {
   clearWalletSession,
   isStacksAddress,
@@ -114,11 +122,12 @@ function cachedStxAddress(): string | null {
 const DEFAULT_MAX_FEE_SATS = '3000';
 
 /**
- * The lock periods worth one tap: this cycle only, half a year, a year, and
- * the longest the contract takes. Anything else is typed in the box beside
- * them.
+ * The lock periods worth one tap: a cycle to try it, a quarter, half a year, a
+ * year, and the longest the contract takes. Anything else is typed in the box
+ * beside them. The same five the phone app offers, so somebody who staked
+ * there and came here does not find a different set of choices.
  */
-const CYCLE_PRESETS = [1, 12, 26, MAX_LOCK_CYCLES];
+const CYCLE_PRESETS = [1, 12, 26, 52, MAX_LOCK_CYCLES];
 
 /**
  * The call inside a transaction the staking package built.
@@ -161,9 +170,9 @@ function reasonList(
     .join(' ');
 }
 
-const CARD = 'rounded-2xl bg-cream p-4';
+const CARD = 'rounded-2xl bg-card-raised p-4';
 const FIELD =
-  'w-full rounded-xl border border-black/10 bg-white px-3 py-2 text-sm';
+  'w-full rounded-xl border border-hairline bg-card px-3 py-2 text-sm';
 
 /**
  * One of the two reward destinations.
@@ -191,7 +200,7 @@ function RewardOption({
   return (
     <label
       className={`flex gap-3 rounded-xl border p-3 ${
-        checked ? 'border-grape bg-grape-soft/40' : 'border-black/10'
+        checked ? 'border-grape bg-grape-soft/40' : 'border-hairline'
       }`}
     >
       <input
@@ -293,6 +302,14 @@ export default function StakeModal({
    * reloads its balance instead of leaving the cleared fields empty.
    */
   const [reloadNonce, setReloadNonce] = useState(0);
+  /**
+   * Whether to offer the wallet's own browser as the way in.
+   *
+   * Read when the dialog opens rather than at render: a wallet injects its
+   * provider while the page is loading, and asking once the reader has got as
+   * far as pressing "Stake" is late enough for that to have settled.
+   */
+  const [offerBrowser, setOfferBrowser] = useState(false);
 
   const walletAddress = session?.stxAddress ?? cachedAddress;
   const canToggleBtc = signer.bitcoinRewards;
@@ -414,6 +431,13 @@ export default function StakeModal({
       : [...new Set([range.min, ...CYCLE_PRESETS, range.max])]
           .filter((preset) => preset >= range.min && preset <= range.max)
           .sort((a, b) => a - b);
+
+  useEffect(() => {
+    if (!open) return;
+    setOfferBrowser(
+      typeof window === 'undefined' ? false : shouldOfferWalletBrowser(window),
+    );
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -686,6 +710,18 @@ export default function StakeModal({
       return;
     }
 
+    // No contract asserts this one, which is why it has to be asserted here: a
+    // fee this small is taken by the chain and then never mined, so the staker
+    // pays for a stake that quietly stops paying out.
+    if (receiveBtc && parsedMaxFee !== null && !isValidMaxFee(parsedMaxFee)) {
+      setError(
+        t('stake.error.maxFeeFloor', {
+          min: MIN_PAYOUT_FEE_SATS.toLocaleString(t.bundle.intlLocale),
+        }),
+      );
+      return;
+    }
+
     // The contract refuses a floor that a payout could not clear after the fee
     // and the dust limit, so it is worth catching here rather than as a failed
     // transaction the staker has already paid for.
@@ -928,14 +964,21 @@ export default function StakeModal({
       <button
         type='button'
         onClick={() => setOpen(true)}
-        className='rounded-full bg-grape px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-grape/90'
+        className='rounded-full bg-grape px-4 py-2 text-sm font-semibold text-on-grape transition-colors hover:bg-grape/90'
       >
         {t('stake.open')}
       </button>
 
       {open && (
         <div
-          className='fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-4 md:items-center'
+          /*
+           * Full bleed on a phone, a centred panel from `sm` up. The dialog is
+           * a column of three: a header that stays, a body that scrolls, and a
+           * footer that stays — which is what puts the button somebody came
+           * here to press on screen when they arrive, instead of four cards
+           * below the fold.
+           */
+          className='fixed inset-0 z-50 flex items-stretch justify-center bg-black/40 sm:items-center sm:p-4'
           role='dialog'
           aria-modal='true'
           aria-labelledby={titleId}
@@ -943,8 +986,8 @@ export default function StakeModal({
             if (event.target === event.currentTarget) setOpen(false);
           }}
         >
-          <div className='my-4 w-full max-w-lg rounded-3xl bg-white p-6 shadow-xl md:my-0 md:max-h-[calc(100vh-3rem)] md:overflow-y-auto'>
-            <div className='flex items-start justify-between gap-4'>
+          <div className='flex max-h-full w-full flex-col bg-card shadow-xl sm:max-h-[calc(100vh-3rem)] sm:max-w-lg sm:rounded-3xl'>
+            <div className='flex shrink-0 items-start justify-between gap-4 px-6 pt-6'>
               <h4 id={titleId} className='text-xl font-bold'>
                 {t('stake.title', { name: signer.displayName })}
               </h4>
@@ -957,6 +1000,10 @@ export default function StakeModal({
               </button>
             </div>
 
+            {/* `min-h-0` is what lets this actually scroll: without it a flex
+                child refuses to shrink below its content and the footer is
+                pushed off the bottom instead of pinned to it. */}
+            <div className='min-h-0 flex-1 overflow-y-auto px-6 pb-2'>
             <p className='mt-2 text-sm text-muted'>{t('stake.intro')}</p>
 
             <div className={`mt-4 ${CARD}`}>
@@ -1006,6 +1053,48 @@ export default function StakeModal({
                     })}
               </p>
             </div>
+
+            {/*
+             * The only route to a wallet from a phone browser.
+             * There is no extension here to inject a provider, and
+             * WalletConnect is switched off (see lib/wallet-connect), so
+             * without this the button above opens a picker with nothing in it.
+             * A real link, not a button with an onClick: iOS refuses a
+             * custom-scheme navigation that did not come from a gesture, and a
+             * gesture on an anchor is the one it always accepts.
+             */}
+            {offerBrowser && (
+              <div className='mt-3 rounded-2xl bg-grape-soft p-4'>
+                <p className='text-sm font-bold text-grape'>
+                  {t('stake.browserTitle')}
+                </p>
+                <p className='mt-1 text-xs text-muted'>
+                  {t('stake.browserBody')}
+                </p>
+                <div className='mt-3 flex flex-wrap gap-2'>
+                  {BROWSER_WALLETS.map((id) => {
+                    const here =
+                      typeof location === 'undefined' ? '' : location.href;
+                    const link = walletBrowserUrl(id, here);
+                    if (link === null) return null;
+                    return (
+                      <a
+                        key={id}
+                        href={link}
+                        className='rounded-full bg-card px-4 py-2 text-sm font-semibold text-grape shadow-lift'
+                      >
+                        {t('stake.browserOpen', {
+                          wallet: BROWSER_WALLET_NAMES[id],
+                        })}
+                      </a>
+                    );
+                  })}
+                </div>
+                <p className='mt-2 text-xs text-muted'>
+                  {t('stake.browserNote')}
+                </p>
+              </div>
+            )}
 
             {position && (
               <div className='mt-3 rounded-2xl bg-mint-soft p-4 text-sm'>
@@ -1180,7 +1269,7 @@ export default function StakeModal({
                       onClick={() => setCyclesInput(String(preset))}
                       className={`rounded-full px-3 py-1.5 text-sm font-semibold ${
                         numCycles === preset
-                          ? 'bg-grape text-white'
+                          ? 'bg-grape text-on-grape'
                           : 'bg-grape-soft text-grape'
                       }`}
                     >
@@ -1221,7 +1310,7 @@ export default function StakeModal({
                       onClick={() => setExtendInput(String(preset))}
                       className={`rounded-full px-3 py-1.5 text-sm font-semibold ${
                         askedExtend === preset
-                          ? 'bg-grape text-white'
+                          ? 'bg-grape text-on-grape'
                           : 'bg-grape-soft text-grape'
                       }`}
                     >
@@ -1254,7 +1343,7 @@ export default function StakeModal({
             )}
 
             {position && extendCycles > 0 && askedExtend === extendCycles && (
-              <p className='mt-3 rounded-xl bg-cream p-3 text-xs text-muted'>
+              <p className='mt-3 rounded-xl bg-card-raised p-3 text-xs text-muted'>
                 {t('stake.extendNote')}
               </p>
             )}
@@ -1297,7 +1386,7 @@ export default function StakeModal({
                 )}
 
                 {receiveBtc && (
-                  <div className='mt-3 space-y-3 rounded-xl bg-cream p-3'>
+                  <div className='mt-3 space-y-3 rounded-xl bg-card-raised p-3'>
                     <div>
                       <label className='block text-xs font-semibold'>
                         {t('stake.btcAddress')}
@@ -1322,7 +1411,11 @@ export default function StakeModal({
                         className={`mt-1 ${FIELD}`}
                       />
                       <p className='mt-1 text-xs text-muted'>
-                        {t('stake.maxFeeHint')}
+                        {t('stake.maxFeeHint', {
+                          min: MIN_PAYOUT_FEE_SATS.toLocaleString(
+                            t.bundle.intlLocale,
+                          ),
+                        })}
                       </p>
                     </div>
                     {supportsMinClaim && (
@@ -1354,55 +1447,19 @@ export default function StakeModal({
               </Step>
             )}
 
-            {error && (
-              <p className='mt-4 rounded-xl bg-amber-soft p-3 text-sm text-amber-warm'>
-                {error}
-              </p>
-            )}
-
-            {result && (
-              <p
-                className={`mt-4 rounded-xl p-3 text-sm ${
-                  txStatus === 'failed'
-                    ? 'bg-amber-soft text-amber-warm'
-                    : 'bg-mint-soft text-mint'
-                }`}
-              >
-                {t(`stake.tx.${txStatus}`)}{' '}
-                <a
-                  className='font-mono break-all underline underline-offset-2'
-                  href={explorerUrl(result.txid)}
-                  target='_blank'
-                  rel='noreferrer'
-                >
-                  {ellipsedAddr(result.txid, 16)}
-                </a>
-              </p>
-            )}
-
-            <div className='mt-5 flex flex-wrap items-center justify-between gap-3'>
-              <details className='text-xs text-muted'>
-                <summary className='cursor-pointer font-semibold'>
-                  {t('stake.explain')}
-                </summary>
-                <p className='mt-1 max-w-sm'>{t('stake.explainBody')}</p>
-              </details>
-              <button
-                type='button'
-                onClick={onStake}
-                disabled={submitting}
-                className='rounded-full bg-grape px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50'
-              >
-                {submitting ? t('stake.submitting') : submitLabel}
-              </button>
-            </div>
+            <details className='mt-5 text-xs text-muted'>
+              <summary className='cursor-pointer font-semibold'>
+                {t('stake.explain')}
+              </summary>
+              <p className='mt-1 max-w-sm'>{t('stake.explainBody')}</p>
+            </details>
 
             {/* Only for the pool the stake is actually with: unstaking ends
                 that position wherever the reader happens to be looking. A
                 position with no cycle left after this one is already ending,
                 so there is nothing for this to stop. */}
             {stakingHere && extendCycles === 0 && (
-              <div className='mt-5 border-t border-black/10 pt-4'>
+              <div className='mt-5 border-t border-hairline pt-4'>
                 <p className='text-sm font-bold text-ink'>
                   {t('stake.unstake.title')}
                 </p>
@@ -1433,13 +1490,65 @@ export default function StakeModal({
                   <button
                     type='button'
                     onClick={() => setConfirmUnstake(true)}
-                    className='mt-2 rounded-full border border-black/10 px-4 py-2 text-sm font-semibold text-ink'
+                    className='mt-2 rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-ink'
                   >
                     {t('stake.unstake.open')}
                   </button>
                 )}
               </div>
             )}
+            </div>
+
+            {/*
+             * The footer that stays.
+             * The button and everything the button has to say about itself:
+             * what went wrong, what was broadcast, and who signs. Feedback
+             * belongs beside the control that produced it — left in the
+             * scrolling body, an error from a press appears somewhere the
+             * reader is no longer looking.
+             *
+             * `pb-[env(safe-area-inset-bottom)]` keeps it clear of the home
+             * indicator on a phone, where this panel reaches the screen edge.
+             */}
+            <div className='shrink-0 border-t border-hairline bg-card px-6 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:rounded-b-3xl'>
+              {error && (
+                <p className='mb-3 rounded-xl bg-amber-soft p-3 text-sm text-amber-warm'>
+                  {error}
+                </p>
+              )}
+
+              {result && (
+                <p
+                  className={`mb-3 rounded-xl p-3 text-sm ${
+                    txStatus === 'failed'
+                      ? 'bg-amber-soft text-amber-warm'
+                      : 'bg-mint-soft text-mint'
+                  }`}
+                >
+                  {t(`stake.tx.${txStatus}`)}{' '}
+                  <a
+                    className='font-mono break-all underline underline-offset-2'
+                    href={explorerUrl(result.txid)}
+                    target='_blank'
+                    rel='noreferrer'
+                  >
+                    {ellipsedAddr(result.txid, 16)}
+                  </a>
+                </p>
+              )}
+
+              <button
+                type='button'
+                onClick={onStake}
+                disabled={submitting}
+                className='w-full rounded-full bg-grape px-5 py-3 text-sm font-semibold text-on-grape disabled:opacity-50'
+              >
+                {submitting ? t('stake.submitting') : submitLabel}
+              </button>
+              <p className='mt-2 text-center text-xs text-muted'>
+                {t('stake.keysNote')}
+              </p>
+            </div>
           </div>
         </div>
       )}

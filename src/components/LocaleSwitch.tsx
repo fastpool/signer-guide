@@ -9,7 +9,7 @@ export default function LocaleSwitch({
   onChange: (locale: Locale) => void;
 }) {
   return (
-    <div className='inline-flex rounded-full bg-white p-1 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
+    <div className='inline-flex rounded-full bg-card p-1 shadow-lift'>
       {LOCALES.map((choice) => (
         <button
           key={choice}
@@ -18,7 +18,7 @@ export default function LocaleSwitch({
           aria-pressed={locale === choice}
           className={`rounded-full px-3 py-1.5 text-sm font-semibold transition-colors ${
             locale === choice
-              ? 'bg-grape text-white'
+              ? 'bg-grape text-on-grape'
               : 'text-muted hover:text-ink'
           }`}
         >

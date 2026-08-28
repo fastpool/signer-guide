@@ -102,6 +102,7 @@ export const ko: LocaleBundle = {
     'app.updateReady': '앱의 새 버전이 준비되었습니다.',
     'app.updateApply': '새로고침',
     'app.newsletter': '뉴스레터 구독',
+    'app.by': '제작:',
     'app.stxOnlyEstimate.title':
       'STX 전용 스테이커의 다음 분배 사이클 예상 보상',
     'app.stxOnlyEstimate.intro':
@@ -124,6 +125,11 @@ export const ko: LocaleBundle = {
     'app.stxOnlyEstimate.projectedRate': '이번 사이클 진행분 환산',
     'app.stxOnlyEstimate.rate': '예상 보상 비율',
     'app.stxOnlyEstimate.rateValue': 'STX 1000개당 {sats} sats',
+    'app.stxOnlyEstimate.satsShort': '{sats} sats',
+    'app.stxOnlyEstimate.gridApy': '연환산',
+    'app.stxOnlyEstimate.gridLast': '직전 지급',
+    'app.stxOnlyEstimate.gridProjected': '이번 사이클',
+    'app.stxOnlyEstimate.gridUnknown': '알 수 없음',
     'app.stxOnlyEstimate.apy': '예상 APY (연 52회 지급 가정)',
     'app.stxOnlyEstimate.apyValue': '약 {apy}',
     'app.stxOnlyEstimate.apyUnavailable': '지금은 APY를 계산할 수 없습니다',
@@ -443,6 +449,13 @@ export const ko: LocaleBundle = {
     'stake.switch': '다른 계정 사용',
     'stake.disconnect': '연결 해제',
     'stake.checking': '잠시만 기다려 주세요…',
+    'stake.browserTitle': '휴대폰인가요? 지갑 안에서 이 페이지를 여세요',
+    'stake.browserBody':
+      '휴대폰에는 연결할 확장 프로그램이 없습니다. Leather와 Xverse에는 각각 자체 브라우저가 있고, 그 안에서 열면 이 페이지가 지갑과 직접 통신할 수 있습니다. Leather는 이 방법이 유일한 경로입니다.',
+    'stake.browserOpen': '{wallet}에서 열기',
+    'stake.browserNote':
+      '같은 풀의 같은 페이지가 그대로 열립니다. 지갑 브라우저는 설정을 따로 저장하므로 언어나 조회 중이던 주소는 넘어가지 않습니다. 해당 지갑이 설치되어 있지 않으면 아무 일도 일어나지 않습니다.',
+
     'stake.available': '스테이킹 가능 금액 {amount}',
     'stake.availableUnknown': '지갑을 연결하면 보유 금액이 표시됩니다',
 
@@ -519,11 +532,13 @@ export const ko: LocaleBundle = {
     'stake.btcAddress': '내 비트코인 주소',
     'stake.maxFee': '전송에 쓸 최대 금액',
     'stake.maxFeeHint':
-      '단위는 sats입니다. 비트코인 전송에는 약간의 수수료가 들며 보상에서 차감됩니다. 3000이 무난한 시작값입니다.',
+      '단위는 sats입니다. 비트코인 전송에는 약간의 수수료가 들며 보상에서 차감됩니다. 3000이 무난한 시작값이며, 최소한 {min}은 잡아야 합니다 — 그보다 낮으면 지급 트랜잭션이 확정되지 않습니다.',
     'stake.minClaim': '지급을 시작할 최소 금액',
     'stake.minClaimHint':
       '단위는 sats입니다. 보상이 이 금액에 도달하면 누구나 지급을 실행할 수 있습니다. 높게 잡으면 지급 횟수는 줄지만 수수료로 나가는 비율도 줄어듭니다. {min}보다 커야 합니다.',
 
+    'stake.keysNote':
+      '트랜잭션은 지갑이 만들고 서명해 전송합니다. 이 페이지는 키를 볼 수 없습니다.',
     'stake.explain': '누르면 무슨 일이 일어나나요?',
     'stake.explainBody':
       '지갑이 위 금액을 이 풀에 선택한 기간 동안 잠그는 트랜잭션을 만들어 승인을 요청합니다. 승인하기 전까지는 아무것도 움직이지 않으며, 그 전에는 언제든 이 창을 닫아도 됩니다.',
@@ -557,6 +572,8 @@ export const ko: LocaleBundle = {
     'stake.error.tooMuch': '보유 금액에서 1 STX를 남긴 한도를 넘었습니다.',
     'stake.error.btcAddress': '보상을 받을 비트코인 주소를 입력하세요.',
     'stake.error.maxFee': '전송에 쓸 최대 금액은 숫자여야 합니다.',
+    'stake.error.maxFeeFloor':
+      '전송 수수료로 최소 {min} sats는 잡아 주세요. 그보다 낮으면 지급 트랜잭션이 채굴되지 않으며, 아무런 안내도 표시되지 않습니다.',
     'stake.error.minClaim':
       '지급 최소 금액은 {min} sats보다 큰 숫자여야 합니다. 그렇지 않으면 풀이 보낼 수 없습니다.',
     'stake.error.noPublicKey':

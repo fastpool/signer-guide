@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import ContractPage from './components/ContractPage';
 import Identicon from './components/Identicon';
 import LocaleSwitch from './components/LocaleSwitch';
+import Mark from './components/Mark';
 import SignerCard from './components/SignerCard';
 import SignerPage from './components/SignerPage';
 import MyRewardsPage from './components/MyRewardsPage';
@@ -276,19 +277,30 @@ export default function App() {
     <main className='mx-auto max-w-3xl px-5 py-12 md:py-20'>
       <header className='flex flex-col gap-4'>
         <div className='flex flex-wrap items-center justify-between gap-3'>
-          <a
-            href={FASTPOOL_URL}
-            className='flex items-center gap-2 self-start text-sm font-semibold text-muted transition-colors hover:text-grape'
-          >
-            <img
-              src='/fastpool-logo.svg'
-              alt=''
-              width='36'
-              height='36'
-              className='rounded-xl bg-grape'
-            />
-            Fast Pool
-          </a>
+          {/* The guide's own mark leads, and Fast Pool is named beside it.
+              A guide that lists Fast Pool among forty-four other pools should
+              not wear Fast Pool's glyph as its only identity — but it is a
+              Fast Pool project, so the byline stays. */}
+          <div className='flex flex-wrap items-center gap-x-3 gap-y-1 self-start'>
+            <span className='flex items-center gap-2 text-base font-extrabold text-ink'>
+              <Mark className='h-9 w-9 shrink-0 rounded-xl bg-grape p-1.5 text-on-grape' />
+              Signer Guide
+            </span>
+            <a
+              href={FASTPOOL_URL}
+              className='flex items-center gap-1.5 text-xs font-semibold text-muted transition-colors hover:text-grape'
+            >
+              {t('app.by')}
+              <img
+                src='/fastpool-logo.svg'
+                alt=''
+                width='18'
+                height='18'
+                className='rounded-md bg-fastpool'
+              />
+              Fast Pool
+            </a>
+          </div>
           <div className='flex flex-wrap items-center gap-3'>
             {/* The one question this guide could not answer until now: not
                 which pool to pick, but where your own STX already is. It was
@@ -296,13 +308,13 @@ export default function App() {
                 with that question would look. */}
             <a
               href={statusHref()}
-              className='rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink shadow-[0_1px_3px_rgba(44,42,53,0.08)] transition-colors hover:bg-grape-soft'
+              className='rounded-full bg-card px-4 py-2 text-sm font-semibold text-ink shadow-lift transition-colors hover:bg-grape-soft'
             >
               {t('status.open')}
             </a>
             <a
               href={myRewardsHref()}
-              className='rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink shadow-[0_1px_3px_rgba(44,42,53,0.08)] transition-colors hover:bg-grape-soft'
+              className='rounded-full bg-card px-4 py-2 text-sm font-semibold text-ink shadow-lift transition-colors hover:bg-grape-soft'
             >
               {t('myRewards.open')}
             </a>
@@ -373,7 +385,7 @@ export default function App() {
               <li key={template.profile.id}>
                 <a
                   href={contractHref(template.profile.id)}
-                  className='flex h-full flex-col rounded-3xl bg-white p-5 shadow-[0_1px_3px_rgba(44,42,53,0.08)] transition-colors hover:bg-grape-soft'
+                  className='flex h-full flex-col rounded-3xl bg-card p-5 shadow-lift transition-colors hover:bg-grape-soft'
                 >
                   <span className='flex items-center gap-2 text-lg font-bold'>
                     <Identicon hash={template.identiconHash} locale={locale} />
@@ -393,7 +405,7 @@ export default function App() {
       </section>
 
       <p className='mt-10 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted'>
-        <span className='inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 font-bold text-ink shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
+        <span className='inline-flex items-center gap-2 rounded-full bg-card px-3 py-1.5 font-bold text-ink shadow-lift'>
           {/* Amber, not mint, when what is on screen is a saved copy. */}
           <span
             className={`h-2 w-2 rounded-full ${stale ? 'bg-amber-warm' : 'bg-mint'}`}
@@ -423,8 +435,8 @@ export default function App() {
                 onClick={() => toggle(filter.id)}
                 className={`rounded-full px-4 py-2 font-semibold transition-colors ${
                   on
-                    ? 'bg-grape text-white'
-                    : 'bg-white text-ink shadow-[0_1px_3px_rgba(44,42,53,0.08)] hover:bg-grape-soft'
+                    ? 'bg-grape text-on-grape'
+                    : 'bg-card text-ink shadow-lift hover:bg-grape-soft'
                 }`}
               >
                 {filter.label}
@@ -449,7 +461,7 @@ export default function App() {
       </p>
 
       {shown.length === 0 && (
-        <p className='mt-4 rounded-3xl bg-white p-6 text-muted shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
+        <p className='mt-4 rounded-3xl bg-card p-6 text-muted shadow-lift'>
           {t('app.noMatch')}
         </p>
       )}
@@ -467,7 +479,7 @@ export default function App() {
         ))}
       </ul>
 
-      <footer className='mt-12 space-y-3 border-t border-black/5 pt-6 text-sm text-muted'>
+      <footer className='mt-12 space-y-3 border-t border-hairline pt-6 text-sm text-muted'>
         <p>
           <strong className='text-ink'>{t('app.footer.feesTitle')}</strong>{' '}
           {t.rich('app.footer.fees', {

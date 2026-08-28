@@ -142,7 +142,7 @@ export default function StatusPage({
       </h1>
       <p className='mt-4 text-lg text-muted'>{t('status.intro')}</p>
 
-      <section className='mt-8 rounded-3xl bg-white p-6 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
+      <section className='mt-8 rounded-3xl bg-card p-6 shadow-lift'>
         <label
           htmlFor='status-addresses'
           className='block text-sm font-bold text-ink'
@@ -159,14 +159,14 @@ export default function StatusPage({
           rows={4}
           spellCheck={false}
           placeholder={'friedger.btc\nSP2C2…\nSP3VR…  # savings'}
-          className='mt-2 w-full rounded-xl border border-black/10 bg-white px-3 py-2 font-mono text-sm'
+          className='mt-2 w-full rounded-xl border border-hairline bg-card px-3 py-2 font-mono text-sm'
         />
         <div className='mt-3 flex flex-wrap items-center gap-3'>
           <button
             type='button'
             onClick={onLookUp}
             disabled={reading}
-            className='rounded-full bg-grape px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50'
+            className='rounded-full bg-grape px-5 py-2.5 text-sm font-semibold text-on-grape disabled:opacity-50'
           >
             {reading ? t('status.reading') : t('status.lookUp')}
           </button>
@@ -259,7 +259,7 @@ function StatusCard({
       : null;
 
   return (
-    <li className='rounded-3xl bg-white p-5 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
+    <li className='rounded-3xl bg-card p-5 shadow-lift'>
       <div className='flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1'>
         {/* A name is the thing its owner recognises, so it leads and the
             address it resolved to sits under it. Asked by address, there is

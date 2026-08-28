@@ -117,7 +117,7 @@ describe('the page as a reader sees it', () => {
     // rather than null. Claiming it is unknown would be a guess; the next
     // refresh, within the hour, has it.
     const html = renderToStaticMarkup(<App />);
-    const cards = html.split('rounded-3xl bg-white').length - 1;
+    const cards = html.split('rounded-3xl bg-card').length - 1;
     const amounts =
       html.split('staked here').length -
       1 +

@@ -4,21 +4,115 @@
  * The purple is Fast Pool's own, #403374 from fastpool.org. The rest of the
  * palette stays the guide's: this is a Fast Pool project, not a Fast Pool
  * advertisement, and it lists Fast Pool's pools beside everyone else's.
+ *
+ * Two kinds of token live here, and the difference is the whole reason the
+ * page can have a dark mode at all:
+ *
+ *  - **Brand hues** — grape, mint, amber — which say what a figure *is*.
+ *    Grape is Stacks and every STX amount; amber is bitcoin and every figure
+ *    paid in sats. Those meanings never move.
+ *  - **Surface roles** — `surface`, `card`, `card-raised`, `hairline` — which
+ *    say where a thing *sits*. Those are the ones that swap.
+ *
+ * Nothing outside this file names a literal colour. A component that reaches
+ * for `bg-white` is a component that has one appearance, and this page has
+ * two; `bg-card` is the same instruction written so it can be answered twice.
+ * The dark values are the phone app's, which derived them from the light ones
+ * here — see the redesign handoff — so the two products cannot drift.
  */
 @theme {
+  /* Brand hues. */
   --color-cream: #fdf8f3;
   --color-ink: #2c2a35;
   --color-muted: #6b6577;
+  --color-faint: #8b8697;
   --color-grape: #403374;
   --color-grape-soft: #ebe8f6;
   --color-mint: #2f7d62;
   --color-mint-soft: #e3f3ec;
   --color-amber-warm: #8a5a2b;
   --color-amber-soft: #fbeedd;
+
+  /* Surface roles. */
+  --color-surface: #fdf8f3;
+  --color-card: #ffffff;
+  --color-card-raised: #f6f2ec;
+  --color-hairline: rgba(44, 42, 53, 0.08);
+  /* The unfilled part of a progress bar, which is neither a card nor a hue. */
+  --color-trough: #f1ece3;
+  /* Text and marks that sit on a grape fill. */
+  --color-on-grape: #ffffff;
+  /*
+   * Fast Pool's own grape, which does not follow this page's theme.
+   * `fastpool-logo.svg` draws a white glyph, so its tile has to stay dark in
+   * both — lightening it with the rest of the palette would put white on
+   * lilac. Somebody else's lockup is not ours to re-tint.
+   */
+  --color-fastpool: #403374;
+}
+
+/*
+ * The card lift, as one property rather than 26 copies of an arbitrary value.
+ *
+ * Declared outside `@theme` and applied through `var()` on purpose: Tailwind
+ * composes shadow utilities from their literal value, so a `--shadow-*` theme
+ * key would be inlined at build time and could not be answered differently in
+ * the dark block below. A hand-written utility keeps the indirection.
+ *
+ * Named `lift` rather than `card` because `shadow-<name>` is also how Tailwind
+ * spells a shadow's *colour*, and `card` is a colour token here — so
+ * `shadow-card` would compile to two rules meaning two different things.
+ */
+:root {
+  --shadow-lift: 0 1px 3px rgba(44, 42, 53, 0.08);
+}
+
+@utility shadow-lift {
+  box-shadow: var(--shadow-lift);
+}
+
+/*
+ * Dark: the same palette, not an inversion.
+ *
+ * Grape is deepened into the ground and cream lifted into the text, so the
+ * page reads as the same page at night rather than as a negative of itself.
+ * Both figure colours are lightened until they clear 4.5:1 on `card` —
+ * #e2a15c and #b3a4f0 on #1f1b2b — because they are the two things on the
+ * page somebody is actually here to read.
+ *
+ * Cards lose their shadow rather than gaining a heavier one: against #17141f
+ * the card colour is separation enough, and a shadow on a dark ground only
+ * muddies the edge it was meant to draw.
+ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-cream: #17141f;
+    --color-ink: #f6f2ea;
+    --color-muted: #a49db4;
+    --color-faint: #7d768e;
+    --color-grape: #b3a4f0;
+    --color-grape-soft: #282239;
+    --color-mint: #5cc79a;
+    --color-mint-soft: rgba(92, 199, 154, 0.14);
+    --color-amber-warm: #e2a15c;
+    --color-amber-soft: rgba(226, 161, 92, 0.14);
+
+    --color-surface: #17141f;
+    --color-card: #1f1b2b;
+    --color-card-raised: #282239;
+    --color-hairline: #332c46;
+    --color-trough: #282239;
+    --color-on-grape: #17141f;
+
+    --shadow-lift: none;
+  }
 }
 
 html {
-  background: var(--color-cream);
+  background: var(--color-surface);
+  /* So form controls, scrollbars and the caret follow the page rather than
+     staying light on a dark ground. */
+  color-scheme: light dark;
 }
 
 body {

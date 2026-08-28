@@ -134,7 +134,7 @@ export default function ContractPage({
           {signers.map((signer) => (
             <li
               key={signer.contractId}
-              className='flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 rounded-3xl bg-white p-5 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'
+              className='flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 rounded-3xl bg-card p-5 shadow-lift'
             >
               {/* To the pool's own page rather than to the explorer: this
                   list is about which pools run the code, and the next thing a
@@ -161,7 +161,7 @@ export default function ContractPage({
         </ul>
       </section>
 
-      <section className='mt-10 rounded-3xl bg-white p-6 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
+      <section className='mt-10 rounded-3xl bg-card p-6 shadow-lift'>
         <h2 className='text-lg font-bold'>{t('contract.howWeChecked')}</h2>
         <dl className='mt-3 space-y-3 text-sm'>
           <div>

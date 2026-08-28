@@ -72,6 +72,18 @@ function formatUtc(iso: string, locale: Locale): string | null {
   return `${day}, ${hh}:${mm} UTC`;
 }
 
+/** One label-over-figure cell of the qualifier grid. */
+function Qualifier({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt className='text-[0.6rem] font-bold tracking-wide text-faint uppercase'>
+        {label}
+      </dt>
+      <dd className='mt-0.5 text-sm font-bold text-ink'>{value}</dd>
+    </div>
+  );
+}
+
 export default function StxOnlyRewardsEstimate({
   calculations,
   locale,
@@ -182,7 +194,7 @@ export default function StxOnlyRewardsEstimate({
     <section
       className={
         showFull
-          ? 'mt-10 rounded-3xl bg-white p-6 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'
+          ? 'mt-10 rounded-3xl bg-card p-6 shadow-lift'
           : ''
       }
     >
@@ -259,7 +271,7 @@ export default function StxOnlyRewardsEstimate({
                 })}
               </p>
 
-              <div className='mt-3 rounded-3xl bg-white p-5 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
+              <div className='mt-3 rounded-3xl bg-card p-5 shadow-lift'>
                 <div className='flex items-baseline justify-between gap-3'>
                   <p className='text-sm font-semibold text-ink'>
                     {t('app.stxOnlyEstimate.untilNextRewards')}
@@ -292,6 +304,66 @@ export default function StxOnlyRewardsEstimate({
                     next: estimate.nextRewardBurnHeight.toLocaleString(t.bundle.intlLocale),
                     asOf: asOfText,
                   })}
+                </p>
+
+                {/*
+                 * The three qualifiers, as a grid rather than a wrapping row.
+                 * A row is what drops "LAST PAYOUT, AS PAID" onto a line of
+                 * its own on a narrow screen; three fixed columns cannot. The
+                 * labels are shortened to fit them — the long forms are on the
+                 * full page, which is where somebody reading a label carefully
+                 * already is.
+                 */}
+                <dl className='mt-4 grid grid-cols-3 gap-3 border-t border-hairline pt-3'>
+                  <Qualifier
+                    label={t('app.stxOnlyEstimate.gridApy')}
+                    value={
+                      apy === null
+                        ? t('app.stxOnlyEstimate.gridUnknown')
+                        : `${apy.toFixed(2)}%`
+                    }
+                  />
+                  <Qualifier
+                    label={t('app.stxOnlyEstimate.gridLast')}
+                    value={
+                      estimate.lastPayoutRateSatsPer1000Stx === null
+                        ? t('app.stxOnlyEstimate.gridUnknown')
+                        : t('app.stxOnlyEstimate.satsShort', {
+                            sats:
+                              estimate.lastPayoutRateSatsPer1000Stx.toLocaleString(
+                                t.bundle.intlLocale,
+                              ),
+                          })
+                    }
+                  />
+                  <Qualifier
+                    label={t('app.stxOnlyEstimate.gridProjected')}
+                    value={
+                      estimate.projectedRateSatsPer1000Stx === null
+                        ? t('app.stxOnlyEstimate.gridUnknown')
+                        : t('app.stxOnlyEstimate.satsShort', {
+                            sats:
+                              estimate.projectedRateSatsPer1000Stx.toLocaleString(
+                                t.bundle.intlLocale,
+                              ),
+                          })
+                    }
+                  />
+                </dl>
+
+                {/*
+                 * The one figure on this card nobody has projected is on
+                 * another page, so the card says where. This replaces
+                 * repeating the arithmetic here, which cost three lines on the
+                 * first screen somebody sees.
+                 */}
+                <p className='mt-3 border-t border-hairline pt-3 text-sm'>
+                  <a
+                    className='font-semibold text-grape no-underline'
+                    href={stxOnlyHistoryHref()}
+                  >
+                    {t('app.stxOnlyEstimate.openHistory')} →
+                  </a>
                 </p>
               </div>
             </>

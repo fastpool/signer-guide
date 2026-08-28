@@ -49,7 +49,7 @@ export default function Identicon({
       role='img'
       aria-label={label}
       title={label}
-      className={`inline-block shrink-0 rounded-xl bg-cream p-0.5 ${className}`}
+      className={`inline-block shrink-0 rounded-xl bg-card-raised p-0.5 ${className}`}
       dangerouslySetInnerHTML={{ __html: identiconSvg(hash) }}
     />
   );

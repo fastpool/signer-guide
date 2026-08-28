@@ -69,7 +69,13 @@ describe('the language files', () => {
     // string cannot slip in unnoticed.
     // A unit symbol is the same word in both languages; translating 'sats' or
     // 'sBTC' into anything else would be inventing a name for it.
-    const shared = new Set(['amount.plain', 'amount.sats', 'amount.sbtc']);
+    const shared = new Set([
+      'amount.plain',
+      'amount.sats',
+      'amount.sbtc',
+      // A figure and its unit, with no sentence around it to translate.
+      'app.stxOnlyEstimate.satsShort',
+    ]);
     const untranslated = Object.keys(BUNDLES.en.messages).filter((key) => {
       const messages = BUNDLES.ko.messages as Record<string, string>;
       const english = BUNDLES.en.messages as Record<string, string>;

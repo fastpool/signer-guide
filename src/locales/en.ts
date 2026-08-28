@@ -66,6 +66,7 @@ const messages = {
   'app.updateReady': 'A new version of the app is ready.',
   'app.updateApply': 'Reload',
   'app.newsletter': 'Sign up for our newsletter',
+  'app.by': 'by',
   'app.stxOnlyEstimate.title':
     'Estimated next-cycle rewards for STX-only stakers',
   'app.stxOnlyEstimate.intro':
@@ -89,6 +90,11 @@ const messages = {
   'app.stxOnlyEstimate.projectedRate': 'This cycle so far, extrapolated',
   'app.stxOnlyEstimate.rate': 'Estimated reward rate',
   'app.stxOnlyEstimate.rateValue': '{sats} sats per 1000 STX',
+  'app.stxOnlyEstimate.satsShort': '{sats} sats',
+  'app.stxOnlyEstimate.gridApy': 'A year',
+  'app.stxOnlyEstimate.gridLast': 'Last paid',
+  'app.stxOnlyEstimate.gridProjected': 'This cycle so far',
+  'app.stxOnlyEstimate.gridUnknown': 'not known',
   'app.stxOnlyEstimate.apy': 'Estimated APY (52 payouts/year)',
   'app.stxOnlyEstimate.apyValue': '{apy}',
   'app.stxOnlyEstimate.apyUnavailable': 'APY unavailable right now',
@@ -415,6 +421,13 @@ const messages = {
   'stake.switch': 'Use another account',
   'stake.disconnect': 'Disconnect',
   'stake.checking': 'Just a moment…',
+  'stake.browserTitle': 'On a phone? Open this page in your wallet',
+  'stake.browserBody':
+    'There is no extension to connect to on a phone. Leather and Xverse each have a browser of their own, and this page can talk to the wallet from inside it — for Leather that is the only route there is.',
+  'stake.browserOpen': 'Open in {wallet}',
+  'stake.browserNote':
+    'Opens this same page, on this same pool. The wallet’s browser keeps its own settings, so the language and any address you were watching do not follow you across. Nothing happens if that wallet is not installed.',
+
   'stake.available': '{amount} you can stake',
   'stake.availableUnknown': 'Connect your wallet to see what you have',
 
@@ -492,11 +505,13 @@ const messages = {
   'stake.btcAddress': 'Your Bitcoin address',
   'stake.maxFee': 'Most to spend on sending it',
   'stake.maxFeeHint':
-    'In sats. Sending Bitcoin costs a small fee, taken out of the payout. 3000 is a sensible starting point.',
+    'In sats. Sending Bitcoin costs a small fee, taken out of the payout. 3000 is a sensible starting point, and {min} is the least worth setting — under that a payout will not confirm.',
   'stake.minClaim': 'Smallest payout worth sending',
   'stake.minClaimHint':
     'In sats. Rewards build up until they reach this, then anyone can send them on to you. Set it higher and payouts come less often but lose less to fees. It has to be above {min}.',
 
+  'stake.keysNote':
+    'Your wallet builds, signs and broadcasts this. This page never sees a key.',
   'stake.explain': 'What happens when I press this?',
   'stake.explainBody':
     'Your wallet builds a transaction that locks the amount above with this pool for as long as you chose, and asks you to approve it. Nothing moves until you do, and you can close this window at any point before then.',
@@ -531,6 +546,8 @@ const messages = {
   'stake.error.tooMuch': 'That is more than you have, less the 1 STX buffer.',
   'stake.error.btcAddress': 'Enter the Bitcoin address your rewards go to.',
   'stake.error.maxFee': 'The most to spend on sending has to be a number.',
+  'stake.error.maxFeeFloor':
+    'Allow at least {min} sats for sending. Below that the payout is never mined, and no message says so.',
   'stake.error.minClaim':
     'The smallest payout has to be a number above {min} sats, or the pool cannot send it.',
   'stake.error.noPublicKey':

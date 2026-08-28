@@ -54,9 +54,28 @@ describe('the payout history as a reader sees it', () => {
     const page = html();
     expect(page).toContain('Cycle 141');
     expect(page).toContain('First half');
-    expect(page).toContain('350 sats per 1000 STX');
+    // The unit is on the cycle's total and in the page intro; a row beside a
+    // bar carries the figure alone, or the column is all unit and no number.
+    expect(page).toContain('350 sats');
     expect(page).toContain('Second half');
-    expect(page).toContain('407 sats per 1000 STX');
+    expect(page).toContain('407 sats');
+  });
+
+  /*
+   * Every bar is measured against the largest payout anywhere on the page —
+   * 407 here — so the eye compares payouts with each other. The widths are
+   * asserted rather than the mere presence of a bar: a bar that is always
+   * full, or always the same, is worse than no bar at all.
+   */
+  it('scales every bar against the biggest payout on record', () => {
+    const page = html();
+    expect(page).toContain('width:100%'); // 407, the largest
+    expect(page).toContain('width:85%'); // 350 of 407
+  });
+
+  it('gives an unknown payout an empty track, never a zero-width bar', () => {
+    const page = html();
+    expect(page).not.toContain('width:0%');
   });
 
   it('totals a finished cycle from the chain rather than by adding halves', () => {

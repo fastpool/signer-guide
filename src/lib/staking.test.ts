@@ -19,9 +19,11 @@ import {
   extendCyclesForUpdate,
   extendRange,
   isValidLockCycles,
+  isValidMaxFee,
   isValidMinClaim,
   lockDuration,
   MAX_LOCK_CYCLES,
+  MIN_PAYOUT_FEE_SATS,
   minClaimFloorSats,
   stakePostConditions,
   stakeUpdatePostConditions,
@@ -121,6 +123,34 @@ describe('the min-claim floor', () => {
     // calldata carries no floor is given.
     expect(defaultMinClaimSats(2000n)).toBe(2547n);
     expect(isValidMinClaim(defaultMinClaimSats(7n), 7n)).toBe(true);
+  });
+});
+
+describe('the max-fee floor', () => {
+  /*
+   * The one bound here that no contract asserts. A fee under it is accepted by
+   * the chain and then quietly fails to produce a payout, so the form is the
+   * only place it can be caught while it still costs nothing.
+   */
+  it('refuses a fee too small to get a payout mined', () => {
+    expect(MIN_PAYOUT_FEE_SATS).toBe(1000n);
+    expect(isValidMaxFee(999n)).toBe(false);
+    expect(isValidMaxFee(0n)).toBe(false);
+  });
+
+  it('takes the floor itself, and the default the dialog offers', () => {
+    expect(isValidMaxFee(MIN_PAYOUT_FEE_SATS)).toBe(true);
+    expect(isValidMaxFee(3000n)).toBe(true);
+  });
+
+  /*
+   * The two floors are independent: clearing the min-claim rule says nothing
+   * about whether the fee under it can be mined, which is how a 500-sat fee
+   * with a well-formed 1,100-sat floor used to get all the way to the chain.
+   */
+  it('is not implied by a valid min-claim', () => {
+    expect(isValidMinClaim(1100n, 500n)).toBe(true);
+    expect(isValidMaxFee(500n)).toBe(false);
   });
 });
 

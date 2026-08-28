@@ -29,6 +29,8 @@ export default function StxOnlyHistoryPage({
   const history = useStxOnlyHistory();
   const cycles =
     history.state === 'ready' ? byCycle(history.value.distributions) : [];
+  // Once, not once per cycle: every bar on the page is measured against it.
+  const largest = largestRate(cycles);
 
   return (
     <main className='mx-auto max-w-3xl px-5 py-12 md:py-20'>
@@ -51,18 +53,18 @@ export default function StxOnlyHistoryPage({
         <p className='mt-6 text-muted'>{t('app.stxOnlyHistory.loading')}</p>
       )}
       {history.state === 'missing' && (
-        <p className='mt-6 rounded-3xl bg-white p-6 text-muted shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
+        <p className='mt-6 rounded-3xl bg-card p-6 text-muted shadow-lift'>
           {t('app.stxOnlyHistory.none')}
         </p>
       )}
       {history.state === 'failed' && (
-        <p className='mt-6 rounded-3xl bg-white p-6 text-muted shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
+        <p className='mt-6 rounded-3xl bg-card p-6 text-muted shadow-lift'>
           {t('app.stxOnlyHistory.failed')}
         </p>
       )}
 
       {history.state === 'ready' && cycles.length === 0 && (
-        <p className='mt-6 rounded-3xl bg-white p-6 text-muted shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
+        <p className='mt-6 rounded-3xl bg-card p-6 text-muted shadow-lift'>
           {t('app.stxOnlyHistory.none')}
         </p>
       )}
@@ -70,7 +72,12 @@ export default function StxOnlyHistoryPage({
       {cycles.length > 0 && (
         <ul className='mt-6 space-y-3'>
           {cycles.map((cycle) => (
-            <CycleCard key={cycle.cycle} cycle={cycle} locale={locale} />
+            <CycleCard
+              key={cycle.cycle}
+              cycle={cycle}
+              largest={largest}
+              locale={locale}
+            />
           ))}
         </ul>
       )}
@@ -80,11 +87,32 @@ export default function StxOnlyHistoryPage({
   );
 }
 
+/**
+ * The biggest rate anywhere on record, which every bar is measured against.
+ *
+ * Measuring each payout against the largest one lets the eye compare payouts
+ * with each other rather than each with itself — which is the whole question
+ * this page is here to answer. `1n` rather than `0n` as the floor so the
+ * division below can never be by zero on a page with no figures on it yet.
+ */
+function largestRate(cycles: readonly CycleDistributions[]): bigint {
+  let most = 1n;
+  for (const cycle of cycles) {
+    for (const payout of cycle.payouts) {
+      const rate = payout.rateSatsPer1000Stx;
+      if (rate !== null && BigInt(rate) > most) most = BigInt(rate);
+    }
+  }
+  return most;
+}
+
 function CycleCard({
   cycle,
+  largest,
   locale,
 }: {
   cycle: CycleDistributions;
+  largest: bigint;
   locale: Locale;
 }) {
   const t = translator(locale);
@@ -92,7 +120,7 @@ function CycleCard({
     value.toLocaleString(t.bundle.intlLocale);
 
   return (
-    <li className='rounded-3xl bg-white p-5 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
+    <li className='rounded-3xl bg-card p-5 shadow-lift'>
       <div className='flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2'>
         <span className='text-lg font-bold'>
           {t('app.stxOnlyHistory.cycle', { cycle: cycle.cycle })}
@@ -118,43 +146,67 @@ function CycleCard({
       </div>
 
       <ul className='mt-3 space-y-2 text-sm'>
-        {cycle.payouts.map((payout) => (
-          <li
-            key={payout.burnHeight}
-            className='flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1'
-          >
-            <span className='text-muted'>
-              {payout.firstOfCycle
-                ? t('app.stxOnlyHistory.firstHalf')
-                : t('app.stxOnlyHistory.secondHalf')}
-              <a
-                className='ml-2 underline underline-offset-2 hover:text-grape'
-                href={burnBlockUrl(payout.burnHeight)}
-                target='_blank'
-                rel='noreferrer'
-              >
-                {t('app.stxOnlyHistory.atHeight', {
-                  height: number(payout.burnHeight),
-                })}
-              </a>
-            </span>
-            <span>
-              {payout.rateSatsPer1000Stx === null ? (
-                // Not "0": nobody was paid nothing, we simply cannot say what
-                // this one paid. See the note on the field.
-                <span className='text-muted'>
-                  {t('app.stxOnlyHistory.rateUnknown')}
-                </span>
-              ) : (
-                <strong>
-                  {t('app.stxOnlyEstimate.rateValue', {
-                    sats: number(BigInt(payout.rateSatsPer1000Stx)),
+        {cycle.payouts.map((payout) => {
+          const paid =
+            payout.rateSatsPer1000Stx === null
+              ? null
+              : BigInt(payout.rateSatsPer1000Stx);
+          return (
+            <li
+              key={payout.burnHeight}
+              className='flex flex-wrap items-center gap-x-3 gap-y-1 sm:flex-nowrap'
+            >
+              <span className='w-full shrink-0 text-muted sm:w-44'>
+                {payout.firstOfCycle
+                  ? t('app.stxOnlyHistory.firstHalf')
+                  : t('app.stxOnlyHistory.secondHalf')}
+                <a
+                  className='ml-2 underline underline-offset-2 hover:text-grape'
+                  href={burnBlockUrl(payout.burnHeight)}
+                  target='_blank'
+                  rel='noreferrer'
+                >
+                  {t('app.stxOnlyHistory.atHeight', {
+                    height: number(payout.burnHeight),
                   })}
-                </strong>
-              )}
-            </span>
-          </li>
-        ))}
+                </a>
+              </span>
+              {/*
+               * A payout nobody could work out gets an empty track and says
+               * so, never a zero-width bar — which would read as "this one
+               * paid nothing", the one thing we know it did not do.
+               */}
+              <span
+                className='h-2 min-w-16 flex-1 overflow-hidden rounded-full bg-trough'
+                aria-hidden='true'
+              >
+                {paid !== null && (
+                  <span
+                    className={`block h-full rounded-full ${
+                      cycle.complete ? 'bg-amber-warm' : 'bg-grape'
+                    }`}
+                    style={{ width: `${Number((paid * 100n) / largest)}%` }}
+                  />
+                )}
+              </span>
+              <span className='shrink-0 text-right sm:w-28'>
+                {paid === null ? (
+                  // Not "0": nobody was paid nothing, we simply cannot say what
+                  // this one paid. See the note on the field.
+                  <span className='text-muted'>
+                    {t('app.stxOnlyHistory.rateUnknown')}
+                  </span>
+                ) : (
+                  <strong>
+                    {t('app.stxOnlyEstimate.satsShort', {
+                      sats: number(paid),
+                    })}
+                  </strong>
+                )}
+              </span>
+            </li>
+          );
+        })}
       </ul>
     </li>
   );

@@ -162,7 +162,7 @@ function SignerKeySection({
   const siblings = group.contracts;
 
   return (
-    <section className='mt-10 rounded-3xl bg-white p-6 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
+    <section className='mt-10 rounded-3xl bg-card p-6 shadow-lift'>
       <h2 className='text-lg font-bold'>{t('signerPage.key')}</h2>
       <p className='mt-1 break-all font-mono text-xs text-muted'>
         {signer.signerKey ?? t('signer.notAvailable')}
@@ -251,7 +251,7 @@ function RewardsSection({
   const publishes = undistributed !== null || earnedFees !== null;
 
   return (
-    <section className='mt-10 rounded-3xl bg-white p-6 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
+    <section className='mt-10 rounded-3xl bg-card p-6 shadow-lift'>
       <h2 className='text-lg font-bold'>{t('signerPage.rewards')}</h2>
       <p className='mt-1 text-sm text-muted'>{t('signerPage.rewardsIntro')}</p>
 
@@ -331,12 +331,12 @@ function CycleSection({
         <p className='mt-4 text-muted'>{t('signerPage.loading')}</p>
       )}
       {history.state === 'missing' && (
-        <p className='mt-4 rounded-3xl bg-white p-6 text-muted shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
+        <p className='mt-4 rounded-3xl bg-card p-6 text-muted shadow-lift'>
           {t('signerPage.noHistory')}
         </p>
       )}
       {history.state === 'failed' && (
-        <p className='mt-4 rounded-3xl bg-white p-6 text-muted shadow-[0_1px_3px_rgba(44,42,53,0.08)]'>
+        <p className='mt-4 rounded-3xl bg-card p-6 text-muted shadow-lift'>
           {t('signerPage.failed')}
         </p>
       )}
@@ -352,7 +352,7 @@ function CycleSection({
             return (
               <li
                 key={cycle.cycle}
-                className='rounded-3xl bg-white p-5 shadow-[0_1px_3px_rgba(44,42,53,0.08)]'
+                className='rounded-3xl bg-card p-5 shadow-lift'
               >
                 <div className='flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2'>
                   <span className='flex items-baseline gap-2 text-lg font-bold'>
@@ -486,7 +486,7 @@ function MemberList({
   const shown = all ? list : list.slice(0, FIRST_PAGE);
 
   return (
-    <div className='mt-4 border-t border-black/5 pt-4'>
+    <div className='mt-4 border-t border-hairline pt-4'>
       <div className='overflow-x-auto'>
         <table className='w-full text-left text-sm'>
           <thead>
@@ -503,7 +503,7 @@ function MemberList({
           </thead>
           <tbody>
             {shown.map((member) => (
-              <tr key={member.staker} className='border-t border-black/5'>
+              <tr key={member.staker} className='border-t border-hairline'>
                 <td className='py-2 pr-3 font-mono text-xs'>
                   <a
                     className='underline'
