@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import {
   ActivityIndicator,
+  KeyboardAvoidingView,
   Pressable,
   type RefreshControlProps,
   ScrollView,
@@ -129,25 +130,50 @@ export function Screen({
   if (!scroll) {
     return (
       <SafeAreaView style={[styles.screen, ground]} edges={['top']} testID={testID}>
-        {children}
+        <KeyboardAvoiding>{children}</KeyboardAvoiding>
       </SafeAreaView>
     );
   }
   return (
     <SafeAreaView style={[styles.screen, ground]} edges={['top']} testID={testID}>
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={[
-          styles.scrollBody,
-          footer ? { paddingBottom: space.xl } : null,
-        ]}
-        keyboardShouldPersistTaps='handled'
-        refreshControl={refreshControl}
-      >
-        {children}
-      </ScrollView>
-      {footer}
+      <KeyboardAvoiding>
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={[
+            styles.scrollBody,
+            footer ? { paddingBottom: space.xl } : null,
+          ]}
+          keyboardShouldPersistTaps='handled'
+          refreshControl={refreshControl}
+        >
+          {children}
+        </ScrollView>
+        {footer}
+      </KeyboardAvoiding>
     </SafeAreaView>
+  );
+}
+
+/**
+ * Room for the keyboard, on every screen that has a field.
+ *
+ * Android is drawn edge to edge (`edgeToEdgeEnabled` in `gradle.properties`),
+ * and edge to edge means the window no longer resizes under the keyboard the
+ * way `adjustResize` in the manifest asks it to — the keyboard is simply drawn
+ * over the app, which is how the watch-address field came to be typed into
+ * from behind a keyboard.
+ *
+ * Padding rather than a shrunken window: the keyboard's height goes on as
+ * bottom padding, which shortens the scroll view inside it, and a shortened
+ * scroll view brings its focused field back into view on both platforms. A
+ * pinned footer is inside it too, so the button that submits what was typed
+ * rises with the field rather than staying under the keyboard.
+ */
+function KeyboardAvoiding({ children }: { children: ReactNode }) {
+  return (
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior='padding'>
+      {children}
+    </KeyboardAvoidingView>
   );
 }
 

@@ -172,22 +172,38 @@ export default function PositionCard({
       */}
       <Row
         gap={space.sm}
+        wrap
         style={[styles.address, { backgroundColor: colors.cardRaised }]}
       >
-        <Text variant='small' tone='faint' testID='position-address' numberOfLines={1}>
-          {shortAddress(address, 8, 6)}
-        </Text>
-        {canSign ? null : (
+        {/*
+          The address and its state on the left, `Change` on the right — and
+          at large system font sizes the two halves wrap onto separate lines
+          rather than the row running `Change` off the edge of the screen.
+          The left half grows, so `Change` keeps its right edge while the row
+          fits on one line; the address shrinks and ellipses before anything
+          is pushed anywhere.
+        */}
+        <Row gap={space.sm} wrap style={styles.addressLeft}>
           <Text
             variant='small'
-            tone='accent'
-            testID='position-watching'
-            style={{ fontFamily: fonts.bold }}
+            tone='faint'
+            testID='position-address'
+            numberOfLines={1}
+            style={{ flexShrink: 1 }}
           >
-            {t('wallet.watching')}
+            {shortAddress(address, 8, 6)}
           </Text>
-        )}
-        <View style={{ flexGrow: 1 }} />
+          {canSign ? null : (
+            <Text
+              variant='small'
+              tone='accent'
+              testID='position-watching'
+              style={{ fontFamily: fonts.bold }}
+            >
+              {t('wallet.watching')}
+            </Text>
+          )}
+        </Row>
         <Text
           variant='small'
           tone='stx'
@@ -252,6 +268,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
+  addressLeft: { flexGrow: 1, flexShrink: 1 },
 });
 
 type T = ReturnType<typeof useT>;

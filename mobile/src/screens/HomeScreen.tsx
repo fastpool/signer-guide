@@ -137,8 +137,15 @@ export default function HomeScreen({ navigation }: ScreenProps<'Home'>) {
         />
       ) : (
         <Card testID='not-staking'>
-          <Row style={{ justifyContent: 'space-between' }} gap={space.sm}>
-            <Label>{t('home.notStaking.label')}</Label>
+          {/*
+            The label and the address, one on each end — and on the next line
+            down rather than off the right edge of the card, once the system
+            font is large enough that the two cannot share a line.
+          */}
+          <Row style={{ justifyContent: 'space-between' }} gap={space.sm} wrap>
+            <View style={{ flexShrink: 1 }}>
+              <Label>{t('home.notStaking.label')}</Label>
+            </View>
             <Button
               title={shortLabel(address, wallet.canSign, t('wallet.watching'))}
               kind='quiet'

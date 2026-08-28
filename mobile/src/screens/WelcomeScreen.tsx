@@ -1,10 +1,10 @@
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { readRate } from '../data/rate';
 import { useSnapshot } from '../data/snapshot';
 import { useOnboarding } from '../data/onboarding';
 import { percent } from '../format';
 import { useT } from '../i18n';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColors } from '../settings';
 import { fonts, radius, space } from '../theme';
 import { Button, Row, Text } from '../ui';
@@ -28,6 +28,7 @@ export default function WelcomeScreen({ navigation }: ScreenProps<'Welcome'>) {
   const { snapshot } = useSnapshot();
   const { markSeen } = useOnboarding();
   const colors = useColors();
+  const insets = useSafeAreaInsets();
   const t = useT();
   const rate = readRate(snapshot.stxOnlyCalculations);
 
@@ -49,12 +50,21 @@ export default function WelcomeScreen({ navigation }: ScreenProps<'Welcome'>) {
   return (
     <View style={[styles.screen, { backgroundColor: colors.bg }]} testID='welcome-screen'>
       {/*
-        A grape band, the steps, and a pinned footer — three bands rather than
-        a scroll, so the whole argument for staking is on one screen and the
-        button that acts on it is never below the fold.
+        A grape band, the steps, and a pinned footer. The first two scroll and
+        the footer does not, so the button that acts on the argument is never
+        below the fold — while at the largest system font sizes the argument
+        itself still has somewhere to go rather than running under the button.
+
+        The strip under the status bar is drawn separately from the band so
+        that grape stays grape once the band has scrolled away.
       */}
-      <SafeAreaView edges={['top']} style={{ backgroundColor: colors.stx }}>
-        <View style={styles.band}>
+      <View style={{ height: insets.top, backgroundColor: colors.stx }} />
+
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        testID='welcome-scroll'
+      >
+        <View style={[styles.band, { backgroundColor: colors.stx }]}>
           <Row gap={space.md}>
             <Mark size={26} onGrape />
             <Text style={[styles.eyebrow, { color: 'rgba(255,255,255,0.85)' }]}>
@@ -77,16 +87,16 @@ export default function WelcomeScreen({ navigation }: ScreenProps<'Welcome'>) {
             <Text style={styles.bandNote}>{t('welcome.rateNote')}</Text>
           </View>
         </View>
-      </SafeAreaView>
 
-      <View style={styles.steps}>
-        <Step n='1' title={t('welcome.step1.title')} body={t('welcome.step1.body')} />
-        <Step n='2' title={t('welcome.step2.title')} body={t('welcome.step2.body')} />
-        <Step n='3' title={t('welcome.step3.title')} body={t('welcome.step3.body')} />
-      </View>
+        <View style={styles.steps}>
+          <Step n='1' title={t('welcome.step1.title')} body={t('welcome.step1.body')} />
+          <Step n='2' title={t('welcome.step2.title')} body={t('welcome.step2.body')} />
+          <Step n='3' title={t('welcome.step3.title')} body={t('welcome.step3.body')} />
+        </View>
+      </ScrollView>
 
       <SafeAreaView edges={['bottom']}>
-        <View style={styles.footer}>
+        <View style={[styles.footer, { borderTopColor: colors.border }]}>
           <Button
             title={t('welcome.start')}
             testID='welcome-start'
@@ -127,6 +137,8 @@ function Step({ n, title, body }: { n: string; title: string; body: string }) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
+  /* Grows to fill the screen when the steps are short, scrolls when they are not. */
+  scroll: { flexGrow: 1 },
   band: { paddingHorizontal: 22, paddingTop: 18, paddingBottom: 20, gap: 15 },
   eyebrow: { fontSize: 10.5, fontFamily: fonts.bold, letterSpacing: 0.9 },
   headline: {
@@ -149,7 +161,7 @@ const styles = StyleSheet.create({
     paddingBottom: 7,
   },
   bandNote: { fontSize: 12, lineHeight: 17, color: 'rgba(255,255,255,0.75)' },
-  steps: { flex: 1, paddingHorizontal: 22, paddingTop: 18, gap: 14 },
+  steps: { flexGrow: 1, paddingHorizontal: 22, paddingTop: 18, paddingBottom: 18, gap: 14 },
   numeral: {
     width: 26,
     height: 26,
@@ -158,6 +170,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   numeralText: { fontSize: 12.5, fontFamily: fonts.extrabold },
-  footer: { paddingHorizontal: 22, paddingTop: 12, paddingBottom: 22, gap: 9 },
+  footer: {
+    paddingHorizontal: 22,
+    paddingTop: 12,
+    paddingBottom: 22,
+    gap: 9,
+    borderTopWidth: StyleSheet.hairlineWidth,
+  },
   wallets: { fontSize: 11, lineHeight: 16, textAlign: 'center' },
 });

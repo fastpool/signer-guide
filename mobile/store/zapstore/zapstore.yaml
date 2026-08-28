@@ -82,3 +82,4 @@ images:
 # inline made it try to open the changelog *as a filename*, which fails with
 # "file name too long" and nothing more helpful than that.
 release_notes: "../play/en-US/changelogs/default.txt"
+pubkey: npub1chrgx5gvvzcp8vfa4x3csdplr3vz74e38tey4ra9luds0wsafcysr2yhaq
