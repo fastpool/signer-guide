@@ -57,6 +57,15 @@ export type Wallet = {
   connect(): Promise<WalletAccount>;
   /** Hands the call over; the wallet builds, signs and broadcasts it. */
   callContract(request: ContractCallRequest): Promise<{ txid: string }>;
+  /**
+   * Abandons a connect that is still waiting.
+   *
+   * `connect()` does not come back until the wallet approves or the proposal
+   * expires, which is minutes. Without this the app spins with no way out —
+   * and for the copy-a-link route there is nothing to wait for at all, because
+   * the person has to go and paste it somewhere.
+   */
+  cancel(): Promise<void>;
   disconnect(): Promise<void>;
 };
 

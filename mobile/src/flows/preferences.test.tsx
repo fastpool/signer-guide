@@ -5,7 +5,9 @@ import { installFetch } from '../test/network';
 import { resetChain, staking } from '../test/chain';
 import { en } from '../i18n/en';
 import { ko } from '../i18n/ko';
+import { LOCALES, translate } from '../i18n';
 import { PALETTES } from '../theme';
+import { WALLET_NAMES } from '../wallet/walletconnect';
 import { MOCK_ADDRESS } from '../wallet/mock';
 
 jest.mock('@stacks/bitcoin-staking', () =>
@@ -54,11 +56,35 @@ describe('the catalogue', () => {
      *
      * Everything else has to differ, or it has not been translated at all.
      */
-    const sameOnPurpose = new Set(['stake.extendBy', 'rate.sats']);
+    const sameOnPurpose = new Set([
+      'stake.extendBy',
+      'rate.sats',
+      // A stand-in used only in a build with the test wallet compiled in; it
+      // is never in front of anybody who reads Korean.
+      'wallet.testWallet',
+    ]);
     const untranslated = (Object.keys(en.messages) as (keyof typeof en.messages)[])
       .filter((key) => !sameOnPurpose.has(key))
       .filter((key) => ko.messages[key] === en.messages[key]);
     expect(untranslated).toEqual([]);
+  });
+
+  /*
+   * `satsLabel` returns "3,000 sats" — the unit included. A message that then
+   * appends its own read "3,000 sats sats of fee" on the position card, in
+   * both languages, and no test noticed because both languages were equally
+   * wrong.
+   */
+  it('never appends a unit to a placeholder that already carries one', () => {
+    const filled = { fee: '3,000 sats', payout: '408 sats', year: '1.2 sBTC' };
+    for (const locale of LOCALES) {
+      const t = translate(locale);
+      for (const key of ['position.btcHint', 'position.earnings'] as const) {
+        expect({ locale, key, text: t(key, filled) }).not.toMatchObject({
+          text: expect.stringMatching(/sats\s+sats|sBTC\s+sBTC/),
+        });
+      }
+    }
   });
 
   it('keeps every placeholder a message declares', () => {
@@ -85,6 +111,16 @@ describe('the preferences screen', () => {
     expect(screen.getByTestId('appearance-light')).toBeOnTheScreen();
     expect(screen.getByTestId('appearance-dark')).toBeOnTheScreen();
     expect(screen.getByTestId('appearance-system')).toBeOnTheScreen();
+  });
+
+  it('translates the wallet list’s sentences but not its proper nouns', () => {
+    /*
+     * "Copy a connection link" is a sentence and was sitting in `WALLET_NAMES`
+     * among Xverse, Leather and OKX, which are names — so it shipped
+     * untranslated. Names stay put; sentences moved to the catalogue.
+     */
+    expect(ko.messages['wallet.copyLink']).not.toBe(en.messages['wallet.copyLink']);
+    expect(Object.values(WALLET_NAMES)).toEqual(['Xverse', 'Leather', 'OKX Wallet']);
   });
 
   it('offers both languages, each named in itself', async () => {

@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { satsLabel } from '@guide/lib/amounts';
 import {
   cyclesRemaining,
@@ -10,13 +10,12 @@ import { poolName, signerFor } from '../data/signers';
 import type { Snapshot } from '../data/snapshot';
 import { lockLabel, shortAddress, stxExact } from '../format';
 import { useT } from '../i18n';
-import { useSettings } from '../settings';
-import { space } from '../theme';
+import { useColors, useSettings } from '../settings';
+import { fonts, radius, space } from '../theme';
 import {
   Button,
   Card,
   Divider,
-  Field,
   Label,
   Note,
   Pill,
@@ -63,6 +62,7 @@ export default function PositionCard({
   testID?: string;
 }) {
   const t = useT();
+  const colors = useColors();
   const { locale } = useSettings();
   const signer = signerFor(snapshot, position.signer);
   const { name, guessed } = poolName(signer, position.signer);
@@ -79,22 +79,7 @@ export default function PositionCard({
         </Pill>
       </Row>
 
-      {/* Whose stake this is, and the way to change that. */}
-      <Row style={{ justifyContent: 'space-between' }} gap={space.sm}>
-        <Text variant='small' tone='faint' testID='position-address'>
-          {shortAddress(address, 8, 6)}
-          {canSign ? '' : ` · ${t('wallet.watching')}`}
-        </Text>
-        <Button
-          title={t('common.change')}
-          kind='quiet'
-          onPress={onOpenWallet}
-          testID='position-wallet'
-          style={{ minHeight: 24, paddingHorizontal: 0 }}
-        />
-      </Row>
-
-      <Text variant='title' tone='stx' testID='position-amount'>
+      <Text variant='title' tone='stx' testID='position-amount' style={styles.amount}>
         {stxExact(position.amountUstx, locale)}
       </Text>
 
@@ -113,7 +98,9 @@ export default function PositionCard({
 
       <Row gap={space.md} style={{ justifyContent: 'space-between' }}>
         <Row gap={space.sm} style={{ flexShrink: 1 }}>
-          <Identicon hash={signer?.identiconHash ?? null} size={32} />
+          <View style={[styles.tile, { backgroundColor: colors.trough }]}>
+            <Identicon hash={signer?.identiconHash ?? null} size={26} />
+          </View>
           <View style={{ flexShrink: 1 }}>
             <Label>{t('position.stakedWith')}</Label>
             <Text
@@ -145,8 +132,8 @@ export default function PositionCard({
         ) : null}
       </Row>
 
-      <Row gap={space.xl} wrap>
-        <Field
+      <Row gap={space.md} style={{ alignItems: 'flex-start' }}>
+        <Cell
           label={t('position.lockedUntil')}
           testID='position-remaining'
           value={
@@ -169,12 +156,47 @@ export default function PositionCard({
                   })
           }
         />
-        <Field
+        <Cell
           label={t('position.rewardsGoTo')}
           testID='position-payout'
           value={payoutLabel(position, t)}
           hint={payoutHint(position, t, locale)}
         />
+      </Row>
+
+      {/*
+        Whose stake this is, at the foot of the card and quiet.
+        It is the answer to a question nobody opened the app to ask, and which
+        only matters when it is the wrong one — so it sits under the figures
+        rather than over them, and doubles as the way to change it.
+      */}
+      <Row
+        gap={space.sm}
+        style={[styles.address, { backgroundColor: colors.cardRaised }]}
+      >
+        <Text variant='small' tone='faint' testID='position-address' numberOfLines={1}>
+          {shortAddress(address, 8, 6)}
+        </Text>
+        {canSign ? null : (
+          <Text
+            variant='small'
+            tone='accent'
+            testID='position-watching'
+            style={{ fontFamily: fonts.bold }}
+          >
+            {t('wallet.watching')}
+          </Text>
+        )}
+        <View style={{ flexGrow: 1 }} />
+        <Text
+          variant='small'
+          tone='stx'
+          onPress={onOpenWallet}
+          testID='position-wallet'
+          style={{ fontFamily: fonts.bold }}
+        >
+          {t('common.change')}
+        </Text>
       </Row>
 
       {onChange ? (
@@ -189,13 +211,64 @@ export default function PositionCard({
   );
 }
 
+/** One of the two figures under the hairline, in a column that does not wrap. */
+function Cell({
+  label,
+  value,
+  hint,
+  testID,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+  testID?: string;
+}) {
+  return (
+    <View style={{ flex: 1, gap: 2 }}>
+      <Label>{label}</Label>
+      <Text variant='heading' testID={testID}>
+        {value}
+      </Text>
+      {hint ? (
+        <Text variant='small' tone='faint'>
+          {hint}
+        </Text>
+      ) : null}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  amount: { fontSize: 31, letterSpacing: -0.8 },
+  tile: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  address: {
+    borderRadius: radius.pill,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+});
+
 type T = ReturnType<typeof useT>;
 
+/**
+ * Where the rewards go, and in what.
+ *
+ * Both halves, because either alone is a half-answer: "sBTC" does not say
+ * where it lands and an address does not say what arrives at it. The two
+ * routes are genuinely different — sBTC stays on Stacks in this same wallet,
+ * BTC is withdrawn to L1 — and the line has to be readable as that difference.
+ */
 function payoutLabel(position: StakedPosition, t: T): string {
   const route = position.payout?.route;
   if (!route) return t('common.notKnown');
   if (route.kind === 'sbtc') return t('position.sbtc');
-  return shortAddress(route.address, 8, 6);
+  return t('position.btcTo', { address: shortAddress(route.address, 8, 6) });
 }
 
 function payoutHint(

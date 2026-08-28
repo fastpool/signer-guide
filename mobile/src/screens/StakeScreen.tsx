@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Switch, View } from 'react-native';
+import { StyleSheet, Switch, TextInput, View } from 'react-native';
 import {
   cyclesRemaining,
   defaultMinClaimSats,
@@ -12,6 +12,7 @@ import {
 } from '@guide/lib/staking';
 import { parseStxToUstx, formatUstxAsStx } from '@guide/lib/stx-amounts';
 import { earningsFor, readRate } from '../data/rate';
+import { DEFAULT_LOCK_CYCLES, DEFAULT_REWARDS } from '../data/stake-defaults';
 import { poolName, signerFor } from '../data/signers';
 import { useSnapshot } from '../data/snapshot';
 import { useChainView } from '../stacks/position';
@@ -22,18 +23,17 @@ import { satsLabel } from '@guide/lib/amounts';
 import { groupDigits, lockLabel, stxExact } from '../format';
 import { useT } from '../i18n';
 import { useColors, useSettings } from '../settings';
-import { space } from '../theme';
+import { fonts, radius, space } from '../theme';
 import {
   Button,
   Card,
-  Choice,
   Field,
   Label,
   Loading,
   Note,
   Row,
   Screen,
-  Section,
+  StickyFooter,
   Text,
 } from '../ui';
 import AmountField from '../components/AmountField';
@@ -54,6 +54,30 @@ import type { ScreenProps } from '../navigation-types';
  * reasons — too little left in the lock to extend, a min-claim under the floor
  * — are all knowable before anybody signs.
  */
+/**
+ * The lock periods offered, longest by default.
+ *
+ * Five options that fit one row: a cycle to try it, a quarter, half a year, a
+ * year, and the contract's maximum. `MAX_LOCK_CYCLES` is the staking package's
+ * own `MAX_NUM_CYCLES`, so the last one is whatever pox-5 will actually take.
+ */
+const LOCK_PRESETS = [1, 12, 26, 52, MAX_LOCK_CYCLES];
+
+/**
+ * The least this app will let somebody set as a payout's Bitcoin fee.
+ *
+ * Not pox-5's rule — the signer contract accepts any fee, and only requires
+ * that the payout floor clears the fee plus the dust limit. This one belongs
+ * to the **sBTC signers**, who will not send a withdrawal whose fee is under
+ * it, so a lower figure is a payout that is simply never made.
+ *
+ * "Current" is the word that matters: it is the signers' operating minimum,
+ * not a constant in a contract, so it can move without anything in this
+ * repository changing. If payouts start being refused at a fee this allows,
+ * this number is the first place to look.
+ */
+const MIN_PAYOUT_FEE_SATS = 1000n;
+
 export default function StakeScreen({ route, navigation }: ScreenProps<'Stake'>) {
   const { contractId } = route.params;
   const { snapshot } = useSnapshot();
@@ -75,15 +99,25 @@ export default function StakeScreen({ route, navigation }: ScreenProps<'Stake'>)
   const supportsMinClaim = payoutShape === 'payout-config';
 
   const [amount, setAmount] = useState('');
-  const [cycles, setCycles] = useState(12);
+  /* The same period the guided screen offers — see `stake-defaults.ts`. */
+  const [cycles, setCycles] = useState(DEFAULT_LOCK_CYCLES);
   const [extend, setExtend] = useState<number | null>(null);
-  const [toBitcoin, setToBitcoin] = useState(true);
+  /*
+   * A position already on file decides this; otherwise the shared default.
+   * Starting on "to a Bitcoin address" for somebody whose rewards arrive as
+   * sBTC would offer to change something they had not asked to change.
+   */
+  const [toBitcoin, setToBitcoin] = useState(
+    position?.payout?.route.kind === 'bitcoin' ||
+      (position?.payout === undefined && DEFAULT_REWARDS === 'bitcoin'),
+  );
   const [btcAddress, setBtcAddress] = useState(
     wallet.account?.btcAddress ?? currentBtcAddress(position) ?? '',
   );
   const [maxFee, setMaxFee] = useState(currentMaxFee(position) ?? '3000');
   const [minClaim, setMinClaim] = useState(currentMinClaim(position) ?? '');
   const [submitting, setSubmitting] = useState(false);
+  const [ending, setEnding] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const amountUstx = amount.trim() === '' ? 0n : parseStxToUstx(amount);
@@ -139,6 +173,14 @@ export default function StakeScreen({ route, navigation }: ScreenProps<'Stake'>)
       return t('stake.problem.btcAddress');
     }
     if (toBitcoin && maxFeeSats === null) return t('stake.problem.maxFee');
+    /*
+     * Refused here rather than by the sBTC signers later: being told no by a
+     * form costs a field, and being told no by the signers costs a reward
+     * nobody receives and no message anybody sees.
+     */
+    if (toBitcoin && maxFeeSats !== null && maxFeeSats < MIN_PAYOUT_FEE_SATS) {
+      return t('stake.problem.maxFeeFloor');
+    }
     if (toBitcoin && supportsMinClaim && maxFeeSats !== null) {
       if (minClaimSats === null || !isValidMinClaim(minClaimSats, maxFeeSats)) {
         return t('stake.problem.minClaim', {
@@ -232,7 +274,36 @@ export default function StakeScreen({ route, navigation }: ScreenProps<'Stake'>)
   }
 
   return (
-    <Screen testID='stake-screen'>
+    <Screen
+      testID='stake-screen'
+      footer={
+        <StickyFooter>
+          {/*
+            Without a wallet there is nothing to sign with, and a disabled
+            button under "connect a wallet before staking" is a sentence with
+            no way to act on it. So the footer offers the thing that is
+            actually missing — and the wallet screen closes itself once a
+            session exists, which lands the person back here.
+          */}
+          {wallet.canSign ? (
+            <Button
+              title={staking ? t('stake.submitChange') : t('stake.submitFirst')}
+              testID='stake-submit'
+              busy={submitting}
+              disabled={problem !== null}
+              onPress={() => void onSubmit()}
+            />
+          ) : (
+            <Button
+              title={t('home.connect.button')}
+              testID='stake-connect'
+              onPress={() => navigation.navigate('Wallet', { contractId })}
+            />
+          )}
+          <Note tone='faint'>{t('stake.keys')}</Note>
+        </StickyFooter>
+      }
+    >
       <Row gap={space.md}>
         <Identicon hash={signer?.identiconHash ?? null} size={44} />
         <View style={{ flexShrink: 1 }}>
@@ -280,15 +351,19 @@ export default function StakeScreen({ route, navigation }: ScreenProps<'Stake'>)
               {[minExtend, minExtend + 1, minExtend + 6, minExtend + 12]
                 .filter((n, i, all) => all.indexOf(n) === i)
                 .map((n) => (
-                  <Choice
+                  <Text
                     key={n}
                     testID={`extend-${n}`}
-                    label={
-                      n === 0 ? t('stake.extendNone') : t('stake.extendBy', { count: n })
-                    }
-                    selected={(extend ?? minExtend) === n}
                     onPress={() => setExtend(n)}
-                  />
+                    style={[
+                      styles.choice,
+                      (extend ?? minExtend) === n
+                        ? { backgroundColor: colors.stx, color: colors.onAccent }
+                        : { backgroundColor: colors.cardRaised, color: colors.muted },
+                    ]}
+                  >
+                    {n === 0 ? t('stake.extendNone') : t('stake.extendBy', { count: n })}
+                  </Text>
                 ))}
             </Row>
             <Text variant='small' tone='faint'>
@@ -304,14 +379,26 @@ export default function StakeScreen({ route, navigation }: ScreenProps<'Stake'>)
           <View style={{ gap: space.sm }}>
             <Label>{t('stake.lockFor')}</Label>
             <Row gap={space.sm} wrap>
-              {[1, 6, 12, 26, MAX_LOCK_CYCLES].map((n) => (
-                <Choice
+              {/*
+                Only the first option and the selected one carry the unit, so
+                five fit on one row without wrapping.
+              */}
+              {LOCK_PRESETS.map((n, index) => (
+                <Text
                   key={n}
                   testID={`cycles-${n}`}
-                  label={t(n === 1 ? 'stake.cycle' : 'stake.cycles', { count: n })}
-                  selected={cycles === n}
                   onPress={() => setCycles(n)}
-                />
+                  style={[
+                    styles.choice,
+                    cycles === n
+                      ? { backgroundColor: colors.stx, color: colors.onAccent }
+                      : { backgroundColor: colors.cardRaised, color: colors.muted },
+                  ]}
+                >
+                  {index === 0 || cycles === n
+                    ? t(n === 1 ? 'stake.cycle' : 'stake.cycles', { count: n })
+                    : String(n)}
+                </Text>
               ))}
             </Row>
             <Text variant='small' tone='faint'>
@@ -351,36 +438,36 @@ export default function StakeScreen({ route, navigation }: ScreenProps<'Stake'>)
               keyboardType='default'
               hint={t('stake.btcAddressHint')}
             />
-            <AmountField
-              label={t('stake.maxFee')}
-              testID='max-fee'
-              value={maxFee}
-              onChange={setMaxFee}
-              keyboardType='number-pad'
-              suffix='sats'
-            />
-            {supportsMinClaim ? (
-              <AmountField
-                label={t('stake.minClaim')}
-                testID='min-claim'
-                value={minClaim}
-                onChange={setMinClaim}
-                keyboardType='number-pad'
-                suffix='sats'
-                placeholder={
-                  maxFeeSats === null
-                    ? undefined
-                    : String(defaultMinClaimSats(maxFeeSats))
-                }
-                hint={
-                  maxFeeSats === null
-                    ? undefined
-                    : t('stake.minClaimHint', {
-                        floor: groupDigits(minClaimFloorSats(maxFeeSats)),
-                        lowest: groupDigits(defaultMinClaimSats(maxFeeSats)),
-                      })
-                }
+            <Row gap={space.md} style={{ alignItems: 'flex-start' }}>
+              <SatsField
+                label={t('stake.maxFeeShort')}
+                testID='max-fee'
+                value={maxFee}
+                onChange={setMaxFee}
               />
+              {supportsMinClaim ? (
+                <SatsField
+                  label={t('stake.minClaimShort')}
+                  testID='min-claim'
+                  value={minClaim}
+                  onChange={setMinClaim}
+                  placeholder={
+                    maxFeeSats === null
+                      ? undefined
+                      : String(defaultMinClaimSats(maxFeeSats))
+                  }
+                />
+              ) : null}
+            </Row>
+            {supportsMinClaim ? (
+              maxFeeSats === null ? null : (
+                <Note tone='faint'>
+                  {t('stake.feeNote', {
+                    floor: groupDigits(minClaimFloorSats(maxFeeSats)),
+                    lowest: groupDigits(defaultMinClaimSats(maxFeeSats)),
+                  })}
+                </Note>
+              )
             ) : (
               <Note tone='faint'>{t('stake.noMinClaim')}</Note>
             )}
@@ -426,32 +513,97 @@ export default function StakeScreen({ route, navigation }: ScreenProps<'Stake'>)
         </Card>
       ) : null}
 
-      <Button
-        title={staking ? t('stake.submitChange') : t('stake.submitFirst')}
-        testID='stake-submit'
-        busy={submitting}
-        disabled={problem !== null}
-        onPress={() => void onSubmit()}
-      />
-      <Note tone='faint'>{t('stake.keys')}</Note>
-
+      {/*
+        One outlined pill, with the explanation shown on press rather than
+        sitting under the form. Ending a stake is a thing somebody comes here
+        having already decided; the paragraph belongs at the moment of the
+        decision, not above it.
+      */}
       {staking && !movingPool ? (
-        <Section title={t('stake.endingTitle')}>
-          <Card>
-            <Note>{t('stake.endingBody')}</Note>
-            <Button
-              title={t('stake.unstake')}
-              kind='danger'
-              testID='unstake-submit'
-              busy={submitting}
-              onPress={() => void onUnstake()}
-            />
-          </Card>
-        </Section>
+        <View style={{ gap: space.sm }}>
+          <Button
+            title={t('stake.endingPill')}
+            kind='danger'
+            testID='unstake-open'
+            onPress={() => setEnding((open) => !open)}
+          />
+          {ending ? (
+            <Card testID='unstake-detail'>
+              <Note>{t('stake.endingBody')}</Note>
+              <Button
+                title={t('stake.unstake')}
+                kind='danger'
+                testID='unstake-submit'
+                busy={submitting}
+                onPress={() => void onUnstake()}
+              />
+            </Card>
+          ) : null}
+        </View>
       ) : null}
     </Screen>
   );
 }
+
+/** One of the two sats figures, in a column that does not wrap. */
+function SatsField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  testID,
+}: {
+  label: string;
+  value: string;
+  onChange: (next: string) => void;
+  placeholder?: string;
+  testID?: string;
+}) {
+  const colors = useColors();
+  return (
+    <View style={{ flex: 1, gap: space.xs }}>
+      <Label>{label}</Label>
+      <Row
+        gap={space.xs}
+        style={[styles.satsField, { backgroundColor: colors.cardRaised }]}
+      >
+        <TextInput
+          testID={testID}
+          value={value}
+          onChangeText={onChange}
+          keyboardType='number-pad'
+          placeholder={placeholder}
+          placeholderTextColor={colors.faint}
+          style={[styles.satsInput, { color: colors.text }]}
+        />
+        <Text variant='small' tone='faint'>
+          sats
+        </Text>
+      </Row>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  choice: {
+    fontSize: 12.5,
+    fontFamily: fonts.bold,
+    overflow: 'hidden',
+    borderRadius: radius.pill,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+  },
+  satsField: {
+    borderRadius: radius.md,
+    paddingHorizontal: space.md,
+  },
+  satsInput: {
+    flexGrow: 1,
+    fontSize: 16,
+    fontFamily: fonts.bold,
+    paddingVertical: 11,
+  },
+});
 
 function currentBtcAddress(position: { payout?: { route: { kind: string; address?: string } } | null } | null) {
   const route = position?.payout?.route;

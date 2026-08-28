@@ -35,12 +35,10 @@ Earn bitcoin.'
 # A wallet first, and nothing else asked for yet.
 - assertVisible:
     id: 'start-connect'
+# One button to the wallet screen, not a wallet list: there are three ways in
+# and only one of them fits on a card.
 - assertVisible:
-    id: 'start-connect-xverse'
-- assertVisible:
-    id: 'start-connect-leather'
-- assertVisible:
-    id: 'start-connect-okx'
+    id: 'start-connect-wallet'
 - assertNotVisible:
     id: 'start-amount'
 
@@ -50,17 +48,21 @@ Earn bitcoin.'
       id: 'start-defaults'
     direction: DOWN
     centerElement: true
-- assertVisible:
-    id: 'start-pool'
-- assertVisible: 'takes a stake from anyone'
-- assertVisible:
-    id: 'start-payout'
-- assertVisible: 'Held as sBTC'
-- assertVisible:
-    id: 'start-period'
-- assertVisible: '2 weeks'
+# Three rows, each naming a decision and each with its own way to change it.
 - assertVisible:
     id: 'start-change-pool'
+# The rule that picked the pool, stated on the screen rather than left in the
+# source.
+- scrollUntilVisible:
+    element:
+      text: '.*takes a stake from anyone.*'
+    direction: DOWN
+    centerElement: true
+- assertVisible:
+    id: 'start-payout'
+- assertVisible: 'Distributed as sBTC'
+- assertVisible:
+    id: 'start-period'
 - assertVisible:
     id: 'start-full-form'
 

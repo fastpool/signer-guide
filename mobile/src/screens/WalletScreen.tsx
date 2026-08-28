@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { Linking, StyleSheet, TextInput, View } from 'react-native';
+import { isBnsName, resolveBnsName } from '@guide/lib/bns-resolve';
+import { STACKS_API_URL } from '../stacks/api';
 import { useT } from '../i18n';
 import { useColors } from '../settings';
 import { shortAddress } from '../format';
@@ -9,7 +11,6 @@ import {
   Card,
   Divider,
   Label,
-  Loading,
   Note,
   Row,
   Screen,
@@ -19,7 +20,13 @@ import {
 import { useWallet } from '../wallet/context';
 import { mockWalletEnabled } from '../wallet/mock';
 import { isStacksAddress, type WalletId } from '../wallet/types';
-import { WALLET_NAMES } from '../wallet/walletconnect';
+import { walletLabel } from '../wallet/labels';
+import {
+  BROWSER_WALLETS,
+  guideUrlFor,
+  walletBrowserUrl,
+  type GuideTarget,
+} from '../wallet/browser-link';
 import type { ScreenProps } from '../navigation-types';
 
 /**
@@ -37,11 +44,33 @@ import type { ScreenProps } from '../navigation-types';
  * on a phone with no wallet installed it is the only way in. So it is a
  * heading of its own here rather than a link at the bottom of a card.
  */
-export default function WalletScreen({ navigation }: ScreenProps<'Wallet'>) {
+export default function WalletScreen({ route, navigation }: ScreenProps<'Wallet'>) {
   const t = useT();
   const colors = useColors();
   const wallet = useWallet();
   const [typed, setTyped] = useState('');
+
+  /* Which page of the guide a wallet browser should open on. */
+  const contractId = route.params?.contractId;
+  const target: GuideTarget = contractId
+    ? { kind: 'pool', contractId }
+    : { kind: 'guide' };
+  /*
+   * A BNS name is resolved before it is watched, and resolved against the
+   * registry rather than an indexer — `bns-resolve.ts` explains why. Three
+   * outcomes, kept apart on screen: an address, a name nobody owns, and a node
+   * that would not answer. The last is not the second, and showing it as the
+   * second would tell somebody their name does not exist.
+   */
+  const [resolving, setResolving] = useState(false);
+  const [bnsError, setBnsError] = useState<'unregistered' | 'failed' | null>(null);
+  /*
+   * Which wallet was asked, not whether *a* wallet was asked.
+   * `wallet.connecting` is one flag for the whole app, and handing it to four
+   * buttons spun all four — which says the app is talking to Leather, Xverse
+   * and OKX at once, and it is talking to one of them.
+   */
+  const [pending, setPending] = useState<WalletId | null>(null);
 
   /*
    * Connecting sends the person to another application and back. When they
@@ -53,15 +82,37 @@ export default function WalletScreen({ navigation }: ScreenProps<'Wallet'>) {
    */
   const asked = useRef(false);
   useEffect(() => {
-    if (asked.current && wallet.account && !wallet.connecting) {
+    if (wallet.connecting) return;
+    setPending(null);
+    if (asked.current && wallet.account) {
       asked.current = false;
       navigation.goBack();
     }
   }, [wallet.account, wallet.connecting, navigation]);
 
-  const wallets: WalletId[] = mockWalletEnabled()
-    ? ['mock', 'xverse', 'leather', 'okx']
-    : ['xverse', 'leather', 'okx', 'any'];
+  const onWatch = async () => {
+    const entered = typed.trim();
+    setBnsError(null);
+
+    if (isStacksAddress(entered)) {
+      await wallet.watch(entered);
+      navigation.goBack();
+      return;
+    }
+
+    setResolving(true);
+    const resolution = await resolveBnsName(entered.toLowerCase(), {
+      apiUrl: STACKS_API_URL,
+    });
+    setResolving(false);
+
+    if (resolution.state !== 'resolved') {
+      setBnsError(resolution.state);
+      return;
+    }
+    await wallet.watch(resolution.address);
+    navigation.goBack();
+  };
 
   return (
     <Screen testID='wallet-screen'>
@@ -86,41 +137,21 @@ export default function WalletScreen({ navigation }: ScreenProps<'Wallet'>) {
           <Note tone={wallet.canSign ? 'muted' : 'warn'}>
             {wallet.canSign
               ? t('wallet.canSign', {
-                  wallet: WALLET_NAMES[wallet.account.walletId],
+                  wallet: walletLabel(wallet.account.walletId, t),
                 })
               : t('wallet.readOnly')}
           </Note>
         </Card>
       ) : null}
 
-      <Section title={t('wallet.connectHeading')} testID='wallet-connect'>
-        <Card>
-          <Note>{t('wallet.intro')}</Note>
-          <View style={{ gap: space.sm }}>
-            {wallets.map((id, index) => (
-              <Button
-                key={id}
-                title={WALLET_NAMES[id]}
-                kind={index === 0 ? 'primary' : 'secondary'}
-                busy={wallet.connecting}
-                onPress={() => {
-                  asked.current = true;
-                  void wallet.connect(id);
-                }}
-                testID={`connect-${id}`}
-              />
-            ))}
-          </View>
-          {wallet.connecting ? <Loading label={t('wallet.connecting')} /> : null}
-          {wallet.error ? (
-            <Text variant='small' tone='bad' testID='wallet-error'>
-              {wallet.error}
-            </Text>
-          ) : null}
-          <Note tone='faint'>{t('wallet.notInstalled')}</Note>
-        </Card>
-      </Section>
-
+      {/*
+        Watching first, and connecting last.
+        The order is the order somebody can actually get somewhere. Watching
+        needs nothing installed and works for every address on the chain. The
+        wallet browsers work today, verified on a device. WalletConnect is the
+        one that mostly does not — so it is at the bottom, with what is known
+        about it written next to it rather than left to be discovered.
+      */}
       <Section title={t('wallet.watchHeading')} testID='wallet-watch'>
         <Card>
           <Note>{t('wallet.watchBody')}</Note>
@@ -130,9 +161,14 @@ export default function WalletScreen({ navigation }: ScreenProps<'Wallet'>) {
             testID='watch-input'
             value={typed}
             onChangeText={setTyped}
-            autoCapitalize='characters'
+            /*
+             * `none`, not `characters`: an address is upper case and a BNS
+             * name is lower, and the field takes both. `onWatch` cases each
+             * one the way its own format wants.
+             */
+            autoCapitalize='none'
             autoCorrect={false}
-            placeholder='SP…'
+            placeholder={t('wallet.addressPlaceholder')}
             placeholderTextColor={colors.faint}
             style={[
               styles.input,
@@ -145,20 +181,118 @@ export default function WalletScreen({ navigation }: ScreenProps<'Wallet'>) {
           />
           <Button
             title={t('wallet.watchSubmit')}
-            kind='secondary'
-            disabled={!isStacksAddress(typed.trim())}
-            onPress={() => {
-              void wallet.watch(typed);
-              navigation.goBack();
-            }}
+            kind='primary'
+            busy={resolving}
+            disabled={!isWatchable(typed)}
+            onPress={() => void onWatch()}
             testID='watch-submit'
           />
+          {bnsError ? (
+            <Text variant='small' tone='bad' testID='watch-error'>
+              {bnsError === 'unregistered'
+                ? t('wallet.nameUnregistered', { name: typed.trim().toLowerCase() })
+                : t('wallet.nameLookupFailed')}
+            </Text>
+          ) : null}
+        </Card>
+      </Section>
+
+      {/*
+        The route that works. Both wallets ship a browser, and a page opened
+        inside one reaches the wallet through the provider it injects — the
+        same route the guide already uses. For Leather it is the only route
+        there is.
+      */}
+      <Section title={t('wallet.browserHeading')} testID='wallet-browser'>
+        <Card>
+          <Note>{t('wallet.browserBody')}</Note>
+          <View style={{ gap: space.sm }}>
+            {BROWSER_WALLETS.map((id) => {
+              const link = walletBrowserUrl(id, guideUrlFor(target));
+              if (link === null) return null;
+              return (
+                <Button
+                  key={id}
+                  title={t('wallet.openIn', { wallet: walletLabel(id, t) })}
+                  kind='secondary'
+                  onPress={() => void Linking.openURL(link).catch(() => {})}
+                  testID={`browser-${id}`}
+                />
+              );
+            })}
+          </View>
+          <Note tone='faint'>{t('wallet.browserReturn')}</Note>
+        </Card>
+      </Section>
+
+      {/*
+        WalletConnect, last and honest about itself.
+        The named wallets are gone from here. Leather registers no `wc:` scheme
+        at all and its own tracker has the integration as an open request
+        (leather-io/mono#2595), so a Leather button here promises something
+        that does not exist. Xverse gets as far as its lock screen and no
+        further has been confirmed. OKX takes the pairing and refuses on
+        region. What is left is the link itself, which works in whatever wallet
+        the person actually has — and says so.
+      */}
+      <Section title={t('wallet.connectHeading')} testID='wallet-connect'>
+        <Card>
+          <Note>{t('wallet.connectBody')}</Note>
+          {mockWalletEnabled() ? (
+            <Button
+              title={walletLabel('mock', t)}
+              kind='primary'
+              busy={pending === 'mock'}
+              onPress={() => {
+                asked.current = true;
+                setPending('mock');
+                void wallet.connect('mock');
+              }}
+              testID='connect-mock'
+            />
+          ) : null}
+          <Button
+            title={walletLabel('any', t)}
+            kind='secondary'
+            onPress={() => {
+              asked.current = true;
+              setPending('any');
+              void wallet.connect('any');
+            }}
+            testID='connect-any'
+          />
+          {pending !== null ? (
+            <>
+              <Note tone='stx'>{t('wallet.linkCopied')}</Note>
+              <Button
+                title={t('wallet.stopWaiting')}
+                kind='quiet'
+                testID='connect-cancel'
+                onPress={() => {
+                  asked.current = false;
+                  setPending(null);
+                  wallet.cancelConnect();
+                }}
+              />
+            </>
+          ) : null}
+          {wallet.error ? (
+            <Text variant='small' tone='bad' testID='wallet-error'>
+              {wallet.error}
+            </Text>
+          ) : null}
         </Card>
       </Section>
 
       <Note tone='faint'>{t('wallet.keys')}</Note>
     </Screen>
   );
+}
+
+/** An address, or something shaped like a name worth asking the registry about. */
+function isWatchable(value: string): boolean {
+  const entered = value.trim();
+  return isStacksAddress(entered) || isBnsName(entered.toLowerCase());
 }
 
 const styles = StyleSheet.create({

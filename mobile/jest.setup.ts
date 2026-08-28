@@ -28,10 +28,32 @@ jest.mock('expo-constants', () => ({
 jest.mock('react-native-svg', () => {
   const React = require('react');
   const { View } = require('react-native');
+  /*
+   * Every element the app draws with, stood in for by a plain view. What the
+   * drawings decide — which seed an identicon uses, what a missing hash means
+   * — is settled before this is reached; what is left is geometry, which a
+   * test renderer cannot see anyway.
+   */
+  const stub =
+    (name: string) =>
+    (props: Record<string, unknown>) =>
+      React.createElement(View, {
+        ...props,
+        testID: props.testID ?? name,
+        children: props.children,
+      });
   return {
     __esModule: true,
-    SvgXml: (props: Record<string, unknown>) =>
-      React.createElement(View, { ...props, testID: props.testID ?? 'svg' }),
+    default: stub('svg'),
+    Svg: stub('svg'),
+    SvgXml: stub('svg-xml'),
+    Circle: stub('svg-circle'),
+    Rect: stub('svg-rect'),
+    Path: stub('svg-path'),
+    G: stub('svg-g'),
+    Defs: stub('svg-defs'),
+    LinearGradient: stub('svg-linear-gradient'),
+    Stop: stub('svg-stop'),
   };
 });
 

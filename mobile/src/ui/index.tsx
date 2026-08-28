@@ -13,7 +13,17 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColors } from '../settings';
-import { radius, space, type, type Palette } from '../theme';
+import {
+  CARD_GAP,
+  CARD_PADDING,
+  fonts,
+  LINE_HEIGHT,
+  radius,
+  SCREEN_GAP,
+  space,
+  type,
+  type Palette,
+} from '../theme';
 
 /**
  * The primitives, and the one place that knows what colour anything is.
@@ -59,6 +69,7 @@ export function Text({
   testID,
   numberOfLines,
   accessibilityRole,
+  onPress,
 }: {
   children: ReactNode;
   variant?: TextVariant;
@@ -67,13 +78,15 @@ export function Text({
   testID?: string;
   numberOfLines?: number;
   accessibilityRole?: 'header' | 'text';
+  onPress?: () => void;
 }) {
   const colors = useColors();
   return (
     <RNText
       testID={testID}
       numberOfLines={numberOfLines}
-      accessibilityRole={accessibilityRole}
+      onPress={onPress}
+      accessibilityRole={onPress ? 'button' : accessibilityRole}
       style={[type[variant], { color: tone(colors, name) }, style]}
     >
       {children}
@@ -95,11 +108,20 @@ export function Screen({
   scroll = true,
   testID,
   refreshControl,
+  footer,
 }: {
   children: ReactNode;
   scroll?: boolean;
   testID?: string;
   refreshControl?: React.ReactElement<RefreshControlProps>;
+  /**
+   * Pinned below the scroll rather than at the end of it.
+   *
+   * The staking screens put their primary action here because it was
+   * otherwise below four cards and off screen when the screen opened — the one
+   * thing the screen exists to do was the one thing you could not see.
+   */
+  footer?: ReactNode;
 }) {
   const colors = useColors();
   const ground = { backgroundColor: colors.bg };
@@ -114,12 +136,17 @@ export function Screen({
   return (
     <SafeAreaView style={[styles.screen, ground]} edges={['top']} testID={testID}>
       <ScrollView
-        contentContainerStyle={styles.scrollBody}
+        style={{ flex: 1 }}
+        contentContainerStyle={[
+          styles.scrollBody,
+          footer ? { paddingBottom: space.xl } : null,
+        ]}
         keyboardShouldPersistTaps='handled'
         refreshControl={refreshControl}
       >
         {children}
       </ScrollView>
+      {footer}
     </SafeAreaView>
   );
 }
@@ -141,16 +168,36 @@ export function Card({
       testID={testID}
       style={[
         styles.card,
-        {
-          backgroundColor: raised ? colors.cardRaised : colors.card,
-          borderColor: colors.border,
-        },
+        cardSurface(colors, raised),
         style,
       ]}
     >
       {children}
     </View>
   );
+}
+
+/**
+ * A card sits on a shadow in light and on nothing in dark.
+ *
+ * The web guide's cards are white on cream with a one-pixel shadow and no
+ * border, and that is what is copied here. In dark there is no shadow to
+ * copy — `card` against `bg` is already the separation, and a shadow under a
+ * dark card on a darker ground is a smudge.
+ */
+function cardSurface(colors: Palette, raised = false): ViewStyle {
+  const base: ViewStyle = {
+    backgroundColor: raised ? colors.cardRaised : colors.card,
+  };
+  if (colors.scheme === 'dark') return base;
+  return {
+    ...base,
+    shadowColor: '#2c2a35',
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 1,
+  };
 }
 
 /** A card you can press — the whole thing, not a button inside it. */
@@ -176,10 +223,7 @@ export function TouchCard({
       onPress={onPress}
       style={({ pressed }) => [
         styles.card,
-        {
-          backgroundColor: pressed ? colors.cardRaised : colors.card,
-          borderColor: colors.border,
-        },
+        cardSurface(colors, pressed),
         style,
       ]}
     >
@@ -208,19 +252,20 @@ export function Button({
   const colors = useColors();
   const off = disabled || busy;
 
+  /*
+   * The primary action is grape, not amber. Amber means "this is money" —
+   * every figure paid in sats is amber — and a colour that means two things
+   * means neither.
+   */
   const fill: ViewStyle =
     kind === 'primary'
-      ? { backgroundColor: colors.accent }
+      ? { backgroundColor: colors.stx, minHeight: 52 }
       : kind === 'secondary'
-        ? {
-            backgroundColor: colors.cardRaised,
-            borderWidth: StyleSheet.hairlineWidth,
-            borderColor: colors.border,
-          }
+        ? { backgroundColor: colors.cardRaised }
         : kind === 'danger'
           ? {
               backgroundColor: 'transparent',
-              borderWidth: StyleSheet.hairlineWidth,
+              borderWidth: 1.5,
               borderColor: colors.bad,
             }
           : { backgroundColor: 'transparent', minHeight: 40 };
@@ -230,7 +275,9 @@ export function Button({
       ? colors.onAccent
       : kind === 'danger'
         ? colors.bad
-        : colors.text;
+        : kind === 'quiet'
+          ? colors.stx
+          : colors.text;
 
   return (
     <Pressable
@@ -257,6 +304,13 @@ export function Button({
   );
 }
 
+/**
+ * A soft fill behind the matching text, rather than an outline.
+ *
+ * The web guide's badges are a tinted ground with the colour's own text on
+ * top, and an outline at this size reads as a mistake beside them. `muted` has
+ * no tint of its own, so it borrows the neutral one.
+ */
 export function Pill({
   children,
   tone: name = 'muted',
@@ -267,8 +321,18 @@ export function Pill({
   testID?: string;
 }) {
   const colors = useColors();
+  const fills: Partial<Record<TextTone, string>> = {
+    stx: colors.grapeSoft,
+    good: colors.mintSoft,
+    accent: colors.amberSoft,
+    warn: colors.amberSoft,
+    bad: colors.amberSoft,
+  };
   return (
-    <View testID={testID} style={[styles.pill, { borderColor: tone(colors, name) }]}>
+    <View
+      testID={testID}
+      style={[styles.pill, { backgroundColor: fills[name] ?? colors.cardRaised }]}
+    >
       <Text variant='tiny' tone={name}>
         {children}
       </Text>
@@ -374,9 +438,93 @@ export function Note({
   tone?: TextTone;
 }) {
   return (
-    <Text variant='small' tone={tone} style={{ lineHeight: 19 }}>
+    <Text variant='small' tone={tone} style={{ lineHeight: 13 * LINE_HEIGHT }}>
       {children}
     </Text>
+  );
+}
+
+/**
+ * A row you can press, with a chevron — the shape a list of destinations
+ * takes.
+ *
+ * It replaces a column of quiet text buttons, which were the argument against
+ * the stack navigator rather than for it: a text button is not a hit target,
+ * and "everything else the guide knows" being hard to press is not the same
+ * thing as it being lower down.
+ */
+export function ListRow({
+  title,
+  hint,
+  value,
+  onPress,
+  testID,
+  leading,
+  first = false,
+}: {
+  title: string;
+  hint?: string;
+  /** Shown instead of a chevron — "Change", a current setting. */
+  value?: string;
+  onPress: () => void;
+  testID?: string;
+  leading?: ReactNode;
+  /** The first row in a card has no hairline above it. */
+  first?: boolean;
+}) {
+  const colors = useColors();
+  return (
+    <Pressable
+      testID={testID}
+      accessibilityRole='button'
+      accessibilityLabel={title}
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.listRow,
+        !first && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border },
+        pressed && { opacity: 0.6 },
+      ]}
+    >
+      {leading}
+      <View style={{ flexShrink: 1, flexGrow: 1, gap: 1 }}>
+        <Text variant='body'>{title}</Text>
+        {hint ? (
+          <Text variant='small' tone='faint'>
+            {hint}
+          </Text>
+        ) : null}
+      </View>
+      {value ? (
+        <Text variant='small' tone='stx' style={{ fontFamily: fonts.bold }}>
+          {value}
+        </Text>
+      ) : (
+        <Text variant='heading' tone='stx'>
+          ›
+        </Text>
+      )}
+    </Pressable>
+  );
+}
+
+/**
+ * The primary action, pinned to the bottom of a form.
+ *
+ * Both staking screens put it here for one reason: the button was below four
+ * cards and off screen when the screen opened, so the thing the screen exists
+ * to do was the one thing you could not see.
+ */
+export function StickyFooter({ children }: { children: ReactNode }) {
+  const colors = useColors();
+  return (
+    <View
+      style={[
+        styles.stickyFooter,
+        { backgroundColor: colors.card, borderTopColor: colors.border },
+      ]}
+    >
+      {children}
+    </View>
   );
 }
 
@@ -421,29 +569,46 @@ export function Choice({
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  scrollBody: { padding: space.lg, gap: space.lg, paddingBottom: space.xxl * 2 },
+  scrollBody: {
+    padding: space.lg,
+    gap: SCREEN_GAP,
+    paddingBottom: space.xxl * 2,
+  },
   label: { marginBottom: 1 },
   card: {
     borderRadius: radius.lg,
-    borderWidth: StyleSheet.hairlineWidth,
-    padding: space.lg,
-    gap: space.md,
+    padding: CARD_PADDING,
+    gap: CARD_GAP,
   },
   button: {
-    minHeight: 50,
-    borderRadius: radius.md,
+    minHeight: 46,
+    borderRadius: radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: space.lg,
   },
   buttonOff: { opacity: 0.45 },
   buttonPressed: { opacity: 0.8 },
-  buttonLabel: { fontSize: 16, fontWeight: '600' },
+  buttonLabel: { fontSize: 16.5, fontFamily: fonts.bold },
   pill: {
-    borderWidth: StyleSheet.hairlineWidth,
     borderRadius: radius.pill,
-    paddingHorizontal: space.sm,
-    paddingVertical: 3,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  listRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.md,
+    minHeight: 52,
+    paddingVertical: space.sm,
+  },
+  stickyFooter: {
+    flexGrow: 0,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    paddingTop: space.md,
+    paddingHorizontal: space.lg,
+    paddingBottom: space.xl,
+    gap: space.sm,
   },
   divider: { height: StyleSheet.hairlineWidth, marginVertical: space.xs },
   loading: { alignItems: 'center', gap: space.sm, padding: space.xl },

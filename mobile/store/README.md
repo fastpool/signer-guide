@@ -20,6 +20,11 @@ argument beyond a path. `bitrise.yml` does exactly that.
 
 ## Screenshots
 
+Captioned frames, alternating grape and cream so the strip reads as a set in
+the store's carousel rather than as eight unrelated pictures. Each caption
+makes one claim, in the order somebody scrolls a listing: what they get, how
+little it takes, what it looks like running.
+
 They are taken from the app actually running, against mainnet, and can be taken
 again in a minute:
 
@@ -28,12 +33,18 @@ maestro test e2e/screenshots.yaml     # with the app installed and Metro up
 node scripts/frame-screenshots.mjs    # needs ImageMagick 7
 ```
 
-`e2e/screenshots.yaml` walks the app and captures seven screens; Maestro writes
+`e2e/screenshots.yaml` walks the app and captures eight screens; Maestro writes
 them under `~/.maestro/tests/<run>/Screenshots/`, so copy them into
 `screenshots/raw/`. The framing script crops the phone's status and navigation
-bars, letterboxes each onto 1080×1920 and writes a caption. The letterboxing is
-not decoration: a 1080×2340 screenshot is 1:2.17, and **Google Play rejects
-anything taller than 1:2** without looking at it.
+bars, captions each one and bleeds the device off the bottom of a 1080×1920
+frame. The reframing is not decoration: a 1080×2340 screenshot is 1:2.17, and
+**Google Play rejects anything taller than 1:2** without looking at it.
+
+The same script draws the **Play feature graphic** (1024×500) into
+`play/en-US/images/`. It carries no screenshot — Play crops and overlays that
+asset hard, so anything small in it is lost — and the rate figure on it is read
+from `src/data/stx-only-calculations.json`, so it cannot claim a rate nobody is
+paying.
 
 The position on screen is a live mainnet staker holding 15,000,000 STX, opened
 by share link. Nothing in any screenshot is anybody's private information —
@@ -74,16 +85,91 @@ Checked against the files here; a listing that overruns is rejected at upload.
 
 `zapstore/zapstore.yaml` describes the app for [Zapstore](https://zapstore.dev),
 which publishes it as nostr events rather than to a review queue. What that
-buys is provenance: an APK signed by a key anyone can check, next to a
-repository anyone can build from.
+buys is provenance: `zsp` records the APK's own signing certificate in the
+release event, so an update that is not signed by the same key is visibly not
+the same app.
 
-Publishing needs a nostr key, which is **not** in this repository and must not
-be. The CLI reads `NSEC` from the environment, or talks to a NIP-46 remote
-signer. On Bitrise it is a secret named `NSEC`.
+**The file is generated.** Its name, summary, description and release notes
+come from the same text the Play and App Store listings are built from, so the
+three cannot drift:
 
-The schema in that file is the one the CLI took when it was written. Zapstore
-is young and its keys move — run `zapstore publish --help` before the first
-release rather than after a failed one.
+```bash
+node scripts/make-zapstore-config.mjs
+```
+
+Publishing:
+
+```bash
+go install github.com/zapstore/zsp@latest
+SIGN_WITH="bunker://…" zsp publish store/zapstore/zapstore.yaml --skip-metadata
+```
+
+`--skip-metadata` is not optional in spirit: without it `zsp` fetches metadata
+from the Play Store and the repository and overwrites the listing above.
+
+### `SIGN_WITH`
+
+The one required variable. It takes any of:
+
+| value | what it is |
+| --- | --- |
+| `nsec1…` | a nostr private key, in the clear |
+| 64 hex characters | the same key, unencoded |
+| `bunker://pubkey?relay=…&secret=…` | NIP-46: a remote signer signs on request |
+| `browser` | a NIP-07 extension, via the local preview page |
+| `npub1…` | signs nothing — writes unsigned events to stdout |
+
+**Use a bunker URL**, on a laptop as much as in CI. `zsp`'s own warning is that
+a private key in an environment variable is readable through `/proc/*/environ`
+and lands in shell history; a bunker hands out signatures without handing out
+the key, and can be revoked without rotating the identity the app is published
+under. `SIGN_WITH=npub1…` is the way to see exactly what would be published
+before anything is signed.
+
+On Bitrise it is a secret named `SIGN_WITH`, and the release workflow skips the
+step entirely when it is unset — a Play-only release should not be a red build.
+
+### Before the first publish
+
+Zapstore takes **your** signature on the APK as the app's identity, and every
+future update has to carry the same one. Two things follow:
+
+- **The same keystore signs every release, forever.** Zapstore, Play and every
+  installed copy treat the certificate as the app's identity, so losing it
+  means a new app rather than a new version.
+
+  `expo prebuild` writes `release { signingConfig signingConfigs.debug }` and a
+  comment asking you to fix it — the most dangerous default in the project,
+  because `assembleRelease` then produces an APK signed with Android's *shared
+  debug key* and says nothing about it. `plugins/withReleaseSigning.js`
+  replaces that, and it is a plugin rather than an edit because `android/` is
+  regenerated and gitignored. Two outcomes now, and neither is a debug-signed
+  release:
+
+  | | result |
+  | --- | --- |
+  | keystore properties set | signed with the release key |
+  | properties absent | **unsigned** — `app-release-unsigned.apk`, which cannot be installed or published by accident |
+
+  The second is what CI wants: Bitrise builds, then its own `sign-apk` step
+  applies `BITRISEIO_ANDROID_KEYSTORE_*`.
+### Building a signed release locally
+
+The keystore and its passwords live at `~/.signer-guide-keystore/`, outside the
+repository and never in it. `credentials.env` there carries the four values:
+
+```bash
+set -a; . ~/.signer-guide-keystore/credentials.env; set +a
+./android/gradlew -p android :app:assembleRelease \
+  -PreactNativeArchitectures=arm64-v8a \
+  -PSIGNER_GUIDE_STORE_FILE="$SIGNER_GUIDE_STORE_FILE" \
+  -PSIGNER_GUIDE_STORE_PASSWORD="$SIGNER_GUIDE_STORE_PASSWORD" \
+  -PSIGNER_GUIDE_KEY_ALIAS="$SIGNER_GUIDE_KEY_ALIAS" \
+  -PSIGNER_GUIDE_KEY_PASSWORD="$SIGNER_GUIDE_KEY_PASSWORD"
+```
+
+**Back that directory up somewhere that is not this machine**, and put the same
+values into Bitrise. There is no recovery and no appeal.
 
 ## Before the first submission
 
@@ -106,3 +192,7 @@ Things a person has to do, that no file here can:
       Say so in the review notes, with a test address to watch.
 - [ ] **All three**: decide the app's licence and put it in `LICENSE`.
       `zapstore.yaml` currently claims MIT.
+- [ ] **Zapstore**: create a release keystore and build a signed release APK.
+      Nothing should be published from a debug build — see above.
+- [ ] A **media kit** and a **share card** were specified in the design
+      hand-off and are not built. Neither blocks a submission.

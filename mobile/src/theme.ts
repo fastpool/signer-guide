@@ -1,17 +1,20 @@
 /**
- * Two palettes, one set of roles.
+ * Two palettes, one set of roles — the web guide's colours.
  *
- * The app was dark-only to begin with, for a reason that still holds: the
- * numbers on the first screen are read in a second and acted on, and a screen
- * whose contrast moves under them makes that second longer. What changed is
- * that "dark" is not the same choice for everybody — a phone held in the sun
- * is a different problem from one held in bed — so the choice is the reader's,
- * and the roles below are what stay fixed.
+ * Nothing here is a hue this app invented. Every value below is one the site
+ * already owns in `src/index.css`: cream, ink, grape, mint, amber. The point
+ * of moving onto them is that somebody who has read the guide and then opens
+ * the app should not have to work out that it is the same thing.
  *
- * Every colour is a role rather than a hue: `accent` is bitcoin and so is
- * every figure paid in sats, `stx` is every amount of STX, `muted` is anything
- * that qualifies a number without being one. A palette is a complete set of
- * answers to those roles, so a new one cannot half-exist.
+ * Every colour is still a role rather than a hue, and the roles did not move:
+ * `accent` is bitcoin and so is every figure paid in sats, `stx` is Stacks and
+ * so is every amount of STX, `muted` is anything that qualifies a number
+ * without being one. A palette is a complete set of answers to those roles, so
+ * a new one cannot half-exist.
+ *
+ * One role changed meaning rather than value: the **primary action is grape**,
+ * not amber. Amber is reserved for figures, so that the one colour that means
+ * "this is money" is never also the colour of a button.
  */
 export type Scheme = 'light' | 'dark';
 
@@ -26,61 +29,77 @@ export type Palette = {
   faint: string;
   /** Bitcoin, and so the rate and everything paid in sats. */
   accent: string;
-  /** Stacks, and so amounts of STX. */
+  /** Stacks — every amount of STX, every primary action, the brand. */
   stx: string;
   good: string;
   warn: string;
   bad: string;
-  /** Text on an accent-filled button. */
+  /** Text on a grape-filled button. */
   onAccent: string;
-  /** What the OS paints behind a keyboard and a status bar. */
+  /* Soft fills, for pills and badges that carry a colour without shouting. */
+  grapeSoft: string;
+  mintSoft: string;
+  amberSoft: string;
+  /** The progress track and identicon tile — a shade below `cardRaised`. */
+  trough: string;
+  /** What the OS paints behind a status bar. */
   statusBar: 'light' | 'dark';
+  /** Which palette this is. Cards carry a shadow in light and none in dark. */
+  scheme: Scheme;
 };
 
-const dark: Palette = {
-  bg: '#0B0D12',
-  card: '#151922',
-  cardRaised: '#1D2230',
-  border: '#252B3A',
-  text: '#E8ECF3',
-  muted: '#8B97AB',
-  faint: '#5C6678',
-  accent: '#F7931A',
-  stx: '#7C6BFF',
-  good: '#34D399',
-  warn: '#FBBF24',
-  bad: '#F87171',
-  onAccent: '#1A1206',
-  statusBar: 'light',
+const light: Palette = {
+  bg: '#fdf8f3',
+  card: '#ffffff',
+  cardRaised: '#f6f2ec',
+  border: '#ebe6dd',
+  text: '#2c2a35',
+  muted: '#6b6577',
+  faint: '#8b8697',
+  accent: '#8a5a2b',
+  stx: '#403374',
+  good: '#2f7d62',
+  warn: '#8a5a2b',
+  bad: '#b32d1f',
+  onAccent: '#ffffff',
+  grapeSoft: '#ebe8f6',
+  mintSoft: '#e3f3ec',
+  amberSoft: '#fbeedd',
+  trough: '#f1ece3',
+  statusBar: 'dark',
+  scheme: 'light',
 };
 
 /*
- * Not the dark palette inverted.
+ * The same palette, not an inversion.
  *
- * `#F7931A` is bitcoin's orange and it is legible as a 44-point figure on
- * white; it is not legible as 13-point body text on white, and this app puts
- * the accent colour on both. So the light palette darkens it to a shade that
- * clears 4.5:1 against the card and keeps the same hue — the figure still
- * reads as bitcoin, and the caption under it can still be read.
- *
- * The same applies to `good`, `warn` and `bad`: each is the darkest version of
- * itself that still reads as the colour it is meant to be.
+ * Grape is deepened into the ground and cream lifted into the text, so the
+ * app reads as the same product with the lights off rather than as a negative
+ * of itself. Both figure colours are lightened until they clear 4.5:1 on
+ * `card`: `#e2a15c` and `#b3a4f0` on `#1f1b2b`. That matters more here than in
+ * most apps, because this one puts the accent colour on a 46-point number and
+ * on 13-point body text in the same card.
  */
-const light: Palette = {
-  bg: '#FAF9F6',
-  card: '#FFFFFF',
-  cardRaised: '#F2F0EA',
-  border: '#E4E0D6',
-  text: '#191A20',
-  muted: '#5B6070',
-  faint: '#868B99',
-  accent: '#A85D00',
-  stx: '#4B39C8',
-  good: '#0B7A50',
-  warn: '#8A5B00',
-  bad: '#B32D1F',
-  onAccent: '#FFFFFF',
-  statusBar: 'dark',
+const dark: Palette = {
+  bg: '#17141f',
+  card: '#1f1b2b',
+  cardRaised: '#282239',
+  border: '#332c46',
+  text: '#f6f2ea',
+  muted: '#a49db4',
+  faint: '#7d768e',
+  accent: '#e2a15c',
+  stx: '#b3a4f0',
+  good: '#5cc79a',
+  warn: '#e2a15c',
+  bad: '#e88a7d',
+  onAccent: '#17141f',
+  grapeSoft: '#282239',
+  mintSoft: 'rgba(92,199,154,0.14)',
+  amberSoft: 'rgba(226,161,92,0.14)',
+  trough: '#282239',
+  statusBar: 'light',
+  scheme: 'dark',
 };
 
 export const PALETTES: Record<Scheme, Palette> = { dark, light };
@@ -94,19 +113,46 @@ export const space = {
   xxl: 32,
 } as const;
 
+/** Card padding and internal gap, which are not on the `space` scale. */
+export const CARD_PADDING = 18;
+export const CARD_GAP = 14;
+/** The gap between cards down a screen. */
+export const SCREEN_GAP = 14;
+
 export const radius = {
   sm: 8,
-  md: 12,
-  lg: 18,
+  /** Inputs and inner blocks. */
+  md: 14,
+  /** Cards — the web's `rounded-3xl`. */
+  lg: 24,
   pill: 999,
 } as const;
 
+/**
+ * The web guide's type, as close as a phone gets.
+ *
+ * The site sets a rounded stack; iOS reaches SF Pro Rounded through
+ * `fontFamily: 'System'`, and Android has no rounded system face at all — so
+ * Nunito ships with the app and both platforms get the same letterforms. The
+ * weights below are the real ones, not synthesised: `fontWeight` on a custom
+ * family is ignored on Android, so each variant names the file it wants.
+ */
+export const fonts = {
+  regular: 'Nunito_400Regular',
+  semibold: 'Nunito_600SemiBold',
+  bold: 'Nunito_700Bold',
+  extrabold: 'Nunito_800ExtraBold',
+} as const;
+
 export const type = {
-  hero: { fontSize: 44, fontWeight: '700' as const, letterSpacing: -1 },
-  title: { fontSize: 24, fontWeight: '700' as const, letterSpacing: -0.4 },
-  heading: { fontSize: 17, fontWeight: '600' as const },
-  body: { fontSize: 15, fontWeight: '400' as const },
-  small: { fontSize: 13, fontWeight: '400' as const },
-  tiny: { fontSize: 11, fontWeight: '500' as const, letterSpacing: 0.6 },
+  hero: { fontSize: 46, fontFamily: fonts.extrabold, letterSpacing: -1.6 },
+  title: { fontSize: 25, fontFamily: fonts.extrabold, letterSpacing: -0.6 },
+  heading: { fontSize: 15.5, fontFamily: fonts.bold },
+  body: { fontSize: 14.5, fontFamily: fonts.regular },
+  small: { fontSize: 13, fontFamily: fonts.regular },
+  tiny: { fontSize: 10.5, fontFamily: fonts.bold, letterSpacing: 0.9 },
   mono: { fontSize: 13, fontFamily: 'monospace' as const },
 } as const;
+
+/** Body copy inside a card breathes at one and a half times its size. */
+export const LINE_HEIGHT = 1.5;

@@ -1,10 +1,15 @@
 # Everything the guide knows that is not your stake: reachable in one tap, and
 # nowhere near the top of the first screen.
 #
-# The two assertions at the start are the layout decision, held to. The rate is
-# on screen without scrolling; the rest of the guide is not. A tab bar would
-# have put "every pool" at equal weight with "your stake", and they are not of
-# equal weight.
+# The claim being held to is the ordering: the rate first, the stake second,
+# everything else under a heading below them. A tab bar would have put "every
+# pool" at equal weight with "your stake", and they are not of equal weight.
+#
+# This used to assert that the section was *off screen*, which was true until
+# the wallets moved to a screen of their own and the home screen got shorter.
+# That was an assertion about this device's height rather than about the app,
+# so it is gone: what is left is that the rate is the first thing, and that
+# reaching anything else means scrolling past the stake to get to it.
 appId: org.fastpool.signerguide
 name: The rest of the guide is one tap away, and no closer
 ---
@@ -27,8 +32,6 @@ name: The rest of the guide is one tap away, and no closer
 
 - assertVisible:
     id: 'rate-card'
-- assertNotVisible:
-    id: 'more-section'
 
 # Every pool, with what each holds.
 - scrollUntilVisible:
@@ -53,14 +56,15 @@ name: The rest of the guide is one tap away, and no closer
     id: 'pools-screen'
 - back
 
-# What each payout actually paid, cycle by cycle.
+# What each payout actually paid — reached from the rate card's own footer
+# link, which is the only route to it now.
 - scrollUntilVisible:
     element:
-      id: 'more-history'
-    direction: DOWN
+      id: 'rate-history-link'
+    direction: UP
     centerElement: true
 - tapOn:
-    id: 'more-history'
+    id: 'rate-history-link'
 - extendedWaitUntil:
     visible:
       id: 'history-screen'

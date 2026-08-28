@@ -1,3 +1,4 @@
+import * as Clipboard from 'expo-clipboard';
 import Constants from 'expo-constants';
 import { Linking } from 'react-native';
 import UniversalProvider from '@walletconnect/universal-provider';
@@ -70,6 +71,9 @@ const METHODS = [
   'stx_transferStx',
 ];
 
+/** Bitcoin mainnet, by the first 32 characters of its genesis hash. */
+export const BITCOIN_MAINNET_CHAIN = 'bip122:000000000019d6689c085ae165831e93';
+
 /**
  * How to reach each wallet on this phone.
  *
@@ -117,12 +121,18 @@ export function foregroundUrl(walletId: WalletId): string | null {
   return link === null ? null : `${link.scheme}://`;
 }
 
-export const WALLET_NAMES: Record<WalletId, string> = {
+/**
+ * What each wallet calls itself.
+ *
+ * Proper nouns, and never translated — Xverse is Xverse in every language.
+ * Two entries are not wallets and so are not here: `any` and `mock` say what
+ * they do rather than who they are, which makes them sentences, and sentences
+ * live in the catalogue. `walletLabel` puts the two together.
+ */
+export const WALLET_NAMES: Record<Exclude<WalletId, 'any' | 'mock'>, string> = {
   xverse: 'Xverse',
   leather: 'Leather',
   okx: 'OKX Wallet',
-  any: 'Another wallet',
-  mock: 'Test wallet',
 };
 
 type Provider = Awaited<ReturnType<typeof UniversalProvider.init>>;
@@ -201,29 +211,67 @@ export function accountFromSession(session: {
 export function walletConnectWallet(walletId: WalletId): Wallet {
   return {
     id: walletId,
-    name: WALLET_NAMES[walletId],
+    /*
+     * A fallback only. What a button says comes from `walletLabel`, which can
+     * reach the catalogue; this is here because the `Wallet` interface asks
+     * for a name and an adapter has no translator.
+     */
+    name: walletId,
 
     async connect(): Promise<WalletAccount> {
       const provider = await getProvider();
 
-      // The URI is only useful while the wallet is being opened on it, so the
-      // listener goes on for this connect and comes off again after.
+      /*
+       * The URI is only useful while the wallet is being opened on it, so the
+       * listener goes on for this connect and comes off again after.
+       *
+       * A named wallet is opened on its own scheme. "Another wallet" copies
+       * the link instead, and that is the whole reason it exists: handing a
+       * bare `wc:` URI to Android does not raise a chooser — it opens whatever
+       * app claimed the scheme, which on a phone with OKX installed is OKX,
+       * under a button that does not say OKX. A link on the clipboard works in
+       * every wallet that takes one and lies about none of them.
+       */
       const openWallet = (uri: string) => {
+        if (linkFor(walletId) === null) {
+          void Clipboard.setStringAsync(uri).catch(() => {});
+          return;
+        }
         void Linking.openURL(pairingUrl(walletId, uri)).catch(() => {
           // A wallet that is not installed, or a scheme the phone will not
-          // open. The pairing is still live, so fall back to the system
-          // chooser rather than abandoning it.
-          void Linking.openURL(uri).catch(() => {});
+          // open. The pairing is still live, so the link is worth having.
+          void Clipboard.setStringAsync(uri).catch(() => {});
         });
       };
       provider.on('display_uri', openWallet);
 
       try {
+        /*
+         * Both namespaces, and both optional.
+         *
+         * This app only ever uses the Stacks one, and asking for Stacks alone
+         * looked like the tidier proposal. Xverse rejects it — the wallet
+         * answers with an error naming *bitcoin*, which is a wallet that
+         * expected a bip122 namespace in a proposal and did not find one. The
+         * guide's own `wallet-connect.ts` reached the same conclusion from the
+         * other end and kept both.
+         *
+         * Naming bip122 asks nothing of a wallet that does not have it:
+         * everything here is `optionalNamespaces`, and a wallet approves what
+         * it can. A session that comes back with only `stacks` in it is
+         * exactly as usable as before — `accountFromSession` reads the Bitcoin
+         * address if there is one and carries on if there is not.
+         */
         const session = await provider.connect({
           optionalNamespaces: {
             stacks: {
               chains: [STACKS_MAINNET_CHAIN],
               methods: METHODS,
+              events: [],
+            },
+            bip122: {
+              chains: [BITCOIN_MAINNET_CHAIN],
+              methods: [],
               events: [],
             },
           },
@@ -263,6 +311,30 @@ export function walletConnectWallet(walletId: WalletId): Wallet {
         );
       }
       return { txid };
+    },
+
+    async cancel(): Promise<void> {
+      try {
+        const provider = await getProvider();
+        /*
+         * Two calls, because they undo different halves: `abortPairingAttempt`
+         * rejects the `connect()` that is still awaiting, and
+         * `cleanupPendingPairings` drops the topic so the next attempt starts a
+         * new one rather than reusing a proposal the person walked away from.
+         *
+         * Both are guarded: they are on `UniversalProvider` but not in every
+         * version's types, and a failure here must not stop the app forgetting
+         * the attempt.
+         */
+        const abortable = provider as unknown as {
+          abortPairingAttempt?: () => void;
+          cleanupPendingPairings?: () => Promise<void>;
+        };
+        abortable.abortPairingAttempt?.();
+        await abortable.cleanupPendingPairings?.();
+      } catch {
+        // Nothing pending, or a provider that was never created.
+      }
     },
 
     async disconnect(): Promise<void> {

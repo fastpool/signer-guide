@@ -1,6 +1,7 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { hexToCV } from '@stacks/transactions';
 import { connectWallet, renderApp } from '../test/harness';
+import { expectedEarnings } from '../test/rate';
 import { installFetch } from '../test/network';
 import { CHAIN, resetChain, staking } from '../test/chain';
 import { MOCK_TXID } from '../wallet/mock';
@@ -117,9 +118,11 @@ describe('staking for the first time', () => {
     await walkToForm();
     fireEvent.changeText(screen.getByTestId('stake-amount'), '100000');
 
-    // 100,000 STX at 408 sats per 1000 STX is 40,800 a payout.
+    // A hundred lots of 1,000 STX, at whatever the bundled snapshot says.
     await waitFor(() =>
-      expect(screen.getByTestId('projection-payout')).toHaveTextContent('40,800 sats'),
+      expect(screen.getByTestId('projection-payout')).toHaveTextContent(
+        expectedEarnings(100_000_000_000n).perPayout,
+      ),
     );
   });
 
@@ -134,8 +137,7 @@ describe('staking for the first time', () => {
     await screen.findByTestId('stake-screen');
 
     fireEvent.changeText(screen.getByTestId('stake-amount'), '1234.5');
-    // Rewards held as sBTC, so no Bitcoin address is needed to finish.
-    fireEvent(screen.getByTestId('payout-toggle'), 'valueChange', false);
+    // Rewards are sBTC by default now, so nothing has to be turned off.
     fireEvent.press(screen.getByTestId('cycles-12'));
 
     await waitFor(() => expect(screen.getByTestId('stake-submit')).not.toBeDisabled());
@@ -165,7 +167,6 @@ describe('staking for the first time', () => {
     await screen.findByTestId('stake-screen');
 
     fireEvent.changeText(screen.getByTestId('stake-amount'), '100');
-    fireEvent(screen.getByTestId('payout-toggle'), 'valueChange', false);
     await waitFor(() => expect(screen.getByTestId('stake-submit')).not.toBeDisabled());
     fireEvent.press(screen.getByTestId('stake-submit'));
 
@@ -191,7 +192,10 @@ describe('staking for the first time', () => {
     })();
 
     fireEvent.changeText(screen.getByTestId('stake-amount'), '100');
-    fireEvent.changeText(screen.getByTestId('btc-address'), 'nonsense');
+    // Rewards default to sBTC now, so asking for a Bitcoin address is a choice
+    // somebody makes rather than the state the form opens in.
+    fireEvent(screen.getByTestId('payout-toggle'), 'valueChange', true);
+    fireEvent.changeText(await screen.findByTestId('btc-address'), 'nonsense');
 
     await waitFor(() =>
       expect(screen.getByTestId('stake-problem')).toHaveTextContent(
@@ -205,7 +209,11 @@ describe('staking for the first time', () => {
   it('will not take a payout floor the contract would reject', async () => {
     await walkToForm();
     fireEvent.changeText(screen.getByTestId('stake-amount'), '100');
-    fireEvent.changeText(screen.getByTestId('btc-address'), 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq');
+    fireEvent(screen.getByTestId('payout-toggle'), 'valueChange', true);
+    fireEvent.changeText(
+      await screen.findByTestId('btc-address'),
+      'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
+    );
     fireEvent.changeText(screen.getByTestId('max-fee'), '3000');
     // Under max-fee plus the dust limit, which the contract refuses outright.
     fireEvent.changeText(screen.getByTestId('min-claim'), '1000');
@@ -237,7 +245,6 @@ describe('changing a stake that already exists', () => {
     await screen.findByTestId('stake-screen');
 
     fireEvent.changeText(screen.getByTestId('stake-amount'), '500');
-    fireEvent(screen.getByTestId('payout-toggle'), 'valueChange', false);
     await waitFor(() => expect(screen.getByTestId('stake-submit')).not.toBeDisabled());
     fireEvent.press(screen.getByTestId('stake-submit'));
 
@@ -254,7 +261,10 @@ describe('changing a stake that already exists', () => {
     fireEvent.press(await screen.findByTestId('position-change'));
     await screen.findByTestId('stake-screen');
 
-    fireEvent.press(screen.getByTestId('unstake-submit'));
+    // Ending a stake is now behind a confirm: the pill opens the explanation,
+    // and the button under it is the one that sends anything.
+    fireEvent.press(screen.getByTestId('unstake-open'));
+    fireEvent.press(await screen.findByTestId('unstake-submit'));
 
     await waitFor(() => expect(harness.calls).toHaveLength(1));
     expect(harness.calls[0].functionName).toBe('unstake');
@@ -276,12 +286,12 @@ describe('a wallet that refuses', () => {
   it('leaves the form where it was rather than claiming a stake', async () => {
     const harness = renderApp({ failWith: new Error('User rejected the request') });
     fireEvent.press(await screen.findByTestId('home-connect'));
-    fireEvent.press(await screen.findByTestId('connect-xverse'));
+    fireEvent.press(await screen.findByTestId('connect-any'));
 
     // A rejection is a decision, not a fault, so nothing is shown as an error
     // — and the wallet screen stays put rather than closing on nothing.
     await waitFor(() => expect(screen.queryByTestId('wallet-error')).toBeNull());
-    expect(screen.getByTestId('connect-xverse')).toBeOnTheScreen();
+    expect(screen.getByTestId('connect-any')).toBeOnTheScreen();
     expect(harness.calls).toHaveLength(0);
   });
 });
@@ -290,5 +300,42 @@ describe('the mock wallet', () => {
   it('exists so this whole path can run on a phone with no wallet on it', () => {
     expect(MOCK_TXID).toMatch(/^0x[0-9a-f]{64}$/);
     expect(CHAIN).toBeDefined();
+  });
+});
+
+describe('the stake form with no wallet', () => {
+  /*
+   * "Connect a wallet before staking" with a disabled button under it is a
+   * sentence with no way to act on it. The footer offers the thing that is
+   * actually missing, and the wallet screen closes itself once a session
+   * exists — which lands the person back on the form they were filling in.
+   */
+  it('offers a way to connect rather than a disabled button', async () => {
+    renderApp();
+    fireEvent.press(await screen.findByTestId('more-contracts'));
+    fireEvent.press(await screen.findByTestId(`template-${STANDARD}`));
+    await screen.findByTestId('contract-screen');
+    fireEvent.press(screen.getAllByTestId(/^pool-SP/)[0]);
+    fireEvent.press(await screen.findByTestId('pool-stake'));
+    await screen.findByTestId('stake-screen');
+
+    expect(screen.queryByTestId('stake-submit')).toBeNull();
+    fireEvent.press(screen.getByTestId('stake-connect'));
+    expect(await screen.findByTestId('wallet-screen')).toBeOnTheScreen();
+  });
+
+  it('comes back to the form, ready to sign, once a wallet is connected', async () => {
+    renderApp();
+    fireEvent.press(await screen.findByTestId('more-contracts'));
+    fireEvent.press(await screen.findByTestId(`template-${STANDARD}`));
+    await screen.findByTestId('contract-screen');
+    fireEvent.press(screen.getAllByTestId(/^pool-SP/)[0]);
+    fireEvent.press(await screen.findByTestId('pool-stake'));
+    await screen.findByTestId('stake-screen');
+
+    fireEvent.press(screen.getByTestId('stake-connect'));
+    fireEvent.press(await screen.findByTestId('connect-any'));
+
+    expect(await screen.findByTestId('stake-submit')).toBeOnTheScreen();
   });
 });

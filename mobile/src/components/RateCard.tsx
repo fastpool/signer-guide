@@ -2,8 +2,8 @@ import { StyleSheet, View } from 'react-native';
 import { satsLabel } from '@guide/lib/amounts';
 import { useT } from '../i18n';
 import { useColors, useSettings } from '../settings';
-import { radius, space } from '../theme';
-import { Card, Label, Note, Row, Text, TouchCard } from '../ui';
+import { fonts, radius, space } from '../theme';
+import { Card, Divider, Label, Pill, Row, Text } from '../ui';
 import { durationLabel, groupDigits, percent } from '../format';
 import type { Rate } from '../data/rate';
 
@@ -15,6 +15,10 @@ import type { Rate } from '../data/rate';
  * written out under the figure rather than left to a legend, and the countdown
  * to the next one sits beside it. A rate with no period attached is a number
  * somebody will read as a year's.
+ *
+ * The three qualifiers are a fixed three-column grid rather than a wrapping
+ * row. Wrapping put "LAST PAYOUT PAID" on a line of its own on a narrow phone,
+ * which read as a fourth thing rather than the third of three.
  */
 export default function RateCard({
   rate,
@@ -27,20 +31,14 @@ export default function RateCard({
 }) {
   const t = useT();
   const { locale } = useSettings();
-  const Container = onPress ? TouchCard : Card;
 
   return (
-    <Container
-      testID={testID}
-      onPress={onPress as () => void}
-      accessibilityLabel={t('rate.label')}
-      style={styles.card}
-    >
+    <Card testID={testID} style={styles.card}>
       <Row style={{ justifyContent: 'space-between' }}>
         <Label>{t('rate.label')}</Label>
-        <Text variant='tiny' tone='faint' testID='rate-cycle'>
+        <Pill tone='stx' testID='rate-cycle'>
           {t('rate.cycle', { cycle: rate.cycle }).toUpperCase()}
-        </Text>
+        </Pill>
       </Row>
 
       {rate.satsPer1000Stx === null ? (
@@ -50,10 +48,10 @@ export default function RateCard({
       ) : (
         <View>
           <Row gap={space.sm} style={{ alignItems: 'flex-end' }}>
-            <Text variant='hero' tone='accent' testID='rate-value'>
+            <Text variant='hero' tone='accent' testID='rate-value' style={styles.figure}>
               {groupDigits(rate.satsPer1000Stx)}
             </Text>
-            <Text variant='heading' tone='muted' style={{ paddingBottom: 6 }}>
+            <Text tone='muted' style={styles.unit}>
               {t('rate.sats')}
             </Text>
           </Row>
@@ -65,9 +63,9 @@ export default function RateCard({
 
       <Progress value={rate.progress} />
 
-      <Row style={{ justifyContent: 'space-between' }} wrap gap={space.md}>
-        <Small label={t('rate.apy')} value={percent(rate.apy)} testID='rate-apy' />
-        <Small
+      <Row gap={space.sm} style={{ alignItems: 'flex-start' }}>
+        <Column label={t('rate.apy')} value={percent(rate.apy)} testID='rate-apy' />
+        <Column
           label={t('rate.next')}
           value={
             rate.hoursToPayout === null
@@ -78,7 +76,7 @@ export default function RateCard({
           }
           testID='rate-next-payout'
         />
-        <Small
+        <Column
           label={t('rate.last')}
           value={
             rate.lastPayoutSatsPer1000Stx === null
@@ -89,16 +87,26 @@ export default function RateCard({
         />
       </Row>
 
-      <Note tone='faint'>
-        {rate.satsPerStx === null
-          ? t('rate.unreadable')
-          : t('rate.note', { perStx: rate.satsPerStx.toFixed(3) })}
-      </Note>
-    </Container>
+      {onPress ? (
+        <>
+          <Divider />
+          <Text
+            variant='small'
+            tone='stx'
+            testID='rate-history-link'
+            onPress={onPress}
+            style={{ fontFamily: fonts.bold }}
+          >
+            {t('rate.historyLink')}
+          </Text>
+        </>
+      ) : null}
+    </Card>
   );
 }
 
-function Small({
+/** One of the three qualifiers, in a column that does not wrap. */
+function Column({
   label,
   value,
   testID,
@@ -108,9 +116,11 @@ function Small({
   testID?: string;
 }) {
   return (
-    <View style={{ gap: 2, minWidth: 90 }}>
-      <Label>{label}</Label>
-      <Text variant='small' testID={testID}>
+    <View style={styles.column}>
+      <Text style={styles.columnLabel} tone='faint'>
+        {label.toUpperCase()}
+      </Text>
+      <Text testID={testID} style={styles.columnValue} numberOfLines={1}>
         {value}
       </Text>
     </View>
@@ -123,7 +133,7 @@ function Progress({ value }: { value: number | null }) {
   if (value === null) return null;
   return (
     <View
-      style={[styles.track, { backgroundColor: colors.cardRaised }]}
+      style={[styles.track, { backgroundColor: colors.trough }]}
       accessibilityRole='progressbar'
       accessibilityValue={{ min: 0, max: 100, now: Math.round(value * 100) }}
       testID='rate-progress'
@@ -140,6 +150,11 @@ function Progress({ value }: { value: number | null }) {
 
 const styles = StyleSheet.create({
   card: { gap: space.md },
-  track: { height: 5, borderRadius: radius.pill, overflow: 'hidden' },
-  fill: { height: 5, borderRadius: radius.pill },
+  figure: { fontSize: 48, letterSpacing: -1.6 },
+  unit: { fontSize: 18, fontFamily: fonts.bold, paddingBottom: 7 },
+  track: { height: 6, borderRadius: radius.pill, overflow: 'hidden' },
+  fill: { height: 6, borderRadius: radius.pill },
+  column: { flex: 1, gap: 2 },
+  columnLabel: { fontSize: 9.5, fontFamily: fonts.bold, letterSpacing: 0.7 },
+  columnValue: { fontSize: 14.5, fontFamily: fonts.bold },
 });

@@ -20,17 +20,32 @@ what comes back, and that it can be undone. Then one screen with a wallet to
 pick and an amount to type. Four decisions are made for you, and all four are
 on that screen with a way to change each:
 
-| decision | default                         | why                                                  |
-| -------- | ------------------------------- | ---------------------------------------------------- |
-| pool     | lowest fee, open, code reviewed | the rule is in `src/data/default-pool.ts`, and `defaultPoolReason` prints it |
-| rewards  | held as sBTC                    | a mistyped Bitcoin address is rewards nobody can recover, and it is not checkable until the first payout |
-| period   | one cycle, about two weeks      | the shortest period pox-5 takes — and a stake can be ended before it is up, without penalty |
-| amount   | yours                           | the only field on the screen                         |
+| decision | default | why |
+| --- | --- | --- |
+| pool | Fast Pool Max500 | see below |
+| rewards | as sBTC, in the same wallet | a mistyped Bitcoin address is rewards nobody can recover, and it is not checkable until the first payout |
+| period | the whole of pox-5's maximum | a stake can be ended at the close of the cycle whatever period was chosen, so the longest is the one that asks the least afterwards |
+| amount | yours | the only field on the screen |
 
-Fast Pool wrote this and runs some of the pools it lists, which is why the
-first row is a rule and not a preference: applied to every pool the same way,
-blind to who deployed anything, stated on screen, and one tap from the full
-list. `default-pool.test.ts` holds it to that.
+The last three live in `src/data/stake-defaults.ts`, not on the screen. Both
+staking screens read them, and they had drifted — the guided one said two weeks
+and sBTC, the full form said ninety-six cycles and a Bitcoin address, so the
+row saying "change this" led to a form that disagreed with it.
+
+**The pool is a preference, and the screen says so in those words.** It is Fast
+Pool's own, and Fast Pool wrote this app. The alternative was to dress that up
+as a neutral filter that happened to land on its author's own pool, which is
+the one thing a guide that ranks its rivals cannot do. What can be said for it
+is checkable on its own page: the Capped Fee contract, so the fee cannot pass
+5% and a rise has to be announced a month ahead; open to anyone; and it can pay
+to a Bitcoin address.
+
+If that pool is ever unregistered or closed, `defaultPool` falls back to the
+rule it used to use — read contract, open to anyone, lowest fee — and
+`preferred: false` makes the screen print the rule's sentence instead of the
+preference's. A default that has stopped working is worse than one somebody
+disagrees with, and a reason that describes something the app did not do is
+worse than both.
 
 Words that are true, are in this app, and are two taps away — pox-5, signer
 manager, reward cycle, calldata, post condition — appear nowhere on the welcome
@@ -78,27 +93,143 @@ environment variable, written down under **Configuration** below).
 - **Wallet** — what the app is currently looking at, and a way to the wallet
   screen. A shortcut, not a second place to change it.
 
+## Three routes to a wallet, in the order they work
+
+The wallet screen offers them in that order, which is not the order they are
+usually listed in:
+
+1. **Watch an address** — needs nothing installed, works for every address on
+   the chain, and takes a BNS name. Read-only.
+2. **Open the guide in your wallet** — both wallets ship a browser, and a page
+   inside one reaches the wallet through the provider it injects. Verified on a
+   device.
+3. **WalletConnect** — last, and honest about why.
+
+WalletConnect no longer lists Xverse, Leather and OKX. Leather registers no
+`wc:` scheme at all and the integration is an **open request on its own
+tracker** ([leather-io/mono#2595](https://github.com/leather-io/mono/issues/2595));
+Xverse gets as far as its lock screen and nothing past that has been confirmed;
+OKX takes the pairing and refuses on region. Three buttons promised three
+things that mostly do not happen. What is left is the pairing link itself,
+which works in whatever wallet somebody actually has.
+
+The browser hand-off opens **the page they were on**, not the front page:
+`guideUrlFor` builds it from the guide's own `signerHref` and `contractHref`,
+so somebody two taps into choosing a pool is not handed a list of forty-five
+and asked to start again.
+
+### The evidence
+
+Reading the wallets' own intent filters off a device settles what each supports,
+which guessing had not:
+
+```
+io.leather.mobilewallet   leather   exp+leather-wallet-mobile
+com.secretkeylabs.xverse  xverse    https (connect.xverse.app)
+com.okinc.okex.gp         wc  okx  okex  okxweb3  …
+```
+
+**Leather registers no `wc:` scheme at all.** That is what it means when it says
+WalletConnect is not supported, and no proposal this app sends will change it.
+**OKX registers `wc:`**, which is why a bare pairing URI opened OKX under a
+button that did not say OKX.
+
+So there is a second route, and for Leather it is the only one: both wallets
+ship a browser, and a page opened inside one reaches the wallet through the
+provider it injects — the same route the web guide already uses. The app hands
+the guide over.
+
+| | link | verified on a device |
+| --- | --- | --- |
+| Leather | `leather://browser?url=…` | opened its browser on the guide |
+| Xverse | `https://connect.xverse.app/browser?url=…` | opened Xverse — its lock screen, and past that is a PIN |
+
+Xverse's own `xverse://browser?url=` still works and its documentation calls it
+deprecated, so the verified app link is what is used.
+
+## Watching a BNS name
+
+The watch field takes `friedger.btc` as well as `SP…`. The name is resolved
+against the **registry contract**, not an indexer — `@guide/lib/bns-resolve.ts`
+explains why: what comes back is used to look up somebody's stake, and a stale
+owner would report one person's position under another person's name, silently.
+
+Three outcomes, kept apart on screen: an address, a name nobody owns, and a
+node that would not answer. The last is not the second — showing a failed
+lookup as "unregistered" tells somebody their name does not exist, which is a
+different and worse thing to be wrong about.
+
+## Connecting, and the wallet this app cannot name
+
+Three wallets are named and opened on their own scheme. The fourth entry is
+not a wallet: it **copies the pairing link**, and it says so on the button.
+
+Handing a bare `wc:` URI to `Linking.openURL` does not raise a chooser on
+Android — it opens whichever app claimed the scheme, which on a phone with OKX
+installed is OKX, under a button that does not say OKX. A link on the clipboard
+works in every wallet that takes one and lies about none of them.
+
+Only the button that was pressed shows progress. `wallet.connecting` in the
+context is one flag for the whole app, so handing it to four buttons spun all
+four — which says the app is talking to Leather, Xverse and OKX at once when it
+is talking to one of them.
+
 Both preferences are read off the device before anything is drawn and written
 back the moment they change. Neither goes anywhere: there is no server to send
 them to.
 
-## Two palettes, one set of roles
+## It looks like the guide, because it is the guide
 
-`src/theme.ts` holds `PALETTES.dark` and `PALETTES.light`, and every colour in
-them is a role rather than a hue — `accent` is bitcoin and so is every figure
-paid in sats, `stx` is every amount of STX, `muted` is anything that qualifies
-a number without being one. A palette is a complete set of answers to those
-roles, so a new one cannot half-exist; a test asserts the two have the same
-keys.
+`src/theme.ts` holds `PALETTES.light` and `PALETTES.dark`, and every value in
+them is one the website already owns in `src/index.css`: cream, ink, grape,
+mint, amber. Nothing here is a hue the app invented. Somebody who has read the
+site and then opens this should not have to work out that it is the same thing.
 
-Light is not dark inverted. `#F7931A` is legible as a 44-point figure on white
-and is not legible as 13-point body text on white, and this app puts the accent
-colour on both — so the light palette darkens it to a shade that clears 4.5:1
-and keeps the hue.
+Every colour is a role rather than a hue — `accent` is bitcoin and so is every
+figure paid in sats, `stx` is Stacks and so is every amount of STX, `muted` is
+anything that qualifies a number without being one. A palette is a complete set
+of answers to those roles, so a new one cannot half-exist; a test asserts the
+two have the same keys.
+
+One role changed meaning rather than value: **the primary action is grape, not
+amber.** Amber means "this is money", and a colour that means two things means
+neither.
+
+Light is not dark inverted. Grape is deepened into the ground and cream lifted
+into the text, and both figure colours are lightened until they clear 4.5:1 on
+`card` — which matters more here than in most apps, because this one puts the
+accent colour on a 46-point number and on 13-point body text in the same card.
+
+Type is Nunito, shipped with the app. The site sets a rounded stack; iOS
+reaches SF Pro Rounded through `fontFamily: 'System'` and Android has no
+rounded system face at all, so the font travels rather than the platform
+choosing one.
 
 Layout lives in a `StyleSheet` because it never changes; colour is applied
 inline from `useColors()`, because it does. Switching to light re-renders with
 different colours over the same geometry rather than rebuilding a stylesheet.
+
+## The mark
+
+Two circles on one axis, one filled and one outlined, overlapping: Stacks and
+bitcoin are linked, and two pools showing the same icon run the same code — the
+idea the identicons already carry. It is a sibling of `public/fastpool-logo.svg`
+rather than a copy: same grape, same container radius, same stroke weight, a
+different glyph.
+
+The app used to ship Fast Pool's own glyph, which made the guide look like a
+Fast Pool product rather than a guide that lists Fast Pool among forty-four
+others. `src/components/Mark.tsx` draws it from the same geometry the exported
+PNGs use, so the two cannot drift, and `scripts/make-splash.mjs` draws the
+splash from those same numbers — a white tile with the grape mark, inverted
+against the grape ground `app.json` paints, because a grape tile on a grape
+ground is a mark with no container at all.
+
+**Changing an icon needs a rebuild.** Android's launcher icons are generated
+into `android/app/src/main/res/mipmap-*` by `expo prebuild` and compiled into
+the APK; replacing the PNGs in `assets/` and reloading from Metro changes
+nothing you can see. Run `npx expo prebuild --platform android --clean` and
+build again.
 
 ## Language
 
@@ -184,6 +315,32 @@ secp256k1, which belongs to nobody. `contract-call.test.ts` asserts the call is
 identical whichever key built it.
 
 **This app never sees a key and never asks for one.**
+
+### It does not connect yet, and here is exactly why
+
+Measured on a real device on 28 August 2026, and written up in full at the foot
+of [`WALLETCONNECT.md`](../WALLETCONNECT.md).
+
+The relay and the project id are **not** the problem — driving
+`@walletconnect/universal-provider` headlessly creates the pairing and
+publishes it. Everything below happens in the wallet, after that.
+
+| Wallet | What happens | Why |
+| --- | --- | --- |
+| **Xverse** | was an error naming *bitcoin*; now opens and asks to unlock | the proposal asked for `stacks:1` alone. Adding `bip122:0000…31e93` to `optionalNamespaces` changed it — which is why the guide's own `walletOptions()` keeps both namespaces |
+| **Leather** | "WalletConnect not supported" | no documented mobile transport of any kind. `docs.leather.io` does not resolve, and the Stacks wallet-support table lists only web methods |
+| **OKX** | "not available in your region" | OKX's own geographic restriction. Nothing in a proposal causes it or fixes it |
+
+Adding bip122 costs nothing: it is optional, a wallet approves what it can, and
+`accountFromSession` reads a Bitcoin address if one comes back and carries on
+if it does not. **It is not confirmed end to end** — unlocking Xverse needs a
+fingerprint, so whether it then approves a Stacks session is unmeasured.
+
+Xverse has meanwhile removed WalletConnect from its documentation entirely. The
+only mobile route it documents now is opening a **web page** in its own in-app
+browser, `https://connect.xverse.app/browser?url=…`, which is a route for
+websites and not for native apps — and which means the web guide already has a
+mobile signing story this app does not.
 
 ## Sharing code with the web guide
 
@@ -271,6 +428,13 @@ against mainnet:
 maestro test e2e/screenshots.yaml
 node scripts/frame-screenshots.mjs
 ```
+
+Zapstore's config is generated from the same text, by
+`scripts/make-zapstore-config.mjs`, and published with `zsp` — the signing key
+comes from `SIGN_WITH`, which should be a NIP-46 bunker URL rather than an
+nsec. `store/README.md` has the table of what that variable accepts, and the
+one thing that must be true before anything is published: a release keystore
+that is not Android's shared debug key.
 
 [`../bitrise.yml`](../bitrise.yml) builds and publishes. `check` runs on every
 push — types, tests, and a Metro bundle, that last one because a module can

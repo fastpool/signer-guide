@@ -37,17 +37,35 @@ async function openWallet() {
 }
 
 describe('connecting', () => {
-  it('offers every wallet this app can reach', async () => {
+  it('names no wallet it cannot actually reach that way', async () => {
     await openWallet();
-    for (const id of ['connect-xverse', 'connect-leather', 'connect-okx', 'connect-any']) {
-      expect(screen.getByTestId(id)).toBeOnTheScreen();
+    /*
+     * Leather registers no `wc:` scheme and has the integration open on its own
+     * tracker; Xverse gets as far as its lock screen and no further has been
+     * confirmed. A button per wallet here promised three things that mostly do
+     * not happen, so what is left is the link itself.
+     */
+    for (const id of ['connect-xverse', 'connect-leather', 'connect-okx']) {
+      expect(screen.queryByTestId(id)).toBeNull();
     }
+    expect(screen.getByTestId('connect-any')).toHaveTextContent(
+      /Copy a connection link/,
+    );
+  });
+
+  it('puts the routes in the order somebody can get somewhere by', async () => {
+    await openWallet();
+    // Watching needs nothing installed; the browsers work; WalletConnect
+    // mostly does not. Last is where the last of those belongs.
+    expect(screen.getByTestId('wallet-watch')).toBeOnTheScreen();
+    expect(screen.getByTestId('wallet-browser')).toBeOnTheScreen();
+    expect(screen.getByTestId('wallet-connect')).toBeOnTheScreen();
   });
 
   it('closes itself once there is a session, so nobody has to find their way back', async () => {
     staking();
     await openWallet();
-    fireEvent.press(screen.getByTestId('connect-xverse'));
+    fireEvent.press(screen.getByTestId('connect-any'));
 
     expect(await screen.findByTestId('home-screen')).toBeOnTheScreen();
     expect(await screen.findByTestId('position-card')).toBeOnTheScreen();
@@ -56,7 +74,7 @@ describe('connecting', () => {
   it('stays put, and says nothing, when somebody presses reject', async () => {
     renderApp({ failWith: new Error('User rejected the request') });
     fireEvent.press(await screen.findByTestId('home-connect'));
-    fireEvent.press(await screen.findByTestId('connect-xverse'));
+    fireEvent.press(await screen.findByTestId('connect-any'));
 
     // A rejection is a decision, not a fault.
     await waitFor(() => expect(screen.queryByTestId('wallet-error')).toBeNull());
@@ -66,7 +84,7 @@ describe('connecting', () => {
   it('reports a wallet that broke, without closing on it', async () => {
     renderApp({ failWith: new Error('relay unreachable') });
     fireEvent.press(await screen.findByTestId('home-connect'));
-    fireEvent.press(await screen.findByTestId('connect-xverse'));
+    fireEvent.press(await screen.findByTestId('connect-any'));
 
     expect(await screen.findByTestId('wallet-error')).toHaveTextContent(
       /relay unreachable/,
@@ -102,8 +120,8 @@ describe('watching', () => {
 
     expect(await screen.findByTestId('position-card')).toBeOnTheScreen();
     expect(screen.queryByTestId('position-change')).toBeNull();
-    expect(screen.getByTestId('position-address')).toHaveTextContent(
-      new RegExp(en.messages['wallet.watching']),
+    expect(screen.getByTestId('position-watching')).toHaveTextContent(
+      en.messages['wallet.watching'],
     );
   });
 });
@@ -113,7 +131,7 @@ describe('the account it is showing', () => {
     staking();
     renderApp();
     fireEvent.press(await screen.findByTestId('home-connect'));
-    fireEvent.press(await screen.findByTestId('connect-xverse'));
+    fireEvent.press(await screen.findByTestId('connect-any'));
     await screen.findByTestId('position-card');
 
     // The address is in the stake card, and it is also the way back here.
@@ -129,7 +147,7 @@ describe('the account it is showing', () => {
     staking();
     renderApp();
     fireEvent.press(await screen.findByTestId('home-connect'));
-    fireEvent.press(await screen.findByTestId('connect-xverse'));
+    fireEvent.press(await screen.findByTestId('connect-any'));
     await screen.findByTestId('position-card');
 
     fireEvent.press(screen.getByTestId('position-wallet'));
@@ -141,5 +159,61 @@ describe('the account it is showing', () => {
     await waitFor(async () =>
       expect(await AsyncStorage.getItem('signer-guide:address:v1')).toBeNull(),
     );
+  });
+});
+
+describe('a connect that is still waiting', () => {
+  /*
+   * `connect()` does not come back until the wallet approves or the proposal
+   * expires, which is minutes. The copy-a-link route never comes back at all
+   * on its own, because the person has to go and paste it somewhere. Both need
+   * a way out that is not force-quitting the app.
+   */
+  it('offers a way to stop, and forgets the attempt when it is taken', async () => {
+    // A wallet that never answers, which is the state being tested.
+    renderApp({ failWith: new Promise<never>(() => {}) as never });
+    fireEvent.press(await screen.findByTestId('home-connect'));
+    fireEvent.press(await screen.findByTestId('connect-any'));
+
+    fireEvent.press(await screen.findByTestId('connect-cancel'));
+
+    await waitFor(() =>
+      expect(screen.queryByTestId('connect-cancel')).toBeNull(),
+    );
+    // Stopping is a decision, so nothing is shown as an error.
+    expect(screen.queryByTestId('wallet-error')).toBeNull();
+    expect(screen.getByTestId('connect-any')).toBeOnTheScreen();
+  });
+});
+
+describe('watching a BNS name', () => {
+  it('takes a name as well as an address', async () => {
+    await openWallet();
+    fireEvent.changeText(screen.getByTestId('watch-input'), 'friedger.btc');
+    expect(screen.getByTestId('watch-submit')).not.toBeDisabled();
+  });
+
+  it('still refuses something that is neither', async () => {
+    await openWallet();
+    fireEvent.changeText(screen.getByTestId('watch-input'), 'not a name');
+    expect(screen.getByTestId('watch-submit')).toBeDisabled();
+  });
+
+  it('says a name nobody owns is unowned, and a node that would not answer is not that', async () => {
+    /*
+     * The two are kept apart on purpose. Showing a failed lookup as
+     * "unregistered" tells somebody their name does not exist, which is a
+     * different and worse thing to be wrong about.
+     */
+    expect(en.messages['wallet.nameUnregistered']).toMatch(/Nobody owns/);
+    expect(en.messages['wallet.nameLookupFailed']).toMatch(/not the same/);
+  });
+});
+
+describe('the wallet browsers', () => {
+  it('offers both wallets that have one', async () => {
+    await openWallet();
+    expect(screen.getByTestId('browser-leather')).toBeOnTheScreen();
+    expect(screen.getByTestId('browser-xverse')).toBeOnTheScreen();
   });
 });

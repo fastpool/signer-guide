@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { View } from 'react-native';
 import type { Signer } from '@guide/lib/types';
 import { poolName } from '../data/signers';
@@ -16,7 +17,7 @@ import Identicon from './Identicon';
  * decoration: somebody deciding where to put their STX should be able to tell
  * a pool that told us its name from a string we inferred.
  */
-export default function SignerRow({
+function SignerRow({
   signer,
   stakedUstx,
   onPress,
@@ -74,3 +75,9 @@ export default function SignerRow({
     </TouchCard>
   );
 }
+
+/*
+ * Memoised: the pool list is forty-five of these, and a row whose signer and
+ * amount have not changed has nothing new to draw.
+ */
+export default memo(SignerRow);

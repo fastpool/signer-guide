@@ -39,9 +39,9 @@ export const ko: MobileBundle = {
     'home.connect.label': '내 스테이킹',
     'home.connect.title': '지갑을 연결하면 보입니다',
     'home.connect.body':
-      'Leather, Xverse, OKX는 휴대폰에서 각각 별도의 앱입니다. 연결하면 사용 중인 지갑이 열리고 승인 여부를 묻습니다. 연결만으로 서명되는 것은 없습니다.',
+      '지갑은 별도의 앱입니다 — Leather, Xverse, OKX. 사용하는 지갑을 고르면 그 앱이 열리고, 거기서 확인만 하면 바로 여기로 돌아옵니다. 연결만으로는 아무것도 서명되지 않고 아무것도 움직이지 않습니다.',
     'home.connect.button': '지갑 연결',
-    'home.connect.watch': '또는 주소만 조회하기',
+    'home.connect.watch': '주소만 조회하기',
 
     'home.notStaking.label': '내 스테이킹',
     'home.notStaking.title': '아직 스테이킹이 없습니다',
@@ -66,12 +66,11 @@ export const ko: MobileBundle = {
     'rate.cycle': '{cycle} 사이클',
     'rate.sats': 'sats',
     'rate.unit': '1,000 STX당, 지급 회차마다',
-    'rate.apy': '연 환산, 복리',
+    'rate.apy': '연 환산',
     'rate.next': '다음 지급',
     'rate.nextIn': '{duration} 후',
-    'rate.last': '직전 지급액',
-    'rate.note':
-      '스테이킹한 STX 1개당 매주 약 {perStx} sats입니다. 추정치이며, 직전 지급이 실제로 지급한 금액과 이번 회차에 지금까지 쌓인 금액을 함께 반영합니다.',
+    'rate.last': '직전 지급',
+    'rate.historyLink': '지급 회차별 실제 지급액 →',
     'rate.unreadable': '이번에는 공개된 수치를 읽지 못했습니다.',
 
     // ----------------------------------------------------------- position --
@@ -90,27 +89,44 @@ export const ko: MobileBundle = {
     'position.endsThisCycle': '이번 사이클이 끝나면 종료',
     'position.moreCycles': '{count}개 남음, 약 {duration}',
     'position.rewardsGoTo': '보상 수령 방식',
-    'position.sbtc': 'sBTC로 보관',
-    'position.sbtcHint': '풀에 등록된 비트코인 주소가 없습니다.',
-    'position.btcHint': '비트코인, 수수료 최대 {fee} 사토시',
+    'position.sbtc': '이 지갑으로, sBTC',
+    'position.sbtcHint': '등록된 비트코인 주소가 없어 Stacks의 sBTC로 지급됩니다.',
+    'position.btcTo': '{address}로, BTC',
+    'position.btcHint': '비트코인으로 출금되며, 매 지급마다 최대 {fee}이(가) 트랜잭션 수수료로 쓰입니다.',
     'position.payoutUnknown': '풀이 보상을 어디로 보내는지 알려주지 않았습니다.',
     'position.change': '추가·연장·이동',
 
     // ------------------------------------------------------------- wallet --
     'wallet.title': '내 지갑',
     'wallet.intro':
-      'Leather, Xverse, OKX는 휴대폰에서 각각 별도의 앱입니다. 연결하면 사용 중인 지갑이 열리고 승인 여부를 묻습니다. 연결만으로 서명되는 것은 없습니다.',
+      '지갑은 별도의 앱입니다. 사용하는 지갑을 고르면 그 앱이 열려 괜찮은지 묻고, 다시 여기로 돌아옵니다. 연결만으로는 아무것도 서명되지 않고 아무것도 움직이지 않습니다.',
     'wallet.connected': '연결됨',
     'wallet.watching': '조회 중',
     'wallet.readOnly':
       '조회 전용입니다. 직접 입력한 주소이므로 이 주소로는 아무것도 서명할 수 없습니다.',
     'wallet.canSign': '{wallet}(으)로 연결되어 있습니다. 서명은 그 앱에서 이루어집니다.',
+    'wallet.copyLink': '연결 링크 복사',
+    'wallet.testWallet': '테스트 지갑',
+    'wallet.connectBody':
+      'WalletConnect는 마지막 수단이며, 그 이유를 숨기지 않습니다. Leather는 지원하지 않습니다 — 자체 이슈 트래커에 아직 미완료 요청으로 올라와 있습니다. Xverse는 잠금 화면까지만 확인되었습니다. 그래서 여기서는 페어링 링크 자체를 제공하며, 실제로 사용하는 지갑이 무엇이든 그 링크를 쓸 수 있습니다.',
     'wallet.connectHeading': '지갑 연결',
     'wallet.connecting': '지갑의 응답을 기다리는 중',
-    'wallet.watchHeading': '또는 주소만 조회하기',
+    'wallet.linkCopied': '연결 링크를 복사했습니다. 사용하는 지갑에 붙여넣으세요 — WalletConnect 링크를 받는 지갑이면 무엇이든 됩니다.',
+    'wallet.stopWaiting': '기다리지 않기',
+    'wallet.browserHeading': '지갑 안에서 가이드 열기',
+    'wallet.browserBody':
+      'Leather와 Xverse에는 각각 자체 브라우저가 있고, 그 안에서 연 페이지는 지갑과 직접 통신할 수 있습니다. Leather는 WalletConnect를 지원하지 않으므로 이 방법으로 연결합니다.',
+    'wallet.openIn': '{wallet}에서 열기',
+    'wallet.browserReturn':
+      '가이드가 그 안에서 열리며 스테이킹 과정을 모두 진행할 수 있습니다. 끝난 뒤 여기로 돌아와 주소를 조회하면 결과를 볼 수 있습니다.',
+    'wallet.watchHeading': '주소만 조회하기',
     'wallet.watchBody':
-      '아무것도 연결하지 않고 특정 주소의 스테이킹 내역과 수익을 볼 수 있습니다. 조회 전용이므로 스테이킹하거나 변경할 수는 없습니다.',
-    'wallet.addressLabel': 'Stacks 주소',
+      '아무것도 연결하지 않고 특정 주소의 스테이킹 내역과 수익을 볼 수 있습니다. BNS 이름도 됩니다 — 인덱서가 아니라 레지스트리에 직접 조회합니다. 조회 전용이므로 스테이킹하거나 변경할 수는 없습니다.',
+    'wallet.addressLabel': 'Stacks 주소 또는 BNS 이름',
+    'wallet.addressPlaceholder': 'SP… 또는 name.btc',
+    'wallet.nameUnregistered': '{name}의 소유자가 없습니다.',
+    'wallet.nameLookupFailed':
+      '노드가 응답하지 않아 이름을 조회하지 못했습니다. 등록되지 않았다는 뜻은 아닙니다.',
     'wallet.watchSubmit': '이 주소 조회하기',
     'wallet.keys':
       '트랜잭션의 생성·서명·전송은 모두 내 지갑이 합니다. 이 앱은 개인키를 보지도, 묻지도 않습니다.',
@@ -129,6 +145,7 @@ export const ko: MobileBundle = {
     'prefs.language.hint':
       '번역이 있는 경우 컨트랙트 설명도 함께 번역됩니다.',
     'prefs.wallet': '지갑',
+    'prefs.wallet.nothing': '상태',
     'prefs.wallet.none': '연결된 지갑 없음',
     'prefs.wallet.manage': '지갑 연결 또는 주소 조회',
     'prefs.about': '정보',
@@ -155,7 +172,7 @@ export const ko: MobileBundle = {
     'welcome.start': '스테이킹 시작',
     'welcome.skip': '가이드만 볼게요',
     'welcome.wallets':
-      '이 휴대폰에 Leather, Xverse 또는 OKX가 필요합니다. 서명은 그 앱에서 이루어지며, 이 앱은 개인키를 보지도 묻지도 않습니다.',
+      '이 휴대폰에 Leather, Xverse 또는 OKX가 필요합니다. 서명은 그 앱에서 이루어지며, 이 앱은 개인키를 보지 않습니다.',
 
     // -------------------------------------------------------------- start --
     'start.title': '스테이킹 시작',
@@ -177,17 +194,20 @@ export const ko: MobileBundle = {
     'start.earnings':
       '현재 수익률이면 주당 약 {payout}, 1년이면 약 {year}입니다.',
     'start.reason':
-      '여기서 검토하고 정리한 {contract} 컨트랙트를 실행하고, 누구에게나 스테이킹을 받으며, {fee}.',
+      'Fast Pool이 직접 운영하는 풀이고, 이 앱도 Fast Pool이 만들었습니다 — 평가가 아니라 선호입니다. 확인할 수 있는 사실은 이렇습니다. {contract} 컨트랙트를 실행하므로 {fee}, 누구에게나 스테이킹을 받습니다. 다른 {count}개는 “변경”을 눌러 보세요.',
+    'start.reasonFallback':
+      '이 앱이 보통 제안하는 풀이 지금 스테이킹을 받지 않아 규칙으로 선택했습니다. 검토된 컨트랙트, 누구나 참여 가능, 그리고 조건을 만족하는 {count}개 중 가장 낮은 수수료입니다.',
     'start.reasonNoFee': '수수료를 받지 않습니다',
-    'start.reasonLowestFee': '열려 있는 풀 중 가장 낮은 {percent}% 수수료를 받습니다',
+    'start.reasonLowestFee': '수수료 상한이 5%이고 인상 시 한 달 전에 공지해야 하며, 현재는 {percent}%입니다',
+    'start.projectionLabel': '현재 수익률 기준',
     'start.setForYou': '미리 정해진 항목',
     'start.noFee': '수수료 없음',
     'start.fee': '수수료 {percent}%',
     'start.poolMeta': '{fee} · {contract} 컨트랙트',
     'start.rewards': '보상',
-    'start.rewardsValue': 'sBTC로 보관',
+    'start.rewardsValue': 'sBTC로 지급',
     'start.rewardsHint':
-      '풀이 비트코인을 대신 보관합니다. 입력할 주소가 없으니 잘못 입력할 일도 없습니다.',
+      '같은 지갑으로 sBTC가 지급됩니다. 입력할 주소가 없으니 잘못 입력할 일도 없습니다.',
     'start.period': '잠금 기간',
     'start.periodHint':
       '수익이 발생하는 한 사이클입니다. 언제든 연장할 수 있고, 그전에 불이익 없이 그만둘 수도 있습니다.',
@@ -218,19 +238,24 @@ export const ko: MobileBundle = {
     'stake.lockHint':
       '수익이 발생하는 기간은 약 {duration}입니다. 그전에 불이익 없이 그만둘 수 있습니다 — 스테이킹이 생기면 “종료하기”를 보세요.',
     'stake.rewards': '보상',
-    'stake.rewardsBtc': '비트코인 주소로 전송',
-    'stake.rewardsSbtc': 'sBTC로 보관',
+    'stake.rewardsBtc': '비트코인 주소로 출금',
+    'stake.rewardsSbtc': 'sBTC로 이 지갑에',
     'stake.btcAddress': '비트코인 주소',
     'stake.btcAddressHint':
-      '풀이 내 몫을 보내는 주소입니다. 풀이 체인에 저장합니다.',
-    'stake.maxFee': '지급 시 비트코인 수수료로 쓸 수 있는 최대액',
+      '내 몫이 sBTC에서 출금되어 비트코인 본체의 이 주소로 도착합니다. 서명자 컨트랙트가 이 주소를 체인에 저장하므로 반드시 확인하세요 — 잘못된 주소로 보낸 지급은 되돌릴 수 없습니다.',
+    'stake.maxFee': '지급액 중 비트코인 수수료로 쓸 수 있는 최대액',
     'stake.minClaim': '지급할 가치가 있는 최소 금액',
-    'stake.minClaimHint':
-      '{floor} 초과 — 수수료에 더스트 한도를 더한 값입니다. 컨트랙트가 받는 최솟값은 {lowest}입니다.',
+    'stake.maxFeeShort': '지급당 최대 수수료',
+    'stake.minClaimShort': '최소 지급액',
+    'stake.feeNote':
+      '수수료는 지급액에서 차감되며, sBTC 서명자는 수수료가 1,000 sats 미만인 지급은 보내지 않습니다. 최소 지급액은 수수료에 더스트 한도를 더한 {floor} sats를 넘어야 하며, 컨트랙트가 받는 최솟값은 {lowest} sats입니다. 그에 못 미치면 전송하지 않고 다음 지급까지 기다립니다.',
+    'stake.problem.maxFeeFloor':
+      'sBTC 서명자는 수수료가 1,000 sats 미만인 지급은 보내지 않습니다.',
+    'stake.endingPill': '종료하기 — 언스테이킹',
     'stake.noMinClaim':
       '이 컨트랙트는 최소 지급액을 받지 않고 자체 값을 사용합니다.',
     'stake.sbtcNote':
-      '요청하기 전까지 풀이 보상을 sBTC로 보관합니다. 체인에 기록되는 비트코인 주소는 없습니다.',
+      '보상은 같은 지갑으로 sBTC가 지급됩니다. 체인에 기록되는 비트코인 주소가 없으므로 잘못 입력할 일도, 갱신할 일도 없습니다.',
     'stake.projection': '현재 수익률 기준 예상 수익',
     'stake.projectionPayout': '지급 회차마다',
     'stake.projectionYear': '1년',
@@ -239,7 +264,7 @@ export const ko: MobileBundle = {
     'stake.submitChange': '변경에 서명',
     'stake.submitFirst': '서명하고 스테이킹',
     'stake.keys':
-      '이 트랜잭션의 생성·서명·전송은 모두 내 지갑이 합니다. 이 앱은 개인키를 보지도, 묻지도 않습니다.',
+      '이 트랜잭션의 생성·서명·전송은 모두 내 지갑이 합니다. 이 앱은 개인키를 보지 않습니다.',
     'stake.endingTitle': '종료하기',
     'stake.endingBody':
       '언스테이킹하면 선택했던 기간과 관계없이 이번 사이클이 끝날 때 포지션이 종료되며, 일찍 그만둔다고 불이익은 없습니다. 오늘 잠금이 풀리지도, STX가 움직이지도 않습니다.',
@@ -357,6 +382,7 @@ export const ko: MobileBundle = {
       'pox-5는 1,050 번 블록마다 — 사이클의 절반, 약 일주일마다 — 보상을 계산하므로 아래 각 사이클에는 두 번의 지급이 들어 있습니다.',
     'history.estimatedNow': '현재 추정치, {cycle} 사이클',
     'history.blended': '종합 추정치',
+    'history.blendedUnit': 'sats 종합',
     'history.projected': '이번 회차 누적',
     'history.projectedHint': '외삽값이며 회차 초반에는 변동이 큽니다',
     'history.lastPayout': '{cycle} 사이클 지급',
@@ -408,8 +434,8 @@ export const ko: MobileBundle = {
       '여기 나열된 풀 중 일부를 운영하는 Fast Pool이 만들었습니다. 그 풀들도 다른 모든 풀과 똑같은 탐지기로 설명되고 똑같은 규모 기준으로 정렬됩니다 — 이 모든 것을 공개하는 이유가 그것입니다.',
 
     // ------------------------------------------------------------ features --
-    'feature.bitcoinYes': '직접 지정한 비트코인 주소로 보상 지급',
-    'feature.bitcoinNo': 'sBTC로만 지급 — 비트코인 주소 없음',
+    'feature.bitcoinYes': 'Stacks의 sBTC 대신 비트코인 주소로 보상 지급',
+    'feature.bitcoinNo': 'Stacks의 sBTC로 지급 — 비트코인으로는 보낼 수 없음',
     'feature.openYes': '누구나 참여 가능',
     'feature.openNo': '풀이 참여 대상을 정함',
     'feature.feeCapped': '컨트랙트가 수수료를 {percent}%로 제한',

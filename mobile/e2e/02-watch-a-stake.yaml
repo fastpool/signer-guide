@@ -49,10 +49,15 @@ name: Watching an address shows its stake and its earnings
 # Read-only, and honest about it. The address is in the stake card itself, and
 # it says it is being watched rather than leaving that implied — there is no
 # offer to change a stake nobody here can sign for.
+# The address moved to the foot of the stake card in the redesign — under the
+# figures rather than over them — so it needs scrolling to on a phone this size.
+- scrollUntilVisible:
+    element:
+      id: 'position-address'
+    direction: DOWN
+    centerElement: true
 - assertVisible:
-    id: 'position-address'
-- assertVisible:
-    text: '.*Watching.*'
+    id: 'position-watching'
 - assertNotVisible:
     id: 'position-change'
 

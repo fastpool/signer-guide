@@ -1,3 +1,10 @@
+import {
+  Nunito_400Regular,
+  Nunito_600SemiBold,
+  Nunito_700Bold,
+  Nunito_800ExtraBold,
+  useFonts,
+} from '@expo-google-fonts/nunito';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SnapshotProvider } from './src/data/snapshot';
@@ -31,13 +38,29 @@ export default function App() {
   );
 }
 
-/** The status bar has to be inside the provider to know which palette is on. */
+/**
+ * The status bar has to be inside the provider to know which palette is on,
+ * and nothing is drawn until the type has loaded.
+ *
+ * The guide's letterforms are rounded, and Android has no rounded system face
+ * — so Nunito ships with the app. Drawing a frame in the system font first
+ * would reflow every screen the moment the real one arrived, which is worse
+ * than the frame of nothing that `Navigation` already renders while it reads
+ * the welcome flag.
+ */
 function Chrome() {
   const { colors } = useSettings();
+  const [fontsLoaded] = useFonts({
+    Nunito_400Regular,
+    Nunito_600SemiBold,
+    Nunito_700Bold,
+    Nunito_800ExtraBold,
+  });
+
   return (
     <>
       <StatusBar style={colors.statusBar} />
-      <Navigation />
+      {fontsLoaded ? <Navigation /> : null}
     </>
   );
 }

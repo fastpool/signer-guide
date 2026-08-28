@@ -69,6 +69,6 @@ name: Appearance, language and the wallet are the reader's to set
       id: 'wallet-screen'
     timeout: 20000
 - assertVisible:
-    id: 'connect-xverse'
-- assertVisible:
     id: 'watch-input'
+- assertVisible:
+    id: 'wallet-browser'

@@ -28,22 +28,55 @@ name: One screen for connecting and for watching
       id: 'wallet-screen'
     timeout: 20000
 
-# Every wallet this app can reach, and the read-only way in under a heading of
-# its own rather than a link at the bottom of a card.
-- assertVisible:
-    id: 'connect-xverse'
-- assertVisible:
-    id: 'connect-leather'
-- assertVisible:
-    id: 'connect-okx'
+# Watching first — it needs nothing installed and works for every address.
 - assertVisible:
     id: 'wallet-watch'
+# Then the wallet browsers, which do work.
+- scrollUntilVisible:
+    element:
+      id: 'wallet-browser'
+    direction: DOWN
+    centerElement: true
+- assertVisible:
+    id: 'browser-leather'
+- assertVisible:
+    id: 'browser-xverse'
 
-# An address that is not one is not offered.
+# WalletConnect last, offering the link and no wallet it cannot reach that way.
+- scrollUntilVisible:
+    element:
+      id: 'wallet-connect'
+    direction: DOWN
+    centerElement: true
+- assertVisible:
+    id: 'connect-any'
+- assertNotVisible:
+    id: 'connect-leather'
+
+# An address that is not one goes nowhere.
+#
+# Asserted as behaviour rather than as a disabled attribute: React Native's
+# `Pressable` carries `accessibilityState.disabled`, which Android does not
+# always surface as the node's `enabled` flag — so the attribute assertion
+# passed or failed on a detail of the platform rather than on the app. Pressing
+# it and staying put is the thing that actually matters.
+- scrollUntilVisible:
+    element:
+      id: 'watch-input'
+    direction: UP
+    centerElement: true
 - tapOn:
     id: 'watch-input'
 - inputText: 'nonsense'
 - hideKeyboard
-- assertVisible:
+- scrollUntilVisible:
+    element:
+      id: 'watch-submit'
+    direction: UP
+    centerElement: true
+- tapOn:
     id: 'watch-submit'
-    enabled: false
+- assertVisible:
+    id: 'wallet-screen'
+- assertVisible:
+    id: 'watch-input'

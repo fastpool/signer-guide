@@ -91,7 +91,13 @@ export async function connectWallet(
   entry: 'home-connect' | 'home-wallet' | 'position-wallet' = 'home-connect',
 ): Promise<void> {
   fireEvent.press(await screen.findByTestId(entry));
-  fireEvent.press(await screen.findByTestId('connect-xverse'));
+  /*
+   * The pairing-link entry, which is the only WalletConnect button the screen
+   * offers now — the named wallets went when it became clear that Leather does
+   * not support it and Xverse is unconfirmed. The harness's factory answers for
+   * whichever id is asked, so this is the route with no build flag behind it.
+   */
+  fireEvent.press(await screen.findByTestId('connect-any'));
   // The wallet screen closes itself once a session exists — see the note in
   // `WalletScreen`. Waiting for the home screen is waiting for that.
   await screen.findByTestId('home-screen');

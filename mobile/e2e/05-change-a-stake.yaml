@@ -42,10 +42,15 @@ name: A stake that exists is changed, not started again
 # Which pool it is staked with, and until when.
 - assertVisible:
     id: 'position-pool'
+# The card grew an address row at the top, so what is at the bottom of it now
+# needs scrolling to on a phone this size.
+- scrollUntilVisible:
+    element:
+      id: 'position-payout'
+    direction: DOWN
+    centerElement: true
 - assertVisible:
     id: 'position-remaining'
-- assertVisible:
-    id: 'position-payout'
 
 # The pool's own page, reached from the position.
 - tapOn:
@@ -62,5 +67,8 @@ name: A stake that exists is changed, not started again
 # address in the card says which state it is in.
 - assertNotVisible:
     id: 'position-change'
-- assertVisible:
-    id: 'position-address'
+- scrollUntilVisible:
+    element:
+      id: 'position-address'
+    direction: DOWN
+    centerElement: true

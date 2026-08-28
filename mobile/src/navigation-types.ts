@@ -24,8 +24,15 @@ export type RootStackParamList = {
   Stake: { contractId: string };
   /** After a broadcast. */
   Sent: { txid: string; contractId: string; kind: 'stake' | 'unstake' };
-  /** Connecting a wallet, or watching an address — the two ways in. */
-  Wallet: undefined;
+  /**
+   * Connecting a wallet, or watching an address.
+   *
+   * `contractId` is what the person was doing when they asked for one. It is
+   * only used to decide which page of the guide the wallet's browser opens on:
+   * somebody two taps into choosing a pool should not be handed a list of
+   * forty-five and asked to start again.
+   */
+  Wallet: { contractId?: string } | undefined;
   /** Appearance, language, and which address the app is looking at. */
   Preferences: undefined;
   /** Everything else: the full pool list, the payout history, the data. */

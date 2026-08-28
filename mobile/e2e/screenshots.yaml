@@ -29,11 +29,6 @@ name: Screenshots
     visible:
       id: 'start-screen'
     timeout: 30000
-- scrollUntilVisible:
-    element:
-      id: 'start-defaults'
-    direction: DOWN
-    centerElement: true
 - takeScreenshot: store/screenshots/raw/02-start
 
 - back
@@ -78,13 +73,14 @@ name: Screenshots
 - takeScreenshot: store/screenshots/raw/05-pools
 - back
 
+# The payout history is reached from the rate card's own footer link now.
 - scrollUntilVisible:
     element:
-      id: 'more-history'
-    direction: DOWN
+      id: 'rate-history-link'
+    direction: UP
     centerElement: true
 - tapOn:
-    id: 'more-history'
+    id: 'rate-history-link'
 - extendedWaitUntil:
     visible:
       id: 'history-screen'

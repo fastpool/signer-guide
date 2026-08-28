@@ -72,6 +72,8 @@ export function mockWallet(options: MockWalletOptions = {}): Wallet {
       return { txid: options.txid ?? MOCK_TXID };
     },
 
+    async cancel(): Promise<void> {},
+
     async disconnect(): Promise<void> {},
   };
 }

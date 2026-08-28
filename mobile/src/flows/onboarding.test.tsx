@@ -2,10 +2,14 @@ import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { hexToCV } from '@stacks/transactions';
 import { connectWallet, renderApp } from '../test/harness';
+import { expectedEarnings } from '../test/rate';
 import { installFetch } from '../test/network';
 import { resetChain, staking } from '../test/chain';
 import { defaultPool } from '../data/default-pool';
 import { BUNDLED } from '../data/snapshot';
+import { DEFAULT_LOCK_CYCLES } from '../data/stake-defaults';
+import { lockDuration } from '@guide/lib/staking';
+import { lockLabel } from '../format';
 
 jest.mock('@stacks/bitcoin-staking', () =>
   require('../test/chain').stakingPackageMock(),
@@ -62,7 +66,14 @@ describe('the first launch', () => {
 });
 
 describe('starting to stake', () => {
-  async function reachStart() {
+  /** Connect the way the start screen now offers: through the wallet screen. */
+async function connectFromStart() {
+  fireEvent.press(screen.getByTestId('start-connect-wallet'));
+  fireEvent.press(await screen.findByTestId('connect-any'));
+  await screen.findByTestId('start-screen');
+}
+
+async function reachStart() {
     renderApp();
     fireEvent.press(await screen.findByTestId('welcome-start'));
     return screen.findByTestId('start-screen');
@@ -71,34 +82,51 @@ describe('starting to stake', () => {
   it('asks for a wallet first, and for nothing else yet', async () => {
     await reachStart();
     expect(screen.getByTestId('start-connect')).toBeOnTheScreen();
-    expect(screen.getByTestId('start-connect-xverse')).toBeOnTheScreen();
-    expect(screen.getByTestId('start-connect-leather')).toBeOnTheScreen();
-    expect(screen.getByTestId('start-connect-okx')).toBeOnTheScreen();
+    /*
+     * One button to the wallet screen, not a wallet list. There are three ways
+     * in and only one of them fits on a card, so repeating a subset here meant
+     * the easiest route to a stake offered the route least likely to work.
+     */
+    expect(screen.getByTestId('start-connect-wallet')).toBeOnTheScreen();
+    expect(screen.queryByTestId('start-connect-xverse')).toBeNull();
     // Nothing to fill in until there is somebody to fill it in for.
     expect(screen.queryByTestId('start-amount')).toBeNull();
   });
 
+  it('goes to the wallet screen, on the pool it was about to stake with', async () => {
+    await reachStart();
+    fireEvent.press(screen.getByTestId('start-connect-wallet'));
+    expect(await screen.findByTestId('wallet-screen')).toBeOnTheScreen();
+    expect(screen.getByTestId('wallet-browser')).toBeOnTheScreen();
+  });
+
   it('shows the four decisions it made, and offers to change each', async () => {
     await reachStart();
-    expect(screen.getByTestId('start-pool')).toBeOnTheScreen();
-    expect(screen.getByTestId('start-payout')).toHaveTextContent('Held as sBTC');
-    expect(screen.getByTestId('start-period')).toHaveTextContent('2 weeks');
+    // Three rows, each with its own way to change it, and the amount below.
     expect(screen.getByTestId('start-change-pool')).toBeOnTheScreen();
+    expect(screen.getByTestId('start-payout')).toHaveTextContent(
+      /Distributed as sBTC/,
+    );
+    // Whatever `stake-defaults.ts` says — the point is that both screens say
+    // the same thing, not that either says a particular number.
+    expect(screen.getByTestId('start-period')).toHaveTextContent(
+      new RegExp(lockLabel(lockDuration(DEFAULT_LOCK_CYCLES), 'en')),
+    );
     expect(screen.getByTestId('start-full-form')).toBeOnTheScreen();
   });
 
   it('names the pool it chose, and says why', async () => {
     await reachStart();
     const chosen = defaultPool(BUNDLED)!;
-    expect(screen.getByTestId('start-pool')).toHaveTextContent(
-      chosen.signer.displayName,
+    expect(screen.getByTestId('start-change-pool')).toHaveTextContent(
+      new RegExp(chosen.signer.displayName),
     );
     expect(screen.getByText(/takes a stake from anyone/)).toBeOnTheScreen();
   });
 
   it('asks only how much, once a wallet is connected', async () => {
     await reachStart();
-    fireEvent.press(screen.getByTestId('start-connect-xverse'));
+    await connectFromStart();
 
     expect(await screen.findByTestId('start-amount')).toBeOnTheScreen();
     // No Bitcoin address, no fee cap, no floor, no lock period to pick.
@@ -110,11 +138,13 @@ describe('starting to stake', () => {
 
   it('says what the amount typed would earn', async () => {
     await reachStart();
-    fireEvent.press(screen.getByTestId('start-connect-xverse'));
+    await connectFromStart();
     fireEvent.changeText(await screen.findByTestId('start-amount'), '100000');
-    // 100,000 STX at 408 sats per 1000 STX.
+    // A hundred lots of 1,000 STX, at whatever the bundled snapshot says.
     await waitFor(() =>
-      expect(screen.getByTestId('start-earnings')).toHaveTextContent(/40,800 sats/),
+      expect(screen.getByTestId('start-earnings')).toHaveTextContent(
+        new RegExp(expectedEarnings(100_000_000_000n).perPayout),
+      ),
     );
   });
 
@@ -122,7 +152,7 @@ describe('starting to stake', () => {
     const harness = renderApp();
     fireEvent.press(await screen.findByTestId('welcome-start'));
     await screen.findByTestId('start-screen');
-    fireEvent.press(screen.getByTestId('start-connect-xverse'));
+    await connectFromStart();
     await screen.findByTestId('start-amount');
 
     expect(screen.getByTestId('start-problem')).toHaveTextContent(
@@ -132,11 +162,11 @@ describe('starting to stake', () => {
     expect(harness.calls).toHaveLength(0);
   });
 
-  it('hands the wallet a stake with sBTC rewards and a one-cycle lock', async () => {
+  it('hands the wallet a stake with sBTC rewards and the shared lock period', async () => {
     const harness = renderApp();
     fireEvent.press(await screen.findByTestId('welcome-start'));
     await screen.findByTestId('start-screen');
-    fireEvent.press(screen.getByTestId('start-connect-xverse'));
+    await connectFromStart();
     fireEvent.changeText(await screen.findByTestId('start-amount'), '250');
 
     await waitFor(() => expect(screen.getByTestId('start-submit')).not.toBeDisabled());
@@ -152,8 +182,12 @@ describe('starting to stake', () => {
     expect(args.some((cv) => cv.type === 'uint' && cv.value === 250_000_000n)).toBe(
       true,
     );
-    // One cycle.
-    expect(args.some((cv) => cv.type === 'uint' && cv.value === 1n)).toBe(true);
+    // The shared default, not a number this screen chose for itself.
+    expect(
+      args.some(
+        (cv) => cv.type === 'uint' && cv.value === BigInt(DEFAULT_LOCK_CYCLES),
+      ),
+    ).toBe(true);
     // No calldata at all: rewards are held as sBTC, so there is no Bitcoin
     // address on chain to be mistyped.
     expect(args[args.length - 1].type).toBe('none');
@@ -163,7 +197,7 @@ describe('starting to stake', () => {
     renderApp();
     fireEvent.press(await screen.findByTestId('welcome-start'));
     await screen.findByTestId('start-screen');
-    fireEvent.press(screen.getByTestId('start-connect-xverse'));
+    await connectFromStart();
     fireEvent.changeText(await screen.findByTestId('start-amount'), '250');
     await waitFor(() => expect(screen.getByTestId('start-submit')).not.toBeDisabled());
     fireEvent.press(screen.getByTestId('start-submit'));
@@ -177,7 +211,7 @@ describe('starting to stake', () => {
     renderApp();
     fireEvent.press(await screen.findByTestId('welcome-start'));
     await screen.findByTestId('start-screen');
-    fireEvent.press(screen.getByTestId('start-connect-xverse'));
+    await connectFromStart();
 
     expect(await screen.findByTestId('start-change')).toBeOnTheScreen();
     fireEvent.press(screen.getByTestId('start-change'));

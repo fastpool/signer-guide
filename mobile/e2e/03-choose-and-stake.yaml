@@ -40,6 +40,11 @@ env:
     visible:
       id: 'wallet-screen'
     timeout: 20000
+- scrollUntilVisible:
+    element:
+      id: 'connect-mock'
+    direction: DOWN
+    centerElement: true
 - tapOn:
     id: 'connect-mock'
 - extendedWaitUntil:
@@ -108,14 +113,8 @@ env:
 - tapOn:
     id: 'cycles-1'
 
-# Rewards held as sBTC, so no Bitcoin address is needed to finish.
-- scrollUntilVisible:
-    element:
-      id: 'payout-toggle'
-    direction: DOWN
-    centerElement: true
-- tapOn:
-    id: 'payout-toggle'
+# Rewards are sBTC by default now — see `stake-defaults.ts` — so there is no
+# Bitcoin address to find and nothing to turn off.
 
 # What the amount typed would earn, at the published rate.
 - scrollUntilVisible:

@@ -1,5 +1,5 @@
 import { BUNDLED } from './snapshot';
-import { defaultPool } from './default-pool';
+import { defaultPool, PREFERRED_POOL } from './default-pool';
 import { isJoinable, stakedUstx } from './signers';
 import { en } from '../i18n/en';
 import { ko } from '../i18n/ko';
@@ -29,21 +29,55 @@ describe('defaultPool', () => {
     expect(chosen!.template.profile.name).toBeTruthy();
   });
 
-  it('takes the lowest fee of every pool it would accept', () => {
-    const fees = BUNDLED.signers.signers
+  it('is the pool this app prefers, and says that is what it is', () => {
+    /*
+     * Fast Pool's own, and Fast Pool wrote the app. That is a preference, and
+     * `preferred` is how the screen knows to say so rather than dressing it up
+     * as a rule that happened to land here.
+     */
+    expect(chosen!.signer.contractId).toBe(PREFERRED_POOL);
+    expect(chosen!.preferred).toBe(true);
+  });
+
+  it('falls back to a rule when that pool is not taking stakes', () => {
+    const closed = {
+      ...BUNDLED,
+      signers: {
+        ...BUNDLED.signers,
+        signers: BUNDLED.signers.signers.map((s) =>
+          s.contractId === PREFERRED_POOL ? { ...s, registered: false } : s,
+        ),
+      },
+    };
+    const fallback = defaultPool(closed)!;
+    expect(fallback.signer.contractId).not.toBe(PREFERRED_POOL);
+    expect(fallback.preferred).toBe(false);
+
+    // And the rule is the one it always was: lowest fee among those it accepts.
+    const fees = closed.signers.signers
       .filter(isJoinable)
       .map((s) => s.feeBips)
       .filter((f): f is number => typeof f === 'number');
-    expect(chosen!.signer.feeBips).toBe(Math.min(...fees));
+    expect(fallback.signer.feeBips).toBe(Math.min(...fees));
   });
 
-  it('breaks a tie on size, so the result does not depend on file order', () => {
-    const tied = BUNDLED.signers.signers
+  it('breaks a fallback tie on size, so it does not depend on file order', () => {
+    const closed = {
+      ...BUNDLED,
+      signers: {
+        ...BUNDLED.signers,
+        signers: BUNDLED.signers.signers.map((s) =>
+          s.contractId === PREFERRED_POOL ? { ...s, registered: false } : s,
+        ),
+      },
+    };
+    const fallback = defaultPool(closed)!;
+    const tied = closed.signers.signers
       .filter(isJoinable)
-      .filter((s) => s.feeBips === chosen!.signer.feeBips);
+      .filter((s) => s.feeBips === fallback.signer.feeBips);
     const amounts = tied.map((s) => stakedUstx(BUNDLED.totals, s.contractId) ?? 0n);
     const largest = amounts.reduce((a, b) => (b > a ? b : a), 0n);
-    expect(stakedUstx(BUNDLED.totals, chosen!.signer.contractId)).toBe(largest);
+    expect(stakedUstx(BUNDLED.totals, fallback.signer.contractId)).toBe(largest);
   });
 
   it('is the same answer every time it is asked', () => {

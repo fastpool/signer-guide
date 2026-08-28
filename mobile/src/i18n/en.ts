@@ -38,9 +38,9 @@ const messages = {
   'home.connect.label': 'Your stake',
   'home.connect.title': 'Connect a wallet to see it',
   'home.connect.body':
-    'Leather, Xverse and OKX are separate apps on a phone. Connecting opens yours and asks it to approve — nothing is signed by it.',
+    'Your wallet lives in its own app — Leather, Xverse or OKX. Pick the one you use, say yes there, and you will come straight back. Connecting signs nothing and moves nothing.',
   'home.connect.button': 'Connect a wallet',
-  'home.connect.watch': 'Or watch an address',
+  'home.connect.watch': 'Watch an address',
 
   'home.notStaking.label': 'Your stake',
   'home.notStaking.title': 'Nothing staked yet',
@@ -65,12 +65,11 @@ const messages = {
   'rate.cycle': 'CYCLE {cycle}',
   'rate.sats': 'sats',
   'rate.unit': 'per 1,000 STX, each payout',
-  'rate.apy': 'A year, compounded',
+  'rate.apy': 'A year',
   'rate.next': 'Next payout',
   'rate.nextIn': 'in {duration}',
-  'rate.last': 'Last payout paid',
-  'rate.note':
-    'About {perStx} sats for every STX you stake, every week. An estimate: it blends what the last payout actually paid with what this one has accrued so far.',
+  'rate.last': 'Last paid',
+  'rate.historyLink': 'What each payout paid →',
   'rate.unreadable': 'The published figure could not be read this time.',
 
   // ------------------------------------------------------------- position --
@@ -89,27 +88,44 @@ const messages = {
   'position.endsThisCycle': 'ends when this cycle does',
   'position.moreCycles': '{count} more, about {duration}',
   'position.rewardsGoTo': 'Rewards go to',
-  'position.sbtc': 'sBTC, held for you',
-  'position.sbtcHint': 'No Bitcoin address on file with the pool.',
-  'position.btcHint': 'Bitcoin, up to {fee} sats of fee',
+  'position.sbtc': 'This wallet, in sBTC',
+  'position.sbtcHint': 'No Bitcoin address on file, so they arrive as sBTC on Stacks.',
+  'position.btcTo': '{address}, in BTC',
+  'position.btcHint': 'Withdrawn to Bitcoin, with up to {fee} of each payout going on the transaction fee.',
   'position.payoutUnknown': 'The pool would not say where it sends them.',
   'position.change': 'Add, extend or move',
 
   // --------------------------------------------------------------- wallet --
   'wallet.title': 'Your wallet',
   'wallet.intro':
-    'Leather, Xverse and OKX are separate apps on a phone, so this opens yours and asks it to approve. Nothing is signed by connecting.',
+    'Your wallet lives in its own app. Pick the one you use and it will open, ask if this is alright, and bring you back here. Connecting signs nothing and moves nothing.',
   'wallet.connected': 'Connected',
   'wallet.watching': 'Watching',
   'wallet.readOnly':
     'Read-only. This address was typed in, not connected, so nothing here can be signed for it.',
   'wallet.canSign': 'Connected through {wallet}. Signing happens there.',
+  'wallet.copyLink': 'Copy a connection link',
+  'wallet.testWallet': 'Test wallet',
+  'wallet.connectBody':
+    'WalletConnect is the last resort here, and it is honest about why. Leather does not support it — the integration is an open request on its own tracker. Xverse gets as far as its lock screen and no further has been confirmed. So what is offered is the pairing link itself, which works in whatever wallet you actually have.',
   'wallet.connectHeading': 'Connect a wallet',
   'wallet.connecting': 'Waiting for your wallet',
-  'wallet.watchHeading': 'Or watch an address',
+  'wallet.linkCopied': 'Connection link copied. Paste it into your wallet — any wallet that takes a WalletConnect link will do.',
+  'wallet.stopWaiting': 'Stop waiting',
+  'wallet.browserHeading': 'Open the guide in your wallet',
+  'wallet.browserBody':
+    'Leather and Xverse each have a browser of their own, and a page opened inside one can talk to the wallet directly. This is how Leather is reached — it does not do WalletConnect at all.',
+  'wallet.openIn': 'Open in {wallet}',
+  'wallet.browserReturn':
+    'The guide opens there with the whole staking flow. Come back here afterwards and watch your address to see the result.',
+  'wallet.watchHeading': 'Watch an address',
   'wallet.watchBody':
-    'See what any address has staked and what it earns, without connecting anything. Read-only: it cannot stake or change a stake.',
-  'wallet.addressLabel': 'Stacks address',
+    'See what any address has staked and what it earns, without connecting anything. A BNS name works too — it is resolved against the registry, not an indexer. Read-only: it cannot stake or change a stake.',
+  'wallet.addressLabel': 'Stacks address or BNS name',
+  'wallet.addressPlaceholder': 'SP… or name.btc',
+  'wallet.nameUnregistered': 'Nobody owns {name}.',
+  'wallet.nameLookupFailed':
+    'The node would not answer, so the name could not be looked up. That is not the same as it being unregistered.',
   'wallet.watchSubmit': 'Watch this address',
   'wallet.keys':
     'Your wallet builds, signs and broadcasts every transaction. This app never sees a key, and never asks for one.',
@@ -128,6 +144,7 @@ const messages = {
   'prefs.language.hint':
     'The contract descriptions are translated too, where a translation exists.',
   'prefs.wallet': 'Wallet',
+  'prefs.wallet.nothing': 'Status',
   'prefs.wallet.none': 'Nothing connected',
   'prefs.wallet.manage': 'Connect or watch an address',
   'prefs.about': 'About',
@@ -154,7 +171,7 @@ const messages = {
   'welcome.start': 'Start staking',
   'welcome.skip': 'Just show me the guide',
   'welcome.wallets':
-    'You will need Leather, Xverse or OKX on this phone. Signing happens there — this app never sees a key and never asks for one.',
+    'You will need Leather, Xverse or OKX on this phone. Signing happens there — this app never sees a key.',
 
   // ------------------------------------------------------------------ start --
   'start.title': 'Start staking',
@@ -176,17 +193,20 @@ const messages = {
   'start.earnings':
     'At today’s rate that earns about {payout} a week, {year} a year.',
   'start.reason':
-    'It runs the {contract} contract, which has been read and written up here, it takes a stake from anyone, and it {fee}.',
+    'This is Fast Pool’s own pool, and Fast Pool made this app — so it is a preference, not a verdict. What can be checked: it runs the {contract} contract, so it {fee}, and it takes a stake from anyone. Tap Change to see the other {count}.',
+  'start.reasonFallback':
+    'Chosen by rule, because the pool this app usually offers is not taking stakes right now: a contract that has been read, open to anyone, and the lowest fee of the {count} that qualify.',
   'start.reasonNoFee': 'charges no fee',
-  'start.reasonLowestFee': 'charges the lowest fee of any open pool, {percent}%',
+  'start.reasonLowestFee': 'caps its fee at 5% and has to announce a rise a month ahead, charging {percent}% today',
+  'start.projectionLabel': 'At today’s rate',
   'start.setForYou': 'Set for you',
   'start.noFee': 'no fee',
   'start.fee': '{percent}% fee',
   'start.poolMeta': '{fee} · {contract} contract',
   'start.rewards': 'Rewards',
-  'start.rewardsValue': 'Held as sBTC',
+  'start.rewardsValue': 'Distributed as sBTC',
   'start.rewardsHint':
-    'Bitcoin, kept for you by the pool. No address to type, nothing to mistype.',
+    'They arrive as sBTC in this same wallet. No address to type, nothing to mistype.',
   'start.period': 'Locked for',
   'start.periodHint':
     'One cycle of earning. Extend it any time, or stop before then without penalty.',
@@ -217,18 +237,23 @@ const messages = {
   'stake.lockHint':
     'About {duration} of earning. You can stop before then without penalty — see “Ending it”, once there is a stake to end.',
   'stake.rewards': 'Rewards',
-  'stake.rewardsBtc': 'Sent to a Bitcoin address',
-  'stake.rewardsSbtc': 'Held for you as sBTC',
+  'stake.rewardsBtc': 'Withdrawn to a Bitcoin address',
+  'stake.rewardsSbtc': 'As sBTC, in this wallet',
   'stake.btcAddress': 'Bitcoin address',
   'stake.btcAddressHint':
-    'Where the pool sends your share. It is stored on chain by the pool.',
-  'stake.maxFee': 'Most the payout may spend on its Bitcoin fee',
+    'Your share is withdrawn from sBTC and arrives here, on Bitcoin itself. The signer contract stores this address on chain — check it, because a payout sent to the wrong address cannot be recovered.',
+  'stake.maxFee': 'Most of the payout that may go on the Bitcoin fee',
   'stake.minClaim': 'Smallest payout worth sending',
-  'stake.minClaimHint':
-    'Over {floor} — the fee plus the dust limit. {lowest} is the lowest the contract takes.',
+  'stake.maxFeeShort': 'Most fee per payout',
+  'stake.minClaimShort': 'Smallest payout',
+  'stake.feeNote':
+    'The fee comes out of the payout, and the sBTC signers will not send one with a fee under 1,000 sats. The smallest payout has to clear {floor} sats — the fee plus the dust limit — and {lowest} sats is the lowest the contract takes. Anything under that is not sent; it waits for the next payout.',
+  'stake.problem.maxFeeFloor':
+    'The sBTC signers will not send a payout with a fee under 1,000 sats.',
+  'stake.endingPill': 'Ending it — unstake',
   'stake.noMinClaim': 'This contract takes no floor on a payout — it uses its own.',
   'stake.sbtcNote':
-    'The pool keeps your rewards as sBTC until you ask for them. No Bitcoin address is written on chain.',
+    'Rewards arrive as sBTC in this same wallet. No Bitcoin address is written on chain, so there is nothing to mistype and nothing to keep current.',
   'stake.projection': 'At today’s rate, this would earn',
   'stake.projectionPayout': 'Each payout',
   'stake.projectionYear': 'A year',
@@ -237,7 +262,7 @@ const messages = {
   'stake.submitChange': 'Sign the change',
   'stake.submitFirst': 'Sign and stake',
   'stake.keys':
-    'Your wallet builds, signs and broadcasts this. This app never sees a key, and never asks for one.',
+    'Your wallet builds, signs and broadcasts this. This app never sees a key.',
   'stake.endingTitle': 'Ending it',
   'stake.endingBody':
     'Unstaking sets the position to end when this cycle does — whatever period you locked for, and with no penalty for stopping early. It unlocks nothing today and moves no STX.',
@@ -355,6 +380,7 @@ const messages = {
     'pox-5 works rewards out every 1,050 burn blocks — half a cycle, about a week — so each cycle below holds two payouts.',
   'history.estimatedNow': 'Estimated now, cycle {cycle}',
   'history.blended': 'Blended estimate',
+  'history.blendedUnit': 'sats blended',
   'history.projected': 'This window so far',
   'history.projectedHint': 'extrapolated; noisy early on',
   'history.lastPayout': 'Cycle {cycle} payout',
@@ -405,8 +431,8 @@ const messages = {
     'Made by Fast Pool, which runs some of the pools listed here. They are described by the same detectors and ranked by the same size as everyone else’s — that is what all of this being public is for.',
 
   // -------------------------------------------------------------- features --
-  'feature.bitcoinYes': 'Pays rewards to a Bitcoin address you choose',
-  'feature.bitcoinNo': 'Pays in sBTC only — no Bitcoin address',
+  'feature.bitcoinYes': 'Pays rewards to a Bitcoin address, instead of as sBTC on Stacks',
+  'feature.bitcoinNo': 'Pays as sBTC on Stacks — it cannot pay out to Bitcoin',
   'feature.openYes': 'Open to anyone',
   'feature.openNo': 'The pool decides who may join',
   'feature.feeCapped': 'Fee capped at {percent}% by the contract',

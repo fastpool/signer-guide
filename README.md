@@ -1276,15 +1276,19 @@ that makes four of those decisions, says which four, and lets each be changed:
 
 | decision | default                         | why that one                                      |
 | -------- | ------------------------------- | ------------------------------------------------- |
-| pool     | lowest fee, open, code reviewed | the rule is in `mobile/src/data/default-pool.ts` and printed on the screen |
-| rewards  | held as sBTC                    | a mistyped Bitcoin address is rewards nobody gets back, and is not checkable until the first payout |
-| period   | one cycle, about two weeks      | the shortest period pox-5 takes, and endable early without penalty |
+| pool     | Fast Pool Max500                | a preference, and the screen says so in those words |
+| rewards  | as sBTC, in the same wallet     | a mistyped Bitcoin address is rewards nobody gets back, and is not checkable until the first payout |
+| period   | the whole of pox-5's maximum    | a stake ends at the close of the cycle whatever period was chosen, so the longest asks the least afterwards |
 | amount   | theirs                          | the only field on the screen                      |
 
-Fast Pool wrote the app and runs some of the pools in it, which is exactly why
-that first row is a rule rather than a preference: it is applied to every pool
-the same way, it does not know who deployed anything, and the screen names the
-pool it landed on and offers to change it.
+Fast Pool wrote the app and runs some of the pools in it, and the pool it
+offers first is its own. That is stated on the screen as a preference rather
+than dressed up as a neutral filter that happened to land there — which is the
+one thing a guide that ranks its rivals cannot do. What can be said for it is
+checkable on its own page: the Capped Fee contract, so the fee cannot pass 5%
+and a rise has to be announced a month ahead. Changing it is one tap, and if it
+ever stops taking stakes the app falls back to the rule it used to use and
+prints the rule's reason instead.
 
 ```bash
 cd mobile
@@ -1297,6 +1301,16 @@ npm run e2e              # Maestro flows, against that device
 `mobile/README.md` has the rest, including why the on-device tests use a stand-in
 wallet: neither Leather nor Xverse nor OKX can be driven by a test runner,
 because approving happens in another application.
+
+### It looks like this page now
+
+The app was built dark-only in its own palette, and has moved onto the site's:
+cream, ink, grape, mint, amber, out of `src/index.css`, with the same 24px
+cards and the same rounded type. Nothing in it is a colour this page does not
+already own. It also has a mark of its own — two overlapping circles, a sibling
+of `public/fastpool-logo.svg` — instead of Fast Pool's glyph, which made the
+guide look like a Fast Pool product rather than a guide that lists Fast Pool
+among forty-four others. The new icon set is in `public/` too.
 
 ### It speaks Korean, and it turns the lights on
 

@@ -198,3 +198,87 @@ EOF
 
 `@reown/appkit-universal-connector` is not minified and is short enough to read directly:
 `node_modules/.pnpm/@reown+appkit-universal-connector@1.7.17_*/node_modules/@reown/appkit-universal-connector/dist/esm/src/UniversalConnector.js`.
+
+## What the phone app found, 28 August 2026
+
+The native app in [`mobile/`](mobile/) takes the route this document names as
+the answer if the wallets will not publish a public key: it asks for
+`stx_callContract` and lets the wallet build and sign, so an address-only
+session is enough. That removed the blocker described above. Three others took
+its place, and this is what was measured rather than guessed.
+
+### The relay and the project id are fine
+
+Not a configuration problem, and worth ruling out first because it looks like
+one. Driving `@walletconnect/universal-provider` headlessly with the project id
+in `src/lib/wallet-connect.ts`:
+
+```
+init: ok — relay accepted the project id
+URI: wc:a9b292da…@2?expiryTimestamp=…&relay-protocol=irn&symKey=…
+```
+
+The pairing is created and published. Everything below happens **after** that,
+in the wallet.
+
+### Xverse wanted a bip122 namespace
+
+The app proposed `stacks:1` alone — the tidier proposal, since it uses nothing
+else. Xverse rejected it with an error naming *bitcoin*.
+
+Adding `bip122:000000000019d6689c085ae165831e93` to `optionalNamespaces`
+changes the behaviour: Xverse now opens and asks to unlock instead of
+refusing. That asks nothing of a wallet that lacks bip122 — everything is
+optional and a wallet approves what it can — and it is what
+`WalletConnect.Default.networks` proposes, which is why the guide's own
+`walletOptions()` kept both namespaces. The note there was right for a reason
+neither file had established.
+
+**Not yet confirmed end to end**: unlocking Xverse needs a fingerprint, so
+whether it then approves a *Stacks* session is unmeasured.
+
+### Leather mobile says WalletConnect is not supported
+
+Refused at the wallet, in those words. `docs.leather.io` does not resolve, and
+[the Stacks wallet-support table](https://docs.stacks.co/stacks-connect/wallet-support)
+lists only the web methods for Leather — no mobile transport of any kind. So
+there is currently **no documented way for a native app to reach Leather
+mobile**, WalletConnect or otherwise.
+
+### Xverse has removed WalletConnect from its documentation
+
+`docs.xverse.app/wallet-connect` 404s, the sitemap has no WalletConnect page,
+and `llms-full.txt` does not mention it. The only mobile integration Xverse
+documents now is
+[opening a **web page** in its in-app browser](https://docs.xverse.app/sats-connect/guides/mobile-integration):
+
+```
+https://connect.xverse.app/browser?url=YOUR_URL_HERE
+```
+
+That is a route for websites, not for native apps — the page runs inside the
+wallet and talks to it through sats-connect. It is worth knowing about, because
+it means **the web guide already has a working mobile signing story that the
+native app does not**: a phone browser sent to `connect.xverse.app/browser` gets
+the whole stake flow inside Xverse.
+
+### OKX is a red herring
+
+"Not available in your region" is OKX's own geographic restriction on its app.
+Nothing in a proposal causes it and nothing in one fixes it.
+
+### So what would make it work
+
+In the order they are worth trying:
+
+1. **Keep both namespaces.** Done, and it is what moved Xverse from a refusal
+   to an unlock prompt. Costs nothing.
+2. **Hand off to Xverse's in-app browser.** The documented, supported route:
+   the native app opens `connect.xverse.app/browser?url=` on a deep-linked
+   stake page of the guide, the page signs through sats-connect, and the app
+   follows the txid. It gives up nothing this app knows — the guide's stake
+   flow is the same flow — and it works today. It is Xverse-only.
+3. **Ask the wallets, again.** The question at the top of this document is
+   still open, and there is now a second: *does either wallet support a native
+   app connecting at all, and if so how?* Leather in particular has a mobile
+   app and no documented way to reach it from another app.

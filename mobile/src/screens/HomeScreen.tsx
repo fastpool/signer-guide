@@ -1,4 +1,4 @@
-import { RefreshControl, View } from 'react-native';
+import { Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 import { readRate } from '../data/rate';
 import { useSnapshot } from '../data/snapshot';
 import { useChainView } from '../stacks/position';
@@ -6,18 +6,19 @@ import { useWallet } from '../wallet/context';
 import { utcLabel } from '../format';
 import { useT } from '../i18n';
 import { useColors, useSettings } from '../settings';
-import { space } from '../theme';
+import { fonts, radius, space } from '../theme';
 import {
   Button,
   Card,
   Label,
+  ListRow,
   Loading,
   Note,
   Row,
   Screen,
-  Section,
   Text,
 } from '../ui';
+import Mark, { GearGlyph } from '../components/Mark';
 import PositionCard from '../components/PositionCard';
 import RateCard from '../components/RateCard';
 import type { ScreenProps } from '../navigation-types';
@@ -59,22 +60,35 @@ export default function HomeScreen({ navigation }: ScreenProps<'Home'>) {
         />
       }
     >
-      <Row style={{ justifyContent: 'space-between' }}>
-        <View style={{ gap: space.xs, flexShrink: 1 }}>
-          <Text variant='title' accessibilityRole='header'>
-            {t('home.title')}
-          </Text>
-          <Text variant='small' tone='faint'>
-            {t('home.tagline')}
-          </Text>
-        </View>
-        <Button
-          title='⚙'
-          kind='quiet'
+      <Row style={{ justifyContent: 'space-between' }} gap={space.md}>
+        <Row gap={space.md} style={{ flexShrink: 1 }}>
+          <Mark size={30} />
+          <View style={{ flexShrink: 1, gap: 1 }}>
+            <Text accessibilityRole='header' style={styles.wordmark}>
+              {t('home.title')}
+            </Text>
+            <Text variant='small' tone='muted' numberOfLines={1}>
+              {t('home.tagline')}
+            </Text>
+          </View>
+        </Row>
+        {/*
+          A 44×44 card rather than a text button: `⚙` in a text run is not a
+          hit target, and this is the only way to the preferences.
+        */}
+        <Pressable
+          accessibilityRole='button'
+          accessibilityLabel={t('prefs.title')}
           onPress={() => navigation.navigate('Preferences')}
           testID='open-preferences'
-          style={{ minHeight: 40, paddingHorizontal: space.sm }}
-        />
+          style={({ pressed }) => [
+            styles.gear,
+            { backgroundColor: colors.card },
+            pressed && { opacity: 0.6 },
+          ]}
+        >
+          <GearGlyph />
+        </Pressable>
       </Row>
 
       <RateCard rate={rate} onPress={() => navigation.navigate('History')} />
@@ -163,46 +177,41 @@ export default function HomeScreen({ navigation }: ScreenProps<'Home'>) {
         </Card>
       ) : null}
 
-      <Section title={t('home.more.title')} testID='more-section'>
-        <Card>
-          <MoreRow
-            title={t('home.more.contracts')}
-            hint={t('home.more.contractsHint')}
-            action={t('common.open')}
-            onPress={() => navigation.navigate('ChooseContract')}
-            testID='more-contracts'
-          />
-          <MoreRow
-            title={t('home.more.pools')}
-            hint={t('home.more.poolsHint', {
-              count: snapshot.signers.signers.length,
-            })}
-            action={t('common.open')}
-            onPress={() => navigation.navigate('Pools')}
-            testID='more-pools'
-          />
-          <MoreRow
-            title={t('home.more.history')}
-            hint={t('home.more.historyHint')}
-            action={t('common.open')}
-            onPress={() => navigation.navigate('History')}
-            testID='more-history'
-          />
-          <MoreRow
-            title={t('home.more.data')}
-            hint={
-              stale
-                ? t('home.more.dataStale')
-                : t('home.more.dataUpdated', {
-                    when: utcLabel(snapshot.signers.generatedAt, locale),
-                  })
-            }
-            action={t('common.open')}
-            onPress={() => navigation.navigate('DataStatus')}
-            testID='more-data'
-          />
-        </Card>
-      </Section>
+      {/*
+        One card of hittable rows, not a column of quiet text buttons. The
+        payout history is not among them: the rate card's own footer link goes
+        there, and two routes to one screen on one screen is one too many.
+      */}
+      <Card testID='more-section' style={{ gap: 0 }}>
+        <Label testID='more-title'>{t('home.more.title')}</Label>
+        <ListRow
+          first
+          title={t('home.more.contracts')}
+          hint={t('home.more.contractsHint')}
+          onPress={() => navigation.navigate('ChooseContract')}
+          testID='more-contracts'
+        />
+        <ListRow
+          title={t('home.more.pools')}
+          hint={t('home.more.poolsHint', {
+            count: snapshot.signers.signers.length,
+          })}
+          onPress={() => navigation.navigate('Pools')}
+          testID='more-pools'
+        />
+        <ListRow
+          title={t('home.more.data')}
+          hint={
+            stale
+              ? t('home.more.dataStale')
+              : t('home.more.dataUpdated', {
+                  when: utcLabel(snapshot.signers.generatedAt, locale),
+                })
+          }
+          onPress={() => navigation.navigate('DataStatus')}
+          testID='more-data'
+        />
+      </Card>
     </Screen>
   );
 }
@@ -213,28 +222,13 @@ function shortLabel(address: string, canSign: boolean, watching: string): string
   return canSign ? short : `${short} · ${watching}`;
 }
 
-function MoreRow({
-  title,
-  hint,
-  action,
-  onPress,
-  testID,
-}: {
-  title: string;
-  hint: string;
-  action: string;
-  onPress: () => void;
-  testID?: string;
-}) {
-  return (
-    <Row style={{ justifyContent: 'space-between' }} gap={space.md}>
-      <View style={{ flexShrink: 1 }}>
-        <Text variant='body'>{title}</Text>
-        <Text variant='small' tone='faint'>
-          {hint}
-        </Text>
-      </View>
-      <Button title={action} kind='quiet' onPress={onPress} testID={testID} />
-    </Row>
-  );
-}
+const styles = StyleSheet.create({
+  wordmark: { fontSize: 19, fontFamily: fonts.extrabold, letterSpacing: -0.4 },
+  gear: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

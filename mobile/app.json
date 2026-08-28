@@ -11,7 +11,7 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0B0D12"
+      "backgroundColor": "#403374"
     },
     "ios": {
       "supportsTablet": true,
@@ -20,7 +20,7 @@
     "android": {
       "package": "org.fastpool.signerguide",
       "adaptiveIcon": {
-        "backgroundColor": "#0B0D12",
+        "backgroundColor": "#403374",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -46,7 +46,9 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "./plugins/withWalletQueries"
+      "./plugins/withWalletQueries",
+      "expo-font",
+      "./plugins/withReleaseSigning"
     ],
     "extra": {
       "walletConnectProjectId": "a013ec0fd2d07ac0ba6c2e2512fd8a23"

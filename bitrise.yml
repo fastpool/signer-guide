@@ -267,21 +267,38 @@ workflows:
           title: Publish to Zapstore
           description: |-
             Nostr events, not a review queue. Skipped rather than failed when
-            no key is configured, so a Play-only release is not a red build.
+            no signer is configured, so a Play-only release is not a red build.
+
+            `SIGN_WITH` is a **bunker URL**, not an nsec. `zsp`'s own warning is
+            that a private key in an environment variable is readable through
+            `/proc/*/environ` and lands in shell history; a NIP-46 bunker hands
+            out signatures without handing out the key, and can be revoked
+            without rotating the identity the app is published under.
+
+            `--skip-metadata` matters: without it `zsp` fetches metadata from
+            the Play Store and the repository and overwrites the listing
+            `zapstore.yaml` was generated from.
           inputs:
             - content: |-
                 #!/usr/bin/env bash
-                set -euxo pipefail
-                if [ -z "${NSEC:-}" ]; then
-                  echo "No NSEC configured — skipping Zapstore."
+                set -euo pipefail
+                if [ -z "${SIGN_WITH:-}" ]; then
+                  echo "No SIGN_WITH configured — skipping Zapstore."
                   exit 0
                 fi
-                cd "$PROJECT_DIR/store/zapstore"
-                curl -Ls https://cdn.zapstore.dev/zapstore-cli-linux-x86_64 -o zapstore
-                chmod +x zapstore
-                # Reads the version and the signing hash out of the APK itself:
-                # the file is the record, not the manifest.
-                ./zapstore publish signer-guide
+                cd "$PROJECT_DIR"
+
+                # The listing is composed from the same text the Play and App
+                # Store listings use, so the three cannot drift.
+                node scripts/make-zapstore-config.mjs
+
+                go install github.com/zapstore/zsp@latest
+                export PATH="$PATH:$(go env GOPATH)/bin"
+
+                # `zsp` reads the version and the APK's signing certificate out
+                # of the file itself — the artefact is the record, not this
+                # config.
+                zsp publish store/zapstore/zapstore.yaml --skip-metadata -y
       - deploy-to-bitrise-io@2: {}
 
   ios-release:

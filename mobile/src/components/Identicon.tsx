@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 import { identiconSvg, isIdenticonHash } from '@guide/lib/identicon';
@@ -17,7 +18,25 @@ import { Text } from '../ui';
  * claim about which code this is, so the placeholder is deliberately not a
  * grid — dashed and amber, this app's colour for what it has not checked.
  */
-export default function Identicon({
+/**
+ * Drawn once per hash, for as long as the app is open.
+ *
+ * `identiconSvg` is deterministic — the seed is a hash — and the pool list asks
+ * for forty-five of them at once, then again for every row that scrolls back
+ * into view. Nothing in it depends on the palette or the language, so the
+ * answer is kept.
+ */
+const drawn = new Map<string, string>();
+
+function svgFor(hash: string): string {
+  const cached = drawn.get(hash);
+  if (cached !== undefined) return cached;
+  const svg = identiconSvg(hash);
+  drawn.set(hash, svg);
+  return svg;
+}
+
+function Identicon({
   hash,
   size = 36,
   testID,
@@ -67,7 +86,7 @@ export default function Identicon({
         },
       ]}
     >
-      <SvgXml xml={identiconSvg(hash)} width='100%' height='100%' />
+      <SvgXml xml={svgFor(hash)} width='100%' height='100%' />
     </View>
   );
 }
@@ -81,3 +100,8 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
   },
 });
+
+/*
+ * Memoised on its two props: a row that scrolls past has nothing new to draw.
+ */
+export default memo(Identicon);

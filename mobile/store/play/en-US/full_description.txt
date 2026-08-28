@@ -1,4 +1,6 @@
-Stacking on Stacks pays you in bitcoin. Your STX stays locked in your own wallet — what you are choosing is which signer it backs, and a signer is a smart contract. Signer Guide shows you what those contracts do, in plain language, and lets you stake through one from your phone.
+Bitcoin staking on Stacks, and your STX never leaves your wallet. It is locked where it already is, its weight goes behind a signer, and bitcoin comes back every week.
+
+Signer Guide lists all 45 pools registered on pox-5 and identifies each one by what its contract code hashes to, not by the name it deployed under. Fees are read live. A cap the code enforces is told apart from a rate an operator can change today.
 
 WHAT IT OPENS ON
 
@@ -8,7 +10,7 @@ Then your position: how much you have staked, what it earns at that rate, which 
 
 TWO SCREENS TO YOUR FIRST STAKE
 
-Choose a wallet, say how much. Everything else is already set and shown to you: which pool, why that one, that rewards are held as sBTC so there is no bitcoin address to mistype, and that the lock is one cycle — about two weeks — and can be ended early, without penalty, at the close of the cycle.
+Choose a wallet, say how much. Everything else is already set and shown to you: which pool, why that one, that rewards arrive as sBTC in that same wallet, so there is no bitcoin address to mistype, and that the lock is one cycle — about two weeks — and can be ended early, without penalty, at the close of the cycle.
 
 Every one of those can be changed. The long way round is still there, and it is the right way if you want it.
 

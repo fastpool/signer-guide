@@ -1,5 +1,6 @@
 import { fireEvent, screen } from '@testing-library/react-native';
 import { connectWallet, renderApp } from '../test/harness';
+import { BUNDLED_RATE, expectedEarnings, expectedRateText } from '../test/rate';
 import { installFetch } from '../test/network';
 import { resetChain, staking, SIGNER } from '../test/chain';
 import { MOCK_ADDRESS } from '../wallet/mock';
@@ -22,19 +23,27 @@ beforeEach(() => {
 describe('the rate', () => {
   it('is on the screen before any wallet is connected', async () => {
     renderApp();
-    // From the bundled snapshot: 408 sats per 1000 STX in cycle 142.
-    expect(await screen.findByTestId('rate-value')).toHaveTextContent('408');
+    /*
+     * Whatever the bundled snapshot currently says, not a number typed in
+     * here: that file is rewritten hourly by a scheduled job and committed, so
+     * a hard-coded figure is a test that goes red on its own.
+     */
+    expect(await screen.findByTestId('rate-value')).toHaveTextContent(
+      expectedRateText(),
+    );
     expect(screen.getByTestId('rate-unit')).toHaveTextContent(
       'per 1,000 STX, each payout',
     );
-    expect(screen.getByTestId('rate-cycle')).toHaveTextContent('CYCLE 142');
+    expect(screen.getByTestId('rate-cycle')).toHaveTextContent(
+      `CYCLE ${BUNDLED_RATE.cycle}`,
+    );
   });
 
   it('says what it is worth over a year, and what the last payout paid', async () => {
     renderApp();
     await screen.findByTestId('rate-value');
     expect(screen.getByTestId('rate-apy')).toHaveTextContent(/^\d+\.\d\d%$/);
-    expect(screen.getByTestId('rate-last-payout')).toHaveTextContent('407 sats');
+    expect(screen.getByTestId('rate-last-payout')).toHaveTextContent(/sats$/);
   });
 });
 
@@ -50,7 +59,8 @@ describe('with nobody connected', () => {
     renderApp();
     fireEvent.press(await screen.findByTestId('home-connect'));
     expect(await screen.findByTestId('wallet-screen')).toBeOnTheScreen();
-    for (const id of ['connect-xverse', 'connect-leather', 'connect-okx']) {
+    // Watching, the wallet browsers, then WalletConnect — in that order.
+    for (const id of ['wallet-watch', 'wallet-browser', 'wallet-connect']) {
       expect(screen.getByTestId(id)).toBeOnTheScreen();
     }
   });
@@ -65,7 +75,9 @@ describe('with nobody connected', () => {
     // Back on the home screen, showing that address's position — and saying
     // it is being watched rather than offering to sign for it.
     expect(await screen.findByTestId('position-card')).toBeOnTheScreen();
-    expect(screen.getByTestId('position-address')).toHaveTextContent(/watching/i);
+    // The word sits beside the address rather than inside it, so that the
+    // address itself stays a plain address somebody can read back.
+    expect(screen.getByTestId('position-watching')).toBeOnTheScreen();
     expect(screen.queryByTestId('position-change')).toBeNull();
   });
 
@@ -87,8 +99,10 @@ describe('with a wallet connected', () => {
     expect(screen.getByTestId('position-amount')).toHaveTextContent('100,000 STX');
     // Whose stake it is, in the card rather than in one of its own.
     expect(screen.getByTestId('position-address')).toBeOnTheScreen();
-    // 100,000 STX is a hundred lots of 1000, so a hundred times 408 sats.
-    expect(screen.getByTestId('position-earnings')).toHaveTextContent(/40,800 sats/);
+    // A hundred lots of 1,000 STX, so a hundred times the published rate.
+    expect(screen.getByTestId('position-earnings')).toHaveTextContent(
+      new RegExp(expectedEarnings(100_000_000_000n).perPayout),
+    );
   });
 
   it('names the pool the stake is with', async () => {
@@ -112,9 +126,16 @@ describe('everything else the guide knows', () => {
   it('is reachable, and under its own heading rather than beside the stake', async () => {
     renderApp();
     expect(await screen.findByTestId('more-section')).toBeOnTheScreen();
-    for (const id of ['more-contracts', 'more-pools', 'more-history', 'more-data']) {
+    for (const id of ['more-contracts', 'more-pools', 'more-data']) {
       expect(screen.getByTestId(id)).toBeOnTheScreen();
     }
+    /*
+     * The payout history is deliberately not among them: the rate card's own
+     * footer link goes there, and two routes to one screen on one screen is
+     * one too many.
+     */
+    expect(screen.queryByTestId('more-history')).toBeNull();
+    expect(screen.getByTestId('rate-history-link')).toBeOnTheScreen();
   });
 
   it('says how old the pool data is', async () => {

@@ -6,7 +6,7 @@ import { shortAddress } from '../format';
 import { space } from '../theme';
 import { Button, Card, Choice, Field, Note, Row, Screen, Section } from '../ui';
 import { useWallet } from '../wallet/context';
-import { WALLET_NAMES } from '../wallet/walletconnect';
+import { walletLabel } from '../wallet/labels';
 import type { ScreenProps } from '../navigation-types';
 
 /**
@@ -18,10 +18,12 @@ import type { ScreenProps } from '../navigation-types';
  * reader might want to change is an environment variable at build time and is
  * written down in the README rather than hidden behind a switch here.
  *
- * The wallet row is a shortcut, not a second place to change it. Connecting
- * and watching live on one screen; this points at that screen and shows what
- * it currently says, so that "which address am I looking at" is answerable
- * from settings without being answerable in two places.
+ * The wallet row is first because it is the one somebody comes here to check
+ * — appearance and language are set once and then left alone. It is a
+ * shortcut, not a second place to change it: connecting and watching live on
+ * one screen, and this points at that screen and shows what it currently
+ * says, so that "which address am I looking at" is answerable from settings
+ * without being answerable in two places.
  */
 const APPEARANCES: Appearance[] = ['light', 'dark', 'system'];
 
@@ -34,6 +36,42 @@ export default function PreferencesScreen({
 
   return (
     <Screen testID='preferences-screen'>
+      <Section title={t('prefs.wallet')} testID='prefs-wallet'>
+        <Card>
+          <Field
+            /*
+             * "Connected" or "Watching" — never "Wallet", which is what the
+             * heading above it already says. A label that repeats its own
+             * section says nothing and takes a line to say it.
+             */
+            label={
+              wallet.account
+                ? wallet.canSign
+                  ? t('wallet.connected')
+                  : t('wallet.watching')
+                : t('prefs.wallet.nothing')
+            }
+            testID='prefs-wallet-value'
+            value={
+              wallet.account
+                ? shortAddress(wallet.account.stxAddress, 10, 8)
+                : t('prefs.wallet.none')
+            }
+            hint={
+              wallet.account && wallet.canSign
+                ? walletLabel(wallet.account.walletId, t)
+                : undefined
+            }
+          />
+          <Button
+            title={t('prefs.wallet.manage')}
+            kind='secondary'
+            onPress={() => navigation.navigate('Wallet')}
+            testID='prefs-wallet-open'
+          />
+        </Card>
+      </Section>
+
       <Section title={t('prefs.appearance')} testID='prefs-appearance'>
         <Card>
           <Row gap={space.sm} wrap>
@@ -69,37 +107,6 @@ export default function PreferencesScreen({
             ))}
           </Row>
           <Note tone='faint'>{t('prefs.language.hint')}</Note>
-        </Card>
-      </Section>
-
-      <Section title={t('prefs.wallet')} testID='prefs-wallet'>
-        <Card>
-          <Field
-            label={
-              wallet.account
-                ? wallet.canSign
-                  ? t('wallet.connected')
-                  : t('wallet.watching')
-                : t('prefs.wallet')
-            }
-            testID='prefs-wallet-value'
-            value={
-              wallet.account
-                ? shortAddress(wallet.account.stxAddress, 10, 8)
-                : t('prefs.wallet.none')
-            }
-            hint={
-              wallet.account && wallet.canSign
-                ? WALLET_NAMES[wallet.account.walletId]
-                : undefined
-            }
-          />
-          <Button
-            title={t('prefs.wallet.manage')}
-            kind='secondary'
-            onPress={() => navigation.navigate('Wallet')}
-            testID='prefs-wallet-open'
-          />
         </Card>
       </Section>
 

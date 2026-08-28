@@ -54,6 +54,8 @@ export type WalletState = {
   connect: (walletId: WalletId) => Promise<void>;
   /** Read-only: show this address without a wallet behind it. */
   watch: (address: string) => Promise<void>;
+  /** Abandons a connect that is still waiting. */
+  cancelConnect: () => void;
   disconnect: () => Promise<void>;
   callContract: (request: ContractCallRequest) => Promise<{ txid: string }>;
   clearError: () => void;
@@ -114,6 +116,8 @@ export function WalletProvider({
       setError(null);
       setConnecting(true);
       const next = factory(walletId);
+      // Held before the await so `cancelConnect` has something to abandon.
+      wallet.current = next;
       try {
         const connected = await next.connect();
         wallet.current = next;
@@ -165,6 +169,19 @@ export function WalletProvider({
     };
   }, [watch]);
 
+  /*
+   * Stopping is a decision, so it leaves nothing behind: the pending pairing is
+   * abandoned, `connecting` goes false, and no error is shown — the person
+   * caused this.
+   */
+  const cancelConnect = useCallback(() => {
+    const pending = wallet.current;
+    wallet.current = null;
+    setConnecting(false);
+    setError(null);
+    void pending?.cancel().catch(() => {});
+  }, []);
+
   const disconnect = useCallback(async () => {
     const current = wallet.current;
     wallet.current = null;
@@ -193,11 +210,22 @@ export function WalletProvider({
       error,
       connect,
       watch,
+      cancelConnect,
       disconnect,
       callContract,
       clearError: () => setError(null),
     }),
-    [account, connecting, restoring, error, connect, watch, disconnect, callContract],
+    [
+      account,
+      connecting,
+      restoring,
+      error,
+      connect,
+      watch,
+      cancelConnect,
+      disconnect,
+      callContract,
+    ],
   );
 
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;
