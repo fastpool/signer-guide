@@ -1,0 +1,13 @@
+# Maestro runs every flow in this directory against the installed debug build.
+#
+# The app has to be started with the test wallet switched on:
+#
+#   EXPO_PUBLIC_MOCK_WALLET=1 npx expo start --dev-client
+#
+# Neither Leather nor Xverse is installed on the device these were written
+# against, and a WalletConnect approval cannot be automated in any case — it
+# happens in another application. So the wallet is the one thing stood in for,
+# and everything else is real: the real navigator, the real forms, the real
+# staking package, and mainnet answering the read-only calls.
+appId: org.fastpool.signerguide
+---

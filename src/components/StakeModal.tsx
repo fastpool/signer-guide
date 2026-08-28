@@ -9,6 +9,13 @@ import {
   type StacksTransactionWire,
 } from '@stacks/transactions';
 import { exactStxLabel } from '../lib/amounts';
+import {
+  formatUstxAsStx,
+  parseStxToUstx,
+  signerNameFromContractId,
+  spendableFromBalance,
+  unlockedFromBalances,
+} from '../lib/stx-amounts';
 import { explorerUrl } from '../lib/explorer';
 import { translator, type Locale, type Translator } from '../lib/i18n';
 import {
@@ -55,56 +62,18 @@ const STACKS_API_URL =
     ? import.meta.env.VITE_STACKS_API_URL
     : 'https://api.hiro.so';
 
-const ONE_STX_USTX = 1_000_000n;
-
-export function parseStxToUstx(amount: string): bigint | null {
-  const trimmed = amount.trim();
-  if (!/^\d+(?:\.\d{0,6})?$/.test(trimmed)) return null;
-  const [whole, frac = ''] = trimmed.split('.');
-  const fracPadded = (frac + '000000').slice(0, 6);
-  return BigInt(whole) * ONE_STX_USTX + BigInt(fracPadded);
-}
-
-export function formatUstxAsStx(ustx: bigint): string {
-  const whole = ustx / ONE_STX_USTX;
-  const frac = (ustx % ONE_STX_USTX)
-    .toString()
-    .padStart(6, '0')
-    .replace(/0+$/, '');
-  return frac.length > 0 ? `${whole.toString()}.${frac}` : whole.toString();
-}
-
-export function spendableFromBalance(
-  balanceUstx: bigint | null,
-): bigint | null {
-  if (balanceUstx === null) return null;
-  return balanceUstx > ONE_STX_USTX ? balanceUstx - ONE_STX_USTX : 0n;
-}
-
-/**
- * What is actually free to lock: the balance less whatever is locked already.
- *
- * `balance` in this endpoint is everything the account holds, locked STX
- * included, and locked STX cannot be locked again. Offering it as available
- * is how somebody who has just unstaked is shown their whole position as
- * spendable and told by the chain that they do not have it.
+/*
+ * The arithmetic itself lives in `lib/stx-amounts.ts`, so the phone app parses
+ * and formats an amount exactly as this dialog does. Re-exported here because
+ * that is where this module's own tests have always looked for it.
  */
-export function unlockedFromBalances(
-  balanceUstx: bigint,
-  lockedUstx: bigint,
-): bigint {
-  return balanceUstx > lockedUstx ? balanceUstx - lockedUstx : 0n;
-}
-
-/** "fastpool-1-signer-manager" → "Fastpool 1 Signer Manager". */
-export function signerNameFromContractId(contractId: string): string {
-  const [, contractName = contractId] = contractId.split('.');
-  return contractName
-    .split('-')
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
-}
+export {
+  formatUstxAsStx,
+  parseStxToUstx,
+  signerNameFromContractId,
+  spendableFromBalance,
+  unlockedFromBalances,
+};
 
 async function fetchBalanceUstx(
   address: string,

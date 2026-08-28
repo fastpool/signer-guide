@@ -1,0 +1,87 @@
+# Zapstore — publishing the app to nostr.
+#
+# Zapstore is not a review queue with a spec; it is a set of nostr events
+# (NIP-82: kind 32267 for the app, 30063 for a release, 1063 for the file)
+# signed by the publisher and served by relays. What that buys is the thing
+# this app cares about most: an APK whose provenance is a signature anyone can
+# check, next to a repository anyone can build from.
+#
+# Publish with:
+#
+#   zapstore publish signer-guide
+#
+# It reads NSEC (or talks to a NIP-46 signer) from the environment — see
+# store/README.md, and never put a key in this file.
+#
+# The schema below is the one the zapstore CLI took at the time of writing.
+# Check it against `zapstore publish --help` before the first release: this is
+# a young tool and the keys move.
+
+signer-guide:
+  android:
+    identifier: org.fastpool.signerguide
+    name: Signer Guide
+    summary: Lock STX with a Stacks pool, earn bitcoin, and see what each pool really pays.
+    description: |
+      Stacking on Stacks pays you in bitcoin. Your STX stays locked in your
+      own wallet — what you are choosing is which signer it backs, and a
+      signer is a smart contract. Signer Guide shows you what those contracts
+      do, in plain language, and lets you stake through one from your phone.
+
+      It opens on the number you want: what a staked STX is earning right now,
+      in sats per 1,000 STX per payout. Under it, the same figure compounded
+      over a year, what the last completed payout really paid, and how long
+      until the next one — because an estimate is only worth having next to the
+      facts it was built from. Then your own position: how much, with whom,
+      until when, and where the rewards go.
+
+      A first stake takes two screens. Choose a wallet, say how much.
+      Everything else is set and shown to you: which pool and why that one,
+      rewards held as sBTC so there is no bitcoin address to mistype, and a
+      lock of one cycle — about two weeks — which can be ended early, without
+      penalty, at the close of the cycle. Every one of those can be changed.
+
+      Forty-five signer contracts are deployed on pox-5 and they run six
+      distinct pieces of code between them. A pool is identified here by what
+      its code hashes to, not by what it is called. So the guide leads with the
+      contracts — what each does, whether it can pay to a bitcoin address at
+      all, whether the fee is capped by the code — and then the pools that run
+      them. Backing a different signer later is one transaction and takes
+      effect at the next cycle; nothing unlocks in between.
+
+      Signing happens in Leather, Xverse or OKX. Your wallet builds, signs and
+      broadcasts every transaction. This app never sees a private key and never
+      asks for one. No account, no sign-up, no analytics, nothing collected.
+
+      Made by Fast Pool, which runs some of the pools listed here — described
+      by the same detectors and ranked by the same rules as everyone else's,
+      and the app says so.
+    repository: https://github.com/fastpool/signer-guide
+    homepage: https://signer-guide.fastpool.org
+    license: MIT
+    icon: ../../assets/icon.png
+    images:
+      - ../screenshots/raw/01-welcome.png
+      - ../screenshots/raw/02-start.png
+      - ../screenshots/raw/03-your-stake.png
+      - ../screenshots/raw/04-contracts.png
+      - ../screenshots/raw/05-pools.png
+      - ../screenshots/raw/06-payouts.png
+      - ../screenshots/raw/07-the-data.png
+    tags: bitcoin stacks stx staking sbtc wallet defi
+    release_notes: |
+      First release.
+
+      • What a staked STX earns right now, and what your own position earns
+      • Start staking in two screens, with the pool and the settings chosen for
+        you and shown to you
+      • Or choose the contract and the pool yourself, every one written up in
+        plain language
+      • Every pool, what it holds, what it charges
+      • What each payout actually paid, cycle by cycle
+      • Sign with Leather, Xverse or OKX — your keys never leave your wallet
+    # Built by the `android-release` workflow in bitrise.yml. Zapstore reads
+    # the version and the signing hash out of the APK itself, which is the
+    # point of it: the file is the record, not this file.
+    artifacts:
+      - ../../android/app/build/outputs/apk/release/app-release.apk

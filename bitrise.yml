@@ -1,0 +1,347 @@
+---
+format_version: '17'
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+project_type: react-native
+
+# Building and publishing the phone app.
+#
+# Four workflows, and the split between them is the point:
+#
+#   check            every push and every PR. No signing, no secrets, no store.
+#   android-release  an AAB for Play and an APK for Zapstore, then publish both.
+#   ios-release      an IPA for App Store Connect.
+#   release          both of the above, so a tag ships everywhere at once.
+#
+# `check` is deliberately the only one that runs unasked. The other three are
+# triggered by a tag, because a release should be a thing somebody decided to
+# do rather than a thing that happened because a branch moved.
+#
+# The app lives in `mobile/`, and it builds against `../src` — the same modules
+# the web guide is built from. Every step therefore runs from the repository
+# root and points at the subdirectory; a workflow that `cd`s into `mobile` and
+# forgets the parent will fail at the bundler with "unable to resolve @guide".
+
+app:
+  envs:
+    - PROJECT_DIR: mobile
+    - ANDROID_PACKAGE: org.fastpool.signerguide
+    - BITRISE_APK_PATH: mobile/android/app/build/outputs/apk/release/app-release.apk
+    - BITRISE_AAB_PATH: mobile/android/app/build/outputs/bundle/release/app-release.aab
+    - opts:
+        is_expand: false
+      NODE_VERSION: '22'
+
+trigger_map:
+  - pull_request_source_branch: '*'
+    workflow: check
+  - push_branch: main
+    workflow: check
+  - tag: 'mobile-v*'
+    workflow: release
+
+workflows:
+  # ---------------------------------------------------------------- shared --
+  _setup:
+    summary: Checkout, node, and the dependencies of both halves of the repo.
+    steps:
+      - activate-ssh-key@4:
+          run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+      - git-clone@8: {}
+      - nvm@1:
+          inputs:
+            - node_version: $NODE_VERSION
+      - restore-npm-cache@1: {}
+      - script@1:
+          title: Install
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                set -euxo pipefail
+                # The phone app resolves `@guide/*` to `../src`, which imports
+                # nothing at runtime that is not in mobile/node_modules — but
+                # the web half still has to be installable for the repo to be
+                # in a state anybody can reason about.
+                npm --prefix "$PROJECT_DIR" ci
+      - save-npm-cache@1: {}
+
+  # ----------------------------------------------------------------- check --
+  check:
+    summary: Types, unit tests and a bundle. No device, no secrets.
+    description: |-
+      What can be known without a phone. The E2E flows are not here: they need
+      a device and a wallet, and a green tick that depended on an emulator
+      booting is a green tick that goes red for reasons nobody caused.
+      `check:e2e` runs them when somebody asks.
+    before_run:
+      - _setup
+    steps:
+      - script@1:
+          title: Typecheck
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                set -euxo pipefail
+                npm --prefix "$PROJECT_DIR" run typecheck
+      - script@1:
+          title: Unit and flow tests
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                set -euxo pipefail
+                npm --prefix "$PROJECT_DIR" test -- --ci --runInBand
+      - script@1:
+          title: Bundle for Android
+          description: |-
+            Catches what the type checker cannot: a module that resolves under
+            Node and not under Metro. That is the failure mode of sharing code
+            across the project root, so it is checked on every push.
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                set -euxo pipefail
+                npx --prefix "$PROJECT_DIR" expo export \
+                  --platform android \
+                  --output-dir "$BITRISE_SOURCE_DIR/$PROJECT_DIR/dist"
+      - deploy-to-bitrise-io@2: {}
+
+  check-e2e:
+    summary: The Maestro flows, on an emulator. Run on request.
+    description: |-
+      Everything in `e2e/` except `screenshots.yaml`, against a debug build
+      with the test wallet switched in — neither Leather nor Xverse nor OKX can
+      be driven by a test runner, because approving happens in another
+      application.
+    before_run:
+      - _setup
+    steps:
+      - avd-manager@1:
+          inputs:
+            - api_level: '34'
+            - profile: pixel_6
+      - script@1:
+          title: Build the debug APK
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                set -euxo pipefail
+                cd "$PROJECT_DIR"
+                npx expo prebuild --platform android
+                ./android/gradlew -p android :app:assembleDebug
+      - wait-for-android-emulator@1: {}
+      - script@1:
+          title: Maestro
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                set -euxo pipefail
+                curl -Ls "https://get.maestro.mobile.dev" | bash
+                export PATH="$PATH:$HOME/.maestro/bin"
+
+                cd "$PROJECT_DIR"
+                adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+
+                # The bundle is served by Metro with the test wallet compiled
+                # in. Backgrounded, and waited for rather than slept on.
+                EXPO_PUBLIC_MOCK_WALLET=1 npx expo start --dev-client --port 8081 &
+                until curl -sf http://localhost:8081/status >/dev/null; do sleep 2; done
+
+                # `screenshots.yaml` is not a test and takes a minute; it is
+                # excluded rather than left to fail an unrelated build.
+                maestro test --format junit --output "$BITRISE_DEPLOY_DIR/maestro.xml" \
+                  e2e/00-onboarding.yaml e2e/01-rate.yaml e2e/02-watch-a-stake.yaml \
+                  e2e/03-choose-and-stake.yaml e2e/04-the-rest-of-the-guide.yaml \
+                  e2e/05-change-a-stake.yaml
+      - deploy-to-bitrise-io@2: {}
+
+  # ------------------------------------------------------------- releasing --
+  release:
+    summary: Everything, from one tag.
+    after_run:
+      - android-release
+      - ios-release
+
+  android-release:
+    summary: An AAB for Play and a signed APK for Zapstore.
+    description: |-
+      Two artefacts from one build, because the two stores want different
+      things and for different reasons. Play takes an AAB and signs the
+      delivered APKs itself. Zapstore takes the APK and treats *our* signature
+      on it as the provenance — which means the same upload key has to sign it
+      every time, or every existing install stops updating.
+
+      Secrets, all set in Bitrise and none of them in this file:
+        BITRISEIO_ANDROID_KEYSTORE_URL, …_PASSWORD, …_ALIAS, …_PRIVATE_KEY_PASSWORD
+        BITRISEIO_SERVICE_ACCOUNT_JSON_KEY_URL   (Play)
+        NSEC                                     (Zapstore)
+    before_run:
+      - _setup
+    steps:
+      - script@1:
+          title: Version from the tag
+          description: |-
+            `mobile-v1.4.0` becomes versionName 1.4.0, and the build number
+            becomes Bitrise's own — monotonic, which is all Play asks of it.
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                set -euxo pipefail
+                VERSION="${BITRISE_GIT_TAG#mobile-v}"
+                if [ -z "$VERSION" ]; then
+                  echo "No mobile-v* tag on this build; refusing to guess a version."
+                  exit 1
+                fi
+                cd "$PROJECT_DIR"
+                node -e '
+                  const fs = require("node:fs");
+                  const config = JSON.parse(fs.readFileSync("app.json", "utf8"));
+                  config.expo.version = process.argv[1];
+                  config.expo.android = config.expo.android ?? {};
+                  config.expo.android.versionCode = Number(process.argv[2]);
+                  config.expo.ios = config.expo.ios ?? {};
+                  config.expo.ios.buildNumber = process.argv[2];
+                  fs.writeFileSync("app.json", JSON.stringify(config, null, 2) + "\n");
+                ' "$VERSION" "$BITRISE_BUILD_NUMBER"
+                envman add --key APP_VERSION --value "$VERSION"
+      - install-missing-android-tools@3:
+          inputs:
+            - gradlew_path: $PROJECT_DIR/android/gradlew
+      - script@1:
+          title: Prebuild
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                set -euxo pipefail
+                npx --prefix "$PROJECT_DIR" expo prebuild --platform android --clean
+      - android-build@1:
+          title: AAB for Play
+          inputs:
+            - project_location: $PROJECT_DIR/android
+            - module: app
+            - variant: release
+            - build_type: aab
+      - android-build@1:
+          title: APK for Zapstore
+          inputs:
+            - project_location: $PROJECT_DIR/android
+            - module: app
+            - variant: release
+            - build_type: apk
+      - sign-apk@1:
+          inputs:
+            - use_apk_signer: 'true'
+      - google-play-deploy@3:
+          title: Publish to Google Play
+          inputs:
+            - package_name: $ANDROID_PACKAGE
+            - service_account_json_key_path: $BITRISEIO_SERVICE_ACCOUNT_JSON_KEY_URL
+            - app_path: $BITRISE_SIGNED_AAB_PATH
+            # Internal first, always. Promoting to production is a decision a
+            # person makes in Play Console after looking at the build, not a
+            # side effect of pushing a tag.
+            - track: internal
+            - whatsnews_dir: $PROJECT_DIR/store/play/en-US/changelogs
+      - script@1:
+          title: Publish the listing to Google Play
+          description: |-
+            The text and the screenshots, from the files in `store/play`, so a
+            listing change is reviewable in a pull request rather than retyped
+            into a web form.
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                set -euxo pipefail
+                gem install fastlane --no-document
+                cd "$PROJECT_DIR"
+                # Play wants the framed screenshots: a raw 1080×2340 device
+                # capture is 1:2.17 and taller than it accepts.
+                mkdir -p store/play/en-US/images/phoneScreenshots
+                cp store/screenshots/play/*.png store/play/en-US/images/phoneScreenshots/
+                fastlane supply \
+                  --package_name "$ANDROID_PACKAGE" \
+                  --json_key "$BITRISEIO_SERVICE_ACCOUNT_JSON_KEY_URL" \
+                  --metadata_path store/play \
+                  --skip_upload_apk true \
+                  --skip_upload_aab true \
+                  --track internal
+      - script@1:
+          title: Publish to Zapstore
+          description: |-
+            Nostr events, not a review queue. Skipped rather than failed when
+            no key is configured, so a Play-only release is not a red build.
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                set -euxo pipefail
+                if [ -z "${NSEC:-}" ]; then
+                  echo "No NSEC configured — skipping Zapstore."
+                  exit 0
+                fi
+                cd "$PROJECT_DIR/store/zapstore"
+                curl -Ls https://cdn.zapstore.dev/zapstore-cli-linux-x86_64 -o zapstore
+                chmod +x zapstore
+                # Reads the version and the signing hash out of the APK itself:
+                # the file is the record, not the manifest.
+                ./zapstore publish signer-guide
+      - deploy-to-bitrise-io@2: {}
+
+  ios-release:
+    summary: An IPA for App Store Connect. Needs a macOS stack.
+    description: |-
+      Nothing here has been run: there is no iOS build in the repository yet
+      and none can be made from Linux. It is written down so that the first
+      person to try it starts from a shape rather than a blank file, and it
+      will need the certificates and profiles set up in Bitrise's code-signing
+      tab before it does anything but fail.
+
+      Set the stack for this workflow to macOS in `bitrise.yml`'s meta or in
+      the workflow editor; a Linux stack cannot build it.
+    before_run:
+      - _setup
+    meta:
+      bitrise.io:
+        stack: osx-xcode-16.0.x
+        machine_type_id: g2-m1.4core
+    steps:
+      - script@1:
+          title: Prebuild
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                set -euxo pipefail
+                npx --prefix "$PROJECT_DIR" expo prebuild --platform ios --clean
+      - cocoapods-install@2:
+          inputs:
+            - source_root_path: $PROJECT_DIR/ios
+      - manage-ios-code-signing@3:
+          inputs:
+            - project_path: $PROJECT_DIR/ios/*.xcworkspace
+            - distribution_method: app-store
+      - xcode-archive@5:
+          inputs:
+            - project_path: $PROJECT_DIR/ios/*.xcworkspace
+            - scheme: SignerGuide
+            - distribution_method: app-store
+      - deploy-to-itunesconnect-application-loader@1:
+          inputs:
+            - ipa_path: $BITRISE_IPA_PATH
+      - script@1:
+          title: Publish the listing to App Store Connect
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                set -euxo pipefail
+                cd "$PROJECT_DIR"
+                # Screenshots are not uploaded from here: Apple wants iPhone
+                # resolutions and this repository has none yet. See
+                # store/README.md.
+                fastlane deliver \
+                  --metadata_path store/appstore \
+                  --skip_binary_upload true \
+                  --skip_screenshots true \
+                  --force true
+      - deploy-to-bitrise-io@2: {}
+
+meta:
+  bitrise.io:
+    stack: linux-docker-android-22.04
+    machine_type_id: elite

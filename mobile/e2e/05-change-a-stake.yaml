@@ -1,0 +1,66 @@
+# Changing a stake that already exists.
+#
+# The same form as a first stake, because pox-5 makes the same distinction:
+# `stake` when there is no position and `stake-update` when there is, decided
+# by reading the chain rather than by which screen was opened. So this walks
+# the change path and checks it is offered — the form has an extension to
+# choose rather than a lock period, and a way to end the stake at the bottom.
+#
+# It runs against a watched address, so it stops where signing would begin:
+# there is no wallet behind a watched address and the app must not pretend
+# there is.
+appId: org.fastpool.signerguide
+name: A stake that exists is changed, not started again
+---
+- launchApp:
+    clearState: true
+# A development build fetches its bundle from Metro on every cold start, so the
+# first screen is worth waiting for rather than asserting on the instant the
+# process appears. Cleared state means a first launch, so that screen is the
+# welcome — which is itself worth asserting, since it is shown exactly once.
+- extendedWaitUntil:
+    visible:
+      id: 'welcome-screen'
+    timeout: 90000
+- tapOn:
+    id: 'welcome-skip'
+- extendedWaitUntil:
+    visible:
+      id: 'home-screen'
+    timeout: 30000
+# Opened on a share link rather than typed in. Both routes reach the same
+# read-only state, and a forty-character address through an emulated keyboard
+# takes over two minutes on this device — long enough to time the runner out.
+# The typing route is covered by the search field in `04`.
+- openLink: 'signerguide://watch/SMEVJTEWM9AE521B8E3HWQTHQR0WAPASHATZTA6Y'
+
+- extendedWaitUntil:
+    visible:
+      id: 'position-card'
+    timeout: 30000
+
+# Which pool it is staked with, and until when.
+- assertVisible:
+    id: 'position-pool'
+- assertVisible:
+    id: 'position-remaining'
+- assertVisible:
+    id: 'position-payout'
+
+# The pool's own page, reached from the position.
+- tapOn:
+    id: 'position-pool-details'
+- assertVisible:
+    id: 'pool-screen'
+- assertVisible:
+    id: 'pool-name'
+- assertVisible:
+    id: 'pool-contract-id'
+- back
+
+# No wallet behind a watched address, so no offer to change anything — and the
+# address in the card says which state it is in.
+- assertNotVisible:
+    id: 'position-change'
+- assertVisible:
+    id: 'position-address'

@@ -1,0 +1,55 @@
+{
+  "expo": {
+    "name": "Signer Guide",
+    "slug": "signer-guide",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "signerguide",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0B0D12"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "org.fastpool.signerguide"
+    },
+    "android": {
+      "package": "org.fastpool.signerguide",
+      "adaptiveIcon": {
+        "backgroundColor": "#0B0D12",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": false,
+          "data": [
+            {
+              "scheme": "signerguide"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "./plugins/withWalletQueries"
+    ],
+    "extra": {
+      "walletConnectProjectId": "a013ec0fd2d07ac0ba6c2e2512fd8a23"
+    }
+  }
+}

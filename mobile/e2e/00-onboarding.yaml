@@ -1,0 +1,87 @@
+# The short way in, on a phone that has never run this before.
+#
+# Two screens and one decision. What this holds to is that the four decisions
+# made on somebody's behalf are stated on the screen rather than buried — the
+# pool with its reason, sBTC rewards, a two-week lock — and that each of them
+# can be changed by somebody who wants to.
+#
+# It stops at the signature. Approving happens inside Leather, Xverse or OKX,
+# which no test runner can drive; the wallet-facing half is `03`, which runs
+# against the test wallet.
+appId: org.fastpool.signerguide
+name: A first-time staker gets there in two screens
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: 'welcome-screen'
+    timeout: 90000
+
+# What somebody earns, before anything about how it works.
+- assertVisible:
+    id: 'welcome-rate-value'
+- assertVisible: 'Lock STX.
+Earn bitcoin.'
+- assertVisible: 'Your STX stays yours'
+
+- tapOn:
+    id: 'welcome-start'
+- extendedWaitUntil:
+    visible:
+      id: 'start-screen'
+    timeout: 30000
+
+# A wallet first, and nothing else asked for yet.
+- assertVisible:
+    id: 'start-connect'
+- assertVisible:
+    id: 'start-connect-xverse'
+- assertVisible:
+    id: 'start-connect-leather'
+- assertVisible:
+    id: 'start-connect-okx'
+- assertNotVisible:
+    id: 'start-amount'
+
+# The decisions made for them, each named and each changeable.
+- scrollUntilVisible:
+    element:
+      id: 'start-defaults'
+    direction: DOWN
+    centerElement: true
+- assertVisible:
+    id: 'start-pool'
+- assertVisible: 'takes a stake from anyone'
+- assertVisible:
+    id: 'start-payout'
+- assertVisible: 'Held as sBTC'
+- assertVisible:
+    id: 'start-period'
+- assertVisible: '2 weeks'
+- assertVisible:
+    id: 'start-change-pool'
+- assertVisible:
+    id: 'start-full-form'
+
+# Changing the pool lands on the same contract list the long way round uses.
+- tapOn:
+    id: 'start-change-pool'
+- extendedWaitUntil:
+    visible:
+      id: 'choose-contract-screen'
+    timeout: 20000
+- back
+
+# And the full form is one tap from here too.
+- scrollUntilVisible:
+    element:
+      id: 'start-full-form'
+    direction: DOWN
+    centerElement: true
+- tapOn:
+    id: 'start-full-form'
+- extendedWaitUntil:
+    visible:
+      id: 'stake-screen'
+    timeout: 30000

@@ -1,0 +1,118 @@
+import { View } from 'react-native';
+import { readRate } from '../data/rate';
+import { useSnapshot } from '../data/snapshot';
+import { useOnboarding } from '../data/onboarding';
+import { percent } from '../format';
+import { useT } from '../i18n';
+import { useColors } from '../settings';
+import { space } from '../theme';
+import { Button, Card, Label, Note, Row, Screen, Text } from '../ui';
+import type { ScreenProps } from '../navigation-types';
+
+/**
+ * The first screen somebody sees, once.
+ *
+ * Three sentences and a number. Everything a first-time staker actually has to
+ * believe before they will do this is here — what it does with their STX, what
+ * comes back, and that it can be undone — and everything else waits until they
+ * have asked for it.
+ *
+ * What is deliberately not here: the words pox-5, signer manager, reward cycle,
+ * calldata, post condition. All of them are true and all of them are in this
+ * app, two taps away. None of them belongs between somebody and their first
+ * stake.
+ */
+export default function WelcomeScreen({ navigation }: ScreenProps<'Welcome'>) {
+  const { snapshot } = useSnapshot();
+  const { markSeen } = useOnboarding();
+  const t = useT();
+  const rate = readRate(snapshot.stxOnlyCalculations);
+
+  /*
+   * Home goes underneath either way, so back from the staking screen lands on
+   * the guide rather than out of the app. `replace` alone left `Start` as the
+   * only screen on the stack, which made the back gesture quit — the worst
+   * possible answer for somebody who pressed it to reconsider.
+   */
+  const go = (to: 'Start' | 'Home') => {
+    markSeen();
+    navigation.reset(
+      to === 'Home'
+        ? { index: 0, routes: [{ name: 'Home' }] }
+        : { index: 1, routes: [{ name: 'Home' }, { name: 'Start' }] },
+    );
+  };
+
+  return (
+    <Screen testID='welcome-screen'>
+      <View style={{ gap: space.sm, paddingTop: space.xl }}>
+        <Text variant='tiny' tone='faint'>
+          {t('welcome.eyebrow')}
+        </Text>
+        <Text variant='hero' style={{ fontSize: 36, lineHeight: 42 }}>
+          {t('welcome.headline')}
+        </Text>
+      </View>
+
+      <Card testID='welcome-rate'>
+        <Label>{t('welcome.earning')}</Label>
+        <Row gap={space.sm} style={{ alignItems: 'flex-end' }}>
+          <Text variant='hero' tone='accent' testID='welcome-rate-value'>
+            {rate.apy === null ? '—' : percent(rate.apy, 1)}
+          </Text>
+          <Text variant='heading' tone='muted' style={{ paddingBottom: 8 }}>
+            {t('welcome.aYear')}
+          </Text>
+        </Row>
+        <Note tone='faint'>{t('welcome.rateNote')}</Note>
+      </Card>
+
+      <View style={{ gap: space.lg }}>
+        <Step n='1' title={t('welcome.step1.title')} body={t('welcome.step1.body')} />
+        <Step n='2' title={t('welcome.step2.title')} body={t('welcome.step2.body')} />
+        <Step n='3' title={t('welcome.step3.title')} body={t('welcome.step3.body')} />
+      </View>
+
+      <Button
+        title={t('welcome.start')}
+        testID='welcome-start'
+        onPress={() => go('Start')}
+      />
+      <Button
+        title={t('welcome.skip')}
+        kind='quiet'
+        testID='welcome-skip'
+        onPress={() => go('Home')}
+      />
+      <Note tone='faint'>{t('welcome.wallets')}</Note>
+    </Screen>
+  );
+}
+
+function Step({ n, title, body }: { n: string; title: string; body: string }) {
+  const colors = useColors();
+  return (
+    <Row gap={space.md} style={{ alignItems: 'flex-start' }}>
+      <View
+        style={{
+          width: 26,
+          height: 26,
+          borderRadius: 13,
+          backgroundColor: colors.cardRaised,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Text variant='small' tone='accent'>
+          {n}
+        </Text>
+      </View>
+      <View style={{ flexShrink: 1, gap: 2 }}>
+        <Text variant='heading'>{title}</Text>
+        <Text variant='small' tone='muted' style={{ lineHeight: 20 }}>
+          {body}
+        </Text>
+      </View>
+    </Row>
+  );
+}

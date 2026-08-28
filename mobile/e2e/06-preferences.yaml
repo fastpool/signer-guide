@@ -1,0 +1,74 @@
+# Appearance, language, and which address the app is looking at.
+#
+# The language assertions are the point. A switch that changed a few labels and
+# left the rest in English would pass a test that only looked at this screen,
+# so this one switches to Korean and then walks somewhere else to check that
+# the app went with it.
+appId: org.fastpool.signerguide
+name: Appearance, language and the wallet are the reader's to set
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: 'welcome-screen'
+    timeout: 90000
+- tapOn:
+    id: 'welcome-skip'
+- extendedWaitUntil:
+    visible:
+      id: 'home-screen'
+    timeout: 30000
+
+- tapOn:
+    id: 'open-preferences'
+- extendedWaitUntil:
+    visible:
+      id: 'preferences-screen'
+    timeout: 20000
+
+# Three appearances, and a language named in itself — somebody who cannot read
+# the current one has to be able to find their way out.
+- assertVisible:
+    id: 'appearance-light'
+- assertVisible:
+    id: 'appearance-dark'
+- assertVisible:
+    id: 'appearance-system'
+- assertVisible: 'English'
+- assertVisible: '한국어'
+
+# Light, on a device that was dark a moment ago.
+- tapOn:
+    id: 'appearance-light'
+- assertVisible:
+    id: 'preferences-screen'
+
+# Korean, and it has to reach past this screen.
+- tapOn:
+    id: 'language-ko'
+- assertVisible: '언어'
+- back
+- extendedWaitUntil:
+    visible:
+      id: 'home-screen'
+    timeout: 20000
+- assertVisible: '서명자 가이드'
+- assertVisible: '1,000 STX당, 지급 회차마다'
+
+# The wallet row points at the wallet screen rather than being a second place
+# to connect one.
+- tapOn:
+    id: 'open-preferences'
+- assertVisible:
+    id: 'prefs-wallet-value'
+- tapOn:
+    id: 'prefs-wallet-open'
+- extendedWaitUntil:
+    visible:
+      id: 'wallet-screen'
+    timeout: 20000
+- assertVisible:
+    id: 'connect-xverse'
+- assertVisible:
+    id: 'watch-input'

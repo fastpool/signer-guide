@@ -1,13 +1,16 @@
 import { useMemo } from 'react';
 import { exactStxLabel } from '../lib/amounts';
 import { translator, type Locale } from '../lib/i18n';
+import {
+  apyPercent,
+  FALLBACK_DISTRIBUTION_BLOCKS,
+  hoursUntilPayout,
+  payoutDueAt,
+} from '../lib/rate-view';
 import { stxOnlyHistoryHref } from '../lib/route';
 import type { StxOnlyCalculations } from '../lib/types';
 
-const FALLBACK_DISTRIBUTION_BLOCKS = 1050;
 const SATS_PER_SBTC = 100_000_000n;
-const BITCOIN_BLOCK_MINUTES = 10;
-const PAYOUT_PERIODS_PER_YEAR = 52;
 
 type Estimate = {
   accruedRewardsSats: bigint;
@@ -36,18 +39,6 @@ function asBigint(value: string | null): bigint | null {
   return BigInt(value);
 }
 
-function apyPercent(opts: {
-  rateSatsPer1000Stx: bigint;
-  stxPriceSats: bigint;
-}): number | null {
-  if (opts.stxPriceSats <= 0n) return null;
-
-  const periodReturn = Number(opts.rateSatsPer1000Stx) / Number(1000n * opts.stxPriceSats);
-  if (!Number.isFinite(periodReturn) || periodReturn < 0) return null;
-
-  return (Math.pow(1 + periodReturn, PAYOUT_PERIODS_PER_YEAR) - 1) * 100;
-}
-
 function formatSbtc(sats: bigint, locale: Locale): string {
   const t = translator(locale);
   const whole = (sats / SATS_PER_SBTC).toLocaleString(t.bundle.intlLocale);
@@ -60,7 +51,7 @@ function formatSbtc(sats: bigint, locale: Locale): string {
 
 function durationUntilPayout(blocksLeft: number, locale: Locale): string {
   const t = translator(locale);
-  const hours = Math.max(1, Math.round((blocksLeft * BITCOIN_BLOCK_MINUTES) / 60));
+  const hours = hoursUntilPayout(blocksLeft);
   if (hours < 48) return t.plural('app.stxOnlyEstimate.durationHours', hours);
   const days = Math.max(1, Math.round(hours / 24));
   return t.plural('app.stxOnlyEstimate.durationDays', days);
@@ -182,7 +173,7 @@ export default function StxOnlyRewardsEstimate({
     const base = new Date(calculations.generatedAt).getTime();
     if (Number.isNaN(base) || !estimate) return null;
     return formatUtc(
-      new Date(base + estimate.blocksLeftInCycle * BITCOIN_BLOCK_MINUTES * 60 * 1000).toISOString(),
+      payoutDueAt({ now: base, blocksLeft: estimate.blocksLeftInCycle }).toISOString(),
       locale,
     );
   }, [calculations.generatedAt, estimate, locale]);

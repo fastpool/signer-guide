@@ -1,0 +1,49 @@
+# Connecting, and watching, on the one screen that answers "whose stake is
+# this".
+#
+# It stops before approval: that happens inside Leather, Xverse or OKX, which
+# no test runner can drive. What is checked here is everything up to the point
+# where another application takes over, and the read-only route all the way
+# through.
+appId: org.fastpool.signerguide
+name: One screen for connecting and for watching
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: 'welcome-screen'
+    timeout: 90000
+- tapOn:
+    id: 'welcome-skip'
+- extendedWaitUntil:
+    visible:
+      id: 'home-screen'
+    timeout: 30000
+
+- tapOn:
+    id: 'home-connect'
+- extendedWaitUntil:
+    visible:
+      id: 'wallet-screen'
+    timeout: 20000
+
+# Every wallet this app can reach, and the read-only way in under a heading of
+# its own rather than a link at the bottom of a card.
+- assertVisible:
+    id: 'connect-xverse'
+- assertVisible:
+    id: 'connect-leather'
+- assertVisible:
+    id: 'connect-okx'
+- assertVisible:
+    id: 'wallet-watch'
+
+# An address that is not one is not offered.
+- tapOn:
+    id: 'watch-input'
+- inputText: 'nonsense'
+- hideKeyboard
+- assertVisible:
+    id: 'watch-submit'
+    enabled: false

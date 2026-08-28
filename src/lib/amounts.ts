@@ -9,6 +9,7 @@
  * English groups by millions, Korean by 만 and 억. That lives in each language
  * file as `amountScale`, so nothing here knows which language it is speaking.
  */
+import { groupDigits } from './digits';
 import { translator, type Locale } from './i18n';
 
 const MICRO_STX = 1_000_000n;
@@ -32,7 +33,7 @@ export function exactStxLabel(
 ): string {
   const t = translator(locale);
   const total = BigInt(ustx);
-  const whole = (total / MICRO_STX).toLocaleString(t.bundle.intlLocale);
+  const whole = groupDigits(total / MICRO_STX);
   const frac = (total % MICRO_STX)
     .toString()
     .padStart(6, '0')
@@ -68,7 +69,7 @@ export function stxLabel(
     return step.unit.replace('{value}', rounded);
   }
 
-  return t('amount.plain', { value: stx.toLocaleString(t.bundle.intlLocale) });
+  return t('amount.plain', { value: groupDigits(stx) });
 }
 
 /**
@@ -92,12 +93,10 @@ export function satsLabel(
   const total = BigInt(sats);
   if (total === 0n) return t('amount.nothing');
   if (total < SATS_PER_SBTC) {
-    return t('amount.sats', {
-      value: total.toLocaleString(t.bundle.intlLocale),
-    });
+    return t('amount.sats', { value: groupDigits(total) });
   }
 
-  const whole = (total / SATS_PER_SBTC).toLocaleString(t.bundle.intlLocale);
+  const whole = groupDigits(total / SATS_PER_SBTC);
   const frac = (total % SATS_PER_SBTC)
     .toString()
     .padStart(8, '0')

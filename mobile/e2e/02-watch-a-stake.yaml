@@ -1,0 +1,67 @@
+# Somebody watching an address they do not hold the keys to: the position, and
+# what it earns at the published rate.
+#
+# The address is a real mainnet staker with 15,000,000 STX in Fast Pool's
+# signer manager, so the figures below come off the chain rather than out of a
+# fixture. Watching is read-only, and the screen has to say so rather than
+# offer to sign with a wallet that is not connected.
+appId: org.fastpool.signerguide
+name: Watching an address shows its stake and its earnings
+---
+- launchApp:
+    clearState: true
+# A development build fetches its bundle from Metro on every cold start, so the
+# first screen is worth waiting for rather than asserting on the instant the
+# process appears. Cleared state means a first launch, so that screen is the
+# welcome — which is itself worth asserting, since it is shown exactly once.
+- extendedWaitUntil:
+    visible:
+      id: 'welcome-screen'
+    timeout: 90000
+- tapOn:
+    id: 'welcome-skip'
+- extendedWaitUntil:
+    visible:
+      id: 'home-screen'
+    timeout: 30000
+
+# Opened on a share link rather than typed in. Both routes reach the same
+# read-only state, and a forty-character address through an emulated keyboard
+# takes over two minutes on this device — long enough to time the runner out.
+# The typing route is covered by the search field in `04`.
+- openLink: 'signerguide://watch/SMEVJTEWM9AE521B8E3HWQTHQR0WAPASHATZTA6Y'
+
+- extendedWaitUntil:
+    visible:
+      id: 'position-card'
+    timeout: 30000
+- assertVisible:
+    id: 'position-amount'
+- assertVisible: '15,000,000 STX'
+
+# 15,000,000 STX is fifteen thousand lots of 1000, so the earnings line is the
+# rate multiplied out. Asserted loosely, because the rate moves every hour.
+- assertVisible:
+    id: 'position-earnings'
+- assertVisible:
+    text: 'Earning about .* sats a payout.*'
+
+# Read-only, and honest about it. The address is in the stake card itself, and
+# it says it is being watched rather than leaving that implied — there is no
+# offer to change a stake nobody here can sign for.
+- assertVisible:
+    id: 'position-address'
+- assertVisible:
+    text: '.*Watching.*'
+- assertNotVisible:
+    id: 'position-change'
+
+# And it is the way to the wallet screen, which is where that is changed.
+- tapOn:
+    id: 'position-wallet'
+- extendedWaitUntil:
+    visible:
+      id: 'wallet-screen'
+    timeout: 20000
+- assertVisible:
+    id: 'wallet-account'

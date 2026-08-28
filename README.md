@@ -1212,3 +1212,120 @@ than borrow Fast Pool's.
 | `VITE_WALLETCONNECT_PROJECT_ID` | unset — WalletConnect is off | turns WalletConnect back on, with this id      |
 | `VITE_DATA_BASE_URL`            | this branch's `src/data`     | where the installed app re-reads the data from |
 | `VITE_STACKS_API_URL`           | `https://api.hiro.so`        | node the staking dialog reads balances from    |
+
+## The phone app
+
+There is also a native app, in [`mobile/`](mobile/) — React Native under Expo,
+built against the same `src/lib` this page is built against rather than a copy
+of it.
+
+It asks the guide's two questions in the order somebody standing at a bus stop
+asks them: **what is a staked STX earning right now**, and **what have I got
+staked**. Those are the whole first screen. Everything else the guide knows —
+the pool list, the contract pages, the record of every payout, the data's own
+provenance — is under a heading below them and one tap away. That placement is
+the layout decision: a tab bar would have put "every pool" at equal weight with
+"your stake", and they are not of equal weight.
+
+Somebody with nothing staked is asked which **contract** first and which pool
+second, for the reason [the contract pages](#how-a-pool-is-identified) exist:
+twenty-five of the forty-five deployed signer contracts are the same code, and
+that code is what decides how rewards are distributed. It decides nothing about
+the STX itself, which stays locked in the staker's own wallet whichever
+contract they pick.
+
+### It signs where this page cannot
+
+[`WALLETCONNECT.md`](WALLETCONNECT.md) sets out why the WalletConnect route is
+switched off here: the approved session carries no public key, and a page that
+builds the transaction itself and asks for a signature has nothing to build
+with. It also names the answer if the wallets will not publish one — let the
+wallet build and sign, through `stx_callContract` — and that is what the phone
+app does. An address-only session is everything it needs, so the route that
+fails here works there.
+
+The staking package still returns whole transactions, so a public key goes in
+to build one and everything built around it is thrown away: only the contract,
+the function name and the arguments are read back out, and the wallet fills in
+the spending condition from its own key. The value used is the generator point
+of secp256k1, which belongs to nobody, and a test asserts the call is identical
+whichever key built it.
+
+### What is shared, and what is not
+
+The staking rules, the rate's arithmetic, the contract grouping, the STX
+parsing, the snapshot validators, the payout grouping and the identicon are
+imported out of `src/lib` by both. Several of them were moved there for it —
+`rate-view.ts`, `stx-amounts.ts`, `snapshot-shape.ts` and `stx-only-cycles.ts`
+were extracted from the component or the browser module that used to hold them,
+with the browser half left behind. An app and a site disagreeing about what
+somebody earns is not a rounding difference; it is two answers to the same
+question.
+
+What is not shared is anything that reaches for a browser. `data-source.ts`
+reads `import.meta.env` and `localStorage`, so the app keeps the same three
+copies in the same order of preference in `AsyncStorage` instead.
+
+### Two screens to a first stake
+
+The long way round — read the contracts, compare the pools, set a payout
+address and a fee cap and a floor — is six screens and about eleven decisions,
+and it is the right way for somebody who wants it. It is also six screens more
+than most people will get through the first time, so the app has a short way in
+that makes four of those decisions, says which four, and lets each be changed:
+
+| decision | default                         | why that one                                      |
+| -------- | ------------------------------- | ------------------------------------------------- |
+| pool     | lowest fee, open, code reviewed | the rule is in `mobile/src/data/default-pool.ts` and printed on the screen |
+| rewards  | held as sBTC                    | a mistyped Bitcoin address is rewards nobody gets back, and is not checkable until the first payout |
+| period   | one cycle, about two weeks      | the shortest period pox-5 takes, and endable early without penalty |
+| amount   | theirs                          | the only field on the screen                      |
+
+Fast Pool wrote the app and runs some of the pools in it, which is exactly why
+that first row is a rule rather than a preference: it is applied to every pool
+the same way, it does not know who deployed anything, and the screen names the
+pool it landed on and offers to change it.
+
+```bash
+cd mobile
+npm install
+npm test                 # 187 tests, no device needed
+npx expo run:android     # build and install on a connected device
+npm run e2e              # Maestro flows, against that device
+```
+
+`mobile/README.md` has the rest, including why the on-device tests use a stand-in
+wallet: neither Leather nor Xverse nor OKX can be driven by a test runner,
+because approving happens in another application.
+
+### It speaks Korean, and it turns the lights on
+
+The guide has spoken Korean since `src/locales/ko.ts`, and the app does too —
+including the contract descriptions, which come straight out of that file
+through `localizeProfile`. The app's own two hundred strings are a catalogue of
+their own under `mobile/src/i18n`, because the guide ships its bundle to every
+reader on every page load and strings only a phone renders would be paid for by
+everybody. Amounts are shared either way: English groups by millions and Korean
+by 만 and 억, and both apps ask `@guide/lib/amounts`.
+
+Appearance is light, dark or the phone's, defaulting to the phone's. The light
+palette is not the dark one inverted — bitcoin's `#F7931A` is legible as a
+44-point figure on white and not as 13-point body text on white, and this app
+puts the accent colour on both.
+
+### Shipping it
+
+`mobile/store/` holds the listing for all three stores as files, so a change to
+one is reviewable in a pull request rather than retyped into a web form — Play
+and App Store Connect in the layouts `fastlane supply` and `fastlane deliver`
+expect, Zapstore as the nostr manifest it publishes from. The screenshots in it
+are taken from the app actually running against mainnet, and can be taken again
+with one command.
+
+[`bitrise.yml`](bitrise.yml) at the root builds it. `check` runs on every push:
+types, 187 tests, and a Metro bundle — that last one because the app resolves
+`@guide/*` across the project root, and a module that resolves under Node and
+not under Metro is exactly the failure that cannot be typechecked. A `mobile-v*`
+tag builds an AAB for Play's internal track and a signed APK for Zapstore, and
+pushes both listings from those files. Promoting to production stays a decision
+somebody makes after looking at the build.

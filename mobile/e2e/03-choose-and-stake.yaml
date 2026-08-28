@@ -1,0 +1,150 @@
+# The path the app was built for, on a real device against mainnet.
+#
+# Somebody with nothing staked connects, is asked which *contract* first —
+# because twenty-five of the forty-five pools run one piece of code between
+# them, and the code is what sets the rules — then which pool runs it, then
+# fills the form in and signs.
+#
+# Everything here is real except the signature: the eligibility check is the
+# read-only replay of every gate pox-5 applies, and the call handed over is
+# built by the same package the web guide builds with. The test wallet returns
+# a transaction id instead of broadcasting one.
+appId: org.fastpool.signerguide
+name: Choosing a contract, then a pool, then staking
+env:
+  POOL: 'pool-SP1N8F8BBBC60XF6HJBNJHKPRGJ7WZBRGNDJX4YDR.signer-manager'
+---
+- launchApp:
+    clearState: true
+# A development build fetches its bundle from Metro on every cold start, so the
+# first screen is worth waiting for rather than asserting on the instant the
+# process appears. Cleared state means a first launch, so that screen is the
+# welcome — which is itself worth asserting, since it is shown exactly once.
+- extendedWaitUntil:
+    visible:
+      id: 'welcome-screen'
+    timeout: 90000
+- tapOn:
+    id: 'welcome-skip'
+- extendedWaitUntil:
+    visible:
+      id: 'home-screen'
+    timeout: 30000
+
+# Connect. The wallets live on a screen of their own now, and it closes itself
+# once there is a session — so what is waited for is the home screen coming
+# back, not a card appearing.
+- tapOn:
+    id: 'home-connect'
+- extendedWaitUntil:
+    visible:
+      id: 'wallet-screen'
+    timeout: 20000
+- tapOn:
+    id: 'connect-mock'
+- extendedWaitUntil:
+    visible:
+      id: 'home-screen'
+    timeout: 30000
+
+# Nothing staked, so the space a position would take holds the ways to make one.
+- extendedWaitUntil:
+    visible:
+      id: 'not-staking'
+    timeout: 30000
+# The long way round. The short one — every decision but the amount already
+# made — is `00`.
+- tapOn:
+    id: 'choose-yourself'
+
+# The contracts, not the pools.
+- assertVisible:
+    id: 'choose-contract-screen'
+- assertVisible: 'Choose a contract'
+- assertVisible:
+    id: 'template-standard'
+- tapOn:
+    id: 'template-standard'
+
+# What the contract does, in plain language, before being asked to pick a pool.
+- assertVisible:
+    id: 'contract-screen'
+- assertVisible:
+    id: 'contract-features'
+- assertVisible: 'Choose a pool'
+
+- tapOn:
+    id: '${POOL}'
+- assertVisible:
+    id: 'pool-screen'
+- assertVisible:
+    id: 'pool-staked'
+- tapOn:
+    id: 'pool-stake'
+
+# The form. Nothing typed yet, so it says what is missing and will not send.
+- extendedWaitUntil:
+    visible:
+      id: 'stake-screen'
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      id: 'stake-problem'
+    direction: DOWN
+    centerElement: true
+- assertVisible: 'Enter how much to stake.'
+- assertNotVisible:
+    id: 'stake-projection'
+- scrollUntilVisible:
+    element:
+      id: 'stake-amount'
+    direction: UP
+    centerElement: true
+
+- tapOn:
+    id: 'stake-amount'
+- inputText: '50'
+- hideKeyboard
+- tapOn:
+    id: 'cycles-1'
+
+# Rewards held as sBTC, so no Bitcoin address is needed to finish.
+- scrollUntilVisible:
+    element:
+      id: 'payout-toggle'
+    direction: DOWN
+    centerElement: true
+- tapOn:
+    id: 'payout-toggle'
+
+# What the amount typed would earn, at the published rate.
+- scrollUntilVisible:
+    element:
+      id: 'projection-payout'
+    direction: DOWN
+    centerElement: true
+- assertVisible:
+    id: 'stake-projection'
+
+- scrollUntilVisible:
+    element:
+      id: 'stake-submit'
+    direction: DOWN
+    centerElement: true
+- tapOn:
+    id: 'stake-submit'
+
+# Broadcast is not confirmation, and the screen says which of the two it has.
+- extendedWaitUntil:
+    visible:
+      id: 'sent-screen'
+    timeout: 60000
+- assertVisible:
+    id: 'sent-txid'
+- assertVisible:
+    id: 'sent-status'
+
+- tapOn:
+    id: 'sent-done'
+- assertVisible:
+    id: 'home-screen'

@@ -1,0 +1,40 @@
+# The number the app exists to show is on the first screen, before anybody has
+# connected anything. If this fails, nothing else in the app matters.
+appId: org.fastpool.signerguide
+name: The rate is the first thing on the screen
+---
+- launchApp:
+    clearState: true
+# A development build fetches its bundle from Metro on every cold start, so the
+# first screen is worth waiting for rather than asserting on the instant the
+# process appears. Cleared state means a first launch, so that screen is the
+# welcome — which is itself worth asserting, since it is shown exactly once.
+- extendedWaitUntil:
+    visible:
+      id: 'welcome-screen'
+    timeout: 90000
+- tapOn:
+    id: 'welcome-skip'
+- extendedWaitUntil:
+    visible:
+      id: 'home-screen'
+    timeout: 30000
+- assertVisible:
+    id: 'rate-card'
+
+# A figure, its unit and the cycle it belongs to. The unit is asserted because
+# it is the thing most easily got wrong: this is per payout — about a week —
+# and not per cycle and not per year.
+- assertVisible:
+    id: 'rate-value'
+- assertVisible: 'per 1,000 STX, each payout'
+- assertVisible:
+    text: 'CYCLE \d+'
+
+# What it is worth over a year, and when the next payout falls due.
+- assertVisible:
+    id: 'rate-apy'
+- assertVisible:
+    id: 'rate-next-payout'
+- assertVisible:
+    id: 'rate-last-payout'
