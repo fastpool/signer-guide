@@ -28,12 +28,19 @@ const LICENSE = 'MIT';
 /**
  * Where the APK comes from.
  *
- * The repository's releases rather than a local path, so that what Zapstore
- * publishes is the artefact anyone else can download and hash for themselves.
- * `zsp` takes a local file too, which is what a first publish from a laptop
- * uses — see `store/README.md`.
+ * The repository's releases by default, so that what Zapstore publishes is the
+ * artefact anyone else can download and hash for themselves. That is the right
+ * answer once a release exists.
+ *
+ * A first publish has no release yet, and `zsp` takes a local file — so
+ * `ZAPSTORE_APK` overrides it with a path. The path is written relative to the
+ * config, because that is where `zsp` resolves it from and an absolute path
+ * from one laptop is meaningless in the file everyone else reads.
  */
-const RELEASE_SOURCE = REPOSITORY;
+const localApk = process.env.ZAPSTORE_APK;
+const RELEASE_SOURCE = localApk
+  ? path.relative(path.join(root, 'store/zapstore'), path.resolve(localApk))
+  : REPOSITORY;
 
 /** What somebody would type to find this, not what the app calls itself. */
 const TAGS = ['bitcoin', 'stacks', 'stx', 'staking', 'sbtc', 'wallet', 'defi'];

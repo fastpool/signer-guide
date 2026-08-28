@@ -1,0 +1,42 @@
+Bitcoin staking on Stacks, and your STX never leaves your wallet. It is locked where it already is, its weight goes behind a signer, and bitcoin comes back every week.
+
+Signer Guide lists all 45 pools registered on pox-5 and identifies each one by what its contract code hashes to, not by the name it deployed under. Fees are read live. A cap the code enforces is told apart from a rate an operator can change today.
+
+WHAT IT OPENS ON
+
+The number you actually want: what a staked STX is earning right now, in sats per 1,000 STX, per payout. Under it, the same figure said three other ways — compounded over a year, what the last completed payout really paid, and how long until the next one — because an estimate is only worth having next to the facts it was built from.
+
+Then your position: how much you have staked, what it earns at that rate, which pool it is with, until when, and where the rewards go.
+
+TWO SCREENS TO YOUR FIRST STAKE
+
+Choose a wallet, say how much. Everything else is already set and shown to you: which pool, why that one, that rewards arrive as sBTC in that same wallet, so there is no bitcoin address to mistype, and that the lock is one cycle — about two weeks — and can be ended early, without penalty, at the close of the cycle.
+
+Every one of those can be changed. The long way round is still there, and it is the right way if you want it.
+
+WHAT THE POOLS ACTUALLY RUN
+
+Forty-five signer contracts are deployed on pox-5. They run six distinct pieces of code between them. A pool is identified here by what its code hashes to, not by what it is called — anyone can deploy a contract named "signer-manager".
+
+So the guide leads with the contracts: what each one does, whether it can pay rewards to a bitcoin address at all, whether the fee is capped by the code, whether it takes a stake from anyone. Then the pools that run it, with how much is staked behind each and what it charges. Then every pool, ranked by size, searchable.
+
+Backing a different signer later is one transaction, and it takes effect at the next cycle — nothing unlocks in between.
+
+NOTHING IS HIDDEN, INCLUDING WHO WROTE IT
+
+Made by Fast Pool, which runs some of the pools listed here. They are described by the same detectors and ranked by the same rules as everyone else's, and the app says so. The pool it offers a first-time staker is chosen by a rule written down in the source and stated on the screen: a contract that has been read, open to anyone, lowest fee.
+
+Where every number comes from is a screen of its own — which file, when it was generated, which node was asked.
+
+YOUR KEYS STAY IN YOUR WALLET
+
+Signing happens in Leather, Xverse or OKX. Your wallet builds, signs and broadcasts every transaction. This app never sees a private key and never asks for one. It has no accounts, no sign-up, and collects nothing about you.
+
+You can also just watch an address — see what any position holds and earns, without connecting anything.
+
+OPEN SOURCE
+
+Everything here, including the scripts that generate the data, is public:
+github.com/fastpool/signer-guide
+
+Staking locks your STX for the period you choose, and you can end it earlier without penalty. Rewards depend on what the protocol earns and how much STX is staked against it; the rates shown are estimates from recent payouts, not promises. Nothing here is financial advice.
