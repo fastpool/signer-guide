@@ -120,7 +120,13 @@ resolves, and fails otherwise. That is the cheap way to find out that a tag has
 not been pushed yet.
 
 `SIGN_WITH=npub1…` goes one step further and writes the events it *would*
-publish to stdout, signed by nobody.
+publish to stdout, signed by nobody. Worth doing once before every first
+publish: it is what caught `release_notes` being emitted as text when `zsp`
+wants a path, which fails at the very end with `file name too long` and no clue
+as to which field is at fault.
+
+It does upload the icon and screenshots to Zapstore's CDN on the way, so run it
+only when those are the images you mean to publish.
 
 `--skip-metadata` is not optional in spirit: without it `zsp` fetches metadata
 from the Play Store and the repository and overwrites the listing above.
@@ -208,8 +214,10 @@ Things a person has to do, that no file here can:
       anything outside Apple's payment system. It is not: it takes no payment,
       sells nothing, and every transaction is signed by the user's own wallet.
       Say so in the review notes, with a test address to watch.
-- [ ] **All three**: decide the app's licence and put it in `LICENSE`.
-      `zapstore.yaml` currently claims MIT.
+- [x] **All three**: the licence. MIT, in `LICENSE` at the repository root,
+      which is what `zapstore.yaml`'s `license: MIT` and the F-Droid recipe's
+      `License: MIT` were already claiming and what F-Droid will not take the
+      app without.
 - [ ] **Zapstore**: create a release keystore and build a signed release APK.
       Nothing should be published from a debug build — see above.
 - [ ] A **media kit** and a **share card** were specified in the design

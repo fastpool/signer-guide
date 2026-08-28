@@ -107,8 +107,13 @@ icon: ../../assets/icon.png
 images:
 ${SCREENSHOTS.map((name) => `  - ../screenshots/raw/${name}.png`).join('\n')}
 
-release_notes: |
-${block(read('store/play/en-US/changelogs/default.txt'))}
+# A path, not the notes themselves — zsp opens this file. Emitting the text
+# inline made it try to open the changelog *as a filename*, which fails with
+# "file name too long" and nothing more helpful than that.
+release_notes: ${quoted(path.relative(
+  path.join(root, 'store/zapstore'),
+  path.join(root, 'store/play/en-US/changelogs/default.txt'),
+))}
 `;
 
 const target = path.join(root, 'store/zapstore/zapstore.yaml');
