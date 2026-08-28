@@ -97,12 +97,30 @@ three cannot drift:
 node scripts/make-zapstore-config.mjs
 ```
 
+`release_source` points at the repository's releases, which is where the APK
+should come from: what Zapstore publishes is then an artefact anyone can fetch
+and hash for themselves. For a first publish, before any release exists,
+`ZAPSTORE_APK=path/to/app-release.apk node scripts/make-zapstore-config.mjs`
+points it at a local file instead.
+
 Publishing:
 
 ```bash
 go install github.com/zapstore/zsp@latest
-SIGN_WITH="bunker://…" zsp publish store/zapstore/zapstore.yaml --skip-metadata
+cd mobile/store/zapstore
+SIGN_WITH="bunker://…" zsp publish zapstore.yaml --skip-metadata
 ```
+
+Run it from the config's own directory: the paths inside it — the icon, the
+screenshots — are relative to the file.
+
+Before signing anything, `zsp publish zapstore.yaml --check` answers
+`{"package_id":"org.fastpool.signerguide"}` when the release it points at
+resolves, and fails otherwise. That is the cheap way to find out that a tag has
+not been pushed yet.
+
+`SIGN_WITH=npub1…` goes one step further and writes the events it *would*
+publish to stdout, signed by nobody.
 
 `--skip-metadata` is not optional in spirit: without it `zsp` fetches metadata
 from the Play Store and the repository and overwrites the listing above.
