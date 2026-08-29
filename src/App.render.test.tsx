@@ -3,6 +3,18 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 import signers from './data/signers.json';
 import { isArchived, PROFILES } from './lib/profiles';
+import { buildTemplates } from './lib/templates';
+import type { SignerData } from './lib/types';
+
+/**
+ * The pools the page is about, read off the committed data.
+ *
+ * Counted rather than written down: pools register every few cycles, and a
+ * number typed into a test fails on the refresh that adds one without
+ * anything having gone wrong. Pools on an archived contract type are left out
+ * here for the same reason the page leaves them out.
+ */
+const LIVE = (signers as SignerData).signers.filter((s) => !isArchived(s));
 
 /*
  * Renders the real page to HTML and reads it the way a visitor would. Enough
@@ -105,13 +117,9 @@ describe('the page as a reader sees it', () => {
     // reader chooses from is not the place for them.
     const html = renderToStaticMarkup(<App />);
     expect(html).not.toContain('Not Used');
-    // And the count says the list is not everything. Read off the committed
-    // data rather than written down here: pools register every few cycles,
-    // and a number typed into a test fails on the refresh that adds one
-    // without anything having gone wrong. Pools on an archived contract type
-    // are not in the count, because they are not in the list either.
-    const listed = signers.signers.filter((s) => !isArchived(s)).length;
-    expect(html).toContain(`of ${listed} pools match`);
+    // And the count says the list is not everything. Pools on an archived
+    // contract type are not in it, because they are not in the list either.
+    expect(html).toContain(`of ${LIVE.length} pools match`);
   });
 
   it('keeps a pool the guide has only just seen, and says it is new', () => {
@@ -168,10 +176,36 @@ describe('the page as a reader sees it', () => {
     // Six contracts and every pool that could be standardised.
     expect(icons).toBeGreaterThan(6);
     expect(html).toContain('aria-label="Icon of the code this pool runs"');
-    // Every committed pool has a hash, so nothing on this page is new code.
-    // The placeholder here would mean a contract lost its icon to a
-    // disagreement among its pools, which is not what it says.
-    expect(html).not.toContain('New code — no icon for it yet');
+    /*
+     * The placeholder is allowed only where the committed data has no hash to
+     * draw from — today nowhere, so this reads as "none", which is the
+     * assertion it replaces.
+     *
+     * It is a ceiling rather than a ban because the hourly refresh runs
+     * without clarinet on purpose: a contract that registered since the last
+     * person ran the generator has no identicon, and saying so is the whole
+     * of what the placeholder means. Forbidding it outright failed the
+     * refresh on that ordinary event, and a failed refresh skips the step
+     * that opens the issue asking someone to read the new contract — so the
+     * one thing the job exists to say was the thing it swallowed.
+     *
+     * What it still catches is a placeholder where the page has a hash in
+     * hand: a card not passed the one its pool has, or a contract not passed
+     * its group's. Which hash a contract shows when its pools disagree is
+     * `majorityIdenticon`'s business, and templates.test.ts is where that is
+     * pinned down; this only insists the page draws what it was given.
+     */
+    const templates = buildTemplates((signers as SignerData).signers);
+    const unhashed =
+      LIVE.filter((s) => s.identiconHash === null).length +
+      templates.filter(
+        (t) => !t.profile.archived && t.identiconHash === null,
+      ).length;
+    // The label, not the words: the placeholder carries them twice, once as
+    // `aria-label` and once as `title`, and counting the text counts double.
+    const placeholders =
+      html.split('aria-label="New code — no icon for it yet"').length - 1;
+    expect(placeholders).toBeLessThanOrEqual(unhashed);
   });
 
   it('keeps a contract icon that one of its pools does not share', () => {
