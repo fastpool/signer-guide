@@ -1,13 +1,15 @@
 {
   "signerKey": "0x026cd54c6d17e25b01a7e54be2d2569ff3cec7aaf22c519edcb161a3ca823c42f1",
   "contractIds": [
-    "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-3-v1"
+    "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-3-v1",
+    "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-3-v2"
   ],
   "cycles": [
     {
       "cycle": 143,
       "ustx": {
-        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-3-v1": "0"
+        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-3-v1": "0",
+        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-3-v2": "0"
       },
       "memberCount": 0,
       "membersAddUp": true,
@@ -20,7 +22,8 @@
     {
       "cycle": 142,
       "ustx": {
-        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-3-v1": "0"
+        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-3-v1": "0",
+        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-3-v2": "0"
       },
       "memberCount": 0,
       "membersAddUp": true,
@@ -33,7 +36,8 @@
     {
       "cycle": 141,
       "ustx": {
-        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-3-v1": "0"
+        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-3-v1": "0",
+        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-3-v2": "0"
       },
       "memberCount": 0,
       "membersAddUp": true,
@@ -45,5 +49,5 @@
     }
   ],
   "currentCycle": 142,
-  "generatedAt": "2026-08-28T05:28:37.146Z"
+  "generatedAt": "2026-08-28T21:23:16.245Z"
 }
