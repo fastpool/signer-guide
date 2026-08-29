@@ -435,6 +435,8 @@ export const ko: MobileBundle = {
 
     // ------------------------------------------------------------ features --
     'feature.bitcoinYes': 'Stacks의 sBTC 대신 비트코인 주소로 보상 지급',
+    'feature.bitcoinViaPool':
+      '비트코인 주소를 기록하지만 지급은 sBTC로 — 비트코인은 풀이 직접 보냅니다',
     'feature.bitcoinNo': 'Stacks의 sBTC로 지급 — 비트코인으로는 보낼 수 없음',
     'feature.openYes': '누구나 참여 가능',
     'feature.openNo': '풀이 참여 대상을 정함',

@@ -17,6 +17,7 @@ import {
   unlockedFromBalances,
 } from '../lib/stx-amounts';
 import { explorerUrl } from '../lib/explorer';
+import { bitcoinPayout } from '../lib/features';
 import { translator, type Locale, type Translator } from '../lib/i18n';
 import {
   buildPayoutCalldata,
@@ -312,7 +313,14 @@ export default function StakeModal({
   const [offerBrowser, setOfferBrowser] = useState(false);
 
   const walletAddress = session?.stxAddress ?? cachedAddress;
-  const canToggleBtc = signer.bitcoinRewards;
+  /*
+   * Offered whenever the contract will take an address, which is not the same
+   * as paying to one: the bond-*-v2 contracts record it and pay nowhere near
+   * it, and a pool distributing to its stakers itself is reading exactly this
+   * field to know where to send their bitcoin. Withholding the option there
+   * would leave nothing for it to read.
+   */
+  const canToggleBtc = bitcoinPayout(signer) !== 'none';
 
   /**
    * Bumped whenever the account changes, so a slow lookup for the account the

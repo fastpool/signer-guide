@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { satsLabel, stxLabel } from '../lib/amounts';
 import { explorerUrl } from '../lib/explorer';
+import { bitcoinPayout } from '../lib/features';
 import { formatLastUpdate, translator, type Locale } from '../lib/i18n';
 import { contractHref, signerHref } from '../lib/route';
 import {
@@ -52,6 +53,7 @@ export default function SignerPage({
   const t = translator(locale);
   const [address, name] = signer.contractId.split('.');
   const history = useSignerHistory(slug);
+  const btc = bitcoinPayout(signer);
 
   return (
     <main className='mx-auto max-w-3xl px-5 py-12 md:py-20'>
@@ -106,8 +108,16 @@ export default function SignerPage({
         ) : (
           <Badge tone='warm'>{t('badge.inviteOnly')}</Badge>
         )}
-        {signer.bitcoinRewards && (
+        {/*
+          Three answers, not two: a contract that pays to Bitcoin, one that
+          only collects the address for the pool to pay from, and one that
+          takes no address at all. `bitcoinPayout` says which.
+        */}
+        {btc === 'contract' && (
           <Badge tone='good'>{t('badge.bitcoinRewards')}</Badge>
+        )}
+        {btc === 'pool' && (
+          <Badge tone='warm'>{t('badge.bitcoinViaPool')}</Badge>
         )}
         <Badge tone='neutral'>
           {t('badge.fee', { fee: feeLabel(signer.feeBips, locale) })}

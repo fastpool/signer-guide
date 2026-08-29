@@ -30,6 +30,16 @@ export interface ManagerProfile {
   summary: string;
   /** A paragraph or two for the contract's own page. */
   detail: string;
+  /**
+   * Superseded code, kept readable but no longer offered.
+   *
+   * An archived contract type is one nobody should be choosing today — the
+   * operator has redeployed and moved on. Its page stays where it was, because
+   * somebody staked with it is entitled to read what they are in; it is the
+   * lists that stop leading people there, and `isArchived` is what those lists
+   * ask.
+   */
+  archived?: boolean;
 }
 
 export const PROFILES: Record<string, ManagerProfile> = profiles;
@@ -40,4 +50,9 @@ export function profileFor(groupSha256: string): ManagerProfile | null {
 
 export function profileById(id: string): ManagerProfile | null {
   return Object.values(PROFILES).find((p) => p.id === id) ?? null;
+}
+
+/** Whether a pool runs a contract type that has been superseded. */
+export function isArchived(signer: { groupSha256: string }): boolean {
+  return profileFor(signer.groupSha256)?.archived === true;
 }

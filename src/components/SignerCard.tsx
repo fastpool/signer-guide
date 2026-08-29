@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { stxLabel } from '../lib/amounts';
 import { explorerUrl } from '../lib/explorer';
+import { bitcoinPayout } from '../lib/features';
 import { SIP_IDENTICON_URL } from '../lib/identicon';
 import { translator, type Locale } from '../lib/i18n';
 import { contractHref, signerHref } from '../lib/route';
@@ -29,6 +30,7 @@ export default function SignerCard({
   const [showDetails, setShowDetails] = useState(false);
   const [addr, name] = signer.contractId.split('.');
   const t = translator(locale);
+  const btc = bitcoinPayout(signer);
 
   return (
     <li className='rounded-3xl bg-card p-6 shadow-lift'>
@@ -94,8 +96,16 @@ export default function SignerCard({
         ) : (
           <Badge tone='warm'>{t('badge.inviteOnly')}</Badge>
         )}
-        {signer.bitcoinRewards && (
+        {/*
+          Three answers, not two: a contract that pays to Bitcoin, one that
+          only collects the address for the pool to pay from, and one that
+          takes no address at all. `bitcoinPayout` says which.
+        */}
+        {btc === 'contract' && (
           <Badge tone='good'>{t('badge.bitcoinRewards')}</Badge>
+        )}
+        {btc === 'pool' && (
+          <Badge tone='warm'>{t('badge.bitcoinViaPool')}</Badge>
         )}
         <Badge tone='neutral'>{t('badge.sbtcRewards')}</Badge>
         <Badge tone='neutral'>

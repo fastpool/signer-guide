@@ -432,6 +432,8 @@ const messages = {
 
   // -------------------------------------------------------------- features --
   'feature.bitcoinYes': 'Pays rewards to a Bitcoin address, instead of as sBTC on Stacks',
+  'feature.bitcoinViaPool':
+    'Records a Bitcoin address but pays as sBTC — bitcoin, if it comes, is sent by the pool',
   'feature.bitcoinNo': 'Pays as sBTC on Stacks — it cannot pay out to Bitcoin',
   'feature.openYes': 'Open to anyone',
   'feature.openNo': 'The pool decides who may join',

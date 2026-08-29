@@ -1,6 +1,8 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
+import signers from './data/signers.json';
+import { isArchived, PROFILES } from './lib/profiles';
 
 /*
  * Renders the real page to HTML and reads it the way a visitor would. Enough
@@ -79,14 +81,37 @@ describe('the page as a reader sees it', () => {
     expect(html).toContain('7.1 million STX');
   });
 
+  it('keeps archived contract types out of the list and says where they went', () => {
+    // Code the operator has replaced. The type is still readable — it has a
+    // page, and somebody staked with it needs that page — but it is not
+    // offered beside the ones anybody should be choosing between.
+    const html = renderToStaticMarkup(<App />);
+    const archived = Object.values(PROFILES).filter(
+      (profile) =>
+        profile.archived &&
+        signers.signers.some((signer) => signer.profileId === profile.id),
+    );
+    expect(archived.length).toBeGreaterThan(0);
+    expect(html).toContain('Archived contracts');
+    for (const profile of archived) {
+      // Named once, under the archived heading, and not as a card above it.
+      expect(html.split(profile.name).length - 1).toBe(1);
+    }
+  });
+
   it('leaves out a pool that every cycle on file says is empty', () => {
-    // Fifteen of the registered signers hold nothing and never have. They are
+    // Many of the registered signers hold nothing and never have. They are
     // real contracts and the guide says so on their own pages; the list a
     // reader chooses from is not the place for them.
     const html = renderToStaticMarkup(<App />);
     expect(html).not.toContain('Not Used');
-    // And the count says the list is not everything.
-    expect(html).toContain('of 45 pools match');
+    // And the count says the list is not everything. Read off the committed
+    // data rather than written down here: pools register every few cycles,
+    // and a number typed into a test fails on the refresh that adds one
+    // without anything having gone wrong. Pools on an archived contract type
+    // are not in the count, because they are not in the list either.
+    const listed = signers.signers.filter((s) => !isArchived(s)).length;
+    expect(html).toContain(`of ${listed} pools match`);
   });
 
   it('keeps a pool the guide has only just seen, and says it is new', () => {

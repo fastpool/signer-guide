@@ -56,6 +56,9 @@ const messages = {
   'app.contractsHeading': 'The signer contracts',
   'app.contractsIntro':
     'Each one behaves differently. Tap a contract to see what it does and who runs it.',
+  'app.archivedHeading': 'Archived contracts',
+  'app.archivedIntro':
+    'Code the operator has replaced. The pools still running it are left out of the list below, and out of the counts on this page — they are real and their pages still say everything about them, but nobody should be choosing one today.',
   'app.poolCount.one': '{count} pool',
   'app.poolCount.other': '{count} pools',
   'app.lastUpdate': 'Last update: {at}',
@@ -187,7 +190,9 @@ const messages = {
   'badge.new': 'New',
   'badge.anyoneCanJoin': 'Anyone can join',
   'badge.inviteOnly': 'Invite only',
+  'badge.archived': 'Archived contract',
   'badge.bitcoinRewards': 'Rewards in Bitcoin',
+  'badge.bitcoinViaPool': 'Bitcoin through the pool',
   'badge.sbtcRewards': 'Rewards in sBTC',
   'badge.fee': 'Fee: {fee}',
   'badge.feeCapped': 'Fee capped at {percent}%',
@@ -281,6 +286,8 @@ const messages = {
     'A new fee can take effect as soon as the pool sets it, with no warning.',
   'contract.bitcoin': 'Rewards in Bitcoin',
   'contract.bitcoinEvidence': 'It records a Bitcoin address for you: {code}',
+  'contract.bitcoinViaPool':
+    'It records a Bitcoin address for you — {code} — and then pays nowhere near it: every reward leaves this contract as sBTC, in one payment to one recipient the operator sets. The address is readable by anyone, so a pool that distributes to its stakers itself can pay them in bitcoin from it. That is the pool doing it, not the contract, and this page cannot tell you whether it does.',
   'contract.bitcoinNone':
     'The contract never handles a Bitcoin address, so rewards arrive as sBTC on Stacks.',
 

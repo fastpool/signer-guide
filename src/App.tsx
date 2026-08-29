@@ -32,6 +32,7 @@ import {
 import { groupForContract, signerSlug } from './lib/signer-groups';
 import { inUse, isNewSigner } from './lib/activity';
 import { useServiceWorker } from './lib/service-worker';
+import { isArchived } from './lib/profiles';
 import { buildTemplates, templateFor } from './lib/templates';
 import type { LockedTotals, SignerData } from './lib/types';
 
@@ -116,15 +117,37 @@ export default function App() {
     locale,
   );
 
+  /*
+   * Every contract type, archived ones included, because a contract's page has
+   * to stay reachable for somebody already staked with it. The lists below are
+   * the live ones; `archivedTemplates` is shown apart and much quieter.
+   */
   const templates = useMemo(
     () => buildTemplates(signerData.signers),
     [signerData],
   );
+  const liveTemplates = useMemo(
+    () => templates.filter((template) => !template.profile.archived),
+    [templates],
+  );
+  const archivedTemplates = useMemo(
+    () => templates.filter((template) => template.profile.archived),
+    [templates],
+  );
+
+  /*
+   * The pools this page is about. A pool on an archived contract is not one of
+   * them: the operator has redeployed and moved on, and a reader choosing
+   * where to stake should not be sent somewhere nobody is being sent any more.
+   * It keeps its own page, and the archived section says how many there are.
+   */
+  const live = useMemo(
+    () => signerData.signers.filter((signer) => !isArchived(signer)),
+    [signerData],
+  );
 
   const shown = useMemo(() => {
-    const matching = signerData.signers.filter((s) =>
-      matches(s, active, totals),
-    );
+    const matching = live.filter((s) => matches(s, active, totals));
     // Biggest first: the list is easier to read when the pools people
     // actually use are at the top.
     return [...matching].sort((a, b) => {
@@ -132,13 +155,13 @@ export default function App() {
       const right = BigInt(totals.ustx[b.contractId] ?? 0);
       return right > left ? 1 : right < left ? -1 : 0;
     });
-  }, [active, signerData, totals]);
+  }, [active, live, totals]);
 
   useEffect(() => {
     applyLocaleMetadata(locale);
   }, [locale]);
 
-  const contractIds = signerData.signers.map((s) => s.contractId);
+  const contractIds = live.map((s) => s.contractId);
   const staked = sumUstx(contractIds, totals.ustx);
   // The cycle now filling, when the refresh could read it. Left out rather
   // than shown as unchanged: "the same as this cycle" is a claim of its own.
@@ -258,7 +281,7 @@ export default function App() {
       return next;
     });
 
-  const total = signerData.signers.length;
+  const total = live.length;
   // The keys are checked, not cast: a filter added without its copy is a
   // build error rather than a raw key on a button.
   const filters = FILTER_IDS.map((id) => {
@@ -333,7 +356,7 @@ export default function App() {
             ),
             contracts: (
               <strong className='text-ink'>
-                {t('app.introContracts', { count: templates.length })}
+                {t('app.introContracts', { count: liveTemplates.length })}
               </strong>
             ),
           })}
@@ -379,7 +402,7 @@ export default function App() {
         </h2>
         <p className='mt-1 text-muted'>{t('app.contractsIntro')}</p>
         <ul className='mt-4 grid gap-3 sm:grid-cols-2'>
-          {templates.map((template) => {
+          {liveTemplates.map((template) => {
             const profile = localizeProfile(template.profile, locale);
             return (
               <li key={template.profile.id}>
@@ -403,6 +426,38 @@ export default function App() {
           })}
         </ul>
       </section>
+
+      {/*
+        Archived types, below the live ones and deliberately plainer: no
+        identicon, no card, no invitation to click through and choose. They are
+        here because a contract somebody is staked with should never vanish
+        from the page that describes it — not because anybody should be picking
+        one today.
+      */}
+      {archivedTemplates.length > 0 && (
+        <section className='mt-8' aria-labelledby='archived-heading'>
+          <h3 id='archived-heading' className='text-lg font-bold text-muted'>
+            {t('app.archivedHeading')}
+          </h3>
+          <p className='mt-1 text-sm text-muted'>{t('app.archivedIntro')}</p>
+          <ul className='mt-2 space-y-1 text-sm'>
+            {archivedTemplates.map((template) => (
+              <li key={template.profile.id}>
+                <a
+                  href={contractHref(template.profile.id)}
+                  className='text-muted underline underline-offset-4 transition-colors hover:text-grape'
+                >
+                  {localizeProfile(template.profile, locale).name}
+                </a>
+                <span className='text-muted'>
+                  {' — '}
+                  {t.plural('app.poolCount', template.signers.length)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <p className='mt-10 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted'>
         <span className='inline-flex items-center gap-2 rounded-full bg-card px-3 py-1.5 font-bold text-ink shadow-lift'>

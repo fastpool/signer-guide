@@ -1,4 +1,5 @@
 import { stxLabel, sumUstx } from '../lib/amounts';
+import { bitcoinPayout } from '../lib/features';
 import { SIP_IDENTICON_URL } from '../lib/identicon';
 import { translator, type Locale } from '../lib/i18n';
 import { localizeProfile } from '../lib/profile-i18n';
@@ -26,6 +27,7 @@ export default function ContractPage({
   onLocaleChange: (locale: Locale) => void;
 }) {
   const { signers } = template;
+  const btc = bitcoinPayout(template);
   const t = translator(locale);
   const profile = localizeProfile(template.profile, locale);
   const staked = sumUstx(
@@ -93,8 +95,23 @@ export default function ContractPage({
         ) : (
           <Badge tone='warm'>{t('badge.inviteOnly')}</Badge>
         )}
-        {template.bitcoinRewards && (
+        {/*
+          First, when it applies: this is code the operator has replaced, and
+          that outranks anything else the badges say about it.
+        */}
+        {template.profile.archived && (
+          <Badge tone='warm'>{t('badge.archived')}</Badge>
+        )}
+        {/*
+          Three answers, not two: a contract that pays to Bitcoin, one that
+          only collects the address for the pool to pay from, and one that
+          takes no address at all. `bitcoinPayout` says which.
+        */}
+        {btc === 'contract' && (
           <Badge tone='good'>{t('badge.bitcoinRewards')}</Badge>
+        )}
+        {btc === 'pool' && (
+          <Badge tone='warm'>{t('badge.bitcoinViaPool')}</Badge>
         )}
         <Badge tone='neutral'>{t('badge.sbtcRewards')}</Badge>
         {template.maxFeeBips !== null && (
@@ -249,11 +266,16 @@ export default function ContractPage({
           <div>
             <dt className='font-semibold'>{t('contract.bitcoin')}</dt>
             <dd className='mt-0.5 text-muted'>
-              {template.evidence.bitcoinRewards
-                ? t.rich('contract.bitcoinEvidence', {
-                    code: <Code>{template.evidence.bitcoinRewards}</Code>,
-                  })
-                : t('contract.bitcoinNone')}
+              {btc === 'none'
+                ? t('contract.bitcoinNone')
+                : t.rich(
+                    btc === 'contract'
+                      ? 'contract.bitcoinEvidence'
+                      : 'contract.bitcoinViaPool',
+                    {
+                      code: <Code>{template.evidence.bitcoinRewards ?? ''}</Code>,
+                    },
+                  )}
             </dd>
           </div>
         </dl>

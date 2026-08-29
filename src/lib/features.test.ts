@@ -64,17 +64,40 @@ describe('openToAnyone', () => {
 });
 
 describe('bitcoinRewards', () => {
-  it('is true when the contract records a Bitcoin address for the staker', () => {
-    const src = wrap(`(begin
+  /** validate-stake! as the Standard contract writes it: a recorded pox-addr. */
+  const RECORDS_POX_ADDR = `(begin
       (try! (authorize-pox-5))
       (ok (match signer-calldata calldata
         (let ((pox-addr (unwrap! (from-consensus-buff? { pox-addr: { version: (buff 1), hashbytes: (buff 32) }, max-fee: uint } calldata) ERR_INVALID_CALLDATA)))
           (try! (check-pox-addr (get pox-addr pox-addr)))
           (map-set pox-addrs staker pox-addr)
           true)
-        (map-delete pox-addrs staker))))`);
-    const features = detectFeatures(src);
+        (map-delete pox-addrs staker))))`;
+
+  /** The other half: the claim that hands that address to sBTC's withdrawal. */
+  const PAYS_TO_L1 = `
+(define-public (claim-staker-rewards (staker principal))
+  (contract-call? 'SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-withdrawal
+    initiate-withdrawal-request amount (get pox-addr l1-info) (get max-fee l1-info))
+)`;
+
+  it('is true when the contract records a Bitcoin address and pays to it', () => {
+    const features = detectFeatures(wrap(RECORDS_POX_ADDR) + PAYS_TO_L1);
     expect(features.bitcoinRewards.value).toBe(true);
+    expect(features.bitcoinRewards.evidence).toContain('check-pox-addr');
+  });
+
+  /*
+   * signer-manager-bond-*-v2, deployed at cycle 142: the Standard contract's
+   * recording, and nothing in the contract that reads it back. Every reward
+   * goes as sBTC to one recipient the operator sets, so "Rewards in Bitcoin"
+   * would be a badge for something the contract cannot do — while the address
+   * itself is public and an operator paying off-chain can still use it, which
+   * is why the evidence is kept rather than thrown away.
+   */
+  it('is false when an address is recorded but the contract pays nowhere near it', () => {
+    const features = detectFeatures(wrap(RECORDS_POX_ADDR));
+    expect(features.bitcoinRewards.value).toBe(false);
     expect(features.bitcoinRewards.evidence).toContain('check-pox-addr');
   });
 

@@ -414,6 +414,30 @@ export function detectFeatures(source: string): SourceFeatures {
     /pox-addr/.test(validateStake) &&
     /check-pox-addr|map-set\s+pox-addrs/.test(validateStake);
 
+  /*
+   * Recording an address is not paying to one.
+   *
+   * `SP4SZE49….signer-manager-bond-*-v2` validates a pox-addr and stores it
+   * against the staker exactly as the Standard contract does — and then never
+   * reads it back. Claiming sends the whole cycle's sBTC to a single recipient
+   * the operator sets, and no function in it can send a reward to L1.
+   *
+   * The address is not wasted: `get-pox-addr` is public, so an operator paying
+   * its stakers off-chain can read every one of them and pay to Bitcoin that
+   * way. That is a thing the pool can do, though — not a thing the contract
+   * does — and this flag is what puts "Rewards in Bitcoin" on a card. So it
+   * takes the payout route as well: sBTC's withdrawal, which is the only way a
+   * reward leaves Stacks for L1 and the way every contract here that pays to
+   * Bitcoin reaches it.
+   *
+   * The recording is still worth showing, so it stays in `evidence` either
+   * way, and the contract page says which of the two it is looking at.
+   */
+  const paysToPoxAddr =
+    /sbtc-withdrawal[\s\S]{0,120}?initiate-withdrawal-request/.test(
+      stripComments(source),
+    );
+
   // A gate only counts as "you may not join" if it tests the staker.
   //
   // Not every `asserts!` is a door: managers also assert that the caller is
@@ -427,7 +451,7 @@ export function detectFeatures(source: string): SourceFeatures {
 
   return {
     bitcoinRewards: {
-      value: recordsPoxAddr,
+      value: recordsPoxAddr && paysToPoxAddr,
       evidence: recordsPoxAddr ? (poxAddrMatch?.[0]?.trim() ?? null) : null,
     },
     openToAnyone: {
@@ -443,4 +467,32 @@ export function detectFeatures(source: string): SourceFeatures {
     feeChangeNotice,
     feeExemption: detectFeeExemption(source),
   };
+}
+
+/**
+ * How a reward can reach Bitcoin at all, in three answers rather than two.
+ *
+ *   contract  the contract records your address and pays to it, through
+ *             sBTC's withdrawal. A promise the code keeps.
+ *   pool      the contract records your address and pays nowhere near it.
+ *             `get-pox-addr` is public, so a pool that distributes to its
+ *             stakers itself — off-chain, or through a contract of its own —
+ *             can read every address it has been given and send bitcoin that
+ *             way. Whether it does is between a staker and the pool.
+ *   none      the contract never takes an address, so there is none to use.
+ *
+ * The middle one is what `signer-manager-bond-*-v2` is, and it is the reason
+ * this is not a boolean. Calling it "no Bitcoin rewards" would be telling
+ * somebody bitcoin cannot reach them when the contract is collecting the
+ * address it would reach them at; calling it "Bitcoin rewards" would be
+ * putting the pool's word where the page otherwise only puts the code's.
+ */
+export type BitcoinPayout = 'contract' | 'pool' | 'none';
+
+export function bitcoinPayout(signer: {
+  bitcoinRewards: boolean;
+  evidence: { bitcoinRewards: string | null };
+}): BitcoinPayout {
+  if (signer.bitcoinRewards) return 'contract';
+  return signer.evidence.bitcoinRewards === null ? 'none' : 'pool';
 }

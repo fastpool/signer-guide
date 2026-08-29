@@ -1,3 +1,4 @@
+import { isArchived } from '@guide/lib/profiles';
 import { BUNDLED } from './snapshot';
 import {
   allSigners,
@@ -93,7 +94,11 @@ describe('the pool list', () => {
   });
 
   it('holds every pool in the file, including the ones nobody can join', () => {
-    expect(allSigners(snapshot)).toHaveLength(snapshot.signers.signers.length);
+    // Except the ones on a contract type the operator has replaced: those are
+    // left out of every list, here as on the web guide, and are reached only
+    // through a position already held in one.
+    const listed = snapshot.signers.signers.filter((s) => !isArchived(s));
+    expect(allSigners(snapshot)).toHaveLength(listed.length);
   });
 });
 

@@ -1,4 +1,5 @@
 import { View } from 'react-native';
+import { bitcoinPayout } from '@guide/lib/features';
 import type { Template } from '../data/signers';
 import { useT } from '../i18n';
 import { space } from '../theme';
@@ -21,13 +22,24 @@ export default function FeatureList({
   testID?: string;
 }) {
   const t = useT();
+  const btc = bitcoinPayout(template);
   return (
     <View style={{ gap: space.xs }} testID={testID}>
+      {/*
+        Three answers, not two. A contract that only records the address and
+        pays nowhere near it is neither "pays to Bitcoin" nor "cannot" — the
+        pool can read what it recorded and pay from it, and that is the pool's
+        word rather than the contract's, so it is shown as neither good nor bad.
+      */}
       <Line
-        good={template.bitcoinRewards}
-        text={
-          template.bitcoinRewards ? t('feature.bitcoinYes') : t('feature.bitcoinNo')
-        }
+        good={btc === 'contract' ? true : btc === 'pool' ? null : false}
+        text={t(
+          btc === 'contract'
+            ? 'feature.bitcoinYes'
+            : btc === 'pool'
+              ? 'feature.bitcoinViaPool'
+              : 'feature.bitcoinNo',
+        )}
       />
       <Line
         good={template.openToAnyone}

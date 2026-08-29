@@ -1,3 +1,4 @@
+import { isArchived } from '@guide/lib/profiles';
 import { buildTemplates, type Template } from '@guide/lib/templates';
 import { signerNameFromContractId } from '@guide/lib/stx-amounts';
 import type { LockedTotals, Signer } from '@guide/lib/types';
@@ -46,11 +47,20 @@ export function poolName(signer: Signer | null, contractId: string): {
 
 /** Only pools that are registered and will take a stake from anyone. */
 export function isJoinable(signer: Signer): boolean {
-  return signer.registered && signer.openToAnyone;
+  return signer.registered && signer.openToAnyone && !isArchived(signer);
 }
 
+/*
+ * Archived contract types are left out of every list here — the contracts to
+ * choose from, and the pools running them — because they are code the operator
+ * has replaced and there is nothing to choose. A position already held in one
+ * still reads normally: the position is looked up in the snapshot by contract
+ * id, which is untouched by any of this.
+ */
 export function templatesFrom(snapshot: Snapshot): Template[] {
-  return buildTemplates(snapshot.signers.signers);
+  return buildTemplates(snapshot.signers.signers).filter(
+    (template) => !template.profile.archived,
+  );
 }
 
 /** Pools running one contract, biggest first, unjoinable ones left out. */
@@ -65,9 +75,9 @@ export function joinableSigners(
 
 /** Every pool, biggest first — the full list, for the part of the app that shows everything. */
 export function allSigners(snapshot: Snapshot): Signer[] {
-  return [...snapshot.signers.signers].sort((a, b) =>
-    compareStaked(snapshot.totals, a, b),
-  );
+  return snapshot.signers.signers
+    .filter((signer) => !isArchived(signer))
+    .sort((a, b) => compareStaked(snapshot.totals, a, b));
 }
 
 function compareStaked(totals: LockedTotals, a: Signer, b: Signer): number {
