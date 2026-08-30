@@ -420,27 +420,7 @@ export default function StxOnlyRewardsEstimate({
               {exactStxLabel(estimate.stxOnlyStakedUstx, locale)}
             </dd>
           </div>
-          <div aria-hidden='true' className='border-t border-grape-soft' />
-          {estimate.lastPayoutRateSatsPer1000Stx !== null && (
-            <div className='flex flex-wrap items-baseline justify-between gap-3'>
-              <dt className='text-muted'>
-                {estimate.lastPayoutCycle === null
-                  ? t('app.stxOnlyEstimate.lastPayout')
-                  : t('app.stxOnlyEstimate.lastPayoutInCycle', {
-                      cycle: estimate.lastPayoutCycle.toLocaleString(
-                        t.bundle.intlLocale,
-                      ),
-                    })}
-              </dt>
-              <dd className='font-semibold text-ink'>
-                {t('app.stxOnlyEstimate.rateValue', {
-                  sats: estimate.lastPayoutRateSatsPer1000Stx.toLocaleString(
-                    t.bundle.intlLocale,
-                  ),
-                })}
-              </dd>
-            </div>
-          )}
+          <div aria-hidden='true' className='border-t border-grape-soft' />          
           {estimate.projectedRateSatsPer1000Stx !== null && (
             <div className='flex flex-wrap items-baseline justify-between gap-3'>
               <dt className='text-muted'>
@@ -483,6 +463,26 @@ export default function StxOnlyRewardsEstimate({
                   })}
             </dd>
           </div>
+          {estimate.lastPayoutRateSatsPer1000Stx !== null && (
+            <div className='flex flex-wrap items-baseline justify-between gap-3'>
+              <dt className='text-muted'>
+                {estimate.lastPayoutCycle === null
+                  ? t('app.stxOnlyEstimate.lastPayout')
+                  : t('app.stxOnlyEstimate.lastPayoutInCycle', {
+                      cycle: estimate.lastPayoutCycle.toLocaleString(
+                        t.bundle.intlLocale,
+                      ),
+                    })}
+              </dt>
+              <dd className='font-semibold text-ink'>
+                {t('app.stxOnlyEstimate.rateValue', {
+                  sats: estimate.lastPayoutRateSatsPer1000Stx.toLocaleString(
+                    t.bundle.intlLocale,
+                  ),
+                })}
+              </dd>
+            </div>
+          )}
         </dl>
       )}
 

@@ -4,6 +4,7 @@ import { explorerUrl } from '../lib/explorer';
 import { bitcoinPayout } from '../lib/features';
 import { SIP_IDENTICON_URL } from '../lib/identicon';
 import { translator, type Locale } from '../lib/i18n';
+import { contractTypeName } from '../lib/profile-i18n';
 import { contractHref, signerHref } from '../lib/route';
 import { ellipsedAddr } from '../lib/strings';
 import type { Signer } from '../lib/types';
@@ -31,6 +32,7 @@ export default function SignerCard({
   const [addr, name] = signer.contractId.split('.');
   const t = translator(locale);
   const btc = bitcoinPayout(signer);
+  const contractName = contractTypeName(signer, locale);
 
   return (
     <li className='rounded-3xl bg-card p-6 shadow-lift'>
@@ -55,7 +57,7 @@ export default function SignerCard({
         </p>
       </div>
 
-      {signer.profileId && signer.implementationName ? (
+      {signer.profileId && contractName ? (
         <p className='mt-1 text-sm font-semibold'>
           {t.rich('signer.runsContract', {
             link: (
@@ -63,7 +65,7 @@ export default function SignerCard({
                 className='text-grape underline underline-offset-2'
                 href={contractHref(signer.profileId)}
               >
-                {t('signer.contractLink', { name: signer.implementationName })}
+                {t('signer.contractLink', { name: contractName })}
               </a>
             ),
           })}

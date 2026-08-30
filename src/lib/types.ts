@@ -23,7 +23,16 @@ export interface Signer {
    * Written by `applyManualData`, never by hand — see scripts/manual-data.ts.
    */
   displayNameSource: 'manual' | 'contract';
-  /** The implementation it runs, when we recognise the code. */
+  /**
+   * The implementation it runs, when we recognise the code.
+   *
+   * A copy of the profile's name, taken when this file was written — the
+   * generator writes `profile?.name` and nothing may set it by hand. Nothing
+   * should render it directly: it goes stale between a rename and the next
+   * refresh, and it is only ever the English name. Ask `contractTypeName`,
+   * which prefers the profile and keeps this as the fallback for a build that
+   * does not know the profile yet.
+   */
   implementationName: string | null;
   registered: boolean;
   /**

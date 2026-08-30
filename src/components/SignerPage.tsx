@@ -3,6 +3,7 @@ import { satsLabel, stxLabel } from '../lib/amounts';
 import { explorerUrl } from '../lib/explorer';
 import { bitcoinPayout } from '../lib/features';
 import { formatLastUpdate, translator, type Locale } from '../lib/i18n';
+import { contractTypeName } from '../lib/profile-i18n';
 import { contractHref, signerHref } from '../lib/route';
 import {
   cycleStanding,
@@ -54,6 +55,7 @@ export default function SignerPage({
   const [address, name] = signer.contractId.split('.');
   const history = useSignerHistory(slug);
   const btc = bitcoinPayout(signer);
+  const contractName = contractTypeName(signer, locale);
 
   return (
     <main className='mx-auto max-w-3xl px-5 py-12 md:py-20'>
@@ -87,7 +89,7 @@ export default function SignerPage({
         </a>
       </p>
 
-      {signer.profileId && signer.implementationName && (
+      {signer.profileId && contractName && (
         <p className='mt-3 text-sm font-semibold'>
           {t.rich('signer.runsContract', {
             link: (
@@ -95,7 +97,7 @@ export default function SignerPage({
                 className='text-grape underline underline-offset-2'
                 href={contractHref(signer.profileId)}
               >
-                {t('signer.contractLink', { name: signer.implementationName })}
+                {t('signer.contractLink', { name: contractName })}
               </a>
             ),
           })}

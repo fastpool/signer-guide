@@ -13,10 +13,9 @@
   },
   "d5718c4d8771628da0a24e4345534b4c9ec630f7942cdfd47c5fe3075c69b6b4": {
     "id": "invite-only",
-    "name": "Invite-only (earlier version)",
+    "name": "Invite-only",
     "summary": "A small signer contract where the operator chooses who may join. Rewards arrive as sBTC on Stacks.",
-    "detail": "A short contract that checks you against a list the operator controls before letting you stake. If you are not on it, staking is refused. It has no Bitcoin payout option, so rewards arrive as sBTC on Stacks, and it carries no fee of its own — which does not mean staking is free, because a fee may be taken elsewhere.",
-    "archived": true
+    "detail": "A short contract that checks you against a list the operator controls before letting you stake. If you are not on it, staking is refused. It has no Bitcoin payout option, so rewards arrive as sBTC on Stacks, and it carries no fee of its own — which does not mean staking is free, because a fee may be taken elsewhere."
   },
   "8925fa8554e7d42ccce00f760b26d31d6c672a9a9c5b1d04755971b6c820e62f": {
     "id": "native-pool",
@@ -38,7 +37,7 @@
   },
   "5fde076339b4920d38de1d8f34ea518cf68380b7a9679bdff5bcda78e8967822": {
     "id": "invite-only-v2",
-    "name": "Invite-only",
+    "name": "Invite-only (with btc address)",
     "summary": "A small signer contract where the operator chooses who may stake. It takes a Bitcoin address from you and stores it, but pays nothing to it: every reward leaves as sBTC, in one payment to one address the operator sets.",
     "detail": "The operator keeps a list of who may stake with this contract. If you are not on it, staking is refused, so this is not a pool you can join by deciding to. Only pox-5 itself can ask the contract whether a stake is allowed, and the list is the only question it asks about you.\n\nWhen you stake it will take a Bitcoin address from you, check that it is a real one, and store it under your name where anyone can read it. Nothing in the contract ever pays to that address. Claiming a cycle sends the whole of its sBTC to a single recipient the operator sets, and there is no function here that pays an individual staker at all — so what the address is for is being read: a pool that hands out rewards itself can look up every address it has been given and send bitcoin to it. Recording yours is how you tell the pool where you want to be paid, not something the contract will do for you.\n\nThat is the thing to understand about staking here. Both halves of what you get — how much, and in what — are decided by the pool after the rewards have left this contract, so they rest on what the operator has agreed with you rather than on anything the code will enforce. It takes no fee of its own, which says less than it would elsewhere: the rewards do not pass through it on their way to you."
   }

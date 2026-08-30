@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { satsLabel } from '@guide/lib/amounts';
+import { contractTypeName } from '@guide/lib/profile-i18n';
 import {
   cyclesRemaining,
   lockDuration,
@@ -66,6 +67,7 @@ export default function PositionCard({
   const { locale } = useSettings();
   const signer = signerFor(snapshot, position.signer);
   const { name, guessed } = poolName(signer, position.signer);
+  const contractName = signer ? contractTypeName(signer, locale) : null;
   const earnings = earningsFor(position.amountUstx, rate);
   const remaining =
     currentCycle === null ? null : cyclesRemaining({ position, currentCycle });
@@ -111,9 +113,9 @@ export default function PositionCard({
             >
               {name}
             </Text>
-            {signer?.implementationName ? (
+            {contractName ? (
               <Text variant='small' tone='faint'>
-                {t('position.contractNamed', { name: signer.implementationName })}
+                {t('position.contractNamed', { name: contractName })}
               </Text>
             ) : (
               <Text variant='small' tone='warn'>

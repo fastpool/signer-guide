@@ -1,10 +1,11 @@
 import { useCallback, useDeferredValue, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, TextInput, View } from 'react-native';
+import { contractTypeName } from '@guide/lib/profile-i18n';
 import type { Signer } from '@guide/lib/types';
 import { allSigners, stakedUstx } from '../data/signers';
 import { useSnapshot } from '../data/snapshot';
 import { useT } from '../i18n';
-import { useColors } from '../settings';
+import { useColors, useSettings } from '../settings';
 import { radius, SCREEN_GAP, space } from '../theme';
 import { Note, Screen, Text } from '../ui';
 import SignerRow from '../components/SignerRow';
@@ -27,6 +28,7 @@ export default function PoolsScreen({ navigation }: ScreenProps<'Pools'>) {
   const { snapshot } = useSnapshot();
   const colors = useColors();
   const t = useT();
+  const { locale } = useSettings();
   const [query, setQuery] = useState('');
 
   /*
@@ -44,9 +46,11 @@ export default function PoolsScreen({ navigation }: ScreenProps<'Pools'>) {
       (signer) =>
         signer.displayName.toLowerCase().includes(needle) ||
         signer.contractId.toLowerCase().includes(needle) ||
-        (signer.implementationName ?? '').toLowerCase().includes(needle),
+        // The contract type by the name the reader is being shown it under,
+        // which in Korean is not the one in the data.
+        (contractTypeName(signer, locale) ?? '').toLowerCase().includes(needle),
     );
-  }, [snapshot, deferredQuery]);
+  }, [snapshot, deferredQuery, locale]);
 
   const renderItem = useCallback(
     ({ item }: { item: Signer }) => (

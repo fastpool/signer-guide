@@ -146,6 +146,30 @@ export default function App() {
     [signerData],
   );
 
+  /*
+   * What the opening line counts.
+   *
+   * "There are N pools to choose from today" is a claim about choosing, so it
+   * counts what somebody could choose: pools in use, on contract types nobody
+   * has replaced. Counting every registered signer put a third of them in that
+   * sentence that hold nothing and never have — a number a reader then went
+   * looking for in a list the default filter had already taken them out of.
+   *
+   * The contracts are counted off those same pools rather than off the whole
+   * of profiles.json, because the sentence says the pools it just counted run
+   * only these — which is only true of the ones they actually run.
+   */
+  const choosable = useMemo(
+    () => live.filter((signer) => inUse(signer, totals)),
+    [live, totals],
+  );
+  const choosableTemplates = useMemo(() => {
+    const running = new Set(
+      choosable.map((signer) => signer.profileId).filter((id) => id !== null),
+    );
+    return liveTemplates.filter((template) => running.has(template.profile.id));
+  }, [choosable, liveTemplates]);
+
   const shown = useMemo(() => {
     const matching = live.filter((s) => matches(s, active, totals));
     // Biggest first: the list is easier to read when the pools people
@@ -351,12 +375,12 @@ export default function App() {
           {t.rich('app.intro', {
             pools: (
               <strong className='text-ink'>
-                {t('app.introPools', { count: total })}
+                {t('app.introPools', { count: choosable.length })}
               </strong>
             ),
             contracts: (
               <strong className='text-ink'>
-                {t('app.introContracts', { count: liveTemplates.length })}
+                {t('app.introContracts', { count: choosableTemplates.length })}
               </strong>
             ),
           })}

@@ -14,6 +14,7 @@
  */
 
 import * as fs from 'node:fs';
+import { profileFor } from '../src/lib/profiles.js';
 import type { Signer, SignerData } from '../src/lib/types.js';
 
 export interface Changes {
@@ -24,6 +25,18 @@ export interface Changes {
   /** Contracts running code no profile matches, so nobody has read it yet. */
   unreviewed: string[];
 }
+
+/**
+ * What the contract a signer runs is called, or null if nothing has read it.
+ *
+ * Asked of profiles.json rather than taken from the signer's own
+ * `implementationName`, which is a copy of the same name made when the file
+ * was written. This runs against a file the last refresh wrote and one this
+ * refresh just wrote, and a profile renamed in between would otherwise report
+ * itself as a change to every pool running it.
+ */
+const typeName = (signer: Signer) =>
+  profileFor(signer.groupSha256)?.name ?? signer.implementationName;
 
 const fee = (bips: number | null) =>
   bips === null ? 'no fee of its own' : `${bips / 100}%`;
@@ -72,7 +85,7 @@ export function describeChanges(
   for (const [id, signer] of after) {
     if (before.has(id)) continue;
     lines.push(
-      `+ registered  ${id}  (${signer.implementationName ?? 'code not reviewed'}, ${feePhrase(signer.feeBips)})`,
+      `+ registered  ${id}  (${typeName(signer) ?? 'code not reviewed'}, ${feePhrase(signer.feeBips)})`,
     );
   }
 
@@ -89,7 +102,7 @@ export function describeChanges(
     }
     if (was.profileId !== now.profileId) {
       lines.push(
-        `~ code  ${id}  now matches ${now.implementationName ?? 'no reviewed contract'}`,
+        `~ code  ${id}  now matches ${typeName(now) ?? 'no reviewed contract'}`,
       );
     }
     // A deployed contract cannot change, so this means our own reading of it

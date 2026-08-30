@@ -2,9 +2,11 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 import signers from './data/signers.json';
+import mockedTotals from './data/totals.json';
+import { inUse } from './lib/activity';
 import { isArchived, PROFILES } from './lib/profiles';
 import { buildTemplates } from './lib/templates';
-import type { SignerData } from './lib/types';
+import type { LockedTotals, SignerData } from './lib/types';
 
 /**
  * The pools the page is about, read off the committed data.
@@ -85,6 +87,29 @@ describe('the page as a reader sees it', () => {
     expect(html).toContain('for cycle 142');
   });
 
+  it('counts only the pools somebody could choose in the opening line', () => {
+    // "There are N pools to choose from today" used to count every registered
+    // signer, a third of which hold nothing and never have — and which the
+    // default filter then took straight back out of the list underneath. The
+    // sentence is about choosing, so it counts what can be chosen.
+    const html = renderToStaticMarkup(<App />);
+    const totals = mockedTotals as LockedTotals;
+    const choosable = LIVE.filter((signer) => inUse(signer, totals));
+
+    // Meaningful only while the two differ: the empty pool in the mocked
+    // amounts is the one the count has to leave out.
+    expect(choosable.length).toBeLessThan(LIVE.length);
+    expect(html).toContain(`${choosable.length} pools`);
+
+    // And the contracts are the ones those pools run, not every type on file.
+    const running = new Set(choosable.map((s) => s.profileId));
+    const types = buildTemplates((signers as SignerData).signers).filter(
+      (template) =>
+        !template.profile.archived && running.has(template.profile.id),
+    );
+    expect(html).toContain(`${types.length} signer contracts`);
+  });
+
   it('shows what the cycle now filling holds as well', () => {
     // Two cycles, two numbers: somebody who has left is already out of the
     // second one, which is the whole reason it is worth printing.
@@ -93,17 +118,42 @@ describe('the page as a reader sees it', () => {
     expect(html).toContain('7.1 million STX');
   });
 
-  it('keeps archived contract types out of the list and says where they went', () => {
-    // Code the operator has replaced. The type is still readable — it has a
-    // page, and somebody staked with it needs that page — but it is not
-    // offered beside the ones anybody should be choosing between.
+  it('offers every contract type that has pools running it', () => {
+    // Archiving a type takes it out of this list and takes every pool running
+    // it off the page along with it, so it is only ever set on code nothing
+    // runs — the rule `src/lib/profiles.test.ts` holds the data to. Set on
+    // code seven pools were running, it took 80.5 million STX off the line
+    // under the heading and nothing looked wrong. So: what is deployed is
+    // what is offered.
+    const html = renderToStaticMarkup(<App />);
+    const templates = buildTemplates((signers as SignerData).signers);
+    expect(templates.length).toBeGreaterThan(0);
+
+    for (const template of templates) {
+      expect(html, `${template.profile.name} is not offered`).toContain(
+        template.profile.name,
+      );
+    }
+  });
+
+  it('says where an archived type went, when there is one', () => {
+    // Code the operator has replaced and nobody runs any more. The type is
+    // still readable — it has a page, and somebody who was staked with it
+    // needs that page — but it is not offered beside the ones anybody should
+    // be choosing between. There is nothing archived today, and the section
+    // is left out rather than shown empty.
     const html = renderToStaticMarkup(<App />);
     const archived = Object.values(PROFILES).filter(
       (profile) =>
         profile.archived &&
         signers.signers.some((signer) => signer.profileId === profile.id),
     );
-    expect(archived.length).toBeGreaterThan(0);
+
+    if (archived.length === 0) {
+      expect(html).not.toContain('Archived contracts');
+      return;
+    }
+
     expect(html).toContain('Archived contracts');
     for (const profile of archived) {
       // Named once, under the archived heading, and not as a card above it.

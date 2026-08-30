@@ -31,13 +31,25 @@ export interface ManagerProfile {
   /** A paragraph or two for the contract's own page. */
   detail: string;
   /**
-   * Superseded code, kept readable but no longer offered.
+   * Superseded code that nothing is using any more, readable but not offered.
    *
-   * An archived contract type is one nobody should be choosing today — the
-   * operator has redeployed and moved on. Its page stays where it was, because
-   * somebody staked with it is entitled to read what they are in; it is the
-   * lists that stop leading people there, and `isArchived` is what those lists
-   * ask.
+   * Two things, and the second is the one to be careful about. The code has
+   * been replaced — the operator redeployed and moved on — *and* no signer
+   * contract that implements it is still in use. Empty contracts do not hold
+   * the type back; pools with STX in them do. Setting this takes the type out
+   * of the lists and every pool running it off the page with it, so on code
+   * pools are still using it, it hides somebody’s money: the line under the
+   * heading adds up the pools that are left, and quietly stops matching what
+   * pox-5 is holding. `src/lib/profiles.test.ts` holds the flag to that, and
+   * `scripts/staked-total.test.ts` holds the total to pox-5.
+   *
+   * Replaced code that pools are still using is what `badge.archived` on the
+   * contract’s own page is for: said where the people in it will read it,
+   * without taking their pool off the page.
+   *
+   * The page stays where it was either way, because somebody staked with it is
+   * entitled to read what they are in; it is the lists that stop leading
+   * people there, and `isArchived` is what those lists ask.
    */
   archived?: boolean;
 }
