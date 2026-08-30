@@ -1,0 +1,93 @@
+{
+  "fast-pool": {
+    "id": "fast-pool",
+    "name": "Fast Pool",
+    "kind": "operator",
+    "summary": "Runs two pools on two signer keys: the original Fast Pool and Max500, which caps what any one member may stake.",
+    "source": "Both contracts are named fastpool-… and are presented as Fast Pool's by its operator. The two deployer addresses differ, so this is a recorded statement rather than something the chain says.",
+    "url": "https://fastpool.org",
+    "members": [
+      {
+        "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
+      },
+      {
+        "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
+      }
+    ]
+  },
+  "xverse": {
+    "id": "xverse",
+    "name": "Xverse",
+    "kind": "operator",
+    "summary": "The wallet company, running three signer nodes of its own.",
+    "source": "All three contracts are deployed by SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE, one address, on chain.",
+    "url": "https://www.xverse.app",
+    "members": [
+      { "signerKey": "0x021acd08580abb387c45d44cc742fffe0f61c17db534331495a246f315a0d9404f" },
+      { "signerKey": "0x0285f4c617c4065e429d1666dcfd885c52e223acfc042aa2c2855adc93034e6975" },
+      { "signerKey": "0x02f37e08d25d8a660caf66b9cb3a09b1ce055cbb5f57186d92af43268d722408da" }
+    ]
+  },
+  "stx-lab": {
+    "id": "stx-lab",
+    "name": "STX Lab",
+    "kind": "operator",
+    "summary": "Runs four signer nodes registered as stackslabs, and the Stacks Labs pool.",
+    "source": "Recorded by hand, and the two halves do not share a deployer: the four stackslabs contracts are deployed by SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85 and stacks-labs by SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E. That they are one entity is a statement, not something the chain says. slotwatch.dev names three of the stackslabs keys L2-Labs-1 to L2-Labs-3.",
+    "members": [
+      {
+        "contractId": "SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85.signer-manager-stackslabs-1"
+      },
+      {
+        "contractId": "SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85.signer-manager-stackslabs-2"
+      },
+      {
+        "contractId": "SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85.signer-manager-stackslabs-3",
+        "note": "This key also carries SP3DHX7ZHNTCE1WQHJH0T0HY9NNSVT4SWTY2FRCCT.hiro, which is somebody else's contract — so the contract is named here rather than the key."
+      },
+      {
+        "contractId": "SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85.signer-manager-stackslabs-4"
+      },
+      {
+        "contractId": "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs",
+        "note": "A different deployer from the four above; grouped here on a recorded statement."
+      }
+    ]
+  },
+  "stacking-dao": {
+    "id": "stacking-dao",
+    "name": "Stacking DAO",
+    "kind": "stake",
+    "summary": "Runs Native Pool itself and delegates the rest of its STX to nodes other people run, one invite-only contract each.",
+    "source": "Every contract listed is deployed by SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG, the address behind Native Pool, on chain. The nodes those contracts sit on are run by other operators, which is why this is a stake group rather than an operator one.",
+    "url": "https://www.stackingdao.com",
+    "members": [
+      {
+        "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager",
+        "note": "Stacking DAO's own node, not a delegation."
+      },
+      {
+        "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-xverse-v1",
+        "note": "On a key Xverse also signs its own pools with."
+      },
+      {
+        "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-blockdaemon-v1"
+      },
+      {
+        "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-foundry-v1"
+      },
+      {
+        "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-hashkey-v1"
+      },
+      {
+        "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-infstones-v1"
+      },
+      {
+        "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-juicy-stake-v1"
+      },
+      {
+        "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-stacking-dao-v1"
+      }
+    ]
+  }
+}

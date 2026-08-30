@@ -60,9 +60,9 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  groupBySignerKey,
-  type SignerGroup,
-} from '../src/lib/signer-groups.js';
+  nodesBySignerKey,
+  type SignerNode,
+} from '../src/lib/signer-nodes.js';
 import type { Signer, SignerData } from '../src/lib/types.js';
 import { formatStx } from './format.js';
 import { fetchAmountDelegated } from './locked.js';
@@ -149,23 +149,23 @@ export function matchSigners(query: string, signers: Signer[]): Signer[] {
  * Naming a contract is how somebody asks about a pool, and the honest answer
  * to "who stakes with this pool" for half a signer is the whole signer.
  */
-export function matchGroups(query: string, signers: Signer[]): SignerGroup[] {
-  const groups = groupBySignerKey(signers);
-  const matched: SignerGroup[] = [];
+export function matchGroups(query: string, signers: Signer[]): SignerNode[] {
+  const nodes = nodesBySignerKey(signers);
+  const matched: SignerNode[] = [];
 
   for (const signer of matchSigners(query, signers)) {
-    const group = groups.find((candidate) =>
+    const node = nodes.find((candidate) =>
       candidate.contracts.some((c) => c.contractId === signer.contractId),
     );
-    if (group && !matched.includes(group)) matched.push(group);
+    if (node && !matched.includes(node)) matched.push(node);
   }
 
   return matched;
 }
 
 /** What to call a signer: the names of its contracts, in one line. */
-export function groupName(group: SignerGroup): string {
-  return group.contracts.map((contract) => contract.displayName).join(' + ');
+export function groupName(node: SignerNode): string {
+  return node.contracts.map((contract) => contract.displayName).join(' + ');
 }
 
 /** A contract id short enough for a column: the name after the dot. */
@@ -226,10 +226,10 @@ interface Report {
 }
 
 async function buildReport(
-  group: SignerGroup,
+  node: SignerNode,
   options: Options,
 ): Promise<Report | null> {
-  const contractIds = group.contracts.map((contract) => contract.contractId);
+  const contractIds = node.contracts.map((contract) => contract.contractId);
   // `--no-amounts` is a listing of the index and nothing else, so it does not
   // need a cycle — and must not fail for want of one the run never uses.
   const cycle =
@@ -249,7 +249,7 @@ async function buildReport(
   );
 
   const contracts: ContractReport[] = [];
-  for (const contract of group.contracts) {
+  for (const contract of node.contracts) {
     contracts.push({
       contractId: contract.contractId,
       displayName: contract.displayName,
@@ -266,8 +266,8 @@ async function buildReport(
   const readable = contracts.every((c) => c.delegatedUstx !== null);
 
   return {
-    signerKey: group.signerKey,
-    name: groupName(group),
+    signerKey: node.signerKey,
+    name: groupName(node),
     contracts,
     cycle,
     members,
@@ -505,7 +505,7 @@ async function main() {
     process.exit(1);
   }
 
-  const wanted: SignerGroup[] = [];
+  const wanted: SignerNode[] = [];
   for (const query of options.queries) {
     const matches = matchGroups(query, signers);
     if (matches.length === 0) {
@@ -525,8 +525,8 @@ async function main() {
   }
 
   const reports: Report[] = [];
-  for (const group of wanted) {
-    const report = await buildReport(group, options);
+  for (const node of wanted) {
+    const report = await buildReport(node, options);
     if (report) reports.push(report);
   }
 

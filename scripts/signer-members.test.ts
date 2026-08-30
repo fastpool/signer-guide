@@ -7,7 +7,7 @@ import {
   matchSigners,
   parseArgs,
 } from './signer-members.js';
-import { groupBySignerKey } from '../src/lib/signer-groups.js';
+import { nodesBySignerKey } from '../src/lib/signer-nodes.js';
 import type { Signer } from '../src/lib/types.js';
 
 /*
@@ -110,7 +110,7 @@ describe('what the chain said about a staker', () => {
 });
 
 describe('amounts as they are printed', () => {
-  it('keeps all six decimals and groups the whole part', () => {
+  it('keeps all six decimals and nodes the whole part', () => {
     expect(formatStx(41_530_653_232_810n)).toBe('41,530,653.232810');
     expect(formatStx(1n)).toBe('0.000001');
     expect(formatStx(0n)).toBe('0.000000');
@@ -120,13 +120,13 @@ describe('amounts as they are printed', () => {
 
 describe('pools behind one signer key', () => {
   it('makes one signer of the contracts that share a key', () => {
-    const groups = groupBySignerKey(POOLS);
-    expect(groups.map(groupName)).toEqual([
+    const nodes = nodesBySignerKey(POOLS);
+    expect(nodes.map(groupName)).toEqual([
       'Fast Pool Max500',
       'Fast Pool v1',
       'Hiro + L2-Labs-3',
     ]);
-    expect(groups[2].signerKey).toBe('0xcc');
+    expect(nodes[2].signerKey).toBe('0xcc');
   });
 
   it('leaves a contract with no key on its own rather than piling them up', () => {
@@ -136,7 +136,7 @@ describe('pools behind one signer key', () => {
       signer('SP1.a', 'A', ''),
       signer('SP1.b', 'B', ''),
     ] as Signer[];
-    expect(groupBySignerKey(keyless).map((g) => g.contracts.length)).toEqual([
+    expect(nodesBySignerKey(keyless).map((g) => g.contracts.length)).toEqual([
       1, 1,
     ]);
   });

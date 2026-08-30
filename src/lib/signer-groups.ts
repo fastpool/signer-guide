@@ -1,140 +1,173 @@
 /**
- * Which contracts are one signer, and what to call the result.
+ * Who is behind a set of signer nodes.
  *
- * The unit here is the signer key rather than the contract. A key can have
- * several signer-manager contracts registered against it — four of them do —
- * and everything the key decides is decided on those contracts together: the
- * stake behind it, its weight, the slots it holds. Read per contract, half a
- * signer looks like a small pool and the other half looks like another one.
- * The argument is made at length at the top of scripts/signer-members.ts.
+ * A node is one signer key — see `signer-nodes.ts`. A *group* is a set of
+ * nodes with one entity behind them, and the chain does not say who that is.
+ * Fast Pool runs two contracts under two keys; Xverse runs three; Stacking DAO
+ * runs one node of its own and delegates to eight it does not run. Read node
+ * by node, each of those looks like a stranger holding a few percent, and a
+ * reader counting up who can move the signer set has to already know.
  *
- * Nothing in here imports anything. The page groups signers to draw one, the
- * refresh groups them to read one, and this is the definition they share — so
- * a file written by the script is a file the page can find. Keep it free of
- * React and of `import.meta`, or `scripts/` can no longer import it.
+ * So this is written by hand, and every entry says what it is based on. That
+ * is the whole discipline of the file: a claim about who controls a fifth of
+ * the network is the most consequential thing this guide says, and it is not
+ * one the refresh can check. `source` is required for that reason, and it
+ * should name evidence a reader can follow — a shared deployer address, a
+ * published statement — not "we know".
+ *
+ * Two kinds, and the difference is real:
+ *
+ *   operator  one entity runs these nodes. Its weight is every contract on
+ *             every key it holds, because the keys are its own.
+ *   stake     the nodes are independent, but the STX behind these contracts
+ *             comes from one entity. Its weight is those contracts and not the
+ *             rest of what those nodes hold.
+ *
+ * A node can be in both, and one is: the key behind Xverse 2 also holds
+ * `signer-manager-xverse-v1`, an invite-only contract Stacking DAO delegates
+ * into. Xverse runs the node; Stacking DAO supplies that contract's stake.
+ * Listing the node under both would double-count it, which is why membership
+ * is per contract as well as per key.
  */
 
-import type { CycleMember, Signer, SignerCycleSummary } from './types';
+import groups from '../data/signer-groups.json';
+import { nodesBySignerKey, type SignerNode } from './signer-nodes';
+import type { Signer } from './types';
 
-/** One signer key, and every contract registered against it. */
+/**
+ * Whether the entity runs the nodes or only supplies the stake.
+ *
+ * The distinction decides what a percentage means. An operator group's weight
+ * is a set of keys it can sign with; a stake group's is STX it can move but
+ * cannot sign with. Both are worth knowing and they are not the same power.
+ */
+export type SignerGroupKind = 'operator' | 'stake';
+
+/**
+ * One member of a group: a whole node, or a single contract.
+ *
+ * Exactly one of the two. A key names every contract registered against it,
+ * which is what an operator group wants — it runs the key, so everything on
+ * it is its own. A contract id names one deployment and nothing else, which is
+ * what a stake group wants: Stacking DAO's STX sits in one contract on a
+ * node whose other contracts are somebody else's business.
+ */
+export interface SignerGroupMember {
+  /** Every contract on this key belongs to the group. */
+  signerKey?: string;
+  /** This one contract belongs to the group; its siblings do not. */
+  contractId?: string;
+  /** Why this member is in, when the group's own source does not cover it. */
+  note?: string;
+}
+
+/** A set of signer nodes with one entity behind them. */
 export interface SignerGroup {
-  /** Null for a contract whose key is unknown, which groups with nothing. */
-  signerKey: string | null;
-  contracts: Signer[];
+  /** Slug, and the last part of the group's URL. */
+  id: string;
+  name: string;
+  kind: SignerGroupKind;
+  /** One sentence, plain language: who this is. */
+  summary: string;
+  /** What the claim rests on. Required — see the note at the top. */
+  source: string;
+  /** The entity's own site, when it has one. */
+  url?: string;
+  members: SignerGroupMember[];
+}
+
+export const GROUPS: Record<string, SignerGroup> = groups as Record<
+  string,
+  SignerGroup
+>;
+
+/** Every group, in the order the file lists them. */
+export function allGroups(): SignerGroup[] {
+  return Object.values(GROUPS);
+}
+
+export function groupById(id: string): SignerGroup | null {
+  return GROUPS[id] ?? null;
 }
 
 /**
- * The signers behind a list of pools.
+ * The contracts a group covers, deduplicated.
  *
- * Contracts sharing a key are one signer. A contract with no key on file is
- * its own group rather than joining a "no key" pile: an unknown key is not
- * evidence of a shared one, and merging on it would invent a signer.
+ * A group may name a key and one of that key's contracts — harmlessly, and by
+ * hand it will happen — so the set is built as a set. Counting a contract
+ * twice would inflate the one number on the page that matters.
+ *
+ * Members naming something the guide has never seen are skipped rather than
+ * invented: a group is only ever as big as the contracts actually on file.
  */
-export function groupBySignerKey(signers: Signer[]): SignerGroup[] {
-  const groups: SignerGroup[] = [];
-  const byKey = new Map<string, SignerGroup>();
+export function groupContracts(
+  group: SignerGroup,
+  signers: Signer[],
+): Signer[] {
+  const wanted = new Set<string>();
 
-  for (const signer of signers) {
-    const key = signer.signerKey;
-    if (!key) {
-      groups.push({ signerKey: null, contracts: [signer] });
-      continue;
+  for (const member of group.members) {
+    if (member.contractId) wanted.add(member.contractId);
+    if (!member.signerKey) continue;
+    for (const signer of signers) {
+      if (signer.signerKey === member.signerKey) wanted.add(signer.contractId);
     }
-    const existing = byKey.get(key);
-    if (existing) {
-      existing.contracts.push(signer);
-      continue;
-    }
-    const group: SignerGroup = { signerKey: key, contracts: [signer] };
-    byKey.set(key, group);
-    groups.push(group);
   }
 
-  return groups;
+  return signers.filter((signer) => wanted.has(signer.contractId));
 }
 
-/** The signer a contract belongs to, siblings included. */
-export function groupForContract(
-  signers: Signer[],
-  contractId: string,
-): SignerGroup | null {
-  return (
-    groupBySignerKey(signers).find((group) =>
-      group.contracts.some((contract) => contract.contractId === contractId),
-    ) ?? null
+/** The nodes a group covers, each carrying only the contracts in the group. */
+export function groupNodes(group: SignerGroup, signers: Signer[]): SignerNode[] {
+  return nodesBySignerKey(groupContracts(group, signers));
+}
+
+/**
+ * Every group a contract belongs to.
+ *
+ * By contract rather than by node, because that is the grain membership is
+ * decided at. A node's page asks this of each of its contracts and shows the
+ * union — which for the Xverse 2 key is two groups, one for the node and one
+ * for the stake in a single contract on it.
+ */
+export function groupsForContract(contractId: string, signerKey?: string | null): SignerGroup[] {
+  return allGroups().filter((group) =>
+    group.members.some(
+      (member) =>
+        member.contractId === contractId ||
+        (member.signerKey !== undefined &&
+          signerKey != null &&
+          member.signerKey === signerKey),
+    ),
   );
 }
 
-/**
- * What a signer's files are called.
- *
- * The key itself, which is the identity, with a contract id standing in for a
- * signer that has no key on file. The two cannot collide — a key is lower-case
- * hex and a contract id starts with an upper-case address — and both are
- * stable, which is what matters here: a slug that moved between refreshes
- * would orphan every file already written under the old one.
- */
-export function signerSlug(group: SignerGroup): string {
-  if (group.signerKey) return group.signerKey.replace(/^0x/, '');
-  return group.contracts[0].contractId;
-}
-
-/**
- * What a cycle is to a reader.
- *
- * Read off `cycleFinal` — the cycle's own state — never off `fileFinal`, which
- * is only about whether the generator will look again. The two differ for the
- * current cycle, and reading the wrong one labels the cycle somebody is
- * standing in as one they can still join.
- *
- *   filling   nobody has closed it yet; the next cycle, still accepting stakers
- *   active    closed, and the one earning right now
- *   done      closed, and behind us
- *   unknown   a file written before these flags existed
- *
- * `unknown` is why both arguments are optional. The page reads the published
- * branch, so it meets older files, and the standings are the one thing in them
- * that cannot be worked out. Every other number is still good, so the answer is
- * to show the rest and say nothing about the standing — not to guess, and not
- * to discard the file. Defaulting to `done` would quietly mark the cycle a
- * reader could still join as finished.
- */
-export type CycleStanding = 'filling' | 'active' | 'done' | 'unknown';
-
-export function cycleStanding(
-  cycle: Pick<SignerCycleSummary, 'cycle' | 'cycleFinal'>,
-  currentCycle: number | undefined,
-): CycleStanding {
-  if (typeof cycle.cycleFinal !== 'boolean') return 'unknown';
-  if (!cycle.cycleFinal) return 'filling';
-  // Closed. Which of the two closed states it is needs the current cycle, and
-  // without it "closed" is all we can honestly say.
-  if (typeof currentCycle !== 'number') return 'unknown';
-  return cycle.cycle === currentCycle ? 'active' : 'done';
-}
-
-/** Sum of the amounts we could read; contracts we could not are left out. */
-export function sumCycleUstx(
-  ustx: Record<string, string | null>,
-): bigint | null {
-  let total = 0n;
-  let known = false;
-  for (const amount of Object.values(ustx)) {
-    if (amount === null) continue;
-    total += BigInt(amount);
-    known = true;
+/** Every group any of a node's contracts belongs to, in file order. */
+export function groupsForNode(node: SignerNode): SignerGroup[] {
+  const found = new Map<string, SignerGroup>();
+  for (const contract of node.contracts) {
+    for (const group of groupsForContract(contract.contractId, node.signerKey)) {
+      found.set(group.id, group);
+    }
   }
-  return known ? total : null;
+  return allGroups().filter((group) => found.has(group.id));
 }
 
-/** What a signer is holding for a cycle, across every contract on its key. */
+/**
+ * What a group is holding for a cycle, across every contract in it.
+ *
+ * Null when it holds nothing readable, for the reason `votingPowerBips` gives:
+ * a rate limit must not be able to say an entity has no weight. A contract the
+ * refresh could not read is left out, so the answer is a floor.
+ */
 export function groupUstx(
   group: SignerGroup,
+  signers: Signer[],
   ustx: Record<string, string | null>,
 ): bigint | null {
   let total = 0n;
   let known = false;
-  for (const contract of group.contracts) {
+  for (const contract of groupContracts(group, signers)) {
     const amount = ustx[contract.contractId];
     if (amount === null || amount === undefined) continue;
     total += BigInt(amount);
@@ -144,45 +177,27 @@ export function groupUstx(
 }
 
 /**
- * A signer's weight in the cycle, in hundredths of a percent.
+ * A group's weight in the cycle, in hundredths of a percent.
  *
- * pox-5 weights a signer by the STX stacked behind it, so its share of the
- * cycle's total *is* its say — in the signer set, and in everything the set
- * votes on. The guide listed the keys and stopped there, which left the one
- * question a reader of a signer list is asking unanswered: how much of the
- * network is this one.
- *
- * The unit is the key rather than the contract, for the reason at the top of
- * this file: a key with four contracts registered against it votes with all
- * four, and a quarter of it read on its own is a quarter of the truth.
- *
- * Null when either half is unknown. A signer whose amount the refresh could
- * not read has an unknown weight, never a zero one — and the denominator has
- * to be the whole cycle, which `sumCycleUstx` over the committed amounts is:
- * every registered signer is in that file, and the sum of it is what pox-5
- * reports staked (see scripts/staked-total.test.ts).
- *
- * Integer arithmetic on the uSTX, like `shareBips`, because these are numbers
- * with fifteen digits in them.
+ * The same arithmetic as a node's, over a larger numerator — and the reason
+ * the file exists. Three nodes at six percent each read as three small signers
+ * until somebody says they are one company, at which point they are a fifth of
+ * a veto.
  */
-export function votingPowerBips(
+export function groupVotingPowerBips(
   group: SignerGroup,
+  signers: Signer[],
   ustx: Record<string, string | null>,
 ): number | null {
-  const mine = groupUstx(group, ustx);
-  const total = sumCycleUstx(ustx);
-  if (mine === null || total === null || total === 0n) return null;
-  return Number((mine * 10_000n) / total);
-}
+  const mine = groupUstx(group, signers, ustx);
+  if (mine === null) return null;
 
-/**
- * A member's share of the cycle, in hundredths of a percent.
- *
- * Integer arithmetic on the uSTX rather than floating point on the STX: a
- * member of a 44-million-STX signer is a number with fifteen digits in it, and
- * `Number` starts dropping them at sixteen.
- */
-export function shareBips(member: CycleMember, total: bigint): number {
-  if (total === 0n) return 0;
-  return Number((BigInt(member.ustx) * 10_000n) / total);
+  let total = 0n;
+  for (const amount of Object.values(ustx)) {
+    if (amount === null) continue;
+    total += BigInt(amount);
+  }
+  if (total === 0n) return null;
+
+  return Number((mine * 10_000n) / total);
 }

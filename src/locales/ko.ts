@@ -362,6 +362,35 @@ export const ko: LocaleBundle = {
     'signerPage.key': '서명자 키',
     'signerPage.keyNone':
       '이 풀의 서명자 키가 확인되지 않아, 다른 컨트랙트와 키를 공유하는지 알 수 없습니다.',
+    'group.back': '← 전체 풀 목록',
+    'group.missing': '해당 그룹이 없습니다. 이름이 바뀌었을 수 있습니다.',
+    'group.kind.operator': '노드를 직접 운영',
+    'group.kind.stake': '스테이킹 물량을 공급',
+    'group.kindNote.operator':
+      '아래 노드를 모두 한 주체가 운영하므로 그 전부로 서명합니다. 따라서 아래 노드에 스테이킹된 전체가 이 주체의 가중치입니다.',
+    'group.kindNote.stake':
+      '아래 노드는 다른 사람들이 운영합니다. 이 주체가 통제하는 것은 표시된 컨트랙트 뒤의 STX입니다. 물량은 옮길 수 있지만, 그 물량으로 서명하는 키는 가지고 있지 않습니다.',
+    'group.votingPower': '의결 지분',
+    'group.votingPowerValue': '{cycle} 사이클 기준 {percent}%',
+    'group.staked': '그룹 전체 스테이킹 양',
+    'group.nodeCount': '서명자 노드 수',
+    'group.contractCount': '서명자 컨트랙트 수',
+    'group.source': '근거',
+    'group.sourceNote':
+      '서명자 노드를 누가 운영하는지는 체인에 기록되지 않으므로, 여기의 모든 그룹은 사람이 직접 작성한 것입니다. 아래는 이 그룹의 근거이며, 이것이 틀리면 위의 수치도 함께 틀립니다.',
+    'group.site': '공식 사이트',
+    'group.contracts': '그룹 구성',
+    'group.contractOnly':
+      '이 컨트랙트만 해당합니다. 같은 노드가 보유한 나머지는 이 그룹에 포함되지 않습니다.',
+    'group.wholeNode': '이 키에 등록된 모든 컨트랙트',
+    'group.unknownAmount': '알 수 없음',
+    'group.alsoIn': '{names}에도 함께 집계됨',
+    'group.overlapNote':
+      '한 노드가 여러 그룹에 속할 수 있고, 실제로 그런 경우가 있습니다. 키를 운영하는 주체는 그 키의 모든 컨트랙트로 서명하고, 그중 한 컨트랙트에 물량을 위임한 주체는 그 컨트랙트만 통제합니다. 둘 다 동시에 참이므로 같은 STX가 두 이름 아래 나타날 수 있습니다. 이는 계산 오류가 아니라 알아 두어야 할 사실입니다.',
+    'signerPage.groups.one': '소속 그룹 1개',
+    'signerPage.groups.other': '소속 그룹 {count}개',
+    'signerPage.groupsNote':
+      '기록된 범위에서 이 노드 뒤에 누가 있는지입니다. 그룹은 한 주체가 뒤에 있는 서명자 노드의 집합이며, 그 주체가 실제로 서명자 집합에서 얼마나 큰 비중을 차지하는지를 결정합니다.',
     'signerPage.votingPower': '의결 지분',
     'signerPage.votingPowerValue': '{cycle} 사이클 기준 {percent}%',
     'signerPage.votingPowerNote':

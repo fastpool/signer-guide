@@ -7,7 +7,7 @@
  * looks like, and deliberately loud about what it could not read.
  *
  * Nothing here imports anything: the page needs it and so does a node script,
- * which is the same rule `signer-groups.ts` follows and for the same reason.
+ * which is the same rule `signer-nodes.ts` follows and for the same reason.
  */
 
 /** A principal, near enough: the API is the one that decides. */

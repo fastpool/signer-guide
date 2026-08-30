@@ -4,6 +4,7 @@ import Identicon from './components/Identicon';
 import LocaleSwitch from './components/LocaleSwitch';
 import Mark from './components/Mark';
 import SignerCard from './components/SignerCard';
+import SignerGroupPage from './components/SignerGroupPage';
 import SignerPage from './components/SignerPage';
 import MyRewardsPage from './components/MyRewardsPage';
 import StxOnlyHistoryPage from './components/StxOnlyHistoryPage';
@@ -29,7 +30,8 @@ import {
   stxOnlyRewardsHref,
   useRoute,
 } from './lib/route';
-import { groupForContract, signerSlug } from './lib/signer-groups';
+import { groupById } from './lib/signer-groups';
+import { nodeForContract, signerSlug } from './lib/signer-nodes';
 import { inUse, isNewSigner } from './lib/activity';
 import { useServiceWorker } from './lib/service-worker';
 import { isArchived } from './lib/profiles';
@@ -273,21 +275,41 @@ export default function App() {
     );
   }
 
+  if (route.name === 'group') {
+    // Same rule as a pool that has gone: a group id nobody wrote lands on the
+    // list, which is the page somebody who followed that link wanted.
+    const group = groupById(route.groupId);
+    if (group) {
+      return (
+        <>
+          <SignerGroupPage
+            group={group}
+            signers={signerData.signers}
+            totals={totals}
+            locale={locale}
+            onLocaleChange={setLocale}
+          />
+          <UpdateBanner update={update} locale={locale} />
+        </>
+      );
+    }
+  }
+
   if (route.name === 'signer') {
     // A link to a pool that has since gone from the data falls through to the
     // list rather than to an error: the pool is not there, and the list is
     // what somebody who wanted it should be looking at.
-    const group = groupForContract(signerData.signers, route.contractId);
-    const signer = group?.contracts.find(
+    const node = nodeForContract(signerData.signers, route.contractId);
+    const signer = node?.contracts.find(
       (contract) => contract.contractId === route.contractId,
     );
-    if (group && signer) {
+    if (node && signer) {
       return (
         <>
           <SignerPage
             signer={signer}
-            group={group}
-            slug={signerSlug(group)}
+            node={node}
+            slug={signerSlug(node)}
             totals={totals}
             locale={locale}
             onLocaleChange={setLocale}

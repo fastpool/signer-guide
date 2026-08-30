@@ -9,7 +9,7 @@ import {
   REWALK_AFTER_MS,
   strictSum,
 } from './generate-signer-history.js';
-import type { SignerGroup } from '../src/lib/signer-groups.js';
+import type { SignerNode } from '../src/lib/signer-nodes.js';
 import type { Signer, SignerCycleSummary } from '../src/lib/types.js';
 
 /*
@@ -342,13 +342,13 @@ describe('strictSum', () => {
 });
 
 describe('byStaleness', () => {
-  const group = (id: string): SignerGroup => ({
+  const node = (id: string): SignerNode => ({
     signerKey: id,
     contracts: [{ contractId: id } as Signer],
   });
 
   it('puts a signer with nothing on file first', () => {
-    const [fresh, never] = [group('fresh'), group('never')];
+    const [fresh, never] = [node('fresh'), node('never')];
     const order = byStaleness([fresh, never], (g) =>
       g.signerKey === 'never' ? null : 1000,
     );
@@ -360,15 +360,15 @@ describe('byStaleness', () => {
     // something different each time rather than the same three signers.
     const at: Record<string, number> = { a: 300, b: 100, c: 200 };
     const order = byStaleness(
-      [group('a'), group('b'), group('c')],
+      [node('a'), node('b'), node('c')],
       (g) => at[g.signerKey as string],
     );
     expect(order.map((g) => g.signerKey)).toEqual(['b', 'c', 'a']);
   });
 
   it('leaves the list it was given alone', () => {
-    const groups = [group('a'), group('b')];
-    byStaleness(groups, () => null);
-    expect(groups.map((g) => g.signerKey)).toEqual(['a', 'b']);
+    const nodes = [node('a'), node('b')];
+    byStaleness(nodes, () => null);
+    expect(nodes.map((g) => g.signerKey)).toEqual(['a', 'b']);
   });
 });

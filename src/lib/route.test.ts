@@ -26,6 +26,21 @@ describe('parseHash', () => {
     expect(parseHash('#/nonsense')).toEqual({ name: 'list' });
   });
 
+  it('reads a signer group by its slug', () => {
+    expect(parseHash('#/group/stacking-dao')).toEqual({
+      name: 'group',
+      groupId: 'stacking-dao',
+    });
+  });
+
+  it('lands anything else on the list rather than on a blank group', () => {
+    // Slugs only, like the contract route: the id indexes a hand-written file,
+    // and a hash is the one part of the page a stranger can hand somebody.
+    expect(parseHash('#/group/Not A Slug')).toEqual({ name: 'list' });
+    expect(parseHash('#/group/')).toEqual({ name: 'list' });
+    expect(parseHash('#/group/one/two')).toEqual({ name: 'list' });
+  });
+
   it('reads a signer contract by profile id', () => {
     expect(parseHash('#/contract/standard')).toEqual({
       name: 'contract',

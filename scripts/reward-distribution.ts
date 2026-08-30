@@ -51,7 +51,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Cl, cvToHex } from '@stacks/transactions';
-import { signerSlug, type SignerGroup } from '../src/lib/signer-groups.js';
+import { signerSlug, type SignerNode } from '../src/lib/signer-nodes.js';
 import type {
   Signer,
   SignerCycleMembers,
@@ -213,18 +213,18 @@ async function firstPox5Cycle(): Promise<number | null> {
 
 /** A cycle's roster: from the committed file if there is one, else the chain. */
 async function rosterFor(
-  group: SignerGroup,
+  node: SignerNode,
   cycle: number,
 ): Promise<Map<string, bigint> | null> {
   const file = readJson<SignerCycleMembers>(
-    path.join(HISTORY, signerSlug(group), `${cycle}.json`),
+    path.join(HISTORY, signerSlug(node), `${cycle}.json`),
   );
   if (file?.members) {
     return new Map(file.members.map((m) => [m.staker, BigInt(m.ustx)]));
   }
 
   const walked = await walkSignerMembers(
-    group.contracts.map((c) => c.contractId),
+    node.contracts.map((c) => c.contractId),
     cycle,
   );
   if (!walked?.members) return null;
@@ -256,11 +256,11 @@ async function owedToStaker(
 
 /** Every claim print of every contract in the signer, by staker and cycle. */
 async function claimsByCycle(
-  group: SignerGroup,
+  node: SignerNode,
 ): Promise<Map<string, Map<number, bigint>>> {
   const byStaker = new Map<string, Map<number, bigint>>();
 
-  for (const contract of group.contracts) {
+  for (const contract of node.contracts) {
     const prints = await contractPrints(contract.contractId, SPACING_MS);
     if (prints === null) continue;
     for (const repr of prints) {
@@ -289,19 +289,19 @@ async function main() {
     return;
   }
 
-  const groups = matchGroups(options.query, signers);
-  if (groups.length !== 1) {
+  const nodes = matchGroups(options.query, signers);
+  if (nodes.length !== 1) {
     console.error(
-      groups.length === 0
+      nodes.length === 0
         ? `No pool matches "${options.query}".`
-        : `"${options.query}" names ${groups.length} signers: ${groups
+        : `"${options.query}" names ${nodes.length} signers: ${nodes
             .map((g) => groupName(g))
             .join(', ')}. Be more specific.`,
     );
     process.exitCode = 1;
     return;
   }
-  const group = groups[0];
+  const node = nodes[0];
 
   const current = await fetchCurrentCycle();
   const first = await firstPox5Cycle();
@@ -317,7 +317,7 @@ async function main() {
   const cycles = first === null ? asked : asked.filter((c) => c >= first);
 
   console.log(
-    `${groupName(group)} — reward distribution, from ${describeNode()}\n`,
+    `${groupName(node)} — reward distribution, from ${describeNode()}\n`,
   );
   if (first === null) {
     // Without it, a cycle from before pox-5 cannot be told from one nobody
@@ -342,11 +342,11 @@ async function main() {
     return;
   }
 
-  const claims = await claimsByCycle(group);
+  const claims = await claimsByCycle(node);
   const summaries: CycleSummary[] = [];
 
   for (const cycle of cycles) {
-    const roster = await rosterFor(group, cycle);
+    const roster = await rosterFor(node, cycle);
     if (!roster) {
       console.log(`\nCycle ${cycle}: the roster could not be read.`);
       continue;
@@ -370,7 +370,7 @@ async function main() {
       // them — anonymously the limit is about fifty a minute — and a refusal
       // that landed as a zero would name a paid staker as unpaid.
       let owedSats: bigint | null = null;
-      for (const contract of group.contracts) {
+      for (const contract of node.contracts) {
         const answer = await owedToStaker(contract.contractId, staker, cycle);
         // Null is "the node would not say", and one of those makes this
         // member's figure unknown rather than smaller.
@@ -403,8 +403,8 @@ async function main() {
     console.log(
       JSON.stringify(
         {
-          signer: groupName(group),
-          contracts: group.contracts.map((c) => c.contractId),
+          signer: groupName(node),
+          contracts: node.contracts.map((c) => c.contractId),
           firstPox5Cycle: first,
           cyclesBeforePox5: before,
           cycles: summaries.map((summary) => ({

@@ -4,15 +4,16 @@ import { explorerUrl } from '../lib/explorer';
 import { bitcoinPayout } from '../lib/features';
 import { formatLastUpdate, translator, type Locale } from '../lib/i18n';
 import { contractTypeName } from '../lib/profile-i18n';
-import { contractHref, signerHref } from '../lib/route';
+import { contractHref, groupHref, signerHref } from '../lib/route';
+import { groupsForNode } from '../lib/signer-groups';
 import {
   cycleStanding,
-  groupUstx,
+  nodeUstx,
   shareBips,
   sumCycleUstx,
   votingPowerBips,
-  type SignerGroup,
-} from '../lib/signer-groups';
+  type SignerNode,
+} from '../lib/signer-nodes';
 import {
   useCycleMembers,
   useSignerHistory,
@@ -41,7 +42,7 @@ import PoolName from './PoolName';
  */
 export default function SignerPage({
   signer,
-  group,
+  node,
   slug,
   totals,
   locale,
@@ -49,7 +50,7 @@ export default function SignerPage({
 }: {
   signer: Signer;
   /** The signer this contract belongs to, siblings included. */
-  group: SignerGroup;
+  node: SignerNode;
   slug: string;
   /**
    * Every pool's amount for the cycle, which is what makes a weight out of an
@@ -148,7 +149,7 @@ export default function SignerPage({
 
       <SignerKeySection
         signer={signer}
-        group={group}
+        node={node}
         totals={totals}
         locale={locale}
       />
@@ -157,7 +158,7 @@ export default function SignerPage({
 
       <CycleSection
         signer={signer}
-        group={group}
+        node={node}
         slug={slug}
         history={history}
         locale={locale}
@@ -185,19 +186,23 @@ export default function SignerPage({
  */
 function SignerKeySection({
   signer,
-  group,
+  node,
   totals,
   locale,
 }: {
   signer: Signer;
-  group: SignerGroup;
+  node: SignerNode;
   totals: LockedTotals;
   locale: Locale;
 }) {
   const t = translator(locale);
-  const siblings = group.contracts;
-  const bips = votingPowerBips(group, totals.ustx);
-  const staked = groupUstx(group, totals.ustx);
+  const siblings = node.contracts;
+  const bips = votingPowerBips(node, totals.ustx);
+  const staked = nodeUstx(node, totals.ustx);
+  // Who is behind the node, where anybody has written it down. A key on its
+  // own says nothing about that, and a reader weighing one signer against
+  // another is really asking about the entity behind it.
+  const groups = groupsForNode(node);
 
   return (
     <section className='mt-10 rounded-3xl bg-card p-6 shadow-lift'>
@@ -232,6 +237,27 @@ function SignerKeySection({
           ? t('signerPage.votingPowerUnknown')
           : t('signerPage.votingPowerNote')}
       </p>
+
+      {groups.length > 0 && (
+        <div className='mt-4'>
+          <p className='text-sm font-semibold'>
+            {t.plural('signerPage.groups', groups.length)}
+          </p>
+          <ul className='mt-2 flex flex-wrap gap-2'>
+            {groups.map((group) => (
+              <li key={group.id}>
+                <a
+                  className='inline-block rounded-full bg-grape-soft px-3 py-1 text-sm font-semibold text-grape'
+                  href={groupHref(group.id)}
+                >
+                  {group.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+          <p className='mt-2 text-xs text-muted'>{t('signerPage.groupsNote')}</p>
+        </div>
+      )}
 
       {signer.signerKey === null ? (
         <p className='mt-3 text-sm text-muted'>{t('signerPage.keyNone')}</p>
@@ -372,20 +398,20 @@ function RewardsSection({
 /** The cycle table, and whichever cycle a reader has opened. */
 function CycleSection({
   signer,
-  group,
+  node,
   slug,
   history,
   locale,
 }: {
   signer: Signer;
-  group: SignerGroup;
+  node: SignerNode;
   slug: string;
   history: Remote<SignerHistory>;
   locale: Locale;
 }) {
   const t = translator(locale);
   const [open, setOpen] = useState<number | null>(null);
-  const several = group.contracts.length > 1;
+  const several = node.contracts.length > 1;
 
   return (
     <section className='mt-10'>
@@ -497,7 +523,7 @@ function CycleSection({
                   <MemberList
                     slug={slug}
                     cycle={cycle.cycle}
-                    group={group}
+                    node={node}
                     locale={locale}
                   />
                 )}
@@ -516,12 +542,12 @@ const FIRST_PAGE = 50;
 function MemberList({
   slug,
   cycle,
-  group,
+  node,
   locale,
 }: {
   slug: string;
   cycle: number;
-  group: SignerGroup;
+  node: SignerNode;
   locale: Locale;
 }) {
   const t = translator(locale);
@@ -529,7 +555,7 @@ function MemberList({
   const members = useCycleMembers(slug, cycle);
   // Which contract each member is with only earns a column when the signer
   // has more than one for them to be with.
-  const several = group.contracts.length > 1;
+  const several = node.contracts.length > 1;
 
   if (members.state === 'loading') {
     return <p className='mt-3 text-sm text-muted'>{t('signerPage.loading')}</p>;

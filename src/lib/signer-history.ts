@@ -14,7 +14,7 @@
  * A reader who opens neither pays nothing, and that is nearly all of them.
  *
  * Which contracts make up a signer, and what its files are called, is in
- * src/lib/signer-groups.ts — shared with the script that writes them.
+ * src/lib/signer-nodes.ts — shared with the script that writes them.
  *
  * The fetching itself is `remote-json.ts`, which the rewards history uses too.
  * `Remote` is re-exported here because this module's callers name it.

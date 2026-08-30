@@ -317,6 +317,35 @@ const messages = {
   'signerPage.key': 'Signer key',
   'signerPage.keyNone':
     'We have no signer key on file for this pool, so we cannot tell whether it shares one with any other contract.',
+  'group.back': '← All pools',
+  'group.missing': 'No such group. It may have been renamed.',
+  'group.kind.operator': 'Runs these nodes',
+  'group.kind.stake': 'Supplies the stake',
+  'group.kindNote.operator':
+    'One entity runs every node below, so it signs with all of them. Its weight is everything staked with them.',
+  'group.kindNote.stake':
+    'The nodes below are run by other people. What this entity controls is the STX behind the contracts listed — it can move that stake, but it does not hold the keys that sign with it.',
+  'group.votingPower': 'Voting power',
+  'group.votingPowerValue': '{percent}% of cycle {cycle}',
+  'group.staked': 'Staked across the group',
+  'group.nodeCount': 'Signer nodes',
+  'group.contractCount': 'Signer contracts',
+  'group.source': 'What this is based on',
+  'group.sourceNote':
+    'Nothing on chain says who runs a signer node, so every group here was written down by hand. This is the evidence for this one; if it is wrong, the number above is wrong with it.',
+  'group.site': 'Their site',
+  'group.contracts': 'What is in the group',
+  'group.contractOnly':
+    'This contract only — the rest of what this node holds is not part of the group.',
+  'group.wholeNode': 'Every contract on this key',
+  'group.unknownAmount': 'not known',
+  'group.alsoIn': 'Also counted in {names}',
+  'group.overlapNote':
+    'A node can be in more than one group, and one here is: an entity that runs a key signs with everything on it, while an entity that delegated stake into one of those contracts controls that contract alone. Both are true at once, so the same STX can appear under two names — which is the thing worth knowing, not a mistake in the arithmetic.',
+  'signerPage.groups.one': 'Part of one group',
+  'signerPage.groups.other': 'Part of {count} groups',
+  'signerPage.groupsNote':
+    'Who is behind this node, as far as anybody has written down. A group is a set of nodes with one entity behind them, which is what decides how much of the signer set that entity really carries.',
   'signerPage.votingPower': 'Voting power',
   'signerPage.votingPowerValue': '{percent}% of cycle {cycle}',
   'signerPage.votingPowerNote':

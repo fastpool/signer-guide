@@ -9,6 +9,7 @@ import { isLookupTarget } from './principals';
  *                            running it
  *   #/signer/<contractId>    one deployed pool: its signer key, the sibling
  *                            contracts sharing that key, and its history
+ *   #/group/<id>             one entity, and every signer node behind it
  *   #/status[/<principals>]  what one or more addresses are staking, if
  *                            anything; empty for the box to paste them into
  *   #/rewards/stx-only       full breakdown of the STX-only rewards estimate
@@ -25,6 +26,7 @@ export type Route =
   | { name: 'list' }
   | { name: 'contract'; profileId: string }
   | { name: 'signer'; contractId: string }
+  | { name: 'group'; groupId: string }
   | { name: 'status'; principals: string[] }
   | { name: 'stxOnlyRewards' }
   | { name: 'stxOnlyHistory' }
@@ -65,6 +67,11 @@ export function parseHash(hash: string): Route {
 
   const contract = /^#\/contract\/([a-z0-9-]+)$/.exec(hash);
   if (contract) return { name: 'contract', profileId: contract[1] };
+
+  // Slugs only, like the contract route above: the id indexes a hand-written
+  // file, and anything else lands on the list rather than on a blank page.
+  const group = /^#\/group\/([a-z0-9-]+)$/.exec(hash);
+  if (group) return { name: 'group', groupId: group[1] };
 
   const signer = /^#\/signer\/(.+)$/.exec(hash);
   if (signer) {
@@ -111,6 +118,10 @@ export function contractHref(profileId: string): string {
 
 export function signerHref(contractId: string): string {
   return `#/signer/${contractId}`;
+}
+
+export function groupHref(groupId: string): string {
+  return `#/group/${groupId}`;
 }
 
 /** A link to the status of these addresses, or to the empty box for none. */

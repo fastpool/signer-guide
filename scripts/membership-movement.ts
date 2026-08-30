@@ -65,10 +65,10 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  groupBySignerKey,
+  nodesBySignerKey,
   signerSlug,
-  type SignerGroup,
-} from '../src/lib/signer-groups.js';
+  type SignerNode,
+} from '../src/lib/signer-nodes.js';
 import type {
   Signer,
   SignerCycleMembers,
@@ -282,14 +282,14 @@ export function tallyStandings(
   standings: Map<string, Standing>,
   direction: Direction,
 ): { label: string; count: number; stakers: string[] }[] {
-  const groups = new Map<string, string[]>();
+  const nodes = new Map<string, string[]>();
   for (const [staker, standing] of standings) {
     const label = standingLabel(standing, direction);
-    const bucket = groups.get(label);
+    const bucket = nodes.get(label);
     if (bucket) bucket.push(staker);
-    else groups.set(label, [staker]);
+    else nodes.set(label, [staker]);
   }
-  return [...groups]
+  return [...nodes]
     .map(([label, stakers]) => ({ label, count: stakers.length, stakers }))
     .sort((a, b) => b.count - a.count);
 }
@@ -308,8 +308,8 @@ function readJson<T>(file: string): T | null {
 }
 
 /** The roster the refresh committed for this signer and cycle, if it has one. */
-function rosterFromFile(group: SignerGroup, cycle: number): Roster | null {
-  const slug = signerSlug(group);
+function rosterFromFile(node: SignerNode, cycle: number): Roster | null {
+  const slug = signerSlug(node);
   const summary = readJson<SignerHistory>(path.join(HISTORY, `${slug}.json`));
   const onFile = summary?.cycles.find((c) => c.cycle === cycle);
   // No summary entry means nobody has walked this cycle, which is not the same
@@ -340,10 +340,10 @@ function rosterFromFile(group: SignerGroup, cycle: number): Roster | null {
 
 /** The roster read from the chain: one call per indexed staker. */
 async function rosterFromChain(
-  group: SignerGroup,
+  node: SignerNode,
   cycle: number,
 ): Promise<Roster> {
-  const contractIds = group.contracts.map((c) => c.contractId);
+  const contractIds = node.contracts.map((c) => c.contractId);
   const walk = await walkSignerMembers(contractIds, cycle, (note) =>
     console.error(`    ${note}`),
   );
@@ -367,18 +367,18 @@ async function rosterFromChain(
 }
 
 async function rosterFor(
-  group: SignerGroup,
+  node: SignerNode,
   cycle: number,
   options: Options,
 ): Promise<Roster> {
   if (!options.fresh) {
-    const onFile = rosterFromFile(group, cycle);
+    const onFile = rosterFromFile(node, cycle);
     if (onFile) return onFile;
   }
   if (!options.json) {
     console.error(`  walking cycle ${cycle} on the chain ...`);
   }
-  return rosterFromChain(group, cycle);
+  return rosterFromChain(node, cycle);
 }
 
 /**
@@ -390,9 +390,9 @@ async function rosterFor(
  */
 function networkRoster(signers: Signer[], cycle: number): Map<string, string> {
   const where = new Map<string, string>();
-  for (const group of groupBySignerKey(signers)) {
+  for (const node of nodesBySignerKey(signers)) {
     const file = readJson<SignerCycleMembers>(
-      path.join(HISTORY, signerSlug(group), `${cycle}.json`),
+      path.join(HISTORY, signerSlug(node), `${cycle}.json`),
     );
     for (const member of file?.members ?? []) {
       where.set(member.staker, member.contractId);
@@ -499,7 +499,7 @@ function describeRoster(roster: Roster): string {
 }
 
 function printReport(
-  group: SignerGroup,
+  node: SignerNode,
   before: Roster,
   after: Roster,
   movement: Movement,
@@ -513,7 +513,7 @@ function printReport(
     after: sum([...after.amounts.keys()], after.amounts),
   };
 
-  console.log(`\n${groupName(group)} — signer key ${group.signerKey ?? '—'}`);
+  console.log(`\n${groupName(node)} — signer key ${node.signerKey ?? '—'}`);
   console.log(`  cycle ${before.cycle} → ${after.cycle}`);
   console.log(`    ${before.cycle}: ${describeRoster(before)}`);
   console.log(`    ${after.cycle}: ${describeRoster(after)}`);
@@ -621,7 +621,7 @@ function label(value: string): string {
 }
 
 function toJson(
-  group: SignerGroup,
+  node: SignerNode,
   before: Roster,
   after: Roster,
   movement: Movement,
@@ -646,9 +646,9 @@ function toJson(
   });
 
   return {
-    signerKey: group.signerKey,
-    name: groupName(group),
-    contractIds: group.contracts.map((c) => c.contractId),
+    signerKey: node.signerKey,
+    name: groupName(node),
+    contractIds: node.contracts.map((c) => c.contractId),
     from: roster(before),
     to: roster(after),
     stayed: movement.stayed.length,
@@ -681,23 +681,23 @@ async function main() {
     console.error(
       `"${options.query}" names ${matched.length} signers. Pick one:`,
     );
-    for (const group of matched) console.error(`  ${groupName(group)}`);
+    for (const node of matched) console.error(`  ${groupName(node)}`);
     process.exit(1);
   }
-  const group = matched[0];
+  const node = matched[0];
 
   if (!options.json) {
     console.error(
       `Comparing cycles ${options.from} and ${options.to} for` +
-        ` ${groupName(group)}, asking ${describeNode()} ...`,
+        ` ${groupName(node)}, asking ${describeNode()} ...`,
     );
   }
 
-  const before = await rosterFor(group, options.from as number, options);
-  const after = await rosterFor(group, options.to as number, options);
+  const before = await rosterFor(node, options.from as number, options);
+  const after = await rosterFor(node, options.to as number, options);
   const movement = compare(before, after);
 
-  const ours = new Set(group.contracts.map((c) => c.contractId));
+  const ours = new Set(node.contracts.map((c) => c.contractId));
   if (!options.json && (movement.left.length || movement.joined.length)) {
     console.error(
       `  looking up ${movement.left.length + movement.joined.length} mover(s) ...`,
@@ -721,14 +721,14 @@ async function main() {
   if (options.json) {
     console.log(
       JSON.stringify(
-        toJson(group, before, after, movement, leavers, joiners),
+        toJson(node, before, after, movement, leavers, joiners),
         null,
         2,
       ),
     );
     return;
   }
-  printReport(group, before, after, movement, leavers, joiners, options);
+  printReport(node, before, after, movement, leavers, joiners, options);
 }
 
 // Only when run, not when imported: the tests beside this file import the

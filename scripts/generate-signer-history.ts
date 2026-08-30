@@ -93,10 +93,10 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  groupBySignerKey,
+  nodesBySignerKey,
   signerSlug,
-  type SignerGroup,
-} from '../src/lib/signer-groups.js';
+  type SignerNode,
+} from '../src/lib/signer-nodes.js';
 import type {
   CycleMember,
   SignerCycleMembers,
@@ -167,7 +167,7 @@ export function parseArgs(argv: string[]): Options {
 /**
  * A cycle on file that we already know everything about.
  *
- * All three have to hold. A cycle missing one of the group's contracts is a
+ * All three have to hold. A cycle missing one of the node's contracts is a
  * contract registered since it was written, and its amount for that cycle has
  * never been asked for; a null is a call that failed and is worth another go.
  * Only a past cycle with a complete set of answers is genuinely finished.
@@ -351,10 +351,10 @@ export function strictSum(ustx: Record<string, string | null>): bigint | null {
  * than doing the same three every time.
  */
 export function byStaleness(
-  groups: SignerGroup[],
-  checkedAt: (group: SignerGroup) => number | null,
-): SignerGroup[] {
-  return [...groups].sort((a, b) => {
+  nodes: SignerNode[],
+  checkedAt: (node: SignerNode) => number | null,
+): SignerNode[] {
+  return [...nodes].sort((a, b) => {
     const left = checkedAt(a);
     const right = checkedAt(b);
     if (left === right) return 0;
@@ -420,7 +420,7 @@ interface GroupResult {
 }
 
 async function updateGroup(
-  group: SignerGroup,
+  node: SignerNode,
   currentCycle: number,
   options: Options,
   spend: Spend,
@@ -428,9 +428,9 @@ async function updateGroup(
    *  how long the signers before it took. */
   now: number,
 ): Promise<GroupResult> {
-  const slug = signerSlug(group);
-  const name = groupName(group);
-  const contractIds = group.contracts.map((contract) => contract.contractId);
+  const slug = signerSlug(node);
+  const name = groupName(node);
+  const contractIds = node.contracts.map((contract) => contract.contractId);
   const existing = readSummary(slug);
   const onFile = new Map<number, SignerCycleSummary>(
     (existing?.cycles ?? []).map((cycle) => [cycle.cycle, cycle]),
@@ -509,7 +509,7 @@ async function updateGroup(
      * leave it without a member list for ever.
      */
     if (membersWorthWalking(before, total, fileFinal, now)) {
-      const walked = await walkCycle(group, slug, cycle, total, spend);
+      const walked = await walkCycle(node, slug, cycle, total, spend);
       if (walked === 'skipped') result.budgetBit = true;
       else {
         summary.memberCount = walked.memberCount;
@@ -527,7 +527,7 @@ async function updateGroup(
   }
 
   const history: SignerHistory = {
-    signerKey: group.signerKey,
+    signerKey: node.signerKey,
     contractIds,
     // Newest first, so the cycle a reader wants is the one they land on.
     cycles: cycles.reverse(),
@@ -554,13 +554,13 @@ async function updateGroup(
  * would mean the largest signer in the guide never gets read at all.
  */
 async function walkCycle(
-  group: SignerGroup,
+  node: SignerNode,
   slug: string,
   cycle: number,
   total: bigint | null,
   spend: Spend,
 ): Promise<'skipped' | { memberCount: number; membersAddUp: boolean }> {
-  const contractIds = group.contracts.map((contract) => contract.contractId);
+  const contractIds = node.contracts.map((contract) => contract.contractId);
 
   // The cheap half first: it is what says what the expensive half costs.
   const index = await indexSigner(contractIds);
@@ -600,7 +600,7 @@ async function walkCycle(
     if (fs.existsSync(file)) fs.rmSync(file);
   } else {
     const contents: SignerCycleMembers = {
-      signerKey: group.signerKey,
+      signerKey: node.signerKey,
       cycle,
       members,
     };
@@ -618,23 +618,23 @@ async function main() {
   const options = parseArgs(process.argv.slice(2));
   const data = JSON.parse(fs.readFileSync(SIGNERS, 'utf8')) as SignerData;
 
-  let groups = groupBySignerKey(data.signers);
+  let nodes = nodesBySignerKey(data.signers);
   if (options.only.length) {
-    const wanted: SignerGroup[] = [];
+    const wanted: SignerNode[] = [];
     for (const query of options.only) {
       const matched = matchGroups(query, data.signers);
       if (matched.length === 0) {
         console.error(`No pool matches "${query}".`);
         process.exit(1);
       }
-      for (const group of matched) {
+      for (const node of matched) {
         // Matched against a fresh grouping, so compare by contract rather than
         // by object identity.
-        const already = wanted.some((w) => signerSlug(w) === signerSlug(group));
-        if (!already) wanted.push(group);
+        const already = wanted.some((w) => signerSlug(w) === signerSlug(node));
+        if (!already) wanted.push(node);
       }
     }
-    groups = wanted;
+    nodes = wanted;
   }
 
   const currentCycle = await fetchCurrentCycle();
@@ -647,8 +647,8 @@ async function main() {
     return;
   }
 
-  const ordered = byStaleness(groups, (group) => {
-    const summary = readSummary(signerSlug(group));
+  const ordered = byStaleness(nodes, (node) => {
+    const summary = readSummary(signerSlug(node));
     if (!summary?.generatedAt) return null;
     const at = Date.parse(summary.generatedAt);
     return Number.isNaN(at) ? null : at;
@@ -666,8 +666,8 @@ async function main() {
   let short = 0;
   let carriedForward = 0;
 
-  for (const group of ordered) {
-    const result = await updateGroup(group, currentCycle, options, spend, now);
+  for (const node of ordered) {
+    const result = await updateGroup(node, currentCycle, options, spend, now);
     walked += result.walked;
     carriedForward += result.carriedForward;
     if (result.budgetBit) short += 1;

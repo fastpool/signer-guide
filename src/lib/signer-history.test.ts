@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { cycleStanding } from './signer-groups';
+import { cycleStanding } from './signer-nodes';
 import { isCycleMembers, isSignerHistory } from './signer-history';
 import type { SignerCycleMembers, SignerHistory } from './types';
 
