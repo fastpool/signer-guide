@@ -22,7 +22,7 @@
  *
  * ## The seahorse
  *
- * Rendered by `scripts/seahorse3d.py`, which is Blender turning Fast Pool's
+ * Rendered by `seahorse3d.py` beside it, which is Blender turning Fast Pool's
  * own mark into a solid object. It takes a few seconds and needs Blender on
  * the PATH; `--quick` reuses whatever it rendered last, for iterating on the
  * words without waiting on the picture.
@@ -41,7 +41,7 @@ const W = 1200;
 const H = 675;
 const PAD = 76;
 
-const root = path.resolve(import.meta.dirname, '..');
+const root = path.resolve(import.meta.dirname, '..', '..');
 const argv = process.argv.slice(2);
 const arg = (name, fallback) => {
   const at = argv.indexOf(`--${name}`);
@@ -67,7 +67,7 @@ if (!quick || !existsSync(render)) {
   execFileSync(
     'blender',
     [
-      '-b', '-noaudio', '-P', path.join(root, 'scripts/seahorse3d.py'), '--',
+      '-b', '-noaudio', '-P', path.join(root, 'scripts/lesson/seahorse3d.py'), '--',
       '--out', render,
       '--size', '900',
       '--samples', '96',

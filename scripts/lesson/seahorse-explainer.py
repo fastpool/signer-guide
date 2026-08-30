@@ -2,10 +2,10 @@
 """
 The lesson as a film: what a signer seat cost, and the pool that lost one.
 
-    blender -b -noaudio -P scripts/seahorse-explainer.py -- --out /tmp/lesson.mp4
-    blender -b -noaudio -P scripts/seahorse-explainer.py -- --draft   # fast look
+    blender -b -noaudio -P scripts/lesson/seahorse-explainer.py -- --out /tmp/lesson.mp4
+    blender -b -noaudio -P scripts/lesson/seahorse-explainer.py -- --draft   # fast look
 
-Same story as `scripts/make-lesson-card.mjs` draws as a still, told in the
+Same story as `make-lesson-card.mjs` beside it draws as a still, told in the
 order somebody would tell it: nothing moved, the bar rose, and the seat went.
 
 ## The storyboard
@@ -35,7 +35,7 @@ frame is being drawn.
 
 ## Cost
 
-The measurement from `seahorse3d.py` holds — 96 frames at 720p took 25
+The measurement from `seahorse3d.py` beside it holds — 96 frames at 720p took 25
 seconds — so nine seconds of this is about a minute. What a video costs is
 the storyboard above, not the rendering.
 """
@@ -91,7 +91,9 @@ def parse_args(argv):
     parser = argparse.ArgumentParser(prog='seahorse-explainer')
     parser.add_argument(
         '--out',
-        default=os.path.join(HERE, '..', 'public', 'lessons', 'seat-price-142.mp4'),
+        default=os.path.join(
+            HERE, '..', '..', 'public', 'lessons', 'seat-price-142.mp4'
+        ),
     )
     parser.add_argument('--was', type=int, default=49056, help='half a slot, before')
     parser.add_argument('--now', type=int, default=52687, help='half a slot, after')

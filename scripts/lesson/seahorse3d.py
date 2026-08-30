@@ -2,8 +2,8 @@
 """
 Fast Pool's seahorse, in three dimensions, from the mark the guide already has.
 
-    blender -b -noaudio -P scripts/seahorse3d.py -- --out /tmp/seahorse.png
-    blender -b -noaudio -P scripts/seahorse3d.py -- --help
+    blender -b -noaudio -P scripts/lesson/seahorse3d.py -- --out /tmp/seahorse.png
+    blender -b -noaudio -P scripts/lesson/seahorse3d.py -- --help
 
 The mark in `public/fastpool-logo.svg` is one path. This imports it as a curve,
 gives it depth and a bevelled edge, lights it, and renders it — so the thing on
@@ -14,8 +14,8 @@ by hand, which is the point: change the SVG and the character changes with it.
 
 Every choice a scene needs is an argument, so the next picture does not need a
 new script — a different angle, a different colour, a floor or no floor, a
-still or a spin. The card in `scripts/make-lesson-card.mjs` calls this with one
-set of arguments; anything else can call it with another.
+still or a spin. The card in `make-lesson-card.mjs` beside it calls this with
+one set of arguments; anything else can call it with another.
 
     --pose        upright | lean | dive | curl   how the character is held
     --angle       degrees around it, 0 is head-on
@@ -35,7 +35,7 @@ The same script, with `--frames`. A turntable is the default motion because it
 is the one every character needs; anything else is a matter of putting
 different keyframes on the same object, in the block at the bottom of `main`.
 
-    blender -b -noaudio -P scripts/seahorse3d.py -- \
+    blender -b -noaudio -P scripts/lesson/seahorse3d.py -- \
       --out /tmp/spin/f --frames 96 --spin 360 --size 1280 --height 720
     ffmpeg -framerate 24 -i /tmp/spin/f%04d.png \
       -c:v libx264 -pix_fmt yuv420p -crf 20 spin.mp4
@@ -62,7 +62,7 @@ import addon_utils
 import bpy
 
 HERE = os.path.dirname(os.path.realpath(__file__))
-LOGO = os.path.join(HERE, '..', 'public', 'fastpool-logo.svg')
+LOGO = os.path.join(HERE, '..', '..', 'public', 'fastpool-logo.svg')
 
 # The guide's palette, so a render drops into the site without a colour clash.
 PALETTE = {

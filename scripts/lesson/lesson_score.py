@@ -1,13 +1,13 @@
 """
 The music for the film: a small orchestra, written here rather than licensed.
 
-    python3 scripts/lesson_score.py --out /tmp/score.wav
-    python3 scripts/lesson_score.py --video public/lessons/seat-price-142.mp4
+    python3 scripts/lesson/lesson_score.py --out /tmp/score.wav
+    python3 scripts/lesson/lesson_score.py --video public/lessons/seat-price-142.mp4
 
 "Royalty free" is a promise about somebody else's file that somebody else can
 withdraw. This is arithmetic that makes a WAV, so there is no licence to keep
 track of, no attribution line to lose, and nothing to take down. It also means
-the score is written against `lesson_beats.py` and lands on the frame it is
+the score is written against `lesson_beats.py` beside it and lands on the frame it is
 meant to land on, which no library track will do.
 
 Standard library only — `math`, `struct`, `wave`, `random` — and seeded, so
