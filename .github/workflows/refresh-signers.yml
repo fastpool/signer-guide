@@ -117,6 +117,18 @@ jobs:
           HIRO_API_KEY: ${{ secrets.HIRO_API_KEY }}
         run: pnpm generate:stx-only
 
+      - name: Read what is known about the signer nodes
+        # The nodes behind the pools: what each signer key weighs in the set,
+        # what protocol version it says it runs, and whether it has been
+        # signing. The seats come from the chain; the other two columns come
+        # from slotwatch.dev, so a bad day there costs those columns and not
+        # the file. Allowed to fail like the amounts: this is the softest data
+        # on the site and losing an hour of it should stop nothing.
+        continue-on-error: true
+        env:
+          HIRO_API_KEY: ${{ secrets.HIRO_API_KEY }}
+        run: pnpm generate:nodes
+
       - name: Read each signer's cycles, and who was in them
         # The data behind the page for one pool: what its signer held each
         # cycle and who held it. Much the most expensive thing here — a member
@@ -151,7 +163,8 @@ jobs:
         run: |
           if git diff --quiet -- src/data/totals.json \
               src/data/stx-only-calculations.json \
-              src/data/stx-only-history.json; then
+              src/data/stx-only-history.json \
+              src/data/signer-nodes.json; then
             amounts=false
           else
             amounts=true

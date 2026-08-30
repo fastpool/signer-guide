@@ -370,6 +370,17 @@ export interface Reconciliation {
   ourUstx: bigint;
   seatedUstx: bigint;
   totalSlots: number;
+  /**
+   * What one slot cost this cycle: the seated STX shared over the slots.
+   *
+   * The number that decides who is in the signer set at all. Slots are shared
+   * out in proportion and rounded, so a signer holding less than half of one
+   * rounds to nothing and is not seated — however far above pox-5's staking
+   * threshold it is. That is not a hypothetical: 98,112 STX a slot in cycle
+   * 141 and 105,373 in 142, and a pool sitting on 50,020 STX went from 0.5097
+   * slots to 0.4746 and lost its seat without moving a single STX.
+   */
+  ustxPerSlot: bigint | null;
   /** Pools holding STX whose key has no seat in this cycle's signer set. */
   stackedWithoutSeat: { name: string; ustx: bigint }[];
   /** Seats the guide cannot put a name to. */
@@ -392,6 +403,7 @@ export function reconcile(
     ourUstx,
     seatedUstx,
     totalSlots,
+    ustxPerSlot: totalSlots > 0 ? seatedUstx / BigInt(totalSlots) : null,
     stackedWithoutSeat: rows
       .filter(
         (row) =>
@@ -588,6 +600,13 @@ async function main() {
   ).length;
 
   console.log(`\n${rows.length} nodes, ${books.totalSlots} slots between them.`);
+  if (books.ustxPerSlot !== null) {
+    console.log(
+      `A slot costs ${(Number(books.ustxPerSlot) / 1e6).toLocaleString('en-GB', {
+        maximumFractionDigits: 0,
+      })} STX this cycle. Under half of one and a signer is not seated at all.`,
+    );
+  }
   if (unnamed) console.log(`${unnamed} of them hold weight this guide cannot name.`);
   console.log(`${behind} are behind the active signer protocol version.`);
   console.log(`${quiet} signed nothing in the window.`);

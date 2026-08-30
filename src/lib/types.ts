@@ -287,6 +287,73 @@ export interface StxOnlyCalculations {
 }
 
 /**
+ * What is known about the signer nodes, as `src/data/signer-nodes.json`.
+ *
+ * The pools are one thing and the nodes behind them another. This is the
+ * second: what each signer key weighs in the signer set, what it says it is
+ * running, and how it has behaved. Written by the refresh — see
+ * scripts/generate-signer-nodes.ts, which also sets out what could not be
+ * found and why, region being the one people ask for.
+ */
+export interface SignerNodeRecord {
+  /** Bare hex, no 0x — the one spelling three sources had between them. */
+  signerKey: string;
+  /** What the guide calls the pools on this key; empty for a key it cannot name. */
+  pools: string[];
+  /** Groups those pools belong to — see src/data/signer-groups.json. */
+  groups: string[];
+  /** What the guide's own committed amounts say this key holds, as uSTX. */
+  ourUstx: string | null;
+  /** Its seat in the cycle's signer set, or null for a key with none. */
+  seat: {
+    /** Whole slots. Their total is `slots` below, never a constant. */
+    weight: number;
+    weightPercent: number;
+    stackedUstx: string;
+    signerAddress: string;
+  } | null;
+  /**
+   * The signer protocol version it broadcasts, not the version of the binary —
+   * nothing publishes that. `local` under `active` is a node behind the
+   * network.
+   */
+  version: { local: number; active: number; observedAt: string | null } | null;
+  /** How it behaved over `blocks` blocks. Null when it could not be read. */
+  behaviour: {
+    participationRate: number;
+    degradationRate: number;
+    signedCount: number;
+    missedCount: number;
+    acceptedCount: number;
+    rejectedCount: number;
+    preCommitRate: number;
+  } | null;
+}
+
+export interface SignerNodesData {
+  generatedAt: string;
+  cycle: number;
+  /** How many blocks the behaviour figures cover. */
+  blocks: number;
+  /** Slots the cycle shared out. Read, never assumed: it has changed before. */
+  slots: number;
+  /**
+   * uSTX per slot: the seated STX over the slots.
+   *
+   * The number that decides who is in the signer set. Slots are shared in
+   * proportion and rounded, so under half a slot is no seat at all — which is
+   * how a pool holding 50,020 STX kept its seat in cycle 141 at 0.5097 slots
+   * and lost it in 142 at 0.4746, without moving a single STX.
+   */
+  ustxPerSlot: string | null;
+  /** Every uSTX pox-5 counts as stacked. What the guide divides by. */
+  stackedUstx: string;
+  /** The uSTX that got a seat. What the signer set divides by. */
+  seatedUstx: string;
+  nodes: SignerNodeRecord[];
+}
+
+/**
  * One signer's history, as `src/data/signers/<slug>.json` holds it.
  *
  * The unit is the signer key rather than the contract, for the reason set out
