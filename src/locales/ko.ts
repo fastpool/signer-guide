@@ -121,9 +121,9 @@ export const ko: LocaleBundle = {
     'app.stxOnlyEstimate.unavailable':
       '지금은 이 예상치를 계산할 수 없습니다. 잠시 후 다시 시도해 주세요.',
     'app.stxOnlyEstimate.accrued': '지난 지급 이후 들어온 sBTC',
-    'app.stxOnlyEstimate.bondShare': '본드 보유자 예상 보상 몫',
+    'app.stxOnlyEstimate.bondShare': '현재까지 본드 보유자 몫',
     'app.stxOnlyEstimate.foundationShare': '재단 몫 (15%)',
-    'app.stxOnlyEstimate.stxOnlySoFar': '현재까지 STX 전용 예상 보상',
+    'app.stxOnlyEstimate.stxOnlySoFar': '현재까지 STX 전용 몫',
     'app.stxOnlyEstimate.progressLabel': '분배 사이클 진행도',
     'app.stxOnlyEstimate.progress':
       '이번 분배 사이클 {total}블록 중 {now}블록 기준으로 환산',
@@ -131,16 +131,18 @@ export const ko: LocaleBundle = {
     'app.stxOnlyEstimate.projected': '분배 사이클 전체 예상치: {amount}',
     'app.stxOnlyEstimate.stxOnlyStaked': 'STX 전용 참여자의 스테이킹 총량',
     'app.stxOnlyEstimate.lastPayout': '직전 지급 실적',
-    'app.stxOnlyEstimate.lastPayoutInCycle': '직전 지급 실적 ({cycle} 사이클)',
+    'app.stxOnlyEstimate.lastPayoutAt': '직전 지급 실적 ({at})',
     'app.stxOnlyEstimate.projectedRate': '이번 분배 사이클 진행분 환산',
-    'app.stxOnlyEstimate.rate': '예상 보상 비율',
+    'app.stxOnlyEstimate.rate': '이번 분배 사이클 비율',
+    'app.stxOnlyEstimate.rateBlend':
+      '현재 기준: 이번 사이클 자체 수치는 {total}블록 중 {now}블록만큼 반영되고, 나머지 {rest}블록은 직전 지급이 실제로 지급한 금액으로 채웁니다.',
+    'app.stxOnlyEstimate.rateBlendLink': '계산 방법 보기',
     'app.stxOnlyEstimate.rateValue': 'STX 1000개당 {sats} sats',
     'app.stxOnlyEstimate.satsShort': '{sats} sats',
     'app.stxOnlyEstimate.gridApy': '연환산',
     'app.stxOnlyEstimate.gridLast': '직전 지급',
-    'app.stxOnlyEstimate.gridProjected': '이번 지급분',
     'app.stxOnlyEstimate.gridUnknown': '알 수 없음',
-    'app.stxOnlyEstimate.apy': '예상 APY (연 50회 분배 사이클 기준)',
+    'app.stxOnlyEstimate.apy': '이 비율 기준 APY (연 50회 분배 사이클)',
     'app.stxOnlyEstimate.apyValue': '약 {apy}',
     'app.stxOnlyEstimate.apyUnavailable': '지금은 APY를 계산할 수 없습니다',
     'app.stxOnlyEstimate.stxPrice': 'STX 가격 (CoinGecko)',
@@ -192,6 +194,25 @@ export const ko: LocaleBundle = {
     'app.stxOnlyEstimate.note':
       '참고용 예상치입니다. 지난 지급 이후 pox-5에 들어온 금액과 현재 분배 사이클 진행도에 따라 달라지며, 사이클이 진행될수록 안정됩니다.',
     'app.stxOnlyEstimate.generatedAt': '생성 시각: {at}',
+    'app.stxOnlyFaq.title': '이 비율은 어떻게 계산되나요',
+    'app.stxOnlyFaq.q.threeRates': '이 페이지에 비율이 왜 세 개인가요?',
+    'app.stxOnlyFaq.a.threeRates':
+      '하나는 확정된 사실이고 나머지 둘은 아닙니다. 직전 지급 실적은 pox-5가 이미 적립을 마친 확정치입니다. 이번 분배 사이클 진행분 환산은 지금까지 쌓인 금액을 사이클 전체 길이로 늘린 값이라, 사이클 후반에는 쓸 만하지만 지급 직후에는 번 블록 몇 개가 일주일을 대신하므로 편차가 큽니다. 여기 공개하는 비율은 이 둘을 사이클 진행도에 따라 가중 평균한 값이어서, 실제로 지급된 금액에서 출발해 근거가 쌓이는 만큼 이번 사이클 쪽으로 옮겨 갑니다.',
+    'app.stxOnlyFaq.q.blend': '그러면 공개 비율은 왜 둘 중 어느 값과도 다른가요?',
+    'app.stxOnlyFaq.a.blend':
+      '둘을 사이클 진행도만큼 섞은 값이기 때문입니다. 사이클 초반에는 직전 지급 실적에 가깝고, 사이클이 끝날 무렵에는 거의 이번 사이클 자체 수치가 됩니다.',
+    'app.stxOnlyFaq.q.sats': 'sats는 어디에서 오나요?',
+    'app.stxOnlyFaq.a.sats':
+      '직전 지급 이후 pox-5에 들어왔고 아직 누구에게도 배정되지 않은 금액에서 옵니다. 잔액이 아니라 컨트랙트의 get-new-rewards 값입니다. 잔액에는 이미 확정되었지만 아직 청구되지 않은 보상도 섞여 있기 때문입니다. 여기서 본드 보유자 몫을 먼저 빼고, 남은 금액의 15%를 재단 몫으로 뺀 뒤, 나머지를 본드가 없는 풀에 스테이킹된 STX로 나눕니다.',
+    'app.stxOnlyFaq.q.distributionCycle': '분배 사이클이 무엇인가요?',
+    'app.stxOnlyFaq.a.distributionCycle':
+      '번 블록 1050개입니다. 보상 사이클의 절반이며 약 7.3일입니다. pox-5는 분배 사이클이 끝날 때마다 보상을 계산하므로, 보상 사이클 하나는 한 번이 아니라 두 번에 나누어 지급됩니다.',
+    'app.stxOnlyFaq.q.fifty': '왜 연 52회가 아니라 50회인가요?',
+    'app.stxOnlyFaq.a.fifty':
+      '7.3일은 일주일이 아니기 때문입니다. 1년에는 분배 사이클이 50.1회 들어가고, pox-5도 같은 방식으로 50으로 나누어 연환산합니다. 주간 비율을 52번 복리로 계산하면 APY가 약 4% 부풀려집니다.',
+    'app.stxOnlyFaq.q.promise': '여기 있는 수치가 보장되나요?',
+    'app.stxOnlyFaq.a.promise':
+      '아닙니다. 이 페이지에서 확정된 값은 직전 지급 실적뿐이며, 기록된 모든 지급은 지급 내역 페이지에 있습니다. 나머지는 pox-5에 들어오는 금액과 거기에 스테이킹된 STX 총량에 따라 움직이고, APY는 STX 가격에 따라서도 달라집니다.',
     'app.allPools': '전체 풀',
     'app.whatMatters': '어떤 기준이 중요한가요?',
     'app.showingAll': '전체 {total}개 풀 표시 중',

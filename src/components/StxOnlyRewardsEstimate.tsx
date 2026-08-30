@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { exactStxLabel } from '../lib/amounts';
 import { translator, type Locale } from '../lib/i18n';
 import {
@@ -6,6 +6,7 @@ import {
   FALLBACK_DISTRIBUTION_BLOCKS,
   hoursUntilPayout,
   payoutDueAt,
+  payoutHappenedAt,
 } from '../lib/rate-view';
 import { stxOnlyHistoryHref } from '../lib/route';
 import type { StxOnlyCalculations } from '../lib/types';
@@ -30,6 +31,8 @@ type Estimate = {
   /** Null before the first payout, or when the file predates it. */
   lastPayoutRateSatsPer1000Stx: bigint | null;
   lastPayoutCycle: number | null;
+  /** Burn height of that payout, which is how its date is worked out. */
+  lastRewardBurnHeight: number | null;
   projectedRateSatsPer1000Stx: bigint | null;
 };
 
@@ -73,6 +76,26 @@ function formatUtc(iso: string, locale: Locale): string | null {
 }
 
 /** One label-over-figure cell of the qualifier grid. */
+/*
+ * The questions the breakdown above raises but cannot answer in a label.
+ *
+ * Three rates on one page is the reason this exists: a reader can see 407,
+ * 432 and 417 and have no way to tell that the third is made of the first
+ * two. Written as questions somebody would actually ask, and closed by
+ * default — the answer is for the reader who wants it, not a wall in front of
+ * the one who does not.
+ */
+const FAQ = [
+  'threeRates',
+  'blend',
+  'sats',
+  'distributionCycle',
+  'fifty',
+  'promise',
+] as const;
+
+type FaqId = (typeof FAQ)[number];
+
 function Qualifier({ label, value }: { label: string; value: string }) {
   return (
     <div>
@@ -101,6 +124,19 @@ export default function StxOnlyRewardsEstimate({
 }) {
   const t = translator(locale);
   const showFull = mode === 'full';
+
+  /*
+   * One question open at a time, and openable from somewhere other than its
+   * own summary: the rate is where the question occurs to somebody, and the
+   * answer is at the bottom of the page. A button rather than a fragment link
+   * because the app routes on the hash — `#faq-blend` would navigate away.
+   */
+  const [openQuestion, setOpenQuestion] = useState<FaqId | null>(null);
+  const blendRef = useRef<HTMLDetailsElement>(null);
+  const openBlend = () => {
+    setOpenQuestion('blend');
+    blendRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
 
   const estimate = useMemo<Estimate | null>(() => {
     const accruedRewardsSats = asBigint(calculations.accruedRewardsSats);
@@ -155,6 +191,7 @@ export default function StxOnlyRewardsEstimate({
       rateSatsPer1000Stx,
       lastPayoutRateSatsPer1000Stx,
       lastPayoutCycle: calculations.lastPayoutCycle ?? null,
+      lastRewardBurnHeight: calculations.lastRewardBurnHeight ?? null,
       projectedRateSatsPer1000Stx,
     };
   }, [calculations]);
@@ -180,6 +217,25 @@ export default function StxOnlyRewardsEstimate({
       t('app.stxOnlyEstimate.asOfUnknown')
     );
   }, [asOf, calculations.generatedAt, locale, t]);
+
+  /*
+   * When the last payout happened, rather than which reward cycle it paid for.
+   * The cycle number named a fortnight with two payouts in it, so "cycle 141"
+   * beside one figure did not say which of the two it was — and a reader
+   * comparing it with a rate that moves hourly needs to know how old it is.
+   */
+  const lastPayoutAt = useMemo(() => {
+    const base = new Date(calculations.generatedAt).getTime();
+    if (Number.isNaN(base) || !estimate) return null;
+    if (estimate.lastRewardBurnHeight === null) return null;
+    const blocksSince =
+      estimate.currentBurnHeight - estimate.lastRewardBurnHeight;
+    if (blocksSince < 0) return null;
+    return formatUtc(
+      payoutHappenedAt({ now: base, blocksSince }).toISOString(),
+      locale,
+    );
+  }, [calculations.generatedAt, estimate, locale]);
 
   const nextRewardsAt = useMemo(() => {
     const base = new Date(calculations.generatedAt).getTime();
@@ -307,14 +363,20 @@ export default function StxOnlyRewardsEstimate({
                 </p>
 
                 {/*
-                 * The three qualifiers, as a grid rather than a wrapping row.
-                 * A row is what drops "LAST PAYOUT, AS PAID" onto a line of
-                 * its own on a narrow screen; three fixed columns cannot. The
-                 * labels are shortened to fit them — the long forms are on the
-                 * full page, which is where somebody reading a label carefully
-                 * already is.
+                 * Two qualifiers, as a grid rather than a wrapping row. A row
+                 * is what drops "LAST PAYOUT, AS PAID" onto a line of its own
+                 * on a narrow screen; fixed columns cannot. The labels are
+                 * shortened to fit them — the long forms are on the full page,
+                 * which is where somebody reading a label carefully already
+                 * is.
+                 *
+                 * This cycle's own extrapolation used to be a third column. It
+                 * is the noisiest figure the guide holds and it sat beside a
+                 * headline it disagrees with, unexplained, on the first screen
+                 * anybody sees. It is on the full page, next to the settled
+                 * figure it is blended with.
                  */}
-                <dl className='mt-4 grid grid-cols-3 gap-3 border-t border-hairline pt-3'>
+                <dl className='mt-4 grid grid-cols-2 gap-3 border-t border-hairline pt-3'>
                   <Qualifier
                     label={t('app.stxOnlyEstimate.gridApy')}
                     value={
@@ -331,19 +393,6 @@ export default function StxOnlyRewardsEstimate({
                         : t('app.stxOnlyEstimate.satsShort', {
                             sats:
                               estimate.lastPayoutRateSatsPer1000Stx.toLocaleString(
-                                t.bundle.intlLocale,
-                              ),
-                          })
-                    }
-                  />
-                  <Qualifier
-                    label={t('app.stxOnlyEstimate.gridProjected')}
-                    value={
-                      estimate.projectedRateSatsPer1000Stx === null
-                        ? t('app.stxOnlyEstimate.gridUnknown')
-                        : t('app.stxOnlyEstimate.satsShort', {
-                            sats:
-                              estimate.projectedRateSatsPer1000Stx.toLocaleString(
                                 t.bundle.intlLocale,
                               ),
                           })
@@ -420,7 +469,6 @@ export default function StxOnlyRewardsEstimate({
               {exactStxLabel(estimate.stxOnlyStakedUstx, locale)}
             </dd>
           </div>
-          <div aria-hidden='true' className='border-t border-grape-soft' />          
           {estimate.projectedRateSatsPer1000Stx !== null && (
             <div className='flex flex-wrap items-baseline justify-between gap-3'>
               <dt className='text-muted'>
@@ -435,8 +483,41 @@ export default function StxOnlyRewardsEstimate({
               </dd>
             </div>
           )}
+           {estimate.lastPayoutRateSatsPer1000Stx !== null && (
+            <div className='flex flex-wrap items-baseline justify-between gap-3'>
+              <dt className='text-muted'>
+                {lastPayoutAt === null
+                  ? t('app.stxOnlyEstimate.lastPayout')
+                  : t('app.stxOnlyEstimate.lastPayoutAt', { at: lastPayoutAt })}
+              </dt>
+              <dd className='font-semibold text-ink'>
+                {t('app.stxOnlyEstimate.rateValue', {
+                  sats: estimate.lastPayoutRateSatsPer1000Stx.toLocaleString(
+                    t.bundle.intlLocale,
+                  ),
+                })}
+              </dd>
+            </div>
+          )}
+          <div aria-hidden='true' className='border-t border-grape-soft' />          
+          
           <div className='flex flex-wrap items-baseline justify-between gap-3'>
-            <dt className='text-muted'>{t('app.stxOnlyEstimate.rate')}</dt>
+            <dt className='text-muted'>
+              {t('app.stxOnlyEstimate.rate')}{' '}
+              {/*
+                The number above the line is made of the two above it, and this
+                is where somebody wonders how. The arithmetic itself is in the
+                FAQ rather than under the row: a figure that needs a sentence
+                every time it is shown should not be carrying the sentence.
+              */}
+              <button
+                type='button'
+                onClick={openBlend}
+                className='text-xs font-semibold text-grape underline underline-offset-2'
+              >
+                {t('app.stxOnlyEstimate.rateBlendLink')}
+              </button>
+            </dt>
             <dd className='font-semibold text-ink'>
               {t('app.stxOnlyEstimate.rateValue', {
                 sats: estimate.rateSatsPer1000Stx.toLocaleString(t.bundle.intlLocale),
@@ -463,26 +544,7 @@ export default function StxOnlyRewardsEstimate({
                   })}
             </dd>
           </div>
-          {estimate.lastPayoutRateSatsPer1000Stx !== null && (
-            <div className='flex flex-wrap items-baseline justify-between gap-3'>
-              <dt className='text-muted'>
-                {estimate.lastPayoutCycle === null
-                  ? t('app.stxOnlyEstimate.lastPayout')
-                  : t('app.stxOnlyEstimate.lastPayoutInCycle', {
-                      cycle: estimate.lastPayoutCycle.toLocaleString(
-                        t.bundle.intlLocale,
-                      ),
-                    })}
-              </dt>
-              <dd className='font-semibold text-ink'>
-                {t('app.stxOnlyEstimate.rateValue', {
-                  sats: estimate.lastPayoutRateSatsPer1000Stx.toLocaleString(
-                    t.bundle.intlLocale,
-                  ),
-                })}
-              </dd>
-            </div>
-          )}
+         
         </dl>
       )}
 
@@ -511,6 +573,44 @@ export default function StxOnlyRewardsEstimate({
               {t('app.stxOnlyEstimate.openHistory')}
             </a>
           </p>
+          <section className='mt-6 border-t border-hairline pt-4'>
+            <h3 className='text-lg font-bold'>{t('app.stxOnlyFaq.title')}</h3>
+            <div className='mt-2 space-y-1'>
+              {FAQ.map((id) => (
+                <details
+                  key={id}
+                  ref={id === 'blend' ? blendRef : undefined}
+                  open={openQuestion === id}
+                  onToggle={(event) =>
+                    setOpenQuestion(event.currentTarget.open ? id : null)
+                  }
+                  className='rounded-2xl bg-grape-soft/40 px-4 py-3'
+                >
+                  <summary className='cursor-pointer text-sm font-semibold text-ink'>
+                    {t(`app.stxOnlyFaq.q.${id}`)}
+                  </summary>
+                  <p className='mt-2 text-sm text-muted'>
+                    {t(`app.stxOnlyFaq.a.${id}`)}
+                  </p>
+                  {id === 'blend' && estimate && (
+                    <p className='mt-2 text-sm font-semibold text-ink'>
+                      {t('app.stxOnlyEstimate.rateBlend', {
+                        now: estimate.blocksIntoCycle.toLocaleString(
+                          t.bundle.intlLocale,
+                        ),
+                        total: cycleBlocks.toLocaleString(t.bundle.intlLocale),
+                        rest: Math.max(
+                          0,
+                          cycleBlocks - estimate.blocksIntoCycle,
+                        ).toLocaleString(t.bundle.intlLocale),
+                      })}
+                    </p>
+                  )}
+                </details>
+              ))}
+            </div>
+          </section>
+
           <p className='mt-3 text-xs text-muted'>{t('app.stxOnlyEstimate.note')}</p>
           <p className='mt-1 text-xs text-muted'>
             {t('app.stxOnlyEstimate.generatedAt', {

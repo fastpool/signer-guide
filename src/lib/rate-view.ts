@@ -100,6 +100,25 @@ export function hoursUntilPayout(blocksLeft: number): number {
   return Math.max(1, Math.round((blocksLeft * BITCOIN_BLOCK_MINUTES) / 60));
 }
 
+/**
+ * When the last payout happened, from how many blocks ago it was.
+ *
+ * The mirror of `payoutDueAt`, and it exists for the same reason a date beats
+ * a cycle number on the page: pox-5 pays twice in a reward cycle, so "cycle
+ * 141" names a fortnight with two payouts in it, and a reader looking at one
+ * figure cannot tell which. Ten minutes a block is the same approximation the
+ * countdown already makes, and a payout hours out is close enough to say when
+ * it was.
+ */
+export function payoutHappenedAt(opts: {
+  now: number;
+  blocksSince: number;
+}): Date {
+  return new Date(
+    opts.now - opts.blocksSince * BITCOIN_BLOCK_MINUTES * 60 * 1000,
+  );
+}
+
 /** When the next payout falls due, from a burn height count. */
 export function payoutDueAt(opts: {
   now: number;

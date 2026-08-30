@@ -15,6 +15,8 @@ import {
   BITCOIN_BLOCK_MINUTES,
   DISTRIBUTION_CYCLES_PER_YEAR,
   FALLBACK_DISTRIBUTION_BLOCKS,
+  payoutDueAt,
+  payoutHappenedAt,
 } from './rate-view';
 
 describe('distribution cycles a year', () => {
@@ -36,5 +38,22 @@ describe('distribution cycles a year', () => {
     });
     expect(apy).not.toBeNull();
     expect(apy!).toBeCloseTo((Math.pow(1.01, DISTRIBUTION_CYCLES_PER_YEAR) - 1) * 100, 6);
+  });
+});
+
+describe('when a payout happened', () => {
+  const now = Date.parse('2026-08-28T21:00:00.000Z');
+
+  it('counts back at the same ten minutes a block the countdown counts forward', () => {
+    const back = payoutHappenedAt({ now, blocksSince: 231 });
+    // 231 blocks is 38.5 hours.
+    expect(back.toISOString()).toBe('2026-08-27T06:30:00.000Z');
+
+    const forward = payoutDueAt({ now, blocksLeft: 231 });
+    expect(forward.getTime() - now).toBe(now - back.getTime());
+  });
+
+  it('is now when the last payout was this block', () => {
+    expect(payoutHappenedAt({ now, blocksSince: 0 }).getTime()).toBe(now);
   });
 });

@@ -78,9 +78,9 @@ const messages = {
   'app.stxOnlyEstimate.unavailable':
     'Could not build this estimate right now. Try again in a moment.',
   'app.stxOnlyEstimate.accrued': 'sBTC received since the last payout',
-  'app.stxOnlyEstimate.bondShare': 'Estimated bond-holder rewards share',
+  'app.stxOnlyEstimate.bondShare': 'Bond-holder share so far',
   'app.stxOnlyEstimate.foundationShare': 'Foundation share (15%)',
-  'app.stxOnlyEstimate.stxOnlySoFar': 'Estimated STX-only rewards so far',
+  'app.stxOnlyEstimate.stxOnlySoFar': 'STX-only share so far',
   'app.stxOnlyEstimate.progressLabel': 'Distribution cycle progress',
   'app.stxOnlyEstimate.progress':
     'Projected from {now}/{total} blocks in this distribution cycle',
@@ -89,18 +89,19 @@ const messages = {
     'Projected distribution cycle total: {amount}',
   'app.stxOnlyEstimate.stxOnlyStaked': 'STX staked by STX-only holders',
   'app.stxOnlyEstimate.lastPayout': 'Last payout, as paid',
-  'app.stxOnlyEstimate.lastPayoutInCycle':
-    'Last payout, as paid (cycle {cycle})',
+  'app.stxOnlyEstimate.lastPayoutAt': 'Last payout, as paid ({at})',
   'app.stxOnlyEstimate.projectedRate':
     'This distribution cycle so far, extrapolated',
-  'app.stxOnlyEstimate.rate': 'Estimated reward rate',
+  'app.stxOnlyEstimate.rate': 'Rate for this distribution cycle',
+  'app.stxOnlyEstimate.rateBlend':
+    'As it stands now: this cycle’s own figure counts for {now} of {total} blocks, and what the last payout actually paid covers the other {rest}.',
+  'app.stxOnlyEstimate.rateBlendLink': 'how this is worked out',
   'app.stxOnlyEstimate.rateValue': '{sats} sats per 1000 STX',
   'app.stxOnlyEstimate.satsShort': '{sats} sats',
   'app.stxOnlyEstimate.gridApy': 'A year',
   'app.stxOnlyEstimate.gridLast': 'Last paid',
-  'app.stxOnlyEstimate.gridProjected': 'This payout so far',
   'app.stxOnlyEstimate.gridUnknown': 'not known',
-  'app.stxOnlyEstimate.apy': 'Estimated APY (50 distribution cycles a year)',
+  'app.stxOnlyEstimate.apy': 'APY at that rate (50 distribution cycles a year)',
   'app.stxOnlyEstimate.apyValue': '{apy}',
   'app.stxOnlyEstimate.apyUnavailable': 'APY unavailable right now',
   'app.stxOnlyEstimate.stxPrice': 'STX price (CoinGecko)',
@@ -152,6 +153,25 @@ const messages = {
   'app.stxOnlyEstimate.note':
     'Estimate only. It depends on what has reached pox-5 since the last payout and on how far this distribution cycle has run, so it settles as that cycle goes on.',
   'app.stxOnlyEstimate.generatedAt': 'Generated at: {at}',
+  'app.stxOnlyFaq.title': 'How the rate is worked out',
+  'app.stxOnlyFaq.q.threeRates': 'Why are there three rates on this page?',
+  'app.stxOnlyFaq.a.threeRates':
+    'One is a fact and the other two are not. What the last payout paid is settled — pox-5 has already credited it. What this distribution cycle is on course for is its own accrual so far, multiplied out to the full cycle: a fair guess late on, and a wild one an hour after a payout, when a handful of Bitcoin blocks are standing in for a week. The rate published here is the two of them weighted by how far the cycle has run, so it starts at what was actually paid and hands over to this cycle as the evidence for it arrives.',
+  'app.stxOnlyFaq.q.blend': 'So why does the published rate match neither?',
+  'app.stxOnlyFaq.a.blend':
+    'Because it is both, in the proportion the cycle has run. Early in a cycle it sits close to what the last payout paid; by the end of the cycle it is almost entirely this cycle’s own figure.',
+  'app.stxOnlyFaq.q.sats': 'Where do the sats come from?',
+  'app.stxOnlyFaq.a.sats':
+    'From what pox-5 has taken in since the last payout and not yet accounted to anyone — its own get-new-rewards, not its balance, which also holds rewards already earned and waiting to be claimed. Bond holders’ share comes off that first, then the foundation’s 15% of what is left, and the remainder is divided by the STX staked through pools that hold no bond.',
+  'app.stxOnlyFaq.q.distributionCycle': 'What is a distribution cycle?',
+  'app.stxOnlyFaq.a.distributionCycle':
+    '1050 burn blocks — half a reward cycle, about 7.3 days. pox-5 works rewards out at the end of each one, so a reward cycle is paid in two goes rather than one.',
+  'app.stxOnlyFaq.q.fifty': 'Why 50 of them a year, and not 52?',
+  'app.stxOnlyFaq.a.fifty':
+    'Because 7.3 days is not a week. A year holds 50.1 distribution cycles, and pox-5 annualises the same way, dividing by 50. Compounding a weekly rate 52 times would overstate the APY by about 4%.',
+  'app.stxOnlyFaq.q.promise': 'Is any of this a promise?',
+  'app.stxOnlyFaq.a.promise':
+    'No. The only settled figure on this page is what the last payout paid, and every payout on record is listed on the history page. Everything else moves with what reaches pox-5, with how much STX is staked against it, and — for the APY — with the price of STX.',
   'app.allPools': 'All pools',
   'app.whatMatters': 'What matters to you?',
   'app.showingAll': 'Showing all {total} pools',
