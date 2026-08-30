@@ -17,8 +17,9 @@ Nine seconds, five beats, and every one of them is a fact from cycle 142:
   2  the rise  half a slot climbs from 49,056 STX to 52,687 while the number
                counts up with it. The pool's bar does not move, because the
                pool did not move it.
-  3  the pass  the amber bar goes by the cream one. This is the whole lesson
-               and it is given a second on its own to land.
+  3  the pass  the amber bar goes by the cream one, the bell rings, and the
+               cycle number rolls over from one to the next. This is the whole
+               lesson and it is given a second on its own to land.
   4  the turn  the seahorse turns to face what has happened, and the seat
                shrinks under it — a share of a slot, getting smaller.
   5  the drop  the seat falls away. 0.4746 slots is not a seat.
@@ -139,11 +140,23 @@ def text(body, size, colour, location, align='LEFT', lean=0.0):
 
     material = bpy.data.materials.new(name=f'text-{body[:8]}')
     material.use_nodes = True
+    # Alpha has to be blended rather than clipped, or a fade is a hard cut
+    # with extra steps.
+    material.blend_method = 'BLEND'
     bsdf = material.node_tree.nodes['Principled BSDF']
     bsdf.inputs['Base Color'].default_value = rgba(colour)
     bsdf.inputs['Roughness'].default_value = 0.5
     obj.data.materials.append(material)
     return obj
+
+
+def fade(obj, frames, values):
+    """Keyframes on a material's alpha, for a word arriving or leaving."""
+    bsdf = obj.data.materials[0].node_tree.nodes['Principled BSDF']
+    alpha = bsdf.inputs['Alpha']
+    for frame, value in zip(frames, values):
+        alpha.default_value = value
+        alpha.keyframe_insert('default_value', frame=frame)
 
 
 def block(name, colour, location, size):
@@ -274,9 +287,32 @@ def build(args):
     held_label.name = 'held-label'
 
     # The words, which only appear when the picture has earned them.
-    cycle_title = text(
-        f'CYCLE {args.was_cycle}', 0.34, '#f2c891', (-5.2, -0.6, 2.45)
+    # The cycle number turns over, and it is given a moment rather than a
+    # frame. It was a body swap in the counter handler before this — correct,
+    # instant, and completely unnoticed, which is no way to mark the one thing
+    # that changed between the two halves of the film.
+    title_top = 2.45
+    title_was = text(
+        f'CYCLE {args.was_cycle}', 0.4, '#f2c891', (-5.2, -0.6, title_top)
     )
+    title_now = text(
+        f'CYCLE {args.now_cycle}', 0.4, '#f2c891', (-5.2, -0.6, title_top - 0.42)
+    )
+    fade(title_now, [1], [0.0])
+
+    # A rule that draws itself under the new number, because a line arriving
+    # is the cheapest way to make an eye go somewhere.
+    bpy.ops.mesh.primitive_cube_add(size=1.0, location=(-4.55, -0.6, title_top - 0.16))
+    rule = bpy.context.object
+    rule.name = 'rule'
+    rule.scale = (1.35, 0.02, 0.022)
+    rule_material = bpy.data.materials.new(name='rule')
+    rule_material.use_nodes = True
+    rule_material.node_tree.nodes['Principled BSDF'].inputs[
+        'Base Color'
+    ].default_value = rgba('#f2c891')
+    rule.data.materials.append(rule_material)
+    rule.scale = (0.0, 0.02, 0.022)
     verdict = text('0.4746 slots.\nNo seat.', 0.46, '#fdf8f3', (-5.2, -0.6, 1.55))
     verdict.scale = (0.0,) * 3
 
@@ -306,6 +342,32 @@ def build(args):
         [1.35, 1.35 + (price_height_now - price_height_was)],
         index=2,
     )
+
+    # The turnover, on the frame the bar passes and the bell rings. The old
+    # number rolls up and out; the new one comes up from under it, overshoots
+    # by a hair and settles, the way a mechanical counter does.
+    flip = marks['rise_end']
+    ease(title_was, 'location', [flip - 2, flip + 6], [title_top, title_top + 0.5],
+         index=2)
+    # The old number is most of the way gone before the new one is halfway
+    # in. Overlapping them at full strength reads as two titles rather than
+    # one turning over.
+    fade(title_was, [flip - 2, flip + 3], [1.0, 0.0])
+    ease(
+        title_now, 'location',
+        [flip - 2, flip + 6, flip + 10],
+        [title_top - 0.42, title_top + 0.06, title_top],
+        index=2,
+    )
+    fade(title_now, [flip, flip + 5], [0.0, 1.0])
+    for index in (0, 2):
+        ease(
+            title_now, 'scale',
+            [flip - 2, flip + 6, flip + 12],
+            [0.86, 1.1, 1.0],
+            index=index,
+        )
+    ease(rule, 'scale', [flip + 2, flip + 12], [0.0, 1.35], index=0)
 
     # The turn: the character looks at what has just gone past it.
     ease(
@@ -372,10 +434,10 @@ def build(args):
         index=1,
     )
 
-    return {'counter': counter, 'title': cycle_title, 'marks': marks}
+    return {'counter': counter, 'marks': marks}
 
 
-def install_counter(counter, title, marks, args):
+def install_counter(counter, marks, args):
     """
     The number, rewritten every frame.
 
@@ -392,11 +454,6 @@ def install_counter(counter, title, marks, args):
         eased = through * through * (3.0 - 2.0 * through)
         value = args.was + (args.now - args.was) * eased
         counter.data.body = f'{int(round(value)):,}'
-        title.data.body = (
-            f'CYCLE {args.was_cycle}'
-            if frame < marks['rise_end']
-            else f'CYCLE {args.now_cycle}'
-        )
 
     bpy.app.handlers.frame_change_pre.append(on_frame)
     on_frame(bpy.context.scene)
@@ -409,9 +466,7 @@ def main():
         args.width, args.height, args.samples = 640, 360, 16
 
     scene_parts = build(args)
-    install_counter(
-        scene_parts['counter'], scene_parts['title'], scene_parts['marks'], args
-    )
+    install_counter(scene_parts['counter'], scene_parts['marks'], args)
 
     scene = bpy.context.scene
     scene.render.engine = 'BLENDER_EEVEE'
