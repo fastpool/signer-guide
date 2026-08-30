@@ -362,6 +362,13 @@ export const ko: LocaleBundle = {
     'signerPage.key': '서명자 키',
     'signerPage.keyNone':
       '이 풀의 서명자 키가 확인되지 않아, 다른 컨트랙트와 키를 공유하는지 알 수 없습니다.',
+    'signerPage.votingPower': '의결 지분',
+    'signerPage.votingPowerValue': '{cycle} 사이클 기준 {percent}%',
+    'signerPage.votingPowerNote':
+      'pox-5는 서명자의 가중치를 그 뒤에 스테이킹된 STX로 정합니다. 따라서 이 값은 해당 사이클에서 이 키가 서명자 집합 안에서 갖는 발언권의 크기이며, 이 키에 등록된 모든 컨트랙트를 합산한 값입니다. 서명자의 운영 품질을 뜻하지는 않습니다. 실제로 서명에 참여했는지, 어떤 버전을 실행하는지, 가동 시간이 얼마인지는 여기에 나오지 않습니다.',
+    'signerPage.votingPowerUnknown':
+      '이 사이클은 알 수 없습니다. 이 키의 컨트랙트 중 하나가 보유한 양을 갱신에서 읽지 못했습니다.',
+    'signerPage.votingPowerStaked': '이 키 뒤에 스테이킹된 양',
     'signerPage.sharedBy.one': '이 키로 등록된 컨트랙트는 하나입니다',
     'signerPage.sharedBy.other': '이 키로 등록된 컨트랙트는 {count}개입니다',
     'signerPage.thisOne': '— 현재 페이지',

@@ -317,6 +317,13 @@ const messages = {
   'signerPage.key': 'Signer key',
   'signerPage.keyNone':
     'We have no signer key on file for this pool, so we cannot tell whether it shares one with any other contract.',
+  'signerPage.votingPower': 'Voting power',
+  'signerPage.votingPowerValue': '{percent}% of cycle {cycle}',
+  'signerPage.votingPowerNote':
+    'pox-5 weights a signer by the STX stacked behind it, so this is how much of the signer set’s say this key carries — for the cycle named, across every contract registered against it. It is not a measure of how well the signer behaves: nothing here says whether it has been signing, what it runs, or how long it has been up.',
+  'signerPage.votingPowerUnknown':
+    'Not known for this cycle — the refresh could not read what one of these contracts is holding.',
+  'signerPage.votingPowerStaked': 'Staked behind this key',
   'signerPage.sharedBy.one': 'One contract is registered against this key',
   'signerPage.sharedBy.other':
     '{count} contracts are registered against this key',
