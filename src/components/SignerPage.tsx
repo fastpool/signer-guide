@@ -7,8 +7,10 @@ import { contractTypeName } from '../lib/profile-i18n';
 import { contractHref, signerHref } from '../lib/route';
 import {
   cycleStanding,
+  groupUstx,
   shareBips,
   sumCycleUstx,
+  votingPowerBips,
   type SignerGroup,
 } from '../lib/signer-groups';
 import {
@@ -17,7 +19,7 @@ import {
   type Remote,
 } from '../lib/signer-history';
 import { ellipsedAddr, shortPrincipal } from '../lib/strings';
-import type { Signer, SignerHistory } from '../lib/types';
+import type { LockedTotals, Signer, SignerHistory } from '../lib/types';
 import Badge, { feeLabel, noticeLabel } from './Badge';
 import Identicon from './Identicon';
 import LocaleSwitch from './LocaleSwitch';
@@ -41,6 +43,7 @@ export default function SignerPage({
   signer,
   group,
   slug,
+  totals,
   locale,
   onLocaleChange,
 }: {
@@ -48,6 +51,11 @@ export default function SignerPage({
   /** The signer this contract belongs to, siblings included. */
   group: SignerGroup;
   slug: string;
+  /**
+   * Every pool's amount for the cycle, which is what makes a weight out of an
+   * amount: the denominator is the whole cycle, not this signer's own stake.
+   */
+  totals: LockedTotals;
   locale: Locale;
   onLocaleChange: (locale: Locale) => void;
 }) {
@@ -138,7 +146,12 @@ export default function SignerPage({
         )}
       </div>
 
-      <SignerKeySection signer={signer} group={group} locale={locale} />
+      <SignerKeySection
+        signer={signer}
+        group={group}
+        totals={totals}
+        locale={locale}
+      />
 
       <RewardsSection signer={signer} locale={locale} />
 
@@ -154,30 +167,70 @@ export default function SignerPage({
 }
 
 /**
- * The key, and every contract registered against it.
+ * The key, what it weighs, and every contract registered against it.
  *
- * The point of the section is the sibling list. Somebody looking at a pool
+ * The sibling list is why the section exists. Somebody looking at a pool
  * holding four hundred thousand STX is looking at a quarter of its signer if
  * three other contracts share the key, and nothing else on the page would tell
  * them so.
+ *
+ * The weight is the same argument taken one step further. A list of keys says
+ * who the signers are and nothing about how much any of them counts for, so a
+ * reader cannot tell the signer carrying a fifth of the network from one
+ * carrying a thousandth. pox-5 decides that by the STX stacked behind the key,
+ * which the guide already reads every hour — it just never divided one by the
+ * other. What it is *not* is a measure of the signer's conduct, and the note
+ * says so: signing behaviour, node version and uptime are not in this data,
+ * and a number this prominent must not be mistaken for them.
  */
 function SignerKeySection({
   signer,
   group,
+  totals,
   locale,
 }: {
   signer: Signer;
   group: SignerGroup;
+  totals: LockedTotals;
   locale: Locale;
 }) {
   const t = translator(locale);
   const siblings = group.contracts;
+  const bips = votingPowerBips(group, totals.ustx);
+  const staked = groupUstx(group, totals.ustx);
 
   return (
     <section className='mt-10 rounded-3xl bg-card p-6 shadow-lift'>
       <h2 className='text-lg font-bold'>{t('signerPage.key')}</h2>
       <p className='mt-1 break-all font-mono text-xs text-muted'>
         {signer.signerKey ?? t('signer.notAvailable')}
+      </p>
+
+      <dl className='mt-4 border-y border-hairline py-3 text-sm'>
+        <div className='flex flex-wrap items-baseline justify-between gap-3'>
+          <dt className='text-muted'>{t('signerPage.votingPower')}</dt>
+          <dd className='text-lg font-bold text-ink'>
+            {bips === null
+              ? t('signer.notAvailable')
+              : t('signerPage.votingPowerValue', {
+                  percent: (bips / 100).toFixed(2),
+                  cycle: totals.cycle.toLocaleString(t.bundle.intlLocale),
+                })}
+          </dd>
+        </div>
+        {staked !== null && (
+          <div className='mt-1 flex flex-wrap items-baseline justify-between gap-3'>
+            <dt className='text-muted'>{t('signerPage.votingPowerStaked')}</dt>
+            <dd className='font-semibold text-ink'>
+              {stxLabel(staked.toString(), locale)}
+            </dd>
+          </div>
+        )}
+      </dl>
+      <p className='mt-2 text-xs text-muted'>
+        {bips === null
+          ? t('signerPage.votingPowerUnknown')
+          : t('signerPage.votingPowerNote')}
       </p>
 
       {signer.signerKey === null ? (

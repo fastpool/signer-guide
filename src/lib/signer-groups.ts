@@ -127,6 +127,54 @@ export function sumCycleUstx(
   return known ? total : null;
 }
 
+/** What a signer is holding for a cycle, across every contract on its key. */
+export function groupUstx(
+  group: SignerGroup,
+  ustx: Record<string, string | null>,
+): bigint | null {
+  let total = 0n;
+  let known = false;
+  for (const contract of group.contracts) {
+    const amount = ustx[contract.contractId];
+    if (amount === null || amount === undefined) continue;
+    total += BigInt(amount);
+    known = true;
+  }
+  return known ? total : null;
+}
+
+/**
+ * A signer's weight in the cycle, in hundredths of a percent.
+ *
+ * pox-5 weights a signer by the STX stacked behind it, so its share of the
+ * cycle's total *is* its say — in the signer set, and in everything the set
+ * votes on. The guide listed the keys and stopped there, which left the one
+ * question a reader of a signer list is asking unanswered: how much of the
+ * network is this one.
+ *
+ * The unit is the key rather than the contract, for the reason at the top of
+ * this file: a key with four contracts registered against it votes with all
+ * four, and a quarter of it read on its own is a quarter of the truth.
+ *
+ * Null when either half is unknown. A signer whose amount the refresh could
+ * not read has an unknown weight, never a zero one — and the denominator has
+ * to be the whole cycle, which `sumCycleUstx` over the committed amounts is:
+ * every registered signer is in that file, and the sum of it is what pox-5
+ * reports staked (see scripts/staked-total.test.ts).
+ *
+ * Integer arithmetic on the uSTX, like `shareBips`, because these are numbers
+ * with fifteen digits in them.
+ */
+export function votingPowerBips(
+  group: SignerGroup,
+  ustx: Record<string, string | null>,
+): number | null {
+  const mine = groupUstx(group, ustx);
+  const total = sumCycleUstx(ustx);
+  if (mine === null || total === null || total === 0n) return null;
+  return Number((mine * 10_000n) / total);
+}
+
 /**
  * A member's share of the cycle, in hundredths of a percent.
  *

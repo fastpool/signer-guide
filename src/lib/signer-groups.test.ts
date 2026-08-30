@@ -4,9 +4,11 @@ import {
   cycleStanding,
   groupBySignerKey,
   groupForContract,
+  groupUstx,
   shareBips,
   signerSlug,
   sumCycleUstx,
+  votingPowerBips,
 } from './signer-groups';
 import type { CycleMember, Signer, SignerData } from './types';
 
@@ -167,5 +169,78 @@ describe('shareBips', () => {
 
   it('does not divide by an empty cycle', () => {
     expect(shareBips(member('0'), 0n)).toBe(0);
+  });
+});
+
+/*
+ * What a signer weighs. pox-5 gives a signer a say in proportion to the STX
+ * stacked behind it, so this is the number that tells one key from another —
+ * and the guide listed the keys for months without it.
+ */
+describe('votingPowerBips', () => {
+  const group = (...ids: string[]) => ({
+    signerKey: KEY_A,
+    contracts: ids.map((id) => signer(id, KEY_A)),
+  });
+
+  it('weighs the key against the whole cycle, not against itself', () => {
+    const ustx = { 'SP1.one': '250', 'SP1.two': '250', 'SP2.other': '500' };
+    // Half the cycle, and it takes both of the key's contracts to see it.
+    expect(votingPowerBips(group('SP1.one', 'SP1.two'), ustx)).toBe(5_000);
+    expect(votingPowerBips(group('SP1.one'), ustx)).toBe(2_500);
+  });
+
+  it('adds up every contract on the key', () => {
+    const ustx = { 'SP1.one': '250', 'SP1.two': '250', 'SP2.other': '500' };
+    expect(groupUstx(group('SP1.one', 'SP1.two'), ustx)).toBe(500n);
+  });
+
+  it('is unknown, not zero, when an amount could not be read', () => {
+    // A rate limit deciding a signer has no say is the failure worth avoiding:
+    // zero here reads as a signer nobody stakes with.
+    const ustx = { 'SP1.one': null, 'SP2.other': '500' };
+    expect(votingPowerBips(group('SP1.one'), ustx)).toBeNull();
+    expect(groupUstx(group('SP1.one'), ustx)).toBeNull();
+  });
+
+  it('counts what it could read when only a sibling is missing', () => {
+    const ustx = { 'SP1.one': '250', 'SP1.two': null, 'SP2.other': '750' };
+    // 250 of the 1000 it can see. Short by whatever the sibling holds, which
+    // is the same shortfall every total on the site carries for an unread
+    // pool — and it is a floor, not a guess.
+    expect(votingPowerBips(group('SP1.one', 'SP1.two'), ustx)).toBe(2_500);
+  });
+
+  it('says nothing rather than dividing by an empty cycle', () => {
+    expect(votingPowerBips(group('SP1.one'), { 'SP1.one': '0' })).toBeNull();
+    expect(votingPowerBips(group('SP1.one'), {})).toBeNull();
+  });
+
+  it('keeps its precision on the amounts pox-5 actually holds', () => {
+    // 82,681,580 STX of 421,543,815 — sixteen digits of uSTX, which is where
+    // Number stops being able to hold the answer.
+    const ustx = {
+      'SP1.one': '82681580000000',
+      'SP2.other': '338862235427560',
+    };
+    expect(votingPowerBips(group('SP1.one'), ustx)).toBe(1_961);
+  });
+});
+
+describe('the real signers', () => {
+  it('never add up to more than the whole cycle between them', () => {
+    // Every key's share of one cycle, added together, is the cycle. A weight
+    // over 100% would mean a contract counted twice — which is exactly what
+    // grouping by key is there to prevent.
+    const signers = (realData as SignerData).signers;
+    const ustx = Object.fromEntries(
+      signers.map((s, index) => [s.contractId, String((index + 1) * 1_000)]),
+    );
+    const total = groupBySignerKey(signers).reduce(
+      (sum, group) => sum + (votingPowerBips(group, ustx) ?? 0),
+      0,
+    );
+    expect(total).toBeGreaterThan(9_900);
+    expect(total).toBeLessThanOrEqual(10_000);
   });
 });

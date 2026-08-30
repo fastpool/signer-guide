@@ -288,6 +288,7 @@ export default function App() {
             signer={signer}
             group={group}
             slug={signerSlug(group)}
+            totals={totals}
             locale={locale}
             onLocaleChange={setLocale}
           />
