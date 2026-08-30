@@ -1,6 +1,6 @@
 import { stxLabel } from '../lib/amounts';
 import { translator, type Locale } from '../lib/i18n';
-import { groupHref, signerHref } from '../lib/route';
+import { groupHref, groupsHref, signerHref } from '../lib/route';
 import {
   allGroups,
   groupContracts,
@@ -223,6 +223,14 @@ export default function SignerGroupPage({
       </section>
 
       <nav className='mt-8 flex flex-wrap gap-3 text-sm'>
+        {/* The index first: a reader who has read one group's evidence is
+            usually asking who else there is, not which sibling to click. */}
+        <a
+          className='rounded-full bg-grape px-4 py-2 font-semibold text-on-grape shadow-lift'
+          href={groupsHref()}
+        >
+          {t('groups.open')}
+        </a>
         {allGroups()
           .filter((other) => other.id !== group.id)
           .map((other) => (

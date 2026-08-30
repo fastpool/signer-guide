@@ -189,15 +189,66 @@ export function groupVotingPowerBips(
   signers: Signer[],
   ustx: Record<string, string | null>,
 ): number | null {
-  const mine = groupUstx(group, signers, ustx);
-  if (mine === null) return null;
+  return shareBips(groupUstx(group, signers, ustx), ustx);
+}
 
+/** What the whole cycle holds, for a share to be a share of something. */
+function cycleUstx(ustx: Record<string, string | null>): bigint {
   let total = 0n;
   for (const amount of Object.values(ustx)) {
     if (amount === null) continue;
     total += BigInt(amount);
   }
-  if (total === 0n) return null;
+  return total;
+}
 
+/** A slice of the cycle in hundredths of a percent, or null for neither. */
+function shareBips(
+  mine: bigint | null,
+  ustx: Record<string, string | null>,
+): number | null {
+  if (mine === null) return null;
+  const total = cycleUstx(ustx);
+  if (total === 0n) return null;
   return Number((mine * 10_000n) / total);
+}
+
+/**
+ * What is staked with contracts no group here claims.
+ *
+ * The index's honest bottom line. Every group on it is a hand-written claim,
+ * and the sum of them is not the network — the rest of the cycle is signers
+ * nobody has written down, which is a fact about this file rather than about
+ * the chain. Counted over a set, so a contract two groups both claim is
+ * removed once and never counted as ungrouped by the other.
+ */
+export function ungroupedUstx(
+  signers: Signer[],
+  ustx: Record<string, string | null>,
+): bigint | null {
+  const claimed = new Set<string>();
+  for (const group of allGroups()) {
+    for (const contract of groupContracts(group, signers)) {
+      claimed.add(contract.contractId);
+    }
+  }
+
+  let total = 0n;
+  let known = false;
+  for (const signer of signers) {
+    if (claimed.has(signer.contractId)) continue;
+    const amount = ustx[signer.contractId];
+    if (amount === null || amount === undefined) continue;
+    total += BigInt(amount);
+    known = true;
+  }
+  return known ? total : null;
+}
+
+/** The same, as a share of the cycle. */
+export function ungroupedVotingPowerBips(
+  signers: Signer[],
+  ustx: Record<string, string | null>,
+): number | null {
+  return shareBips(ungroupedUstx(signers, ustx), ustx);
 }

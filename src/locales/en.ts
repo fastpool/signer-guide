@@ -317,6 +317,19 @@ const messages = {
   'signerPage.key': 'Signer key',
   'signerPage.keyNone':
     'We have no signer key on file for this pool, so we cannot tell whether it shares one with any other contract.',
+  'groups.open': 'Who holds the vote',
+  'groups.back': '← All pools',
+  'groups.heading': 'Who holds the vote',
+  'groups.intro':
+    'A signer node is one key. A group is a set of them with one entity behind it — which is the number that decides who could move the signer set, and the number the chain never shows you. Largest first.',
+  'groups.counts':
+    '{nodes} nodes · {contracts} contracts · {staked} staked',
+  'groups.rest':
+    'The other {percent}% of cycle {cycle} is staked with signers nobody here has grouped. That is a gap in this file, not a guarantee those signers are unrelated.',
+  'groups.restUnknown':
+    'How much of the cycle sits outside these groups is not known — the refresh could not read what every contract is holding.',
+  'groups.sourceHeading': 'How to read this page',
+
   'group.back': '← All pools',
   'group.missing': 'No such group. It may have been renamed.',
   'group.kind.operator': 'Runs these nodes',

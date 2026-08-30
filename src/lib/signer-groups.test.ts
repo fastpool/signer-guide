@@ -21,6 +21,8 @@ import {
   groupVotingPowerBips,
   groupsForContract,
   groupsForNode,
+  ungroupedUstx,
+  ungroupedVotingPowerBips,
   type SignerGroup,
 } from './signer-groups';
 import { nodeForContract, nodesBySignerKey } from './signer-nodes';
@@ -220,5 +222,35 @@ describe('the committed groups', () => {
       node.contracts.every((c) => !grouped.has(c.contractId)),
     );
     expect(ungrouped.length).toBeGreaterThan(0);
+  });
+
+  it('counts what no group claims, without double-subtracting an overlap', () => {
+    // The index's bottom line. A contract two groups both claim is removed
+    // once; getting that wrong would report more of the cycle as ungrouped
+    // than there is, which reads as "nobody knows" about known stake.
+    const claimed = new Set(
+      allGroups().flatMap((entry) =>
+        groupContracts(entry, signers).map((s) => s.contractId),
+      ),
+    );
+    const expected = signers
+      .filter((s) => !claimed.has(s.contractId))
+      .reduce((sum, s) => sum + BigInt(totals.ustx[s.contractId] ?? '0'), 0n);
+
+    expect(ungroupedUstx(signers, totals.ustx)).toBe(expected);
+  });
+
+  it('gives the ungrouped share of the cycle', () => {
+    const bips = ungroupedVotingPowerBips(signers, totals.ustx);
+    expect(bips).not.toBeNull();
+    expect(bips!).toBeGreaterThan(0);
+    expect(bips!).toBeLessThanOrEqual(10_000);
+  });
+
+  it('reads nothing rather than zero when the cycle is unreadable', () => {
+    // A refresh that read nothing must not report the whole network as
+    // ungrouped, or as a group holding none of it.
+    expect(ungroupedUstx(signers, {})).toBeNull();
+    expect(ungroupedVotingPowerBips(signers, {})).toBeNull();
   });
 });

@@ -362,6 +362,18 @@ export const ko: LocaleBundle = {
     'signerPage.key': '서명자 키',
     'signerPage.keyNone':
       '이 풀의 서명자 키가 확인되지 않아, 다른 컨트랙트와 키를 공유하는지 알 수 없습니다.',
+    'groups.open': '의결 지분은 누가 쥐고 있나',
+    'groups.back': '← 전체 풀 목록',
+    'groups.heading': '의결 지분은 누가 쥐고 있나',
+    'groups.intro':
+      '서명자 노드는 키 하나입니다. 그룹은 한 주체가 뒤에 있는 노드의 집합이며, 서명자 집합을 실제로 움직일 수 있는 쪽이 누구인지는 이 수치가 정합니다. 체인은 그것을 보여 주지 않습니다. 지분이 큰 순서입니다.',
+    'groups.counts': '노드 {nodes}개 · 컨트랙트 {contracts}개 · {staked} 스테이킹',
+    'groups.rest':
+      '{cycle} 사이클의 나머지 {percent}%는 여기서 아무도 그룹으로 묶지 않은 서명자들에게 스테이킹되어 있습니다. 이는 이 파일의 공백일 뿐, 그 서명자들이 서로 무관하다는 보장은 아닙니다.',
+    'groups.restUnknown':
+      '이 그룹들 밖에 사이클의 얼마가 있는지는 알 수 없습니다. 모든 컨트랙트의 보유량을 갱신에서 읽지 못했습니다.',
+    'groups.sourceHeading': '이 페이지를 읽는 법',
+
     'group.back': '← 전체 풀 목록',
     'group.missing': '해당 그룹이 없습니다. 이름이 바뀌었을 수 있습니다.',
     'group.kind.operator': '노드를 직접 운영',

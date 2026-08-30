@@ -89,5 +89,22 @@
         "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-stacking-dao-v1"
       }
     ]
+  },
+  "same-funder": {
+    "id": "same-funder",
+    "name": "One funder, two nodes",
+    "kind": "operator",
+    "summary": "Two signer nodes that appeared within a day of each other in August 2026 and now carry a third of the vote between them. Nobody has said who runs them.",
+    "source": "Neither deployer had done anything before: SP1N8F8BBBC60XF6HJBNJHKPRGJ7WZBRGNDJX4YDR was funded with 5 STX on 3 August 2026 and SP30A7BPA23W9G3GR090ZRVE5AAJ2TCXH412ABYJH with 10 STX on 4 August, both from SPCMYWF0F05XA5KRW22875KAD0H7B9WHJJV3N7WC, and both deployed a plain signer-manager and registered it the same day. That is thinner evidence than any other group here, and it is the reason the group has no name: the same address also funded SPZACCJ8XPZ14P7K7NGFMT1BWQYF2JA9DFA2ZR8A, which deployed Assymetric Labs' contract and is not counted here, so it may simply be a custodian paying deployment fees for whoever asks. What makes the pair worth writing down anyway is where their stake came from — see the note on each contract — and that between them they hold more than a third of the vote under no name at all.",
+    "members": [
+      {
+        "contractId": "SP1N8F8BBBC60XF6HJBNJHKPRGJ7WZBRGNDJX4YDR.signer-manager",
+        "note": "Its members' STX arrived between 10 and 11 August 2026 from addresses that stacked with STX Lab's stackslabs keys through pox-4 — 12.5m STX from SMSH16RHC888ZM0V0CJ8A8PT8512TT17D66MW806, which held 25m with L2-Labs-3 in cycle 139, and smaller amounts from three more."
+      },
+      {
+        "contractId": "SP30A7BPA23W9G3GR090ZRVE5AAJ2TCXH412ABYJH.signer-manager",
+        "note": "The same pattern: 20m STX on 10 August 2026 out of SMYMGWMJRBJVVPM3RXB14C8B04C46J65A7Z52E45, which held 20m with L2-Labs-2 in cycle 139, and 10m out of SM1MREN94TZVDYPTZWX9CHA1RF3SM8YGKH6P0X2Q0. Where a staker moves is the staker's decision, not proof of who runs the node."
+      }
+    ]
   }
 }

@@ -26,6 +26,12 @@ describe('parseHash', () => {
     expect(parseHash('#/nonsense')).toEqual({ name: 'list' });
   });
 
+  it('reads the group index from the plural', () => {
+    // One character apart from the route below, and a different page.
+    expect(parseHash('#/groups')).toEqual({ name: 'groups' });
+    expect(parseHash('#/groups/')).toEqual({ name: 'groups' });
+  });
+
   it('reads a signer group by its slug', () => {
     expect(parseHash('#/group/stacking-dao')).toEqual({
       name: 'group',

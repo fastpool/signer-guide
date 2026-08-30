@@ -513,6 +513,36 @@ the list holds it, since "which of these is missing it" is the question.
 The script writes nothing to disk. The list of addresses is yours, and where
 it lives is not a script's decision.
 
+## Who holds the vote
+
+A signer node is one key. A **group** is a set of nodes with one entity behind
+them, and that is the number worth knowing: three keys at six percent each read
+as three small signers until somebody says they are one company, at which point
+they are a fifth of a veto. `#/groups` lists every group, largest share first,
+and `#/group/<id>` opens one.
+
+Nothing on chain says who is behind a key, so `src/data/signer-groups.json` is
+written by hand and every entry carries a `source` — evidence a reader can
+follow, a shared deployer address or a published statement, not "we know". Two
+kinds, and the difference is real: an **operator** runs the nodes, so its weight
+is every contract on every key it holds; a **stake** group's nodes belong to
+other people, and what it controls is the STX behind the contracts named. A node
+can be in both, and one is, which is why the percentages on the index do not sum
+to a hundred and are not meant to.
+
+The last line of the index is the honest one: how much of the cycle no group
+here claims. It is a gap in the file, not a finding about the chain — the
+signers in it may well be related to each other, and nobody has written it down.
+
+One group is named for its evidence rather than for an entity. `same-funder`
+holds two contracts, deployed a day apart in August 2026 by two addresses that
+had one transaction each beforehand, both from the same funder, and between them
+they carry more than a third of the vote under no name at all. The same funder
+also paid for a deployment that is *not* in the group, which the entry says so a
+reader can weigh it. It is the thinnest claim in the file, and it is in the file
+because two anonymous nodes at a third of the signer set is exactly the thing a
+reader should be told about.
+
 ## The page for one pool
 
 `#/signer/<contract-id>` is a page about one deployed signer contract, reached

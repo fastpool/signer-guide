@@ -5,6 +5,7 @@ import LocaleSwitch from './components/LocaleSwitch';
 import Mark from './components/Mark';
 import SignerCard from './components/SignerCard';
 import SignerGroupPage from './components/SignerGroupPage';
+import SignerGroupsPage from './components/SignerGroupsPage';
 import SignerPage from './components/SignerPage';
 import MyRewardsPage from './components/MyRewardsPage';
 import StxOnlyHistoryPage from './components/StxOnlyHistoryPage';
@@ -25,6 +26,7 @@ import { localizeProfile } from './lib/profile-i18n';
 import { PROFILES } from './lib/profiles';
 import {
   contractHref,
+  groupsHref,
   myRewardsHref,
   statusHref,
   stxOnlyRewardsHref,
@@ -275,6 +277,20 @@ export default function App() {
     );
   }
 
+  if (route.name === 'groups') {
+    return (
+      <>
+        <SignerGroupsPage
+          signers={signerData.signers}
+          totals={totals}
+          locale={locale}
+          onLocaleChange={setLocale}
+        />
+        <UpdateBanner update={update} locale={locale} />
+      </>
+    );
+  }
+
   if (route.name === 'group') {
     // Same rule as a pool that has gone: a group id nobody wrote lands on the
     // list, which is the page somebody who followed that link wanted.
@@ -387,6 +403,16 @@ export default function App() {
               className='rounded-full bg-card px-4 py-2 text-sm font-semibold text-ink shadow-lift transition-colors hover:bg-grape-soft'
             >
               {t('myRewards.open')}
+            </a>
+            {/* The list below is forty-odd pools read one at a time. This is
+                the same set read the other way round — by who is behind them —
+                and it is the only page that answers what a reader worried
+                about the signer set is actually asking. */}
+            <a
+              href={groupsHref()}
+              className='rounded-full bg-card px-4 py-2 text-sm font-semibold text-ink shadow-lift transition-colors hover:bg-grape-soft'
+            >
+              {t('groups.open')}
             </a>
             <LocaleSwitch locale={locale} onChange={setLocale} />
           </div>
