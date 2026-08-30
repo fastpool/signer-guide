@@ -55,11 +55,20 @@ HERE = os.path.dirname(os.path.realpath(__file__))
 
 # The character is built by the other script rather than copied out of it: one
 # definition of the seahorse, so a change to the mark reaches the film too.
+sys.path.insert(0, HERE)
+import lesson_beats  # noqa: E402
+
 _spec = importlib.util.spec_from_file_location(
     'seahorse3d', os.path.join(HERE, 'seahorse3d.py')
 )
 seahorse3d = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(seahorse3d)
+
+_score_spec = importlib.util.spec_from_file_location(
+    'lesson_score', os.path.join(HERE, 'lesson_score.py')
+)
+lesson_score = importlib.util.module_from_spec(_score_spec)
+_score_spec.loader.exec_module(lesson_score)
 
 rgba = seahorse3d.rgba
 FONT = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
@@ -68,19 +77,14 @@ FPS = 24
 
 
 def beats(fps: int):
-    """The storyboard in frames, so the timings are read rather than counted."""
-    second = lambda s: int(round(s * fps))  # noqa: E731
-    return {
-        'settle_end': second(1.6),
-        'rise_start': second(1.6),
-        'rise_end': second(4.6),
-        'pass_end': second(5.4),
-        'turn_start': second(5.4),
-        'turn_end': second(6.4),
-        'drop_start': second(6.6),
-        'drop_end': second(7.6),
-        'end': second(9.0),
-    }
+    """
+    The storyboard in frames.
+
+    Read from `lesson_beats.py` rather than written here, because the score
+    reads it too: a bell that rings half a second after the bar passes is
+    worse than no bell.
+    """
+    return lesson_beats.frames(fps)
 
 
 def parse_args(argv):
@@ -100,6 +104,7 @@ def parse_args(argv):
     parser.add_argument('--samples', type=int, default=48)
     parser.add_argument('--draft', action='store_true', help='small and rough')
     parser.add_argument('--frames-only', action='store_true')
+    parser.add_argument('--silent', action='store_true', help='no score')
     return parser.parse_args(argv)
 
 
@@ -446,6 +451,16 @@ def main():
         stderr=subprocess.DEVNULL,
     )
     shutil.rmtree(frames_dir, ignore_errors=True)
+
+    if not args.silent:
+        # Written here rather than licensed from anywhere, and scored against
+        # the same storyboard the motion is keyed to — see lesson_score.py.
+        score = os.path.join(tempfile.gettempdir(), 'lesson-score.wav')
+        lesson_score.compose().write(score)
+        scored = os.path.join(tempfile.gettempdir(), 'lesson-scored.mp4')
+        lesson_score.mux(args.out, score, scored)
+        shutil.move(scored, args.out)
+
     seconds = scene.frame_end / args.fps
     print(
         f'seahorse-explainer: {args.out} — {seconds:.1f}s, '

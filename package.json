@@ -15,6 +15,7 @@
     "generate:share-card": "node scripts/make-share-card.mjs",
     "card:lesson": "node scripts/make-lesson-card.mjs",
     "film:lesson": "blender -b -noaudio -P scripts/seahorse-explainer.py --",
+    "score:lesson": "python3 scripts/lesson_score.py",
     "members": "tsx scripts/signer-members.ts",
     "movement": "tsx scripts/membership-movement.ts",
     "rewards": "tsx scripts/reward-distribution.ts",
