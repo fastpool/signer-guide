@@ -26,7 +26,14 @@ pnpm dev
 pnpm members max500     # who stakes with a pool, and how much each of them has
 pnpm movement max500 141 142   # who joined and left between two cycles, and where they went
 pnpm addresses --file addresses.txt --token sbtc   # what a list of addresses holds
+
+pnpm card:lesson        # a shareable card of something the chain taught us
+pnpm film:lesson        # the same lesson as a nine-second film, with a score
 ```
+
+The two lesson commands are the odd ones out: they draw pictures rather than
+read the chain, and they need `blender`, `ffmpeg` and `magick` rather than a
+node. See [scripts/lesson/README.md](scripts/lesson/README.md).
 
 The generators, `members` and `addresses` read `STACKS_API_URL` and
 `HIRO_API_KEY` — see
