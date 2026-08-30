@@ -313,7 +313,7 @@ def build(args):
     ].default_value = rgba('#f2c891')
     rule.data.materials.append(rule_material)
     rule.scale = (0.0, 0.02, 0.022)
-    verdict = text('0.4746 slots.\nNo seat.', 0.46, '#fdf8f3', (-5.2, -0.6, 1.55))
+    verdict = text('0.4746 slots.\nNo seat.\nNo rewards.', 0.46, '#fdf8f3', (-5.2, -0.6, 1.55))
     verdict.scale = (0.0,) * 3
 
     # Where it came from, so a clip reposted without its note still says.

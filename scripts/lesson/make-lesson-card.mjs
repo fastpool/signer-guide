@@ -135,18 +135,25 @@ execFileSync('magick', [
   '-annotate', `+${textX}+${arrowY + 34}`,
   `cycle ${wasCycle}                    cycle ${nowCycle}`,
 
-  // Why, in the fewest words that are still true.
+  // Why, in the fewest words that are still true. The block is tuned to end
+  // above the footer: the last line sits at 588 and the padding starts at 599,
+  // so a line added here has to buy its room from the spacing above it.
   '-fill', 'rgba(253,248,243,0.86)', '-font', 'DejaVu-Sans', '-pointsize', '23',
-  '-annotate', `+${textX}+${arrowY + 92}`,
+  '-annotate', `+${textX}+${arrowY + 86}`,
   'Slots are shared in proportion, then rounded.',
-  '-annotate', `+${textX}+${arrowY + 126}`,
+  '-annotate', `+${textX}+${arrowY + 118}`,
   'Under half a slot is no seat at all.',
 
   '-fill', 'rgba(253,248,243,0.62)', '-font', 'DejaVu-Sans', '-pointsize', '21',
-  '-annotate', `+${textX}+${arrowY + 176}`,
+  '-annotate', `+${textX}+${arrowY + 164}`,
   `One pool sat on ${held} STX and did not move it.`,
-  '-annotate', `+${textX}+${arrowY + 206}`,
+  '-annotate', `+${textX}+${arrowY + 192}`,
   `Seated in ${wasCycle} at 0.5097 slots. Out in ${nowCycle} at 0.4746.`,
+
+  // What that cost, in the film's own words. A seat is not the point; what
+  // the seat pays is, and the card stopped one line short of saying so.
+  '-fill', AMBER, '-font', 'DejaVu-Sans-Bold', '-pointsize', '22',
+  '-annotate', `+${textX}+${arrowY + 226}`, 'No seat. No rewards.',
 
   // Where it came from, so a card seen without its note still says. Under
   // the character rather than under the words, which the last line of the
