@@ -13,6 +13,7 @@
     "generate:history": "tsx scripts/generate-signer-history.ts",
     "generate:nodes": "tsx scripts/generate-signer-nodes.ts",
     "generate:share-card": "node scripts/make-share-card.mjs",
+    "card:lesson": "node scripts/make-lesson-card.mjs",
     "members": "tsx scripts/signer-members.ts",
     "movement": "tsx scripts/membership-movement.ts",
     "rewards": "tsx scripts/reward-distribution.ts",
