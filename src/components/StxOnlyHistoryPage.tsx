@@ -11,10 +11,11 @@ import LocaleSwitch from './LocaleSwitch';
 /**
  * What every distribution has actually paid, newest first.
  *
- * The estimate page answers "what will this cycle pay"; this one answers
- * "what did the last ones pay", which is the only figure on either page that
- * nobody has projected. pox-5 pays twice a cycle, so each cycle has two lines
- * and a total — and the total comes from the chain's cumulative figure rather
+ * The estimate page answers "what will this distribution cycle pay"; this one
+ * answers "what did the last ones pay", which is the only figure on either
+ * page that nobody has projected. A reward cycle holds two distribution
+ * cycles, so each cycle here has two lines and a total — and the total comes
+ * from the chain's cumulative figure rather
  * than from adding the two lines, which would lose the sat each of them
  * rounded away.
  */

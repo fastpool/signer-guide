@@ -377,11 +377,11 @@ const messages = {
   // --------------------------------------------------------------- history --
   'history.title': 'What each payout paid',
   'history.intro':
-    'pox-5 works rewards out every 1,050 burn blocks — half a cycle, about a week — so each cycle below holds two payouts.',
+    'pox-5 works rewards out every 1,050 burn blocks — half a reward cycle, about a week — so each reward cycle below holds two payouts.',
   'history.estimatedNow': 'Estimated now, cycle {cycle}',
   'history.blended': 'Blended estimate',
   'history.blendedUnit': 'sats blended',
-  'history.projected': 'This window so far',
+  'history.projected': 'This payout so far',
   'history.projectedHint': 'extrapolated; noisy early on',
   'history.lastPayout': 'Cycle {cycle} payout',
   'history.lastPayoutGeneric': 'Last payout',
@@ -413,7 +413,7 @@ const messages = {
   'data.refresh': 'Fetch again',
   'data.howRate': 'How the rate is worked out',
   'data.howRateBody':
-    'pox-5 pays every {blocks} burn blocks. The published figure weights what this window has accrued so far against what the last completed payout actually paid — early in a window the accrual is noisy, so the fact carries more of it.',
+    'pox-5 pays every {blocks} burn blocks. The published figure weights what this payout has accrued so far against what the last completed payout actually paid — early on the accrual is noisy, so the fact carries more of it.',
   'data.totalStaked': 'Staked against pox-5',
   'data.stxPrice': 'STX price',
   'data.burnHeight': 'Burn height',

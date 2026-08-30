@@ -71,9 +71,9 @@ const messages = {
   'app.newsletter': 'Sign up for our newsletter',
   'app.by': 'by',
   'app.stxOnlyEstimate.title':
-    'Estimated next-cycle rewards for STX-only stakers',
+    'Estimated next distribution cycle rewards for STX-only stakers',
   'app.stxOnlyEstimate.intro':
-    'Estimate from the sBTC that has reached pox-5 since the last payout: minus bond-holder share, minus the foundation share (15%), projected to a 1050-block distribution cycle, then divided by STX staked by non-bond pools. Not from the balance pox-5 holds — that also carries rewards already earned and waiting to be claimed. A few blocks of deposits make a rough projection, so this cycle counts for as much of the rate as it has run and the last payout — a figure pox-5 has already settled — covers the rest.',
+    'Estimate from the sBTC that has reached pox-5 since the last payout: minus bond-holder share, minus the foundation share (15%), projected to a 1050-block distribution cycle, then divided by STX staked by non-bond pools. Not from the balance pox-5 holds — that also carries rewards already earned and waiting to be claimed. A few blocks of deposits make a rough projection, so this distribution cycle counts for as much of the rate as it has run and the last payout — a figure pox-5 has already settled — covers the rest.',
   'app.stxOnlyEstimate.loading': 'Reading estimate from chain data…',
   'app.stxOnlyEstimate.unavailable':
     'Could not build this estimate right now. Try again in a moment.',
@@ -81,24 +81,26 @@ const messages = {
   'app.stxOnlyEstimate.bondShare': 'Estimated bond-holder rewards share',
   'app.stxOnlyEstimate.foundationShare': 'Foundation share (15%)',
   'app.stxOnlyEstimate.stxOnlySoFar': 'Estimated STX-only rewards so far',
-  'app.stxOnlyEstimate.progressLabel': 'Cycle progress',
+  'app.stxOnlyEstimate.progressLabel': 'Distribution cycle progress',
   'app.stxOnlyEstimate.progress':
     'Projected from {now}/{total} blocks in this distribution cycle',
-  'app.stxOnlyEstimate.projectedLabel': 'Projected full-cycle amount',
-  'app.stxOnlyEstimate.projected': 'Projected full-cycle amount: {amount}',
+  'app.stxOnlyEstimate.projectedLabel': 'Projected distribution cycle total',
+  'app.stxOnlyEstimate.projected':
+    'Projected distribution cycle total: {amount}',
   'app.stxOnlyEstimate.stxOnlyStaked': 'STX staked by STX-only holders',
   'app.stxOnlyEstimate.lastPayout': 'Last payout, as paid',
   'app.stxOnlyEstimate.lastPayoutInCycle':
     'Last payout, as paid (cycle {cycle})',
-  'app.stxOnlyEstimate.projectedRate': 'This cycle so far, extrapolated',
+  'app.stxOnlyEstimate.projectedRate':
+    'This distribution cycle so far, extrapolated',
   'app.stxOnlyEstimate.rate': 'Estimated reward rate',
   'app.stxOnlyEstimate.rateValue': '{sats} sats per 1000 STX',
   'app.stxOnlyEstimate.satsShort': '{sats} sats',
   'app.stxOnlyEstimate.gridApy': 'A year',
   'app.stxOnlyEstimate.gridLast': 'Last paid',
-  'app.stxOnlyEstimate.gridProjected': 'This cycle so far',
+  'app.stxOnlyEstimate.gridProjected': 'This payout so far',
   'app.stxOnlyEstimate.gridUnknown': 'not known',
-  'app.stxOnlyEstimate.apy': 'Estimated APY (52 payouts/year)',
+  'app.stxOnlyEstimate.apy': 'Estimated APY (50 distribution cycles a year)',
   'app.stxOnlyEstimate.apyValue': '{apy}',
   'app.stxOnlyEstimate.apyUnavailable': 'APY unavailable right now',
   'app.stxOnlyEstimate.stxPrice': 'STX price (CoinGecko)',
@@ -107,15 +109,15 @@ const messages = {
   'app.stxOnlyEstimate.untilPayoutAsOf':
     'Estimated payout in about {duration} ({blocks} blocks left as of {at}).',
   'app.stxOnlyEstimate.weeklyLead':
-    'Like a weekly allowance, for every 1000 STX this cycle could add:',
+    'Like a weekly allowance, for every 1000 STX this distribution cycle could add:',
   'app.stxOnlyEstimate.weeklyApy': 'APY: {apy}',
-  'app.stxOnlyEstimate.weeklyProgress': 'Cycle progress',
+  'app.stxOnlyEstimate.weeklyProgress': 'Distribution cycle progress',
   'app.stxOnlyEstimate.weeklyBlocksAsOf':
     '{blocks} blocks left ({duration}) as of {at}.',
   'app.stxOnlyEstimate.weeklyEstimateNote':
-    'One estimate based on the latest cycle data.',
+    'One estimate based on the latest distribution cycle data.',
   'app.stxOnlyEstimate.homeSentence':
-    'For the current cycle, the weekly rewards for STX-only stakers are around {rate} ({apy} APY). {link}',
+    'For the current distribution cycle, the rewards for STX-only stakers are around {rate} ({apy} APY). {link}',
   'app.stxOnlyEstimate.untilNextRewards': 'Until next rewards',
   'app.stxOnlyEstimate.untilNextDate':
     'Estimated in about {duration} (around {at}).',
@@ -131,24 +133,24 @@ const messages = {
   'app.stxOnlyHistory.back': '← Back to the rewards estimate',
   'app.stxOnlyHistory.title': 'What every distribution has paid',
   'app.stxOnlyHistory.intro':
-    'Rewards are computed twice a reward cycle, so each cycle is paid in two goes. These are the rates as paid, not estimates — each one is what pox-5 credited per 1000 STX staked.',
+    'Rewards are computed at the end of every distribution cycle, and a reward cycle holds two of them — so each reward cycle is paid in two goes. These are the rates as paid, not estimates — each one is what pox-5 credited per 1000 STX staked.',
   'app.stxOnlyHistory.loading': 'Reading the payout history…',
   'app.stxOnlyHistory.none':
-    'No distribution has been recorded yet. The first one appears here once a cycle has paid.',
+    'No distribution has been recorded yet. The first one appears here once a distribution cycle has paid.',
   'app.stxOnlyHistory.failed':
     'The payout history could not be fetched. Try again in a moment.',
   'app.stxOnlyHistory.cycle': 'Cycle {cycle}',
-  'app.stxOnlyHistory.cycleTotal': 'for the cycle',
+  'app.stxOnlyHistory.cycleTotal': 'for the reward cycle',
   'app.stxOnlyHistory.stillPaying': 'still paying — one of two so far',
   'app.stxOnlyHistory.firstHalf': 'First half',
   'app.stxOnlyHistory.secondHalf': 'Second half',
   'app.stxOnlyHistory.atHeight': 'at burn height {height}',
   'app.stxOnlyHistory.rateUnknown': 'not known',
   'app.stxOnlyHistory.note':
-    'A cycle’s total comes from what pox-5 has accrued for that cycle, not from adding the two halves — each half is rounded down to a whole sat on its own. A half reads as “not known” when no refresh ran between the two payouts, which is the only moment the first of them can be told from the pair.',
+    'A reward cycle’s total comes from what pox-5 has accrued for that cycle, not from adding the two halves — each half is rounded down to a whole sat on its own. A half reads as “not known” when no refresh ran between the two payouts, which is the only moment the first of them can be told from the pair.',
   'app.stxOnlyEstimate.back': '← All pools',
   'app.stxOnlyEstimate.note':
-    'Estimate only. It depends on what has reached pox-5 since the last payout and on how far this distribution cycle has run, so it settles as the cycle goes on.',
+    'Estimate only. It depends on what has reached pox-5 since the last payout and on how far this distribution cycle has run, so it settles as that cycle goes on.',
   'app.stxOnlyEstimate.generatedAt': 'Generated at: {at}',
   'app.allPools': 'All pools',
   'app.whatMatters': 'What matters to you?',

@@ -379,7 +379,7 @@ export const ko: MobileBundle = {
     // ------------------------------------------------------------ history --
     'history.title': '지급 회차별 실제 지급액',
     'history.intro':
-      'pox-5는 1,050 번 블록마다 — 사이클의 절반, 약 일주일마다 — 보상을 계산하므로 아래 각 사이클에는 두 번의 지급이 들어 있습니다.',
+      'pox-5는 1,050 번 블록마다 — 보상 사이클의 절반, 약 일주일마다 — 보상을 계산하므로 아래 각 보상 사이클에는 두 번의 지급이 들어 있습니다.',
     'history.estimatedNow': '현재 추정치, {cycle} 사이클',
     'history.blended': '종합 추정치',
     'history.blendedUnit': 'sats 종합',

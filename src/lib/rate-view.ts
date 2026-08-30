@@ -1,19 +1,37 @@
 /**
  * What the published rate means to somebody holding STX.
  *
- * `rateSatsPer1000Stx` is per *payout*, not per year and not per cycle: pox-5
- * pays every 1050 burn blocks, which is half a reward cycle and about a week,
- * so a cycle carries two of them. Every number below follows from that one
- * fact, and it is the fact most easily got wrong — a rate read as a cycle's is
- * half the truth, and read as a year's is fifty-two times too small.
+ * Three words, kept apart here because everything below turns on which is
+ * meant, and pox-5's own glossary is the authority:
+ *
+ *   reward cycle       2100 burn blocks on mainnet — a reward phase and its
+ *                      trailing 100-block prepare phase. Also the signer
+ *                      cycle. Amounts and history are keyed by this.
+ *   distribution cycle 1050 burn blocks, twice as often as a reward cycle.
+ *                      The period rewards accrue over, and what `calculate-
+ *                      rewards` settles at the end of.
+ *   payout             the event at a distribution cycle's boundary.
+ *
+ * `rateSatsPer1000Stx` is per *distribution cycle*, not per year and not per
+ * reward cycle. Every number below follows from that one fact, and it is the
+ * fact most easily got wrong — a rate read as a reward cycle's is half the
+ * truth, and read as a year's is fifty times too small.
  *
  * Pure, and imported by the phone app as well as the page: an app and a site
  * disagreeing about what somebody earns is not a rounding difference, it is
  * two answers to the same question.
  */
 
-/** Payouts a year: 1050 burn blocks is about a week, and there are 52. */
-export const PAYOUT_PERIODS_PER_YEAR = 52;
+/**
+ * Distribution cycles a year.
+ *
+ * Fifty, not the fifty-two this said when it was thinking in weeks. 1050 burn
+ * blocks is 7.3 days rather than 7, so a year holds 365 / 7.29 = 50.1 of them
+ * — and pox-5 agrees, dividing its annualised target rate by exactly 50. At 52
+ * the APY on the page was overstated by about 4%, which is what calling a
+ * distribution cycle "a week" costs when somebody annualises it.
+ */
+export const DISTRIBUTION_CYCLES_PER_YEAR = 50;
 
 /** Burn blocks between payouts, when the data file does not say. */
 export const FALLBACK_DISTRIBUTION_BLOCKS = 1050;
@@ -40,7 +58,7 @@ export function apyPercent(opts: {
     Number(opts.rateSatsPer1000Stx) / Number(1000n * opts.stxPriceSats);
   if (!Number.isFinite(periodReturn) || periodReturn < 0) return null;
 
-  return (Math.pow(1 + periodReturn, PAYOUT_PERIODS_PER_YEAR) - 1) * 100;
+  return (Math.pow(1 + periodReturn, DISTRIBUTION_CYCLES_PER_YEAR) - 1) * 100;
 }
 
 /**
@@ -64,10 +82,10 @@ export function rewardSatsPerYear(opts: {
   amountUstx: bigint;
   rateSatsPer1000Stx: bigint;
 }): bigint {
-  return rewardSatsPerPayout(opts) * BigInt(PAYOUT_PERIODS_PER_YEAR);
+  return rewardSatsPerPayout(opts) * BigInt(DISTRIBUTION_CYCLES_PER_YEAR);
 }
 
-/** How far through the payout window the chain is, 0 to 1. */
+/** How far through the distribution cycle the chain is, 0 to 1. */
 export function payoutProgress(opts: {
   blocksIntoCycle: number | null;
   distributionBlocks: number;

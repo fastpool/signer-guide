@@ -51,13 +51,16 @@ describe('readRate', () => {
     expect(rate.projectedSatsPer1000Stx).toBe(421n);
   });
 
-  it('compounds over 52 payouts, not 26 cycles or one year', () => {
+  it('compounds over 50 distribution cycles, not 26 or one', () => {
+    // Fifty, not the fifty-two this expected when the app called a
+    // distribution cycle a week: 1050 burn blocks is 7.3 days, and pox-5
+    // annualises by dividing by exactly 50. At 52 this read 6.89%.
     const rate = readRate(CALCULATIONS);
-    // (1 + 408/318000)^52 - 1
-    expect(rate.apy).toBeCloseTo(6.89, 1);
+    // (1 + 408/318000)^50 - 1
+    expect(rate.apy).toBeCloseTo(6.62, 1);
   });
 
-  it('says how far through the payout window the chain is', () => {
+  it('says how far through the distribution cycle the chain is', () => {
     const rate = readRate(CALCULATIONS);
     expect(rate.progress).toBeCloseTo(102 / 1050, 6);
     // 948 blocks at ten minutes each.
@@ -88,7 +91,7 @@ describe('earningsFor', () => {
     // 100,000 STX is a hundred lots of 1000, so a hundred times the rate.
     const earnings = earningsFor(100_000_000_000n, rate);
     expect(earnings?.perPayout).toBe(40_800n);
-    expect(earnings?.perYear).toBe(40_800n * 52n);
+    expect(earnings?.perYear).toBe(40_800n * 50n);
   });
 
   it('rounds down, so it never promises more than will arrive', () => {

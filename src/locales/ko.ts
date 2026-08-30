@@ -116,7 +116,7 @@ export const ko: LocaleBundle = {
     'app.stxOnlyEstimate.title':
       'STX 전용 스테이커의 다음 분배 사이클 예상 보상',
     'app.stxOnlyEstimate.intro':
-      '지난 지급 이후 pox-5에 새로 들어온 sBTC에서 본드 보유자 몫과 재단 몫(15%)을 뺀 뒤, 현재 분배 사이클 진행도(총 1050블록)로 한 사이클 전체를 추정하고, 본드 풀을 제외한 STX 스테이킹 총량으로 나눈 값입니다. pox-5의 잔액이 아니라 새로 들어온 금액을 씁니다. 잔액에는 이미 확정되었지만 아직 청구하지 않은 보상도 섞여 있기 때문입니다. 다만 몇 블록치 입금만으로 환산하면 오차가 크므로, 이번 사이클 진행분은 진행한 만큼만 반영하고 나머지는 pox-5가 이미 확정한 직전 지급 실적으로 채웁니다.',
+      '지난 지급 이후 pox-5에 새로 들어온 sBTC에서 본드 보유자 몫과 재단 몫(15%)을 뺀 뒤, 현재 분배 사이클 진행도(총 1050블록)로 분배 사이클 전체를 추정하고, 본드 풀을 제외한 STX 스테이킹 총량으로 나눈 값입니다. pox-5의 잔액이 아니라 새로 들어온 금액을 씁니다. 잔액에는 이미 확정되었지만 아직 청구하지 않은 보상도 섞여 있기 때문입니다. 다만 몇 블록치 입금만으로 환산하면 오차가 크므로, 이번 분배 사이클 진행분은 진행한 만큼만 반영하고 나머지는 pox-5가 이미 확정한 직전 지급 실적으로 채웁니다.',
     'app.stxOnlyEstimate.loading': '체인 데이터로 예상치를 계산하는 중…',
     'app.stxOnlyEstimate.unavailable':
       '지금은 이 예상치를 계산할 수 없습니다. 잠시 후 다시 시도해 주세요.',
@@ -124,23 +124,23 @@ export const ko: LocaleBundle = {
     'app.stxOnlyEstimate.bondShare': '본드 보유자 예상 보상 몫',
     'app.stxOnlyEstimate.foundationShare': '재단 몫 (15%)',
     'app.stxOnlyEstimate.stxOnlySoFar': '현재까지 STX 전용 예상 보상',
-    'app.stxOnlyEstimate.progressLabel': '사이클 진행도',
+    'app.stxOnlyEstimate.progressLabel': '분배 사이클 진행도',
     'app.stxOnlyEstimate.progress':
       '이번 분배 사이클 {total}블록 중 {now}블록 기준으로 환산',
-    'app.stxOnlyEstimate.projectedLabel': '한 사이클 전체 예상치',
-    'app.stxOnlyEstimate.projected': '한 사이클 전체 예상치: {amount}',
+    'app.stxOnlyEstimate.projectedLabel': '분배 사이클 전체 예상치',
+    'app.stxOnlyEstimate.projected': '분배 사이클 전체 예상치: {amount}',
     'app.stxOnlyEstimate.stxOnlyStaked': 'STX 전용 참여자의 스테이킹 총량',
     'app.stxOnlyEstimate.lastPayout': '직전 지급 실적',
     'app.stxOnlyEstimate.lastPayoutInCycle': '직전 지급 실적 ({cycle} 사이클)',
-    'app.stxOnlyEstimate.projectedRate': '이번 사이클 진행분 환산',
+    'app.stxOnlyEstimate.projectedRate': '이번 분배 사이클 진행분 환산',
     'app.stxOnlyEstimate.rate': '예상 보상 비율',
     'app.stxOnlyEstimate.rateValue': 'STX 1000개당 {sats} sats',
     'app.stxOnlyEstimate.satsShort': '{sats} sats',
     'app.stxOnlyEstimate.gridApy': '연환산',
     'app.stxOnlyEstimate.gridLast': '직전 지급',
-    'app.stxOnlyEstimate.gridProjected': '이번 사이클',
+    'app.stxOnlyEstimate.gridProjected': '이번 지급분',
     'app.stxOnlyEstimate.gridUnknown': '알 수 없음',
-    'app.stxOnlyEstimate.apy': '예상 APY (연 52회 지급 가정)',
+    'app.stxOnlyEstimate.apy': '예상 APY (연 50회 분배 사이클 기준)',
     'app.stxOnlyEstimate.apyValue': '약 {apy}',
     'app.stxOnlyEstimate.apyUnavailable': '지금은 APY를 계산할 수 없습니다',
     'app.stxOnlyEstimate.stxPrice': 'STX 가격 (CoinGecko)',
@@ -149,15 +149,15 @@ export const ko: LocaleBundle = {
     'app.stxOnlyEstimate.untilPayoutAsOf':
       '예상 지급까지 약 {duration} ({blocks}블록 남음, 기준 시각: {at})',
     'app.stxOnlyEstimate.weeklyLead':
-      '주간 용돈처럼, STX 1000개 기준 이번 사이클에서 더해질 수 있는 값:',
+      '주간 용돈처럼, STX 1000개 기준 이번 분배 사이클에서 더해질 수 있는 값:',
     'app.stxOnlyEstimate.weeklyApy': '연환산 APY: {apy}',
-    'app.stxOnlyEstimate.weeklyProgress': '사이클 진행도',
+    'app.stxOnlyEstimate.weeklyProgress': '분배 사이클 진행도',
     'app.stxOnlyEstimate.weeklyBlocksAsOf':
       '{blocks}블록 남음 ({duration}), 기준 시각: {at}',
     'app.stxOnlyEstimate.weeklyEstimateNote':
-      '최신 사이클 데이터를 바탕으로 한 추정치 1회입니다.',
+      '최신 분배 사이클 데이터를 바탕으로 한 추정치 1회입니다.',
     'app.stxOnlyEstimate.homeSentence':
-      '현재 사이클 기준 STX 전용 스테이커의 주간 보상은 대략 {rate} ({apy} APY)입니다. {link}',
+      '현재 분배 사이클 기준 STX 전용 스테이커의 보상은 대략 {rate} ({apy} APY)입니다. {link}',
     'app.stxOnlyEstimate.untilNextRewards': '다음 보상까지',
     'app.stxOnlyEstimate.untilNextDate':
       '예상까지 약 {duration} (예상 시각: {at})',
@@ -173,21 +173,21 @@ export const ko: LocaleBundle = {
     'app.stxOnlyHistory.back': '← 보상 추정으로 돌아가기',
     'app.stxOnlyHistory.title': '지금까지 분배별 지급 내역',
     'app.stxOnlyHistory.intro':
-      '보상은 한 사이클에 두 번 계산되므로, 각 사이클은 두 번에 나누어 지급됩니다. 아래는 추정이 아니라 실제로 지급된 비율로, pox-5가 스테이킹된 1000 STX당 적립한 금액입니다.',
+      '보상은 분배 사이클마다 계산되고 보상 사이클 하나에는 분배 사이클이 두 번 있으므로, 각 보상 사이클은 두 번에 나누어 지급됩니다. 아래는 추정이 아니라 실제로 지급된 비율로, pox-5가 스테이킹된 1000 STX당 적립한 금액입니다.',
     'app.stxOnlyHistory.loading': '지급 내역을 불러오는 중…',
     'app.stxOnlyHistory.none':
-      '아직 기록된 분배가 없습니다. 사이클이 한 번 지급되면 여기에 표시됩니다.',
+      '아직 기록된 분배가 없습니다. 분배 사이클이 한 번 지급되면 여기에 표시됩니다.',
     'app.stxOnlyHistory.failed':
       '지급 내역을 가져오지 못했습니다. 잠시 후 다시 시도하세요.',
     'app.stxOnlyHistory.cycle': '{cycle} 사이클',
-    'app.stxOnlyHistory.cycleTotal': '사이클 합계',
+    'app.stxOnlyHistory.cycleTotal': '보상 사이클 합계',
     'app.stxOnlyHistory.stillPaying': '진행 중 — 두 번 중 한 번 지급',
     'app.stxOnlyHistory.firstHalf': '전반',
     'app.stxOnlyHistory.secondHalf': '후반',
     'app.stxOnlyHistory.atHeight': '번 높이 {height}',
     'app.stxOnlyHistory.rateUnknown': '알 수 없음',
     'app.stxOnlyHistory.note':
-      '사이클 합계는 두 번의 지급액을 더한 값이 아니라 pox-5가 해당 사이클에 적립한 값에서 가져옵니다. 각 지급액은 개별적으로 1사토시 단위로 내림되기 때문입니다. 두 지급 사이에 갱신이 실행되지 않으면 전반 지급액은 \'알 수 없음\'으로 표시됩니다. 두 번을 구분할 수 있는 시점은 그때뿐입니다.',
+      '보상 사이클 합계는 두 번의 지급액을 더한 값이 아니라 pox-5가 해당 사이클에 적립한 값에서 가져옵니다. 각 지급액은 개별적으로 1사토시 단위로 내림되기 때문입니다. 두 지급 사이에 갱신이 실행되지 않으면 전반 지급액은 \'알 수 없음\'으로 표시됩니다. 두 번을 구분할 수 있는 시점은 그때뿐입니다.',
     'app.stxOnlyEstimate.back': '← 전체 풀',
     'app.stxOnlyEstimate.note':
       '참고용 예상치입니다. 지난 지급 이후 pox-5에 들어온 금액과 현재 분배 사이클 진행도에 따라 달라지며, 사이클이 진행될수록 안정됩니다.',
