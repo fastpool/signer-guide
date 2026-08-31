@@ -8,7 +8,7 @@ them.
 
 ```bash
 npm install
-npm test                    # 220 tests, no device needed
+npm test                    # 224 tests, no device needed
 npx expo run:android        # build and install on a connected device
 npm run e2e                 # Maestro, against that device
 ```
@@ -327,6 +327,37 @@ same hand-written `src/data/signer-groups.json` the website reads, so the two
 cannot disagree about who carries what. What is this app's own is the layout and
 its own Korean.
 
+## Whether the signer turns up
+
+Weight is what a signer is owed a say over. `ConductCard` on the pool screen is
+whether the node then does the job: for every block a miner proposed, whether
+this signer accepted it, refused it or said nothing, and how long the miner
+waited. One signer holds 2.7% of the vote, answers a quarter of what it is
+asked and takes half a minute over it; another holds a seat with a million STX
+behind it and has never answered anything at all.
+
+**One request, not two.** The website bundles a summary of the current cycle
+with its pool list — twenty-six rows, and every pool page wants it. This app
+downloads its data on every launch, so a bundled copy would show three-week-old
+conduct as this cycle's. It takes `performance/<key>.json` instead, which
+carries the current cycle in its first row and every earlier one behind it, and
+a failure costs the card and nothing else on the screen. The group screen takes
+the summary the same way, once, rather than a file per node.
+
+The three rules the wording turns on are `@guide/lib/performance`, shared with
+the site rather than written twice: answering leads and agreeing follows,
+because refusing a block is the job and saying nothing is not; a mean over
+nothing is not a fast mean, because the API reports 0 ms for a signer that
+answered nothing and that sorts to the top of any list of the quick; and an
+open cycle is a cycle so far.
+
+**A rotated key is named.** A cycle's signer set is fixed before the cycle
+begins, so a pool that has just rotated has a new key holding nothing and an
+old key holding the seat — signing, or not signing, for a fortnight. The card
+is told about both and shows the one actually being asked to answer, and the
+screen says plainly that the key changed. Which contract rotated when comes
+from `@guide/lib/key-rotations`, a log the refresh appends to.
+
 ## A fee that keeps almost everything
 
 Four pools charge **99.99%** today, and each is holding around a million STX.
@@ -418,6 +449,8 @@ question.
 | `lib/identicon.ts`      | SIP-043's icon, from the same seed                  |
 | `lib/pool-filters.ts`   | what counts as a low, capped or ruinous fee         |
 | `lib/signer-groups.ts`  | who is behind which signer keys, and what that adds to |
+| `lib/performance.ts`    | what may be said about how a signer answered         |
+| `lib/key-rotations.ts`  | which contract changed its key, and when            |
 
 `metro.config.js` watches `../src` and resolves any bare import made from those
 files against this project's `node_modules`, so the bundle carries one copy of

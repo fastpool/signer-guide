@@ -362,6 +362,34 @@ const messages = {
   'pool.unclaimed': 'Unclaimed from pox-5',
   'pool.unclaimedAsOf': 'as of cycle {cycle}',
 
+  // --------------------------------------------------------------- conduct --
+  'conduct.title': 'Answering the miners',
+  'conduct.intro':
+    'Weight is what a signer is owed a say over; this is whether it turns up. Every block a miner proposes goes to every seated signer, which accepts it, refuses it, or says nothing. Refusing is the job. Missing it is not.',
+  'conduct.none':
+    'Nothing on file for this key. A signer that has never held a seat has never been asked to answer anything.',
+  'conduct.loading': 'Reading this signer’s record…',
+  'conduct.failed': 'That would not load. It is one file; the rest of this screen is unaffected.',
+  'conduct.answered': 'Answered',
+  'conduct.answeredNote': 'It answered {answered} of {proposals} proposals — {label}.',
+  'conduct.cycleOpen': 'cycle {cycle}, still running',
+  'conduct.cycleClosed': 'cycle {cycle}',
+  'conduct.neverAnswered': 'Never answered',
+  'conduct.neverAnsweredNote':
+    'Asked about {proposals} blocks in cycle {cycle} and has not responded to one. Nothing has ever been heard from this key.',
+  'conduct.oldKeyNote':
+    'This is the key the pool rotated away from — the one that holds this cycle’s seat. The new key holds nothing until the next set is worked out.',
+  'conduct.response': 'Time to answer',
+  'conduct.seconds': '{seconds} s',
+  'conduct.agreed': 'Accepted',
+  'conduct.unknown': 'not known',
+  'conduct.history': 'Earlier cycles',
+  'conduct.soFar': 'so far',
+  'conduct.source':
+    'Counted by Hiro’s signer-metrics API, which watched the proposals go out and the answers come back.',
+  'conduct.rotated':
+    'Changed its signer key on {when}, during cycle {cycle}. The key it replaced keeps the seat until the next set is worked out.',
+
   // ----------------------------------------------------------------- pools --
   'pools.title': 'Every pool',
   'pools.subtitle': '{count} signer contracts on pox-5, most staked first.',
@@ -404,6 +432,8 @@ const messages = {
   'groups.wholeNode': 'Every contract on this key',
   'groups.contractOnly':
     'This contract only — the rest of what this node holds is not part of the group.',
+  'groups.nodeAnswered': 'Answered {percent}% of the blocks it was asked about in cycle {cycle}.',
+  'groups.nodeSilent': 'Has not answered a single block in cycle {cycle}.',
   'groups.alsoIn': 'Also counted in {names}',
   'groups.source': 'What this is based on',
   'groups.sourceNote':

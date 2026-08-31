@@ -129,6 +129,24 @@ jobs:
           HIRO_API_KEY: ${{ secrets.HIRO_API_KEY }}
         run: pnpm generate:nodes
 
+      - name: Read how each signer answered the miners
+        # Whether the node behind a pool turns up: for every block a miner
+        # proposed, whether this signer accepted it, refused it, or said
+        # nothing, and how long the miner waited. One request per cycle, and
+        # after the first run there are two cycles to ask about — the one
+        # being signed and the one that just closed, whose row was written
+        # mid-flight. A cycle that is over cannot move.
+        #
+        # This one asks Hiro's indexer rather than a Stacks node: only an
+        # indexer keeps the record of who answered which proposal, so
+        # STACKS_API_URL has no bearing on it. Allowed to fail like the two
+        # above, and for the same reason — a cycle that went unread is picked
+        # up by the next run rather than left as a hole.
+        continue-on-error: true
+        env:
+          HIRO_API_KEY: ${{ secrets.HIRO_API_KEY }}
+        run: pnpm generate:performance
+
       - name: Read each signer's cycles, and who was in them
         # The data behind the page for one pool: what its signer held each
         # cycle and who held it. Much the most expensive thing here — a member

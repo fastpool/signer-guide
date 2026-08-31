@@ -7,8 +7,16 @@ import {
   groupVotingPowerBips,
   groupsForContract,
 } from '@guide/lib/signer-groups';
+import {
+  answeredRate,
+  isPerformanceData,
+  neverAnswered,
+  performanceIn,
+} from '@guide/lib/performance';
 import { votingPowerBips } from '@guide/lib/signer-nodes';
+import type { PerformanceData } from '@guide/lib/types';
 import { poolName, stakedUstx } from '../data/signers';
+import { useRemoteJson } from '../data/remote';
 import { useSnapshot } from '../data/snapshot';
 import { shortContract, stxShort } from '../format';
 import { useT } from '../i18n';
@@ -43,6 +51,16 @@ export default function GroupScreen({ route, navigation }: ScreenProps<'Group'>)
   const { locale } = useSettings();
   const t = useT();
   const group = groupById(route.params.groupId);
+  /*
+   * One request for the whole set rather than one per node: the group's share
+   * of the vote is a claim about what it could carry, and whether the nodes
+   * carrying it turn up belongs on the same rows. A failure costs those lines
+   * and nothing else.
+   */
+  const conduct = useRemoteJson<PerformanceData>(
+    'performance.json',
+    isPerformanceData,
+  );
 
   if (!group) {
     return (
@@ -109,6 +127,10 @@ export default function GroupScreen({ route, navigation }: ScreenProps<'Group'>)
           const whole = group.members.some(
             (member) => member.signerKey === node.signerKey,
           );
+          const behaviour = performanceIn(
+            conduct.state === 'ready' ? conduct.value : null,
+            node.signerKey,
+          );
           return (
             <Card key={node.signerKey ?? node.contracts[0].contractId}>
               <Row gap={space.md}>
@@ -123,6 +145,17 @@ export default function GroupScreen({ route, navigation }: ScreenProps<'Group'>)
                   </Text>
                 </View>
               </Row>
+
+              {behaviour ? (
+                <Text variant='tiny' tone={neverAnswered(behaviour) ? 'bad' : 'faint'}>
+                  {neverAnswered(behaviour)
+                    ? t('groups.nodeSilent', { cycle: behaviour.cycle })
+                    : t('groups.nodeAnswered', {
+                        percent: ((answeredRate(behaviour) ?? 0) * 100).toFixed(1),
+                        cycle: behaviour.cycle,
+                      })}
+                </Text>
+              ) : null}
 
               {node.contracts.map((contract) => {
                 const { name } = poolName(contract, contract.contractId);

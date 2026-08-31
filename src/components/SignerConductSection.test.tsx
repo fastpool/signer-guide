@@ -13,7 +13,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import SignerConductSection from './SignerConductSection';
 import signers from '../data/signers.json';
 import { ROTATIONS } from '../lib/key-rotations';
-import { answeredRate, performanceFor, PERFORMANCE } from '../lib/performance';
+import { answeredRate } from '../lib/performance';
+import { performanceFor, PERFORMANCE } from '../lib/performance-data';
 import type { Signer, SignerData } from '../lib/types';
 
 const all = (signers as SignerData).signers;

@@ -1,6 +1,13 @@
 /**
  * How a signer has answered the miners, and what may be said about it.
  *
+ * The arithmetic only. Where the numbers come from is `performance-data.ts`
+ * on the web and the app's own `remote.ts` on a phone — the split that
+ * `signer-nodes.ts` and `signer-history.ts` already make, and for the same
+ * reason: the browser half reaches for `import.meta.env`, which does not
+ * exist on a phone, and a rule about what a mean of nothing means should not
+ * be written down twice.
+ *
  * Weight is the number this guide has always had: pox-5 shares the signer set
  * out by the STX behind each key, and says nothing whatever about whether the
  * node then does the job. This is the other half — for every block a miner
@@ -24,32 +31,17 @@
  * a hundred missed blocks two hours in is not a hundred missed in a fortnight.
  */
 
-import summary from '../data/performance.json';
-import { useRemoteJson, type Remote } from './remote-json';
 import type {
   PerformanceData,
   SignerCyclePerformance,
   SignerPerformance,
 } from './types';
 
-export type { Remote };
-
-export const PERFORMANCE = summary as PerformanceData;
-
 /** Bare hex, no `0x` — how the files are keyed. See scripts/signer-performance.ts. */
 export function bareKey(value: string | null | undefined): string | null {
   if (typeof value !== 'string') return null;
   const bare = value.toLowerCase().replace(/^0x/, '');
   return /^[0-9a-f]{66}$/.test(bare) ? bare : null;
-}
-
-/** This cycle's record for a key, or null for one the file does not carry. */
-export function performanceFor(
-  signerKey: string | null | undefined,
-): SignerCyclePerformance | null {
-  const key = bareKey(signerKey);
-  if (key === null) return null;
-  return PERFORMANCE.signers[key] ?? null;
 }
 
 /** Every proposal it was asked about: answered one way or the other, or not. */
@@ -102,14 +94,14 @@ export function responseSeconds(row: SignerCyclePerformance): number | null {
 }
 
 /**
- * The middle of the set this cycle, for a reader with one number and no scale.
+ * The middle of the set, for a reader with one number and no scale.
  *
  * A median rather than a mean, and over the signers that answered anything:
  * the absent ones have no response time, and counting them as zero would drag
  * the comparison somewhere no node actually is.
  */
-export function medianResponseMs(): number | null {
-  const times = Object.values(PERFORMANCE.signers)
+function median(rows: readonly SignerCyclePerformance[]): number | null {
+  const times = rows
     .map((row) => row.responseMs)
     .filter((ms): ms is number => ms !== null)
     .sort((a, b) => a - b);
@@ -147,18 +139,48 @@ export function isSignerPerformance(
 }
 
 /**
- * One key's whole record, fetched when a reader asks for it.
+ * The same guard for the summary, which the phone app fetches.
  *
- * The summary that ships with the guide is the current cycle only — the
- * question a reader has on a pool page. Fifty-nine cycles of it is a file per
- * key, and costs a request only when somebody opens the history.
+ * The website bundles this file — twenty-six rows, and every pool page wants
+ * it. The app cannot: it downloads its data on every launch and a build from
+ * three weeks ago would otherwise show three-week-old conduct as this cycle's.
+ * So one validator, two ways in.
  */
-export function useSignerPerformance(
-  signerKey: string | null | undefined,
-): Remote<SignerPerformance> {
-  const key = bareKey(signerKey);
-  return useRemoteJson(
-    key === null ? null : `performance/${key}.json`,
-    isSignerPerformance,
+export function isPerformanceData(value: unknown): value is PerformanceData {
+  if (typeof value !== 'object' || value === null) return false;
+  const data = value as Partial<PerformanceData>;
+  return (
+    typeof data.cycle === 'number' &&
+    Array.isArray(data.cycles) &&
+    typeof data.signers === 'object' &&
+    data.signers !== null &&
+    Object.values(data.signers).every(
+      (row) =>
+        typeof row === 'object' &&
+        row !== null &&
+        typeof (row as { accepted?: unknown }).accepted === 'number' &&
+        typeof (row as { missed?: unknown }).missed === 'number',
+    )
   );
+}
+
+/**
+ * This cycle's record for a key, from a summary that is not the bundled one.
+ *
+ * The phone app's version of `performanceFor`: same lookup, same spelling
+ * rules, over whatever it just downloaded.
+ */
+export function performanceIn(
+  data: PerformanceData | null,
+  signerKey: string | null | undefined,
+): SignerCyclePerformance | null {
+  const key = bareKey(signerKey);
+  if (data === null || key === null) return null;
+  return data.signers[key] ?? null;
+}
+
+/** The middle of a set that was fetched rather than bundled. */
+export function medianResponseIn(data: PerformanceData | null): number | null {
+  if (data === null) return null;
+  return median(Object.values(data.signers));
 }

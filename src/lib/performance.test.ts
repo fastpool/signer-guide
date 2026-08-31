@@ -12,13 +12,15 @@ import {
   answered,
   answeredRate,
   bareKey,
-  medianResponseMs,
   neverAnswered,
-  performanceFor,
   proposals,
   responseSeconds,
-  PERFORMANCE,
 } from './performance';
+import {
+  medianResponseMs,
+  performanceFor,
+  PERFORMANCE,
+} from './performance-data';
 import type { SignerCyclePerformance } from './types';
 
 const row = (over: Partial<SignerCyclePerformance> = {}): SignerCyclePerformance => ({

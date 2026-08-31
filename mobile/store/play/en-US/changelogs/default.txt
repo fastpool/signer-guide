@@ -1,6 +1,7 @@
-Who is behind the signer keys, and a warning where a fee is not one.
+Who is behind the signer keys, and whether they answer the miners.
 
-• Who holds the vote: every group of signer nodes by its share of the cycle, what each claim rests on, and how much nobody has grouped at all
-• Each pool now says who is behind it
-• A fee of 95% or more is marked as what it is — four pools charge 99.99% — and the pool list can show only those
-• With no wallet connected, "your stake" is one row, so the rest of the guide is on screen
+• Who holds the vote: every group of signer nodes by its share of the cycle
+• Each pool says who is behind it, and whether its node answers the blocks miners propose — this cycle and earlier ones
+• A key that was rotated away is named: it is the one still holding the seat
+• A fee of 95% or more is marked as what it is — four pools charge 99.99%
+• With no wallet connected, "your stake" is one row

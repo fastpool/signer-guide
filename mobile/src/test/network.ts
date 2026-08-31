@@ -12,6 +12,14 @@ export type NetworkOptions = {
   /** 404 the data files, as an offline first launch would. */
   offlineData?: boolean;
   history?: unknown;
+  /**
+   * What `performance/<key>.json` answers, by bare key.
+   *
+   * A key with no entry 404s, which is the real shape of it: most keys have a
+   * record and a few have never held a seat. `performance.json` — the summary
+   * the group screen reads — is served from the same map.
+   */
+  performance?: Record<string, unknown>;
 };
 
 export function installFetch(options: NetworkOptions = {}): jest.Mock {
@@ -29,6 +37,17 @@ export function installFetch(options: NetworkOptions = {}): jest.Mock {
 
     if (url.includes('/extended/v2/addresses/')) {
       return json({ results: [] });
+    }
+
+    const perf = /performance\/([0-9a-f]{66})\.json/.exec(url);
+    if (perf) {
+      const found = options.performance?.[perf[1]];
+      return found === undefined ? notFound() : json(found);
+    }
+
+    if (url.includes('performance.json')) {
+      const rows = options.performance?.summary;
+      return rows === undefined ? notFound() : json(rows);
     }
 
     if (url.includes('stx-only-history.json')) {

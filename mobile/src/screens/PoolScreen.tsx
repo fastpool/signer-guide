@@ -3,6 +3,7 @@ import * as Clipboard from 'expo-clipboard';
 import { satsLabel } from '@guide/lib/amounts';
 import { profileById } from '@guide/lib/profiles';
 import { localizeProfile } from '@guide/lib/profile-i18n';
+import { lastRotation } from '@guide/lib/key-rotations';
 import { groupsForContract } from '@guide/lib/signer-groups';
 import { templateFor } from '@guide/lib/templates';
 import { poolName, signerFor, stakedUstx, templatesFrom } from '../data/signers';
@@ -26,6 +27,7 @@ import {
   Section,
   Text,
 } from '../ui';
+import ConductCard from '../components/ConductCard';
 import FeatureList from '../components/FeatureList';
 import Identicon from '../components/Identicon';
 import type { ScreenProps } from '../navigation-types';
@@ -72,6 +74,13 @@ export default function PoolScreen({ route, navigation }: ScreenProps<'Pool'>) {
    * two other keys is not, and this is the only place in the app that says so.
    */
   const groups = groupsForContract(contractId, signer.signerKey);
+  /*
+   * A pool that has rotated its key has a new key holding nothing and an old
+   * key holding this cycle's seat — signing, or not signing, for a fortnight.
+   * The card is told about both so it can show the one that is actually being
+   * asked to answer.
+   */
+  const rotation = lastRotation(contractId);
 
   return (
     <Screen testID='pool-screen'>
@@ -166,6 +175,24 @@ export default function PoolScreen({ route, navigation }: ScreenProps<'Pool'>) {
           )}
         </Card>
       </Section>
+
+      {/*
+        Under the stake button and above the contract: a reader who has just
+        been told what this pool holds asks next whether the node behind it
+        turns up. It is one request and it fails on its own.
+      */}
+      <ConductCard signerKey={signer.signerKey} rotatedFrom={rotation?.from} />
+
+      {rotation ? (
+        <Card testID='pool-rotated'>
+          <Note>
+          {t('conduct.rotated', {
+            when: rotation.observedAt.slice(0, 10),
+            cycle: rotation.cycle ?? '—',
+          })}
+          </Note>
+        </Card>
+      ) : null}
 
       {groups.length > 0 ? (
         <Section title={t('groups.partOf')}>

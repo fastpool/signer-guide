@@ -365,6 +365,34 @@ export const ko: MobileBundle = {
     'pool.unclaimedAsOf': '{cycle} 사이클 기준',
 
     // -------------------------------------------------------------- pools --
+    // ------------------------------------------------------------- conduct --
+    'conduct.title': '채굴자 제안에 대한 응답',
+    'conduct.intro':
+      '가중치는 발언권의 크기이고, 이것은 실제로 응답하는지입니다. 채굴자가 제안한 블록은 좌석을 가진 모든 서명자에게 전달되며, 각자 수락하거나 거부하거나 침묵합니다. 거부는 할 일이고, 무응답은 아닙니다.',
+    'conduct.none':
+      '이 키에 대한 기록이 없습니다. 좌석을 가진 적이 없는 서명자는 응답을 요청받은 적도 없습니다.',
+    'conduct.loading': '이 서명자의 기록을 읽는 중…',
+    'conduct.failed': '불러오지 못했습니다. 파일 하나일 뿐이며 이 화면의 나머지는 영향을 받지 않습니다.',
+    'conduct.answered': '응답률',
+    'conduct.answeredNote': '제안 {proposals}건 중 {answered}건에 응답했습니다 — {label}.',
+    'conduct.cycleOpen': '{cycle} 사이클, 진행 중',
+    'conduct.cycleClosed': '{cycle} 사이클',
+    'conduct.neverAnswered': '응답 없음',
+    'conduct.neverAnsweredNote':
+      '{cycle} 사이클에서 블록 {proposals}건을 요청받았지만 한 건도 응답하지 않았습니다. 이 키로부터 확인된 신호가 전혀 없습니다.',
+    'conduct.oldKeyNote':
+      '풀이 교체하기 전의 키이며, 이번 사이클의 좌석을 가진 것은 이 키입니다. 새 키는 다음 집합이 정해질 때까지 아무것도 보유하지 않습니다.',
+    'conduct.response': '응답 시간',
+    'conduct.seconds': '{seconds}초',
+    'conduct.agreed': '수락 비율',
+    'conduct.unknown': '알 수 없음',
+    'conduct.history': '이전 사이클',
+    'conduct.soFar': '진행 중',
+    'conduct.source':
+      'Hiro의 signer-metrics API가 제안과 응답을 관측해 집계한 수치입니다.',
+    'conduct.rotated':
+      '{when}({cycle} 사이클)에 서명자 키를 교체했습니다. 교체 전의 키가 다음 집합이 정해질 때까지 좌석을 유지합니다.',
+
     'pools.title': '모든 풀',
     'pools.subtitle': 'pox-5의 서명자 컨트랙트 {count}개, 스테이킹 규모순입니다.',
     'pools.search': '이름 또는 컨트랙트로 검색',
@@ -406,6 +434,8 @@ export const ko: MobileBundle = {
     'groups.wholeNode': '이 키에 등록된 모든 컨트랙트',
     'groups.contractOnly':
       '이 컨트랙트만 해당합니다. 같은 노드가 보유한 나머지는 이 그룹에 포함되지 않습니다.',
+    'groups.nodeAnswered': '{cycle} 사이클에서 요청받은 블록의 {percent}%에 응답했습니다.',
+    'groups.nodeSilent': '{cycle} 사이클에서 단 한 건도 응답하지 않았습니다.',
     'groups.alsoIn': '{names}에도 함께 집계됨',
     'groups.source': '근거',
     'groups.sourceNote':

@@ -5,14 +5,16 @@ import {
   acceptedRate,
   answered,
   answeredRate,
-  medianResponseMs,
   neverAnswered,
-  performanceFor,
   proposals,
   responseSeconds,
+} from '../lib/performance';
+import {
+  medianResponseMs,
+  performanceFor,
   useSignerPerformance,
   PERFORMANCE,
-} from '../lib/performance';
+} from '../lib/performance-data';
 import type { Signer, SignerCyclePerformance } from '../lib/types';
 
 /**

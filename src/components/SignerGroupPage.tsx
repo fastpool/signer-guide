@@ -10,7 +10,8 @@ import {
   groupsForContract,
   type SignerGroup,
 } from '../lib/signer-groups';
-import { answeredRate, neverAnswered, performanceFor } from '../lib/performance';
+import { answeredRate, neverAnswered } from '../lib/performance';
+import { performanceFor } from '../lib/performance-data';
 import { votingPowerBips } from '../lib/signer-nodes';
 import type { LockedTotals, Signer } from '../lib/types';
 import Identicon from './Identicon';
