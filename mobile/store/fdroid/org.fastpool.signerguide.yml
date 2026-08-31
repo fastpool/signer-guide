@@ -17,9 +17,9 @@ RepoType: git
 Repo: https://github.com/fastpool/signer-guide.git
 
 Builds:
-  - versionName: 0.1.0
-    versionCode: 1
-    commit: mobile-v0.1.0
+  - versionName: 0.1.1
+    versionCode: 2
+    commit: mobile-v0.1.1
     timeout: 14400
     subdir: mobile/android
     sudo:
@@ -37,5 +37,5 @@ Builds:
 
 AutoUpdateMode: Version mobile-v%v
 UpdateCheckMode: Tags ^mobile-v[0-9.]+$
-CurrentVersion: 0.1.0
-CurrentVersionCode: 1
+CurrentVersion: 0.1.1
+CurrentVersionCode: 2
