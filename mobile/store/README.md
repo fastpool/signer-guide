@@ -153,6 +153,56 @@ before anything is signed.
 On Bitrise it is a secret named `SIGN_WITH`, and the release workflow skips the
 step entirely when it is unset — a Play-only release should not be a red build.
 
+### Linking the signing key to the identity
+
+`zsp identity --link-key` publishes a NIP-C1 proof — a kind 30509 event whose
+`d` tag is the APK's certificate hash, signed by the publishing npub. It says
+that whoever holds the signing key and whoever holds the nostr identity are the
+same party, so a reader can check that an app signed with this certificate was
+published by us rather than by somebody who forked the listing.
+
+It is **not required to publish**: `zsp publish` carries
+`--skip-certificate-linking`, and the first release went out without one.
+Whether there is a proof for a given build is a question with an answer:
+
+```bash
+zsp identity --verify path/to/app-release.apk    # then paste the npub
+```
+
+**The trap is the file extension.** `zsp` chooses its parser from the name —
+`.jks` and `.keystore` go to the JKS reader, `.p12` and `.pfx` to PKCS12 — and
+current `keytool` writes PKCS12 whatever the file is called. A keystore named
+`.keystore` therefore fails with:
+
+```
+Error: load JKS keystore: load JKS: got invalid magic
+```
+
+which reads as a corrupt file and is nothing of the sort. Check which one you
+have before believing it:
+
+```bash
+keytool -list -keystore <keystore>      # prints "Keystore type: PKCS12"
+xxd -l 4 <keystore>                     # 3082… is PKCS12, feedfeed is JKS
+```
+
+Nothing needs converting if it is already PKCS12 — the bytes are right and only
+the name is wrong. A symlink beside it with a `.p12` suffix is enough, and it
+leaves `SIGNER_GUIDE_STORE_FILE` and the Gradle build pointing where they
+always did.
+
+To see what would be published without publishing anything, sign as nobody:
+
+```bash
+SIGN_WITH=npub1… zsp identity --link-key <keystore>.p12 \
+  --key-alias "$SIGNER_GUIDE_KEY_ALIAS" --offline
+```
+
+That prompts for the keystore password, prints the unsigned event, and proves
+the keystore parses — which is the part that goes wrong. The proof lasts a year
+by default; `--link-key-expiry 2y` for longer, against a certificate that runs
+to 2054.
+
 ### Before the first publish
 
 Zapstore takes **your** signature on the APK as the app's identity, and every
