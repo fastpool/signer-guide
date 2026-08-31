@@ -1367,6 +1367,44 @@ than borrow Fast Pool's.
 | `VITE_DATA_BASE_URL`            | this branch's `src/data`     | where the installed app re-reads the data from |
 | `VITE_STACKS_API_URL`           | `https://api.hiro.so`        | node the staking dialog reads balances from    |
 
+### The wallet's own browser, offered at the top
+
+With WalletConnect off there is no route at all from Safari or Chrome on a
+phone: no extension to inject a provider, and nothing in the picker. Leather
+and Xverse each ship a browser of their own, and inside one the page reaches
+the wallet the ordinary way — for Leather that is the **only** route, since it
+does not support WalletConnect at all.
+
+That was said only inside the staking dialog, which is several taps past the
+point where somebody has decided the site is no use to them on a phone. So a
+small bar now sits at the top of every page with the two links on it, and
+`src/lib/wallet-browser.ts` — shared with the phone app, so both ends of the
+round trip use the same table — has the two that were fired at a real device:
+
+```
+leather://browser?url=…                   the scheme it registers
+https://connect.xverse.app/browser?url=…  an app link Xverse verifies
+```
+
+Three things about it are decisions rather than details:
+
+- **It is hidden inside a wallet's own browser**, and the test is whether a
+  provider has been injected rather than what the user-agent claims. Offering
+  "open in Xverse" from inside Xverse is a loop with a worse ending, and a
+  wallet browser that does not announce itself in its user-agent would walk
+  straight through a sniff. `hasInjectedWallet` is a fact about the page.
+- **The decision is made after mount, not during render.** A wallet injects
+  while the page is still loading; asking too early sees a page with no wallet
+  in it and offers the banner to somebody already inside one.
+- **They are anchors, not buttons.** iOS refuses a custom-scheme navigation
+  that did not come from a gesture, and a gesture on an anchor is the one it
+  always accepts — which is exactly what `leather://` needs.
+
+It closes, and stays closed for that session only. Nothing is written to
+storage for it: a banner dismissed on a phone that has since had a wallet
+installed on it should come back, and a preference that outlives the reason
+for it is worse than one asked twice.
+
 ## The phone app
 
 There is also a native app, in [`mobile/`](mobile/) — React Native under Expo,

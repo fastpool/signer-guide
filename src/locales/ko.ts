@@ -573,6 +573,11 @@ export const ko: LocaleBundle = {
     'stake.switch': '다른 계정 사용',
     'stake.disconnect': '연결 해제',
     'stake.checking': '잠시만 기다려 주세요…',
+    'walletBanner.label': '지갑에서 이 페이지 열기',
+    'walletBanner.title': '휴대폰인가요? 지갑에서 이 페이지를 열어 보세요.',
+    'walletBanner.open': '{wallet}에서 열기',
+    'walletBanner.dismiss': '숨기기',
+
     'stake.browserTitle': '휴대폰인가요? 지갑 안에서 이 페이지를 여세요',
     'stake.browserBody':
       '휴대폰에는 연결할 확장 프로그램이 없습니다. Leather와 Xverse에는 각각 자체 브라우저가 있고, 그 안에서 열면 이 페이지가 지갑과 직접 통신할 수 있습니다. Leather는 이 방법이 유일한 경로입니다.',

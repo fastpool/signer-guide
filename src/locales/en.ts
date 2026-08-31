@@ -540,6 +540,11 @@ const messages = {
   'stake.switch': 'Use another account',
   'stake.disconnect': 'Disconnect',
   'stake.checking': 'Just a moment…',
+  'walletBanner.label': 'Open this page in a wallet',
+  'walletBanner.title': 'On a phone? Open this page in your wallet.',
+  'walletBanner.open': 'Open in {wallet}',
+  'walletBanner.dismiss': 'Hide this',
+
   'stake.browserTitle': 'On a phone? Open this page in your wallet',
   'stake.browserBody':
     'There is no extension to connect to on a phone. Leather and Xverse each have a browser of their own, and this page can talk to the wallet from inside it — for Leather that is the only route there is.',

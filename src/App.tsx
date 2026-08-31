@@ -12,6 +12,7 @@ import StxOnlyHistoryPage from './components/StxOnlyHistoryPage';
 import StxOnlyRewardsEstimate from './components/StxOnlyRewardsEstimate';
 import StatusPage from './components/StatusPage';
 import UpdateBanner from './components/UpdateBanner';
+import WalletBrowserBanner from './components/WalletBrowserBanner';
 import { stxLabel, sumUstx } from './lib/amounts';
 import { useSnapshot } from './lib/data-source';
 import {
@@ -161,6 +162,7 @@ export default function App() {
     if (template) {
       return (
         <>
+          <WalletBrowserBanner locale={locale} />
           <ContractPage
             template={template}
             lockedUstx={totals.ustx}
@@ -176,6 +178,7 @@ export default function App() {
   if (route.name === 'status') {
     return (
       <>
+        <WalletBrowserBanner locale={locale} />
         <StatusPage
           principals={route.principals}
           signers={signerData.signers}
@@ -190,6 +193,7 @@ export default function App() {
   if (route.name === 'myRewards') {
     return (
       <>
+        <WalletBrowserBanner locale={locale} />
         <MyRewardsPage
           address={route.address}
           signers={signerData.signers}
@@ -204,6 +208,7 @@ export default function App() {
   if (route.name === 'stxOnlyHistory') {
     return (
       <>
+        <WalletBrowserBanner locale={locale} />
         <StxOnlyHistoryPage locale={locale} onLocaleChange={setLocale} />
         <UpdateBanner update={update} locale={locale} />
       </>
@@ -213,6 +218,7 @@ export default function App() {
   if (route.name === 'stxOnlyRewards') {
     return (
       <>
+        <WalletBrowserBanner locale={locale} />
         <main className='mx-auto max-w-3xl px-5 py-12 md:py-20'>
           <div className='flex flex-wrap items-center justify-between gap-3'>
             <a
@@ -239,6 +245,7 @@ export default function App() {
   if (route.name === 'groups') {
     return (
       <>
+        <WalletBrowserBanner locale={locale} />
         <SignerGroupsPage
           signers={signerData.signers}
           totals={totals}
@@ -257,6 +264,7 @@ export default function App() {
     if (group) {
       return (
         <>
+          <WalletBrowserBanner locale={locale} />
           <SignerGroupPage
             group={group}
             signers={signerData.signers}
@@ -281,6 +289,7 @@ export default function App() {
     if (node && signer) {
       return (
         <>
+          <WalletBrowserBanner locale={locale} />
           <SignerPage
             signer={signer}
             node={node}
@@ -319,293 +328,296 @@ export default function App() {
   };
 
   return (
-    <main className='mx-auto max-w-3xl px-5 py-12 md:py-20'>
-      <header className='flex flex-col gap-4'>
-        <div className='flex flex-wrap items-center justify-between gap-3'>
-          {/* The guide's own mark leads, and Fast Pool is named beside it.
-              A guide that lists Fast Pool among forty-four other pools should
-              not wear Fast Pool's glyph as its only identity — but it is a
-              Fast Pool project, so the byline stays. */}
-          <div className='flex flex-wrap items-center gap-x-3 gap-y-1 self-start'>
-            <span className='flex items-center gap-2 text-base font-extrabold text-ink'>
-              <Mark className='h-9 w-9 shrink-0 rounded-xl bg-grape p-1.5 text-on-grape' />
-              Signer Guide
-            </span>
-            <a
-              href={FASTPOOL_URL}
-              className='flex items-center gap-1.5 text-xs font-semibold text-muted transition-colors hover:text-grape'
-            >
-              {t('app.by')}
-              <img
-                src='/fastpool-logo.svg'
-                alt=''
-                width='18'
-                height='18'
-                className='rounded-md bg-fastpool'
-              />
-              Fast Pool
-            </a>
-          </div>
-          <div className='flex flex-wrap items-center gap-3'>
-            {/* The one question this guide could not answer until now: not
-                which pool to pick, but where your own STX already is. It was
-                below the pool list, which is the last place somebody arriving
-                with that question would look. */}
-            <a
-              href={statusHref()}
-              className='rounded-full bg-card px-4 py-2 text-sm font-semibold text-ink shadow-lift transition-colors hover:bg-grape-soft'
-            >
-              {t('status.open')}
-            </a>
-            <a
-              href={myRewardsHref()}
-              className='rounded-full bg-card px-4 py-2 text-sm font-semibold text-ink shadow-lift transition-colors hover:bg-grape-soft'
-            >
-              {t('myRewards.open')}
-            </a>
-            {/* The list below is forty-odd pools read one at a time. This is
-                the same set read the other way round — by who is behind them —
-                and it is the only page that answers what a reader worried
-                about the signer set is actually asking. */}
-            <a
-              href={groupsHref()}
-              className='rounded-full bg-card px-4 py-2 text-sm font-semibold text-ink shadow-lift transition-colors hover:bg-grape-soft'
-            >
-              {t('groups.open')}
-            </a>
-            <LocaleSwitch locale={locale} onChange={setLocale} />
-          </div>
-        </div>
-        <h1 className='text-4xl font-extrabold md:text-5xl'>
-          {t('app.heading')}
-        </h1>
-        <p className='text-lg text-muted'>
-          {t.rich('app.intro', {
-            pools: (
-              <strong className='text-ink'>
-                {t('app.introPools', { count: choosable.length })}
-              </strong>
-            ),
-            contracts: (
-              <strong className='text-ink'>
-                {t('app.introContracts', { count: choosableTemplates.length })}
-              </strong>
-            ),
-          })}
-        </p>
-        {staked !== null && (
-          <p className='text-lg text-muted'>
-            {t.rich('app.staked', {
-              amount: (
-                <strong className='text-ink'>
-                  {stxLabel(staked.toString(), locale)}
-                </strong>
-              ),
-              cycle: totals.cycle,
-            })}
-          </p>
-        )}
-        {stakedNext !== null && totals.next && (
-          <p className='text-lg text-muted'>
-            {t.rich('app.stakedNext', {
-              amount: (
-                <strong className='text-ink'>
-                  {stxLabel(stakedNext.toString(), locale)}
-                </strong>
-              ),
-              cycle: totals.next.cycle,
-            })}
-          </p>
-        )}
-      </header>
-
-      <StxOnlyRewardsEstimate
-        calculations={stxOnlyCalculations}
-        locale={locale}
-        mode='compact'
-        compactVariant={STX_COMPACT_VARIANT}
-        detailsHref={stxOnlyRewardsHref()}
-        asOf={lastUpdateStxOnlyCalculations}
-      />
-
-      <section className='mt-10' aria-labelledby='contracts-heading'>
-        <h2 id='contracts-heading' className='text-2xl font-bold'>
-          {t('app.contractsHeading')}
-        </h2>
-        <p className='mt-1 text-muted'>{t('app.contractsIntro')}</p>
-        <ul className='mt-4 grid gap-3 sm:grid-cols-2'>
-          {liveTemplates.map((template) => {
-            const profile = localizeProfile(template.profile, locale);
-            return (
-              <li key={template.profile.id}>
-                <a
-                  href={contractHref(template.profile.id)}
-                  className='flex h-full flex-col rounded-3xl bg-card p-5 shadow-lift transition-colors hover:bg-grape-soft'
-                >
-                  <span className='flex items-center gap-2 text-lg font-bold'>
-                    <Identicon hash={template.identiconHash} locale={locale} />
-                    {profile.name}
-                  </span>
-                  <span className='text-sm text-muted'>
-                    {t.plural('app.poolCount', template.signers.length)}
-                  </span>
-                  <span className='mt-2 text-sm text-muted'>
-                    {profile.summary}
-                  </span>
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
-
-      {/*
-        Archived types, below the live ones and deliberately plainer: no
-        identicon, no card, no invitation to click through and choose. They are
-        here because a contract somebody is staked with should never vanish
-        from the page that describes it — not because anybody should be picking
-        one today.
-      */}
-      {archivedTemplates.length > 0 && (
-        <section className='mt-8' aria-labelledby='archived-heading'>
-          <h3 id='archived-heading' className='text-lg font-bold text-muted'>
-            {t('app.archivedHeading')}
-          </h3>
-          <p className='mt-1 text-sm text-muted'>{t('app.archivedIntro')}</p>
-          <ul className='mt-2 space-y-1 text-sm'>
-            {archivedTemplates.map((template) => (
-              <li key={template.profile.id}>
-                <a
-                  href={contractHref(template.profile.id)}
-                  className='text-muted underline underline-offset-4 transition-colors hover:text-grape'
-                >
-                  {localizeProfile(template.profile, locale).name}
-                </a>
-                <span className='text-muted'>
-                  {' — '}
-                  {t.plural('app.poolCount', template.signers.length)}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      <p className='mt-10 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted'>
-        <span className='inline-flex items-center gap-2 rounded-full bg-card px-3 py-1.5 font-bold text-ink shadow-lift'>
-          {/* Amber, not mint, when what is on screen is a saved copy. */}
-          <span
-            className={`h-2 w-2 rounded-full ${stale ? 'bg-amber-warm' : 'bg-mint'}`}
-            aria-hidden='true'
-          />
-          {t('app.lastUpdate', { at: lastUpdate })}
-        </span>
-        <span>{stale ? t('app.savedCopy') : t('app.refreshNote')}</span>
-      </p>
-
-      <section className='mt-12' aria-labelledby='filters-heading'>
-        <h2 id='filters-heading' className='text-2xl font-bold'>
-          {t('app.allPools')}
-        </h2>
-        <p className='mt-1 text-sm font-bold text-muted'>
-          {t('app.whatMatters')}
-        </p>
-        <div className='mt-3 flex flex-wrap gap-2'>
-          {filters.map((filter) => {
-            const on = active.has(filter.id);
-            return (
-              <button
-                key={filter.id}
-                type='button'
-                aria-pressed={on}
-                title={filter.help}
-                onClick={() => toggle(filter.id)}
-                className={`rounded-full px-4 py-2 font-semibold transition-colors ${
-                  on
-                    ? 'bg-grape text-on-grape'
-                    : 'bg-card text-ink shadow-lift hover:bg-grape-soft'
-                }`}
-              >
-                {filter.label}
-              </button>
-            );
-          })}
-        </div>
-
-        <ul className='mt-3 space-y-1 text-sm text-muted'>
-          {filters
-            .filter((f) => active.has(f.id))
-            .map((f) => (
-              <li key={f.id}>{f.help}</li>
-            ))}
-        </ul>
-      </section>
-
-      <p className='mt-8 font-semibold'>
-        {shown.length === total
-          ? t('app.showingAll', { total })
-          : t('app.showingSome', { shown: shown.length, total })}
-      </p>
-
-      {shown.length === 0 && (
-        <p className='mt-4 rounded-3xl bg-card p-6 text-muted shadow-lift'>
-          {t('app.noMatch')}
-        </p>
-      )}
-
-      <ul className='mt-4 space-y-4'>
-        {shown.map((signer) => (
-          <SignerCard
-            key={signer.contractId}
-            signer={signer}
-            lockedUstx={totals.ustx[signer.contractId]}
-            isNew={isNewSigner(signer, totals.cycle)}
-            summary={profileSummaryFor(signer.profileId)}
-            locale={locale}
-          />
-        ))}
-      </ul>
-
-      <footer className='mt-12 space-y-3 border-t border-hairline pt-6 text-sm text-muted'>
-        <p>
-          <strong className='text-ink'>{t('app.footer.feesTitle')}</strong>{' '}
-          {t.rich('app.footer.fees', {
-            capped: <em>{t('app.footer.feesCappedBadge')}</em>,
-            notice: <em>{t('app.footer.feesNoticeBadge')}</em>,
-          })}
-        </p>
-        <p>
-          {t('app.footer.identity', { at: lastUpdate, cycle: totals.cycle })}
-        </p>
-        <p>
-          {t.rich('app.footer.trust', {
-            link: (
+    <>
+      <WalletBrowserBanner locale={locale} />
+      <main className='mx-auto max-w-3xl px-5 py-12 md:py-20'>
+        <header className='flex flex-col gap-4'>
+          <div className='flex flex-wrap items-center justify-between gap-3'>
+            {/* The guide's own mark leads, and Fast Pool is named beside it.
+                A guide that lists Fast Pool among forty-four other pools should
+                not wear Fast Pool's glyph as its only identity — but it is a
+                Fast Pool project, so the byline stays. */}
+            <div className='flex flex-wrap items-center gap-x-3 gap-y-1 self-start'>
+              <span className='flex items-center gap-2 text-base font-extrabold text-ink'>
+                <Mark className='h-9 w-9 shrink-0 rounded-xl bg-grape p-1.5 text-on-grape' />
+                Signer Guide
+              </span>
               <a
-                className='font-semibold text-grape underline underline-offset-2'
-                href={REPO_URL}
-                target='_blank'
-                rel='noreferrer'
-              >
-                {t('app.footer.trustLink')}
-              </a>
-            ),
-          })}
-        </p>
-        <p>
-          {t.rich('app.footer.madeBy', {
-            link: (
-              <a
-                className='font-semibold text-grape underline underline-offset-2'
                 href={FASTPOOL_URL}
+                className='flex items-center gap-1.5 text-xs font-semibold text-muted transition-colors hover:text-grape'
               >
+                {t('app.by')}
+                <img
+                  src='/fastpool-logo.svg'
+                  alt=''
+                  width='18'
+                  height='18'
+                  className='rounded-md bg-fastpool'
+                />
                 Fast Pool
               </a>
-            ),
-          })}
-        </p>
-      </footer>
+            </div>
+            <div className='flex flex-wrap items-center gap-3'>
+              {/* The one question this guide could not answer until now: not
+                  which pool to pick, but where your own STX already is. It was
+                  below the pool list, which is the last place somebody arriving
+                  with that question would look. */}
+              <a
+                href={statusHref()}
+                className='rounded-full bg-card px-4 py-2 text-sm font-semibold text-ink shadow-lift transition-colors hover:bg-grape-soft'
+              >
+                {t('status.open')}
+              </a>
+              <a
+                href={myRewardsHref()}
+                className='rounded-full bg-card px-4 py-2 text-sm font-semibold text-ink shadow-lift transition-colors hover:bg-grape-soft'
+              >
+                {t('myRewards.open')}
+              </a>
+              {/* The list below is forty-odd pools read one at a time. This is
+                  the same set read the other way round — by who is behind them —
+                  and it is the only page that answers what a reader worried
+                  about the signer set is actually asking. */}
+              <a
+                href={groupsHref()}
+                className='rounded-full bg-card px-4 py-2 text-sm font-semibold text-ink shadow-lift transition-colors hover:bg-grape-soft'
+              >
+                {t('groups.open')}
+              </a>
+              <LocaleSwitch locale={locale} onChange={setLocale} />
+            </div>
+          </div>
+          <h1 className='text-4xl font-extrabold md:text-5xl'>
+            {t('app.heading')}
+          </h1>
+          <p className='text-lg text-muted'>
+            {t.rich('app.intro', {
+              pools: (
+                <strong className='text-ink'>
+                  {t('app.introPools', { count: choosable.length })}
+                </strong>
+              ),
+              contracts: (
+                <strong className='text-ink'>
+                  {t('app.introContracts', { count: choosableTemplates.length })}
+                </strong>
+              ),
+            })}
+          </p>
+          {staked !== null && (
+            <p className='text-lg text-muted'>
+              {t.rich('app.staked', {
+                amount: (
+                  <strong className='text-ink'>
+                    {stxLabel(staked.toString(), locale)}
+                  </strong>
+                ),
+                cycle: totals.cycle,
+              })}
+            </p>
+          )}
+          {stakedNext !== null && totals.next && (
+            <p className='text-lg text-muted'>
+              {t.rich('app.stakedNext', {
+                amount: (
+                  <strong className='text-ink'>
+                    {stxLabel(stakedNext.toString(), locale)}
+                  </strong>
+                ),
+                cycle: totals.next.cycle,
+              })}
+            </p>
+          )}
+        </header>
 
-      <UpdateBanner update={update} locale={locale} />
-    </main>
+        <StxOnlyRewardsEstimate
+          calculations={stxOnlyCalculations}
+          locale={locale}
+          mode='compact'
+          compactVariant={STX_COMPACT_VARIANT}
+          detailsHref={stxOnlyRewardsHref()}
+          asOf={lastUpdateStxOnlyCalculations}
+        />
+
+        <section className='mt-10' aria-labelledby='contracts-heading'>
+          <h2 id='contracts-heading' className='text-2xl font-bold'>
+            {t('app.contractsHeading')}
+          </h2>
+          <p className='mt-1 text-muted'>{t('app.contractsIntro')}</p>
+          <ul className='mt-4 grid gap-3 sm:grid-cols-2'>
+            {liveTemplates.map((template) => {
+              const profile = localizeProfile(template.profile, locale);
+              return (
+                <li key={template.profile.id}>
+                  <a
+                    href={contractHref(template.profile.id)}
+                    className='flex h-full flex-col rounded-3xl bg-card p-5 shadow-lift transition-colors hover:bg-grape-soft'
+                  >
+                    <span className='flex items-center gap-2 text-lg font-bold'>
+                      <Identicon hash={template.identiconHash} locale={locale} />
+                      {profile.name}
+                    </span>
+                    <span className='text-sm text-muted'>
+                      {t.plural('app.poolCount', template.signers.length)}
+                    </span>
+                    <span className='mt-2 text-sm text-muted'>
+                      {profile.summary}
+                    </span>
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+
+        {/*
+          Archived types, below the live ones and deliberately plainer: no
+          identicon, no card, no invitation to click through and choose. They are
+          here because a contract somebody is staked with should never vanish
+          from the page that describes it — not because anybody should be picking
+          one today.
+        */}
+        {archivedTemplates.length > 0 && (
+          <section className='mt-8' aria-labelledby='archived-heading'>
+            <h3 id='archived-heading' className='text-lg font-bold text-muted'>
+              {t('app.archivedHeading')}
+            </h3>
+            <p className='mt-1 text-sm text-muted'>{t('app.archivedIntro')}</p>
+            <ul className='mt-2 space-y-1 text-sm'>
+              {archivedTemplates.map((template) => (
+                <li key={template.profile.id}>
+                  <a
+                    href={contractHref(template.profile.id)}
+                    className='text-muted underline underline-offset-4 transition-colors hover:text-grape'
+                  >
+                    {localizeProfile(template.profile, locale).name}
+                  </a>
+                  <span className='text-muted'>
+                    {' — '}
+                    {t.plural('app.poolCount', template.signers.length)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <p className='mt-10 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted'>
+          <span className='inline-flex items-center gap-2 rounded-full bg-card px-3 py-1.5 font-bold text-ink shadow-lift'>
+            {/* Amber, not mint, when what is on screen is a saved copy. */}
+            <span
+              className={`h-2 w-2 rounded-full ${stale ? 'bg-amber-warm' : 'bg-mint'}`}
+              aria-hidden='true'
+            />
+            {t('app.lastUpdate', { at: lastUpdate })}
+          </span>
+          <span>{stale ? t('app.savedCopy') : t('app.refreshNote')}</span>
+        </p>
+
+        <section className='mt-12' aria-labelledby='filters-heading'>
+          <h2 id='filters-heading' className='text-2xl font-bold'>
+            {t('app.allPools')}
+          </h2>
+          <p className='mt-1 text-sm font-bold text-muted'>
+            {t('app.whatMatters')}
+          </p>
+          <div className='mt-3 flex flex-wrap gap-2'>
+            {filters.map((filter) => {
+              const on = active.has(filter.id);
+              return (
+                <button
+                  key={filter.id}
+                  type='button'
+                  aria-pressed={on}
+                  title={filter.help}
+                  onClick={() => toggle(filter.id)}
+                  className={`rounded-full px-4 py-2 font-semibold transition-colors ${
+                    on
+                      ? 'bg-grape text-on-grape'
+                      : 'bg-card text-ink shadow-lift hover:bg-grape-soft'
+                  }`}
+                >
+                  {filter.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <ul className='mt-3 space-y-1 text-sm text-muted'>
+            {filters
+              .filter((f) => active.has(f.id))
+              .map((f) => (
+                <li key={f.id}>{f.help}</li>
+              ))}
+          </ul>
+        </section>
+
+        <p className='mt-8 font-semibold'>
+          {shown.length === total
+            ? t('app.showingAll', { total })
+            : t('app.showingSome', { shown: shown.length, total })}
+        </p>
+
+        {shown.length === 0 && (
+          <p className='mt-4 rounded-3xl bg-card p-6 text-muted shadow-lift'>
+            {t('app.noMatch')}
+          </p>
+        )}
+
+        <ul className='mt-4 space-y-4'>
+          {shown.map((signer) => (
+            <SignerCard
+              key={signer.contractId}
+              signer={signer}
+              lockedUstx={totals.ustx[signer.contractId]}
+              isNew={isNewSigner(signer, totals.cycle)}
+              summary={profileSummaryFor(signer.profileId)}
+              locale={locale}
+            />
+          ))}
+        </ul>
+
+        <footer className='mt-12 space-y-3 border-t border-hairline pt-6 text-sm text-muted'>
+          <p>
+            <strong className='text-ink'>{t('app.footer.feesTitle')}</strong>{' '}
+            {t.rich('app.footer.fees', {
+              capped: <em>{t('app.footer.feesCappedBadge')}</em>,
+              notice: <em>{t('app.footer.feesNoticeBadge')}</em>,
+            })}
+          </p>
+          <p>
+            {t('app.footer.identity', { at: lastUpdate, cycle: totals.cycle })}
+          </p>
+          <p>
+            {t.rich('app.footer.trust', {
+              link: (
+                <a
+                  className='font-semibold text-grape underline underline-offset-2'
+                  href={REPO_URL}
+                  target='_blank'
+                  rel='noreferrer'
+                >
+                  {t('app.footer.trustLink')}
+                </a>
+              ),
+            })}
+          </p>
+          <p>
+            {t.rich('app.footer.madeBy', {
+              link: (
+                <a
+                  className='font-semibold text-grape underline underline-offset-2'
+                  href={FASTPOOL_URL}
+                >
+                  Fast Pool
+                </a>
+              ),
+            })}
+          </p>
+        </footer>
+
+        <UpdateBanner update={update} locale={locale} />
+      </main>
+    </>
   );
 }
