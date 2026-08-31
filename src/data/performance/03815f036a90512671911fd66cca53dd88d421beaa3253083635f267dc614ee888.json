@@ -1,0 +1,126 @@
+{
+  "signerKey": "03815f036a90512671911fd66cca53dd88d421beaa3253083635f267dc614ee888",
+  "cycles": [
+    {
+      "cycle": 118,
+      "accepted": 305601,
+      "rejected": 1308,
+      "missed": 7117,
+      "responseMs": 532,
+      "lastSeen": "2025-09-22T22:45:29.774Z",
+      "weight": 1,
+      "weightPercent": 0.027,
+      "final": true
+    },
+    {
+      "cycle": 117,
+      "accepted": 339209,
+      "rejected": 1302,
+      "missed": 6404,
+      "responseMs": 577,
+      "lastSeen": "2025-09-09T05:30:21.042Z",
+      "weight": 1,
+      "weightPercent": 0.025,
+      "final": true
+    },
+    {
+      "cycle": 115,
+      "accepted": 331402,
+      "rejected": 2611,
+      "missed": 10593,
+      "responseMs": 590,
+      "lastSeen": "2025-08-12T04:23:28.003Z",
+      "weight": 1,
+      "weightPercent": 0.026,
+      "final": true
+    },
+    {
+      "cycle": 114,
+      "accepted": 184167,
+      "rejected": 2021,
+      "missed": 4219,
+      "responseMs": 615,
+      "lastSeen": "2025-07-28T08:50:53.873Z",
+      "weight": 1,
+      "weightPercent": 0.026,
+      "final": true
+    },
+    {
+      "cycle": 110,
+      "accepted": 193709,
+      "rejected": 879,
+      "missed": 5211,
+      "responseMs": 497,
+      "lastSeen": "2025-05-31T03:16:54.065Z",
+      "weight": 1,
+      "weightPercent": 0.026,
+      "final": true
+    },
+    {
+      "cycle": 109,
+      "accepted": 76810,
+      "rejected": 39336,
+      "missed": 42,
+      "responseMs": 693,
+      "lastSeen": "2025-05-17T04:39:59.965Z",
+      "weight": 1,
+      "weightPercent": 0.026,
+      "final": true
+    },
+    {
+      "cycle": 107,
+      "accepted": 80187,
+      "rejected": 3987,
+      "missed": 7400,
+      "responseMs": 5397,
+      "lastSeen": "2025-04-17T15:04:36.605Z",
+      "weight": 1,
+      "weightPercent": 0.025,
+      "final": true
+    },
+    {
+      "cycle": 106,
+      "accepted": 86641,
+      "rejected": 1528,
+      "missed": 243,
+      "responseMs": 3904,
+      "lastSeen": "2025-04-03T19:29:46.310Z",
+      "weight": 1,
+      "weightPercent": 0.027,
+      "final": true
+    },
+    {
+      "cycle": 105,
+      "accepted": 92666,
+      "rejected": 1839,
+      "missed": 97,
+      "responseMs": 3066,
+      "lastSeen": "2025-03-20T16:22:27.778Z",
+      "weight": 1,
+      "weightPercent": 0.026,
+      "final": true
+    },
+    {
+      "cycle": 102,
+      "accepted": 66981,
+      "rejected": 3240,
+      "missed": 124,
+      "responseMs": 2605,
+      "lastSeen": "2025-02-05T05:33:03.044Z",
+      "weight": 1,
+      "weightPercent": 0.026,
+      "final": true
+    },
+    {
+      "cycle": 99,
+      "accepted": 64233,
+      "rejected": 5496,
+      "missed": 156,
+      "responseMs": 2180,
+      "lastSeen": "2024-12-23T16:23:46.133Z",
+      "weight": 1,
+      "weightPercent": 0.027,
+      "final": true
+    }
+  ]
+}

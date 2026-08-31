@@ -1,0 +1,104 @@
+{
+  "signerKey": "02ec330a52d8fd74de20b12a96421de431d48ff89f42ed077db561d9c1b854cdf2",
+  "cycles": [
+    {
+      "cycle": 92,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 271,
+      "weightPercent": 7.074,
+      "final": true
+    },
+    {
+      "cycle": 91,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 271,
+      "weightPercent": 7.032,
+      "final": true
+    },
+    {
+      "cycle": 90,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 271,
+      "weightPercent": 7.26,
+      "final": true
+    },
+    {
+      "cycle": 89,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 271,
+      "weightPercent": 7.455,
+      "final": true
+    },
+    {
+      "cycle": 88,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 298,
+      "weightPercent": 7.945,
+      "final": true
+    },
+    {
+      "cycle": 87,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 298,
+      "weightPercent": 8.2,
+      "final": true
+    },
+    {
+      "cycle": 86,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 298,
+      "weightPercent": 8.423,
+      "final": true
+    },
+    {
+      "cycle": 85,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 298,
+      "weightPercent": 8.623,
+      "final": true
+    },
+    {
+      "cycle": 84,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 298,
+      "weightPercent": 9.742,
+      "final": true
+    }
+  ]
+}

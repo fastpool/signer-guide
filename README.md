@@ -525,6 +525,94 @@ the list holds it, since "which of these is missing it" is the question.
 The script writes nothing to disk. The list of addresses is yours, and where
 it lives is not a script's decision.
 
+## Whether the signer turns up
+
+Weight is what a signer is owed a say over. It says nothing about whether the
+node does the job, and the two are not close: one signer holds **2.7%** of the
+vote in cycle 142, has answered a quarter of what it was asked, and takes half
+a minute to do it. Another holds a seat with a million STX behind it and has
+never answered anything at all.
+
+Every block a miner proposes goes to every seated signer, and each one accepts
+it, rejects it, or says nothing. `pnpm generate:performance` writes that down,
+from Hiro's signer-metrics API:
+
+```
+src/data/performance.json        the current cycle, every seated signer
+src/data/performance/<key>.json  one key, every cycle it was seated for
+```
+
+The split is the member history's, for the same reason. The summary is
+twenty-six rows and ships with the pool list, because "does this signer turn
+up" belongs on the page a reader is already on. The history behind it is
+fifty-nine cycles — back to **cycle 84**, the first Nakamoto one — and costs a
+request only when somebody opens it. A first run reads every cycle at one
+request each; after that it reads two, the cycle being signed and the one that
+just closed, whose row was written mid-flight. A cycle that is over cannot
+move, so it is read once and never again — and a cycle that went unread is
+picked up by the next run rather than left as a hole, which is not
+hypothetical: cycle 140 answered nothing on the backfill.
+
+Three distinctions carry the whole feature, and they all live in
+`src/lib/performance.ts`:
+
+**Rejecting is not failing.** A signer that reads a proposal and refuses it is
+doing exactly what it is there for; one that says nothing is not. So the
+headline is `answeredRate` — accepted *or* rejected, over everything it was
+asked — and what it said is a second number underneath. Leading with acceptance
+would rank a node that rubber-stamps above one that checks.
+
+**A mean over nothing is not a fast mean.** The API reports
+`average_response_time_ms: 0` for a signer that answered nothing, which sorts
+to the top of any list of the quick. `responseMs` is `null` for that case and
+the page prints words, not a number. `neverAnswered` is its own state for the
+same reason: it is an absence, not a bad score.
+
+**An open cycle is a cycle so far.** The counts are cumulative, so `final` is
+false while the cycle is still being signed and every figure says which cycle
+it covers. A hundred missed blocks two hours in is not a hundred missed in a
+fortnight.
+
+The figures are somebody else's observation — Hiro's node watched the proposals
+go out and the answers come back — and the page says so. Unlike the fee or the
+amount staked, it is not something this guide could read off the chain, and a
+run against a local node leaves these files alone rather than emptying them.
+
+## Key rotations
+
+Nothing on chain announces one. `signers.json` holds the key a contract has
+*now*, and every refresh overwrites it — so a pool that swapped keys on a
+Tuesday looked, on Wednesday, exactly like a pool that had always had the new
+one.
+
+It matters because a cycle's signer set is fixed before the cycle begins.
+Rotate, and the old key keeps the seat — signing, or not signing, for a
+fortnight — while the new one holds nothing until the next set is computed.
+Read one cycle at a time that is a pool with no weight beside a weight with no
+pool, and nothing distinguishes it from one signer leaving and another
+arriving.
+
+`src/data/key-rotations.json` is therefore a **log, not a snapshot**: entries
+are appended and never rewritten. The refresh writes one down when it sees the
+key under a contract change; `pnpm backfill:rotations` recovers everything from
+before that existed by walking the commits of `signers.json` — the same trick
+that backfilled `firstSeenCycle`, and for the same reason. Merging is by what
+happened rather than by when it was noticed, so the two writers cannot record
+one rotation twice.
+
+`observedAt` is when the guide *saw* it, not when it happened. The refresh runs
+hourly, so the truth is somewhere in the hour before; claiming a block height
+would be inventing precision the record does not have. And a contract that
+would not answer is never a rotation — `signerKey` is absent for a bad minute,
+and a node having one must not enter the permanent record as an operator
+changing keys, nor as changing them back when it recovers.
+
+One rotation is on file, and it is the whole argument in a single row:
+`signer-manager-stakin-1` rotated on 28 August 2026, mid-cycle-142. The key it
+left behind holds the seat, has been asked about every block in the cycle, and
+has answered none of them — `last_seen` is null, it has never been heard from.
+The pool charges 99.99%.
+
 ## Who holds the vote
 
 A signer node is one key. A **group** is a set of nodes with one entity behind
@@ -768,10 +856,21 @@ per [Making it affordable](#making-it-affordable). The hourly workflow gives
 that last one a `--budget`, so a run it cannot finish picks up where it left
 off rather than overrunning.
 
-Only the first of the three can fail the run. The amounts and the history are
-the softest things on the site, they keep their previous values rather than
-blanking, and losing an hour of either should not stop a fee change reaching
-the page.
+`pnpm generate:performance` is the fourth, and reads a different kind of thing
+entirely — see [Whether the signer turns up](#whether-the-signer-turns-up). It
+asks Hiro's indexer rather than a Stacks node, because only an indexer keeps
+the record of who answered which proposal, so a run against a local node has
+nothing to read and leaves the files alone.
+
+Only the first of the four can fail the run. The amounts, the history and the
+conduct are the softest things on the site, they keep their previous values
+rather than blanking, and losing an hour of any of them should not stop a fee
+change reaching the page.
+
+The refresh also writes down anything it sees change that a snapshot cannot
+hold: a contract whose signer key is not the one it had last hour goes in
+`src/data/key-rotations.json` — a log rather than a snapshot, and the only
+record of a rotation there is. See [Key rotations](#key-rotations).
 
 ### What a person decided, and where it lives
 

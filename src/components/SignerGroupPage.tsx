@@ -10,6 +10,7 @@ import {
   groupsForContract,
   type SignerGroup,
 } from '../lib/signer-groups';
+import { answeredRate, neverAnswered, performanceFor } from '../lib/performance';
 import { votingPowerBips } from '../lib/signer-nodes';
 import type { LockedTotals, Signer } from '../lib/types';
 import Identicon from './Identicon';
@@ -136,6 +137,7 @@ export default function SignerGroupPage({
           {nodes.map((node) => {
             const nodeBips = votingPowerBips(node, totals.ustx);
             const whole = wholeKey(node.signerKey);
+            const conduct = performanceFor(node.signerKey);
             return (
               <li
                 key={node.signerKey ?? node.contracts[0].contractId}
@@ -151,6 +153,26 @@ export default function SignerGroupPage({
                       : `${(nodeBips / 100).toFixed(2)}%`}
                   </p>
                 </div>
+
+                {/*
+                  What the weight above does not say. A group's share of the
+                  vote is a claim about what it could carry; this is whether
+                  the nodes carrying it turn up, and it belongs on the same
+                  row rather than one page further in.
+                */}
+                {conduct && (
+                  <p className='text-xs text-muted'>
+                    {neverAnswered(conduct)
+                      ? t('group.nodeSilent', { cycle: conduct.cycle })
+                      : t('group.nodeAnswered', {
+                          percent:
+                            answeredRate(conduct) === null
+                              ? '—'
+                              : ((answeredRate(conduct) as number) * 100).toFixed(1),
+                          cycle: conduct.cycle,
+                        })}
+                  </p>
+                )}
 
                 <ul className='mt-2 space-y-1'>
                   {node.contracts.map((contract) => {

@@ -1,0 +1,93 @@
+{
+  "signerKey": "0399fc8106e79a1e7e37a1bdc0cae4352c0899bc1d1c56279f9c0f2c66df16f9ce",
+  "cycles": [
+    {
+      "cycle": 122,
+      "accepted": 270989,
+      "rejected": 1232,
+      "missed": 4212,
+      "responseMs": 1788,
+      "lastSeen": "2025-11-19T23:09:25.610Z",
+      "weight": 9,
+      "weightPercent": 0.238,
+      "final": true
+    },
+    {
+      "cycle": 121,
+      "accepted": 253910,
+      "rejected": 1634,
+      "missed": 5186,
+      "responseMs": 1817,
+      "lastSeen": "2025-11-05T00:06:23.996Z",
+      "weight": 9,
+      "weightPercent": 0.239,
+      "final": true
+    },
+    {
+      "cycle": 120,
+      "accepted": 283238,
+      "rejected": 2223,
+      "missed": 20877,
+      "responseMs": 1488,
+      "lastSeen": "2025-10-21T19:59:42.372Z",
+      "weight": 9,
+      "weightPercent": 0.237,
+      "final": true
+    },
+    {
+      "cycle": 119,
+      "accepted": 323189,
+      "rejected": 1829,
+      "missed": 3447,
+      "responseMs": 455,
+      "lastSeen": "2025-10-07T14:51:18.547Z",
+      "weight": 9,
+      "weightPercent": 0.232,
+      "final": true
+    },
+    {
+      "cycle": 118,
+      "accepted": 305840,
+      "rejected": 1273,
+      "missed": 2759,
+      "responseMs": 422,
+      "lastSeen": "2025-09-22T22:45:29.774Z",
+      "weight": 12,
+      "weightPercent": 0.325,
+      "final": true
+    },
+    {
+      "cycle": 117,
+      "accepted": 339578,
+      "rejected": 1216,
+      "missed": 3076,
+      "responseMs": 440,
+      "lastSeen": "2025-09-09T05:30:21.208Z",
+      "weight": 9,
+      "weightPercent": 0.228,
+      "final": true
+    },
+    {
+      "cycle": 116,
+      "accepted": 345464,
+      "rejected": 938,
+      "missed": 5573,
+      "responseMs": 454,
+      "lastSeen": "2025-08-26T07:22:28.388Z",
+      "weight": 9,
+      "weightPercent": 0.24,
+      "final": true
+    },
+    {
+      "cycle": 115,
+      "accepted": 332842,
+      "rejected": 1498,
+      "missed": 5703,
+      "responseMs": 461,
+      "lastSeen": "2025-08-12T04:23:28.529Z",
+      "weight": 9,
+      "weightPercent": 0.232,
+      "final": true
+    }
+  ]
+}

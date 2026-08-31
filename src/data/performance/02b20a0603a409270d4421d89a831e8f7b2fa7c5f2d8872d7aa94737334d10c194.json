@@ -1,0 +1,148 @@
+{
+  "signerKey": "02b20a0603a409270d4421d89a831e8f7b2fa7c5f2d8872d7aa94737334d10c194",
+  "cycles": [
+    {
+      "cycle": 103,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 81430,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 1,
+      "weightPercent": 0.025,
+      "final": true
+    },
+    {
+      "cycle": 99,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 69885,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 1,
+      "weightPercent": 0.027,
+      "final": true
+    },
+    {
+      "cycle": 98,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 55602,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 1,
+      "weightPercent": 0.027,
+      "final": true
+    },
+    {
+      "cycle": 95,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 1,
+      "weightPercent": 0.025,
+      "final": true
+    },
+    {
+      "cycle": 94,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 1,
+      "weightPercent": 0.027,
+      "final": true
+    },
+    {
+      "cycle": 93,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 1,
+      "weightPercent": 0.026,
+      "final": true
+    },
+    {
+      "cycle": 92,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 1,
+      "weightPercent": 0.026,
+      "final": true
+    },
+    {
+      "cycle": 91,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 1,
+      "weightPercent": 0.026,
+      "final": true
+    },
+    {
+      "cycle": 90,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 1,
+      "weightPercent": 0.027,
+      "final": true
+    },
+    {
+      "cycle": 89,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 1,
+      "weightPercent": 0.028,
+      "final": true
+    },
+    {
+      "cycle": 88,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 1,
+      "weightPercent": 0.027,
+      "final": true
+    },
+    {
+      "cycle": 87,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 1,
+      "weightPercent": 0.028,
+      "final": true
+    },
+    {
+      "cycle": 86,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 1,
+      "weightPercent": 0.028,
+      "final": true
+    }
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "signerKey": "036ede88a1473bb9b695d34cddcd20bea63bc72d142d2d1a7f3d1d7e7649ea2686",
+  "cycles": [
+    {
+      "cycle": 93,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 19,
+      "weightPercent": 0.498,
+      "final": true
+    },
+    {
+      "cycle": 92,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 19,
+      "weightPercent": 0.496,
+      "final": true
+    },
+    {
+      "cycle": 91,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 19,
+      "weightPercent": 0.493,
+      "final": true
+    },
+    {
+      "cycle": 90,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 19,
+      "weightPercent": 0.509,
+      "final": true
+    },
+    {
+      "cycle": 89,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 19,
+      "weightPercent": 0.523,
+      "final": true
+    },
+    {
+      "cycle": 88,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 21,
+      "weightPercent": 0.56,
+      "final": true
+    },
+    {
+      "cycle": 87,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 21,
+      "weightPercent": 0.578,
+      "final": true
+    },
+    {
+      "cycle": 86,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 21,
+      "weightPercent": 0.594,
+      "final": true
+    },
+    {
+      "cycle": 85,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 21,
+      "weightPercent": 0.608,
+      "final": true
+    },
+    {
+      "cycle": 84,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 21,
+      "weightPercent": 0.686,
+      "final": true
+    }
+  ]
+}

@@ -1,0 +1,247 @@
+{
+  "signerKey": "025f9fd3d308e7306e154d9a5466a5aee6918258cdb08924ade59bea04f472b339",
+  "cycles": [
+    {
+      "cycle": 118,
+      "accepted": 305832,
+      "rejected": 1279,
+      "missed": 2786,
+      "responseMs": 422,
+      "lastSeen": "2025-09-22T22:45:25.188Z",
+      "weight": 1,
+      "weightPercent": 0.027,
+      "final": true
+    },
+    {
+      "cycle": 117,
+      "accepted": 339435,
+      "rejected": 1318,
+      "missed": 3099,
+      "responseMs": 440,
+      "lastSeen": "2025-09-09T05:30:17.100Z",
+      "weight": 1,
+      "weightPercent": 0.025,
+      "final": true
+    },
+    {
+      "cycle": 116,
+      "accepted": 345488,
+      "rejected": 993,
+      "missed": 5541,
+      "responseMs": 453,
+      "lastSeen": "2025-08-26T07:22:28.234Z",
+      "weight": 1,
+      "weightPercent": 0.027,
+      "final": true
+    },
+    {
+      "cycle": 115,
+      "accepted": 332772,
+      "rejected": 1530,
+      "missed": 5797,
+      "responseMs": 463,
+      "lastSeen": "2025-08-12T04:23:35.161Z",
+      "weight": 1,
+      "weightPercent": 0.026,
+      "final": true
+    },
+    {
+      "cycle": 114,
+      "accepted": 132110,
+      "rejected": 53871,
+      "missed": 55376,
+      "responseMs": 9307,
+      "lastSeen": "2025-07-28T08:50:53.952Z",
+      "weight": 1,
+      "weightPercent": 0.026,
+      "final": true
+    },
+    {
+      "cycle": 113,
+      "accepted": 220275,
+      "rejected": 21965,
+      "missed": 313,
+      "responseMs": 3406,
+      "lastSeen": "2025-07-14T03:41:50.497Z",
+      "weight": 1,
+      "weightPercent": 0.026,
+      "final": true
+    },
+    {
+      "cycle": 112,
+      "accepted": 307016,
+      "rejected": 1357,
+      "missed": 49,
+      "responseMs": 370,
+      "lastSeen": "2025-06-30T04:18:33.457Z",
+      "weight": 1,
+      "weightPercent": 0.027,
+      "final": true
+    },
+    {
+      "cycle": 111,
+      "accepted": 244751,
+      "rejected": 812,
+      "missed": 87,
+      "responseMs": 367,
+      "lastSeen": "2025-06-14T19:09:21.246Z",
+      "weight": 1,
+      "weightPercent": 0.027,
+      "final": true
+    },
+    {
+      "cycle": 110,
+      "accepted": 195175,
+      "rejected": 4377,
+      "missed": 247,
+      "responseMs": 484,
+      "lastSeen": "2025-05-31T03:16:53.055Z",
+      "weight": 1,
+      "weightPercent": 0.026,
+      "final": true
+    },
+    {
+      "cycle": 108,
+      "accepted": 33605,
+      "rejected": 6882,
+      "missed": 50526,
+      "responseMs": 14417,
+      "lastSeen": "2025-05-02T22:21:03.726Z",
+      "weight": 1,
+      "weightPercent": 0.026,
+      "final": true
+    },
+    {
+      "cycle": 107,
+      "accepted": 14141,
+      "rejected": 19628,
+      "missed": 57805,
+      "responseMs": 117344,
+      "lastSeen": "2025-04-17T15:04:32.492Z",
+      "weight": 1,
+      "weightPercent": 0.025,
+      "final": true
+    },
+    {
+      "cycle": 103,
+      "accepted": 75261,
+      "rejected": 4435,
+      "missed": 1734,
+      "responseMs": 7846,
+      "lastSeen": "2025-02-19T11:30:53.654Z",
+      "weight": 1,
+      "weightPercent": 0.025,
+      "final": true
+    },
+    {
+      "cycle": 99,
+      "accepted": 61019,
+      "rejected": 8549,
+      "missed": 317,
+      "responseMs": 10295,
+      "lastSeen": "2024-12-23T16:23:50.491Z",
+      "weight": 1,
+      "weightPercent": 0.027,
+      "final": true
+    },
+    {
+      "cycle": 98,
+      "accepted": 49559,
+      "rejected": 5928,
+      "missed": 115,
+      "responseMs": 6384,
+      "lastSeen": "2024-12-09T12:59:25.354Z",
+      "weight": 1,
+      "weightPercent": 0.027,
+      "final": true
+    },
+    {
+      "cycle": 97,
+      "accepted": 33325,
+      "rejected": 2812,
+      "missed": 2860,
+      "responseMs": 8619,
+      "lastSeen": "2024-11-25T03:43:04.562Z",
+      "weight": 1,
+      "weightPercent": 0.027,
+      "final": true
+    },
+    {
+      "cycle": 95,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 1,
+      "weightPercent": 0.025,
+      "final": true
+    },
+    {
+      "cycle": 94,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 1,
+      "weightPercent": 0.027,
+      "final": true
+    },
+    {
+      "cycle": 93,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 1,
+      "weightPercent": 0.026,
+      "final": true
+    },
+    {
+      "cycle": 92,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 1,
+      "weightPercent": 0.026,
+      "final": true
+    },
+    {
+      "cycle": 91,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 1,
+      "weightPercent": 0.026,
+      "final": true
+    },
+    {
+      "cycle": 90,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 1,
+      "weightPercent": 0.027,
+      "final": true
+    },
+    {
+      "cycle": 89,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 0,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 1,
+      "weightPercent": 0.028,
+      "final": true
+    }
+  ]
+}

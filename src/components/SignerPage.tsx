@@ -22,6 +22,7 @@ import {
 import { ellipsedAddr, shortPrincipal } from '../lib/strings';
 import type { LockedTotals, Signer, SignerHistory } from '../lib/types';
 import Badge, { feeLabel, noticeLabel } from './Badge';
+import SignerConductSection from './SignerConductSection';
 import Identicon from './Identicon';
 import LocaleSwitch from './LocaleSwitch';
 import PoolName from './PoolName';
@@ -153,6 +154,13 @@ export default function SignerPage({
         totals={totals}
         locale={locale}
       />
+
+      {/*
+        Under the key and above the money. A reader who has just been told
+        this key carries a fifth of the signer set has one question next, and
+        it is whether the node behind it turns up.
+      */}
+      <SignerConductSection signer={signer} locale={locale} />
 
       <RewardsSection signer={signer} locale={locale} />
 

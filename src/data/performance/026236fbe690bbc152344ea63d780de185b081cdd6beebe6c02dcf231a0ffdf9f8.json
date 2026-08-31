@@ -1,0 +1,16 @@
+{
+  "signerKey": "026236fbe690bbc152344ea63d780de185b081cdd6beebe6c02dcf231a0ffdf9f8",
+  "cycles": [
+    {
+      "cycle": 101,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 70000,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 2,
+      "weightPercent": 0.053,
+      "final": true
+    }
+  ]
+}

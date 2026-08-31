@@ -1,0 +1,12 @@
+{
+  "generatedAt": "2026-08-31T08:04:08.606Z",
+  "rotations": [
+    {
+      "contractId": "SPEMC1B9BG0BNGMDVQE1SG2DY8X95ZS157N98P7N.signer-manager-stakin-1",
+      "from": "0x02bd7401138851ccf21e79cfa2923a5e7d7ddb31be6fad8102ada6abaf5e92859c",
+      "to": "0x03810f16994e46ad0401ddf8d4b112b23bdcda3594688c089850c88c2206ac6ded",
+      "observedAt": "2026-08-28T05:29:04+00:00",
+      "cycle": 142
+    }
+  ]
+}

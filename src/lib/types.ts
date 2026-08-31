@@ -494,3 +494,99 @@ export interface CycleMember {
   /** Which of the signer's contracts they are with. */
   contractId: string;
 }
+
+/**
+ * How one signer answered the miners for one cycle.
+ *
+ * pox-5 weights a signer by the STX behind it and says nothing about whether
+ * it does the job. This is the other half: every block a miner proposed, the
+ * signer either accepted it, rejected it, or was not there — and when it did
+ * answer, how long the miner waited. From Hiro's signer-metrics API, which
+ * keeps it per cycle back to the first Nakamoto one.
+ */
+export interface SignerCyclePerformance {
+  cycle: number;
+  accepted: number;
+  rejected: number;
+  /** Proposals it never answered at all. */
+  missed: number;
+  /**
+   * Mean milliseconds from proposal to answer, or null.
+   *
+   * Null is "it answered nothing, so nothing was timed". The API reports 0 for
+   * that, which reads as instant — the fastest signer on the page — when what
+   * happened is that the node was never there. A zero that means its opposite
+   * is worse than a gap, so it is stored as a gap.
+   */
+  responseMs: number | null;
+  /** When anything was last heard from it, or null for never. */
+  lastSeen: string | null;
+  /** Its seat that cycle: whole slots, and what share of the set that is. */
+  weight: number;
+  weightPercent: number;
+  /**
+   * False while the cycle is still running.
+   *
+   * The counts are cumulative, so an open cycle's row is a cycle so far. A
+   * signer that has missed a hundred blocks of a cycle two hours old is not a
+   * signer that missed a hundred blocks of a fortnight.
+   */
+  final: boolean;
+}
+
+/** One key's whole record, as `src/data/performance/<key>.json` holds it. */
+export interface SignerPerformance {
+  /** Bare hex, no 0x — the spelling the node files use. */
+  signerKey: string;
+  /** Newest first, like the signer history files. */
+  cycles: SignerCyclePerformance[];
+}
+
+/**
+ * The current cycle's conduct for every seated signer, as
+ * `src/data/performance.json` holds it.
+ *
+ * Small enough to ship with the pool list — twenty-six rows — because the
+ * question "is this signer doing the job" belongs on the page a reader is
+ * already on, not behind a request they have to know to make. The history
+ * behind it is per key and fetched only when somebody opens one.
+ */
+export interface PerformanceData {
+  generatedAt: string;
+  /** The cycle `signers` describes. */
+  cycle: number;
+  /** Every cycle with a file, oldest first. */
+  cycles: number[];
+  /** By bare signer key. A seated signer with no row was not in the answer. */
+  signers: Record<string, SignerCyclePerformance>;
+}
+
+/**
+ * A signer key that changed under a contract.
+ *
+ * Nothing on chain announces one, and nothing in this guide would have shown
+ * it: `signers.json` holds the key a contract has now and has never held what
+ * it had before. So the refresh writes down what it sees change, and the file
+ * is a log rather than a snapshot — the one record of a rotation there is.
+ *
+ * It matters because a cycle's signer set is fixed before the cycle starts.
+ * Rotate, and the old key keeps the seat until the next set is computed while
+ * the new one holds nothing — a pool with no weight beside a weight with no
+ * pool, which is one operator and not two problems.
+ */
+export interface KeyRotation {
+  contractId: string;
+  /** Bare hex with the 0x, as `signers.json` spells them. */
+  from: string | null;
+  to: string | null;
+  /** When the guide saw it, which is the only timestamp there is. */
+  observedAt: string;
+  /** The cycle it was seen in, or null when that could not be read. */
+  cycle: number | null;
+}
+
+export interface KeyRotations {
+  generatedAt: string;
+  /** Oldest first. */
+  rotations: KeyRotation[];
+}

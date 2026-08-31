@@ -1,0 +1,27 @@
+{
+  "signerKey": "02f37e08d25d8a660caf66b9cb3a09b1ce055cbb5f57186d92af43268d722408da",
+  "cycles": [
+    {
+      "cycle": 142,
+      "accepted": 33255,
+      "rejected": 1370,
+      "missed": 10790,
+      "responseMs": 7001,
+      "lastSeen": "2026-08-31T08:03:05.457Z",
+      "weight": 128,
+      "weightPercent": 3.2,
+      "final": false
+    },
+    {
+      "cycle": 141,
+      "accepted": 99860,
+      "rejected": 7631,
+      "missed": 42006,
+      "responseMs": 9631,
+      "lastSeen": "2026-08-27T05:38:10.913Z",
+      "weight": 107,
+      "weightPercent": 2.675,
+      "final": true
+    }
+  ]
+}

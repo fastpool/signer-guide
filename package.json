@@ -12,6 +12,8 @@
     "generate:stx-only": "tsx scripts/generate-stx-only-calculations.ts",
     "generate:history": "tsx scripts/generate-signer-history.ts",
     "generate:nodes": "tsx scripts/generate-signer-nodes.ts",
+    "generate:performance": "tsx scripts/generate-signer-performance.ts",
+    "backfill:rotations": "tsx scripts/backfill-key-rotations.ts",
     "generate:share-card": "node scripts/make-share-card.mjs",
     "card:lesson": "node scripts/lesson/make-lesson-card.mjs",
     "film:lesson": "blender -b -noaudio -P scripts/lesson/seahorse-explainer.py --",

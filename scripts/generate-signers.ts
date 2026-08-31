@@ -37,7 +37,12 @@ import {
 } from '../src/lib/canonical.js';
 import { detectFeatures, type Reading } from '../src/lib/features.js';
 import { profileFor } from '../src/lib/profiles.js';
-import type { Signer, SignerData } from '../src/lib/types.js';
+import type {
+  KeyRotation,
+  KeyRotations,
+  Signer,
+  SignerData,
+} from '../src/lib/types.js';
 import {
   parseUint,
   serializeContractPrincipal,
@@ -52,6 +57,7 @@ import {
 } from './identicon.js';
 import { humanizeContractName } from './humanize.js';
 import { applyManualData, type ManualData } from './manual-data.js';
+import { mergeRotations, rotationsBetween } from './key-rotations.js';
 import manualSigners from '../src/data/signers-manual.json';
 
 const manual = manualSigners as ManualData;
@@ -64,6 +70,14 @@ const OUTPUT = path.join(
   'signers.json',
 );
 
+const ROTATIONS = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '..',
+  'src',
+  'data',
+  'key-rotations.json',
+);
+
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /** What is already committed, or null on the first run. */
@@ -73,6 +87,23 @@ function readCommitted(): SignerData | null {
   } catch {
     return null;
   }
+}
+
+/** The rotation log, or an empty one for a repository that has none yet. */
+function readRotations(): KeyRotation[] {
+  try {
+    return (JSON.parse(fs.readFileSync(ROTATIONS, 'utf8')) as KeyRotations)
+      .rotations;
+  } catch {
+    return [];
+  }
+}
+
+function writeRotations(rotations: KeyRotation[]): void {
+  fs.writeFileSync(
+    ROTATIONS,
+    `${JSON.stringify({ generatedAt: new Date().toISOString(), rotations }, null, 2)}\n`,
+  );
 }
 
 /**
@@ -579,6 +610,32 @@ async function main() {
 
   fs.mkdirSync(path.dirname(OUTPUT), { recursive: true });
   fs.writeFileSync(OUTPUT, JSON.stringify(data, null, 2));
+
+  /*
+   * What changed hands since the last run, appended to a log rather than
+   * written into the file above.
+   *
+   * `signers.json` is a snapshot — everything in it is what the chain said
+   * this run — and a rotation is the one thing about a pool that only exists
+   * as a difference between two runs. Nothing on chain announces one, so this
+   * is the only record there will ever be, and it is kept as a record: entries
+   * are added and never rewritten. Everything before the day this was written
+   * is recovered by scripts/backfill-key-rotations.ts, out of the commits of
+   * the file above.
+   */
+  const rotations = rotationsBetween(committed?.signers ?? [], withManual, {
+    observedAt: data.generatedAt,
+    cycle,
+  });
+  if (rotations.length > 0) {
+    const before = readRotations();
+    writeRotations(mergeRotations(before, rotations));
+    console.log(`\n${rotations.length} key rotation(s) recorded:`);
+    for (const rotation of rotations) {
+      console.log(`    ${rotation.contractId}`);
+      console.log(`      ${rotation.from} -> ${rotation.to}`);
+    }
+  }
 
   console.log(
     `\nApplied ${applied.length} manual entr(y/ies) from signers-manual.json`,

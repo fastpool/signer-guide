@@ -356,9 +356,46 @@ const messages = {
     'This contract only — the rest of what this node holds is not part of the group.',
   'group.wholeNode': 'Every contract on this key',
   'group.unknownAmount': 'not known',
+  'group.nodeAnswered': 'Answered {percent}% of the blocks it was asked about in cycle {cycle}.',
+  'group.nodeSilent': 'Has not answered a single block in cycle {cycle}.',
   'group.alsoIn': 'Also counted in {names}',
   'group.overlapNote':
     'A node can be in more than one group, and one here is: an entity that runs a key signs with everything on it, while an entity that delegated stake into one of those contracts controls that contract alone. Both are true at once, so the same STX can appear under two names — which is the thing worth knowing, not a mistake in the arithmetic.',
+  'conduct.title': 'How it answers the miners',
+  'conduct.intro':
+    'Weight is what a signer is owed a say over; this is whether it turns up. Every block a miner proposes goes to every seated signer, and each one accepts it, rejects it, or says nothing at all. Refusing a block is the job. Missing it is not.',
+  'conduct.none':
+    'Nothing on file for this key. A signer that has never held a seat has never been asked to answer anything.',
+  'conduct.rotated':
+    'This contract changed its signer key on {when}, during cycle {cycle}. A cycle’s signer set is fixed before the cycle begins, so the key it replaced kept the seat — and whatever it did or did not do with it — until the next set was worked out.',
+  'conduct.oldKeyNote':
+    'This is the key that was rotated away from, because it is the one that held the seat for this cycle. The new key holds nothing until the next set is computed.',
+  'conduct.cycleOpen': 'cycle {cycle}, still running',
+  'conduct.cycleClosed': 'cycle {cycle}',
+  'conduct.answeredNote': 'It answered {answered} of {proposals} proposals — {label}.',
+  'conduct.neverAnswered': 'Never answered',
+  'conduct.neverAnsweredNote':
+    'It has been asked about {proposals} blocks in cycle {cycle} and has not responded to one of them. Nothing has ever been heard from this key.',
+  'conduct.response': 'Typical time to answer',
+  'conduct.seconds': '{seconds} s',
+  'conduct.responseMiddle': 'The middle of the signer set is {seconds} s in cycle {cycle}.',
+  'conduct.agreed': 'Of those, accepted',
+  'conduct.agreedNote':
+    'The rest it read and refused, which is what a signer is for. A low figure here is worth asking about; it is not the same as a signer that was not there.',
+  'conduct.unknown': 'not known',
+  'conduct.showHistory': 'Every cycle on file',
+  'conduct.hideHistory': 'Hide the history',
+  'conduct.loading': 'Reading this key’s record…',
+  'conduct.noHistory': 'No cycles on file for this key yet.',
+  'conduct.failed': 'That would not load. It is one file; the rest of this page is unaffected.',
+  'conduct.soFar': 'so far',
+  'conduct.th.cycle': 'Cycle',
+  'conduct.th.answered': 'Answered',
+  'conduct.th.response': 'Time to answer',
+  'conduct.th.weight': 'Weight',
+  'conduct.source':
+    'Counted by Hiro’s signer-metrics API, which watched the proposals go out and the answers come back. It is somebody else’s observation, not something this guide could read off the chain.',
+
   'signerPage.groups.one': 'Part of one group',
   'signerPage.groups.other': 'Part of {count} groups',
   'signerPage.groupsNote':

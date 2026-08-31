@@ -400,9 +400,46 @@ export const ko: LocaleBundle = {
       '이 컨트랙트만 해당합니다. 같은 노드가 보유한 나머지는 이 그룹에 포함되지 않습니다.',
     'group.wholeNode': '이 키에 등록된 모든 컨트랙트',
     'group.unknownAmount': '알 수 없음',
+    'group.nodeAnswered': '{cycle} 사이클에서 요청받은 블록의 {percent}%에 응답했습니다.',
+    'group.nodeSilent': '{cycle} 사이클에서 단 한 건도 응답하지 않았습니다.',
     'group.alsoIn': '{names}에도 함께 집계됨',
     'group.overlapNote':
       '한 노드가 여러 그룹에 속할 수 있고, 실제로 그런 경우가 있습니다. 키를 운영하는 주체는 그 키의 모든 컨트랙트로 서명하고, 그중 한 컨트랙트에 물량을 위임한 주체는 그 컨트랙트만 통제합니다. 둘 다 동시에 참이므로 같은 STX가 두 이름 아래 나타날 수 있습니다. 이는 계산 오류가 아니라 알아 두어야 할 사실입니다.',
+    'conduct.title': '채굴자 제안에 어떻게 응답하나',
+    'conduct.intro':
+      '가중치는 그 서명자가 얼마나 큰 발언권을 갖는지이고, 이것은 실제로 응답하는지입니다. 채굴자가 제안한 블록은 좌석을 가진 모든 서명자에게 전달되며, 각 서명자는 수락하거나 거부하거나 아무 말도 하지 않습니다. 거부는 서명자가 할 일이고, 무응답은 아닙니다.',
+    'conduct.none':
+      '이 키에 대한 기록이 없습니다. 좌석을 가진 적이 없는 서명자는 응답을 요청받은 적도 없습니다.',
+    'conduct.rotated':
+      '이 컨트랙트는 {when}({cycle} 사이클)에 서명자 키를 교체했습니다. 사이클의 서명자 집합은 사이클 시작 전에 확정되므로, 교체되기 전의 키가 다음 집합이 정해질 때까지 좌석과 그 결과를 그대로 유지합니다.',
+    'conduct.oldKeyNote':
+      '이 사이클의 좌석을 실제로 가진 것은 교체되기 전의 키이므로 그 키의 기록입니다. 새 키는 다음 집합이 정해질 때까지 아무것도 보유하지 않습니다.',
+    'conduct.cycleOpen': '{cycle} 사이클, 진행 중',
+    'conduct.cycleClosed': '{cycle} 사이클',
+    'conduct.answeredNote': '제안 {proposals}건 중 {answered}건에 응답했습니다 — {label}.',
+    'conduct.neverAnswered': '응답 없음',
+    'conduct.neverAnsweredNote':
+      '{cycle} 사이클에서 블록 {proposals}건을 요청받았지만 한 건도 응답하지 않았습니다. 이 키로부터 확인된 신호가 전혀 없습니다.',
+    'conduct.response': '평균 응답 시간',
+    'conduct.seconds': '{seconds}초',
+    'conduct.responseMiddle': '{cycle} 사이클 서명자 집합의 중앙값은 {seconds}초입니다.',
+    'conduct.agreed': '응답 중 수락 비율',
+    'conduct.agreedNote':
+      '나머지는 읽고 거부한 것이며, 그것이 서명자의 역할입니다. 이 값이 낮으면 확인해 볼 만하지만, 아예 응답하지 않은 것과는 다릅니다.',
+    'conduct.unknown': '알 수 없음',
+    'conduct.showHistory': '사이클별 기록 보기',
+    'conduct.hideHistory': '기록 접기',
+    'conduct.loading': '이 키의 기록을 읽는 중…',
+    'conduct.noHistory': '이 키에 대한 사이클 기록이 아직 없습니다.',
+    'conduct.failed': '불러오지 못했습니다. 파일 하나일 뿐이며 이 페이지의 나머지는 영향을 받지 않습니다.',
+    'conduct.soFar': '진행 중',
+    'conduct.th.cycle': '사이클',
+    'conduct.th.answered': '응답률',
+    'conduct.th.response': '응답 시간',
+    'conduct.th.weight': '가중치',
+    'conduct.source':
+      'Hiro의 signer-metrics API가 제안과 응답을 관찰해 집계한 수치입니다. 이 가이드가 체인에서 직접 읽어낼 수 있는 값이 아니라 제3자의 관측입니다.',
+
     'signerPage.groups.one': '소속 그룹 1개',
     'signerPage.groups.other': '소속 그룹 {count}개',
     'signerPage.groupsNote':
