@@ -33,7 +33,18 @@ const repoRoot = path.resolve(root, '..');
 const read = (relative) =>
   readFileSync(path.join(root, relative), 'utf8').trim();
 
-const versionCode = 1;
+/**
+ * Which changelog file to write, from the one place the version lives.
+ *
+ * It was a literal, which is a number that is right until the first release
+ * after the one it was typed for: `changelogs/1.txt` would then be rewritten
+ * with the new notes and the version F-Droid is actually shipping would have
+ * none. app.json is the source for the version everywhere else here, so it is
+ * the source for this too.
+ */
+const versionCode = JSON.parse(
+  readFileSync(path.join(root, 'app.json'), 'utf8'),
+).expo.android.versionCode;
 
 /** F-Droid's own limits, which are Play's. */
 const LIMITS = { title: 50, short: 80, full: 4000 };

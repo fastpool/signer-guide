@@ -43,6 +43,10 @@ const RELEASE_SOURCE = localApk
   : REPOSITORY;
 
 /** What somebody would type to find this, not what the app calls itself. */
+/** The nostr identity Signer Guide is published under. */
+const PUBKEY =
+  'npub1chrgx5gvvzcp8vfa4x3csdplr3vz74e38tey4ra9luds0wsafcysr2yhaq';
+
 const TAGS = ['bitcoin', 'stacks', 'stx', 'staking', 'sbtc', 'wallet', 'defi'];
 
 const SCREENSHOTS = [
@@ -114,6 +118,13 @@ release_notes: ${quoted(path.relative(
   path.join(root, 'store/zapstore'),
   path.join(root, 'store/play/en-US/changelogs/default.txt'),
 ))}
+
+# Who publishes. Zapstore takes the signature on the APK as the app's identity
+# and this key as the publisher's; both have to be the same on every release
+# forever. zsp writes this line back into the config itself after a publish, so
+# leaving it out of the generator meant regenerating quietly dropped it — and a
+# release published under a different key is a different app.
+pubkey: ${PUBKEY}
 `;
 
 const target = path.join(root, 'store/zapstore/zapstore.yaml');
