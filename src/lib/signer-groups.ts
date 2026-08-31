@@ -214,29 +214,37 @@ function shareBips(
 }
 
 /**
- * What is staked with contracts no group here claims.
+ * The contracts no group here claims.
  *
  * The index's honest bottom line. Every group on it is a hand-written claim,
  * and the sum of them is not the network — the rest of the cycle is signers
  * nobody has written down, which is a fact about this file rather than about
- * the chain. Counted over a set, so a contract two groups both claim is
- * removed once and never counted as ungrouped by the other.
+ * the chain.
+ *
+ * By contract rather than by node, because that is the grain a group is
+ * decided at: three keys here carry one contract a group claims and one it
+ * does not, so "this key is ungrouped" would be false of all three while
+ * "this contract is" stays true. A set, so a contract two groups both claim
+ * is removed once and never counted as ungrouped by the other.
  */
-export function ungroupedUstx(
-  signers: Signer[],
-  ustx: Record<string, string | null>,
-): bigint | null {
+export function ungroupedContracts(signers: Signer[]): Signer[] {
   const claimed = new Set<string>();
   for (const group of allGroups()) {
     for (const contract of groupContracts(group, signers)) {
       claimed.add(contract.contractId);
     }
   }
+  return signers.filter((signer) => !claimed.has(signer.contractId));
+}
 
+/** What is staked with those contracts. */
+export function ungroupedUstx(
+  signers: Signer[],
+  ustx: Record<string, string | null>,
+): bigint | null {
   let total = 0n;
   let known = false;
-  for (const signer of signers) {
-    if (claimed.has(signer.contractId)) continue;
+  for (const signer of ungroupedContracts(signers)) {
     const amount = ustx[signer.contractId];
     if (amount === null || amount === undefined) continue;
     total += BigInt(amount);

@@ -94,6 +94,35 @@ describe('filters', () => {
   it('leaves out a pool with no fee of its own rather than calling it cheap', () => {
     expect(matches(base, new Set(['lowFee']))).toBe(false);
   });
+
+  it('finds the pools that keep almost the whole reward', () => {
+    // The one filter here that narrows to something a reader should avoid.
+    // Run against the real data, because a pool charging 99.99% while holding
+    // a million STX is precisely what this guide exists to show.
+    const shown = withFilter('highFee');
+    expect(shown.length).toBeGreaterThan(0);
+    expect(shown.every((s) => s.feeBips !== null && s.feeBips >= 9500)).toBe(
+      true,
+    );
+    expect(shown.map((s) => s.contractId)).toContain(
+      'SP21D6BW36TSGWAZS8K4JAJVTNXWKQN9G3TH5MG6A.signer-manager-bd-contract',
+    );
+  });
+
+  it('keeps the two fee filters exclusive of each other', () => {
+    // No pool is both cheap and ruinous, and a reader picking both should get
+    // an empty list rather than a contradiction quietly resolved.
+    expect(withFilter('lowFee', 'highFee')).toHaveLength(0);
+  });
+
+  it('reads a fee it could not find as neither low nor high', () => {
+    // Twenty pools keep no fee in their own contract. Silence is not 99.99%.
+    expect(matches(base, new Set(['highFee']))).toBe(false);
+    expect(matches({ ...base, feeBips: 9500 }, new Set(['highFee']))).toBe(true);
+    expect(matches({ ...base, feeBips: 9499 }, new Set(['highFee']))).toBe(
+      false,
+    );
+  });
 });
 
 /*

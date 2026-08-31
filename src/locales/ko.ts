@@ -244,6 +244,9 @@ export const ko: LocaleBundle = {
     'filter.cappedFee.label': '수수료 상한 20%',
     'filter.cappedFee.help':
       '풀 운영자가 무엇을 결정하든 컨트랙트가 수수료를 20% 초과로 올리지 못하게 막습니다.',
+    'filter.highFee.label': '수수료 95% 이상',
+    'filter.highFee.help':
+      '위 필터들과 정반대이며, 그래서 여기 있습니다. 이 풀들은 대신 벌어 준 보상을 사실상 전부 가져갑니다. 현재 네 곳이 99.99%를 부과하고 있고, 그 컨트랙트에는 이를 막는 장치가 없습니다.',
     'filter.feeNotice.label': '수수료 변경 사전 공지',
     'filter.feeNotice.help':
       '수수료 변경이 즉시 적용되지 않고 대기 기간이 있어, 확인하고 이동할 시간이 생깁니다.',
@@ -368,10 +371,11 @@ export const ko: LocaleBundle = {
     'groups.intro':
       '서명자 노드는 키 하나입니다. 그룹은 한 주체가 뒤에 있는 노드의 집합이며, 서명자 집합을 실제로 움직일 수 있는 쪽이 누구인지는 이 수치가 정합니다. 체인은 그것을 보여 주지 않습니다. 지분이 큰 순서입니다.',
     'groups.counts': '노드 {nodes}개 · 컨트랙트 {contracts}개 · {staked} 스테이킹',
-    'groups.rest':
-      '{cycle} 사이클의 나머지 {percent}%는 여기서 아무도 그룹으로 묶지 않은 서명자들에게 스테이킹되어 있습니다. 이는 이 파일의 공백일 뿐, 그 서명자들이 서로 무관하다는 보장은 아닙니다.',
-    'groups.restUnknown':
-      '이 그룹들 밖에 사이클의 얼마가 있는지는 알 수 없습니다. 모든 컨트랙트의 보유량을 갱신에서 읽지 못했습니다.',
+    'groups.asOf': '지분은 {cycle} 사이클 기준입니다.',
+    'groups.ungrouped': '그룹 없음',
+    'groups.ungroupedNote':
+      '여기서 아무도 그룹으로 묶지 않은 서명자들입니다. 이는 이 파일의 공백일 뿐, 그들이 서로 무관하다는 뜻은 아닙니다. 또한 키가 아니라 컨트랙트 단위로 집계하므로, 이 항목의 컨트랙트가 위 그룹이 주장하는 키 위에 있을 수도 있습니다.',
+    'groups.ungroupedCounts': '컨트랙트 {contracts}개 · {staked} 스테이킹',
     'groups.sourceHeading': '이 페이지를 읽는 법',
 
     'group.back': '← 전체 풀 목록',

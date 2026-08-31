@@ -202,6 +202,9 @@ const messages = {
   'filter.cappedFee.label': 'Fee capped at 20%',
   'filter.cappedFee.help':
     'The contract itself refuses to let the fee go above 20%, whatever the pool decides. Most contracts have no such limit.',
+  'filter.highFee.label': 'Fee of 95% or more',
+  'filter.highFee.help':
+    'The opposite of the filters above, and the reason it is here: these pools keep almost every reward they earn for you. Four of them charge 99.99% today, and nothing in their contracts stops it.',
   'filter.feeNotice.label': 'Fee changes announced first',
   'filter.feeNotice.help':
     'A new fee cannot take effect the moment the pool decides on it — the contract makes it wait, so you have time to notice and move.',
@@ -324,10 +327,11 @@ const messages = {
     'A signer node is one key. A group is a set of them with one entity behind it — which is the number that decides who could move the signer set, and the number the chain never shows you. Largest first.',
   'groups.counts':
     '{nodes} nodes · {contracts} contracts · {staked} staked',
-  'groups.rest':
-    'The other {percent}% of cycle {cycle} is staked with signers nobody here has grouped. That is a gap in this file, not a guarantee those signers are unrelated.',
-  'groups.restUnknown':
-    'How much of the cycle sits outside these groups is not known — the refresh could not read what every contract is holding.',
+  'groups.asOf': 'Shares are of cycle {cycle}.',
+  'groups.ungrouped': 'Not grouped',
+  'groups.ungroupedNote':
+    'Signers nobody here has grouped. A gap in this file, not a finding that they are unrelated to one another — and counted by contract, so a contract in this row may sit on a key one of the groups above does claim.',
+  'groups.ungroupedCounts': '{contracts} contracts · {staked} staked',
   'groups.sourceHeading': 'How to read this page',
 
   'group.back': '← All pools',

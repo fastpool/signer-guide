@@ -13,7 +13,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import SignerGroupsPage from './SignerGroupsPage';
 import signers from '../data/signers.json';
 import totals from '../data/totals.json';
-import { allGroups, groupVotingPowerBips } from '../lib/signer-groups';
+import {
+  allGroups,
+  groupVotingPowerBips,
+  ungroupedContracts,
+  ungroupedVotingPowerBips,
+} from '../lib/signer-groups';
 import type { LockedTotals, SignerData } from '../lib/types';
 
 const all = (signers as SignerData).signers;
@@ -56,9 +61,27 @@ describe('the group index', () => {
     expect(ranked).toEqual([...ranked].sort((a, b) => a - b));
   });
 
-  it('says how much of the cycle no group here claims', () => {
-    // Without this the page reads as a map of the whole signer set, and it is
-    // a map of the part somebody has written down.
-    expect(html()).toContain('nobody here has grouped');
+  it('carries what no group here claims as a row of its own', () => {
+    // Without it the page reads as a map of the whole signer set, and it is a
+    // map of the part somebody has written down. As a row rather than a
+    // footnote because it is the size of a large group.
+    const page = html();
+    const bips = ungroupedVotingPowerBips(all, locked.ustx)!;
+    expect(page).toContain('Not grouped');
+    expect(page).toContain(`${(bips / 100).toFixed(2)}%`);
+    expect(page).toContain(`${ungroupedContracts(all).length} contracts`);
+    expect(page).toContain('nobody here has grouped');
+  });
+
+  it('keeps that row below every group', () => {
+    // It is not an entity, and a reader scanning for who holds the vote should
+    // not meet it in the middle of the list — where its share would put it.
+    const page = html();
+    const last = Math.max(...allGroups().map((g) => page.indexOf(g.name)));
+    expect(page.indexOf('Not grouped')).toBeGreaterThan(last);
+  });
+
+  it('names the cycle its percentages are of', () => {
+    expect(html()).toContain(`cycle ${locked.cycle}`);
   });
 });

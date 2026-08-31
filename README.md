@@ -215,6 +215,18 @@ A pool with no fee code of its own is not counted as low-fee: the fee may simply
 be taken elsewhere, as with `native-pool-signer-manager`, which routes through
 `.native-pool-v1`.
 
+**A fee of 95% or more** is the one filter that narrows to pools a reader should
+walk away from, and it exists because four of them charge **99.99%** today while
+holding a million STX each — `SP1PHZZW24DHBA4SJB27XEAD0Z4HTG7219S428RFA`'s
+`signer-manager`, `signer-manager-hashkeycloud-2`, `signer-manager-bd-contract`
+and `signer-manager-stakin-1`. None of them is capped, because the Standard
+contract's `MAX_BIPS u10000` allows anything below 100%. The threshold is 95
+rather than 100 for the same reason the ceiling above is not counted as one: a
+pool keeping ninety-five percent of the rewards has done the same thing to the
+staker as a pool keeping all of them, and rounding is not a defence. The same
+rule as low-fee applies at the other end — a fee the page could not read is not
+evidence of a fee this high, so a pool with no fee of its own is neither.
+
 **Stakers who pay nothing** are the third thing, and Juice Pool is the only
 contract with any: it keeps an `og-stakers` map and charges them no fee at all,
 whatever the rate is for everyone else.
@@ -530,9 +542,15 @@ other people, and what it controls is the STX behind the contracts named. A node
 can be in both, and one is, which is why the percentages on the index do not sum
 to a hundred and are not meant to.
 
-The last line of the index is the honest one: how much of the cycle no group
-here claims. It is a gap in the file, not a finding about the chain — the
-signers in it may well be related to each other, and nobody has written it down.
+The last row of the index is the honest one: **Not grouped**, how much of the
+cycle no group here claims, carried in the same column of percentages as the
+rest because it is the size of a large group. It sits below the groups rather
+than sorted in among them — it is not an entity — and it is a gap in the file
+rather than a finding about the chain: the signers in it may well be related to
+each other, and nobody has written it down. Counted by contract, not by key:
+three keys today carry one contract a group claims and one it does not, so
+"this key is ungrouped" would be false of all three while "this contract is"
+stays true.
 
 One group is named for its evidence rather than for an entity. `same-funder`
 holds two contracts, deployed a day apart in August 2026 by two addresses that
@@ -1291,13 +1309,22 @@ whichever key built it.
 ### What is shared, and what is not
 
 The staking rules, the rate's arithmetic, the contract grouping, the STX
-parsing, the snapshot validators, the payout grouping and the identicon are
-imported out of `src/lib` by both. Several of them were moved there for it —
-`rate-view.ts`, `stx-amounts.ts`, `snapshot-shape.ts` and `stx-only-cycles.ts`
-were extracted from the component or the browser module that used to hold them,
-with the browser half left behind. An app and a site disagreeing about what
-somebody earns is not a rounding difference; it is two answers to the same
-question.
+parsing, the snapshot validators, the payout grouping, the identicon, the fee
+thresholds and the signer groups are imported out of `src/lib` by both. Several
+of them were moved there for it — `rate-view.ts`, `stx-amounts.ts`,
+`snapshot-shape.ts` and `stx-only-cycles.ts` were extracted from the component
+or the browser module that used to hold them, with the browser half left
+behind, and `pool-filters.ts` followed them out of `App.tsx` the moment the
+phone had to answer "is this fee ruinous" too. An app and a site disagreeing
+about what somebody earns is not a rounding difference; it is two answers to
+the same question — and a threshold copied into two files is how one of them
+ends up at 90% for a release nobody notices.
+
+What each app keeps is its own chips, copy and layout. The website offers all
+six filters as chips above the list; the phone has one switch, for the fee that
+is not a preference, and draws the fee itself in the warning colour instead.
+The group pages are the same arithmetic over the same hand-written file, laid
+out twice.
 
 What is not shared is anything that reaches for a browser. `data-source.ts`
 reads `import.meta.env` and `localStorage`, so the app keeps the same three

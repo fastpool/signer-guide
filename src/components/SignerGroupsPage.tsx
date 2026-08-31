@@ -7,6 +7,8 @@ import {
   groupNodes,
   groupUstx,
   groupVotingPowerBips,
+  ungroupedContracts,
+  ungroupedUstx,
   ungroupedVotingPowerBips,
 } from '../lib/signer-groups';
 import type { LockedTotals, Signer } from '../lib/types';
@@ -51,7 +53,11 @@ export default function SignerGroupsPage({
     // one, and putting it at the bottom is the only honest place for it.
     .sort((a, b) => (b.bips ?? -1) - (a.bips ?? -1));
 
-  const restBips = ungroupedVotingPowerBips(signers, totals.ustx);
+  const rest = {
+    bips: ungroupedVotingPowerBips(signers, totals.ustx),
+    staked: ungroupedUstx(signers, totals.ustx),
+    contracts: ungroupedContracts(signers).length,
+  };
 
   return (
     <main className='mx-auto max-w-3xl px-5 py-12 md:py-20'>
@@ -69,6 +75,11 @@ export default function SignerGroupsPage({
         {t('groups.heading')}
       </h1>
       <p className='mt-4 text-lg text-muted'>{t('groups.intro')}</p>
+      <p className='mt-2 text-sm text-muted'>
+        {t('groups.asOf', {
+          cycle: totals.cycle.toLocaleString(t.bundle.intlLocale),
+        })}
+      </p>
 
       <ul className='mt-8 space-y-3'>
         {rows.map(({ group, bips, staked, nodes, contracts }) => (
@@ -102,16 +113,42 @@ export default function SignerGroupsPage({
             </a>
           </li>
         ))}
+        {/*
+          Last, and not a link: it is the one row that is not a claim about
+          anybody. Pinned below the groups rather than sorted in among them —
+          it would land fifth today, and a reader scanning for who holds the
+          vote should not meet "nobody has written this down" mid-list as
+          though it were an entity. Kept as a row rather than a footnote
+          because it is the size of a large group and belongs in the same
+          column of percentages as the rest.
+        */}
+        <li>
+          <div className='flex flex-col rounded-3xl border border-dashed border-muted/40 p-5'>
+            <div className='flex flex-wrap items-baseline justify-between gap-3'>
+              <span className='text-lg font-bold text-muted'>
+                {t('groups.ungrouped')}
+              </span>
+              <span className='text-lg font-extrabold text-muted'>
+                {rest.bips === null
+                  ? t('group.unknownAmount')
+                  : `${(rest.bips / 100).toFixed(2)}%`}
+              </span>
+            </div>
+            <span className='mt-2 text-sm text-muted'>
+              {t('groups.ungroupedNote')}
+            </span>
+            <span className='mt-2 text-xs text-muted'>
+              {t('groups.ungroupedCounts', {
+                contracts: rest.contracts.toLocaleString(t.bundle.intlLocale),
+                staked:
+                  rest.staked === null
+                    ? t('group.unknownAmount')
+                    : stxLabel(rest.staked.toString(), locale),
+              })}
+            </span>
+          </div>
+        </li>
       </ul>
-
-      <p className='mt-6 text-sm text-muted'>
-        {restBips === null
-          ? t('groups.restUnknown')
-          : t('groups.rest', {
-              percent: (restBips / 100).toFixed(2),
-              cycle: totals.cycle.toLocaleString(t.bundle.intlLocale),
-            })}
-      </p>
 
       <section className='mt-8 rounded-3xl bg-grape-soft/40 p-5'>
         <h2 className='text-lg font-bold'>{t('groups.sourceHeading')}</h2>

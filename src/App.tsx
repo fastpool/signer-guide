@@ -38,10 +38,13 @@ import { inUse, isNewSigner } from './lib/activity';
 import { useServiceWorker } from './lib/service-worker';
 import { isArchived } from './lib/profiles';
 import { buildTemplates, templateFor } from './lib/templates';
+import {
+  DEFAULT_FILTERS,
+  FILTER_IDS,
+  matches as poolMatches,
+  type FilterId,
+} from './lib/pool-filters';
 import type { LockedTotals, SignerData } from './lib/types';
-
-/** A fee we would call low. Not a promise — see the note under the filters. */
-const LOW_FEE_BIPS = 500; // 5%
 
 const REPO_URL = 'https://github.com/fastpool/signer-guide';
 const FASTPOOL_URL = 'https://fastpool.org';
@@ -49,56 +52,12 @@ const FASTPOOL_URL = 'https://fastpool.org';
 /** Switch compact STX rewards style: 'original' or 'weekly'. */
 const STX_COMPACT_VARIANT: 'original' | 'weekly' = 'weekly';
 
-export type FilterId =
-  'inUse' | 'bitcoin' | 'lowFee' | 'cappedFee' | 'feeNotice' | 'open';
-
-/** A ceiling we would call reassuring. Juice Pool enforces exactly this. */
-const CAPPED_FEE_BIPS = 2000; // 20%
-
-const FILTER_IDS: FilterId[] = [
-  'inUse',
-  'bitcoin',
-  'lowFee',
-  'cappedFee',
-  'feeNotice',
-  'open',
-];
-
-/**
- * The one filter that starts on.
- *
- * Half the registered signers hold nothing and never have, and a reader
- * choosing a pool is not helped by scrolling past them. Everything else here
- * narrows a list the reader has already been shown; this one decides what the
- * list is, so it is the only one that has any business being on by default —
- * and the count beside it says what it is keeping out.
+/*
+ * The filters themselves live in `lib/pool-filters.ts`, with the phone app —
+ * a fee of 95% is a fee of 95% on either screen. What stays here is the
+ * page: which chips, in which order, with which copy.
  */
-const DEFAULT_FILTERS: FilterId[] = ['inUse'];
-
-export function matches(
-  signer: SignerData['signers'][number],
-  active: Set<FilterId>,
-  totals?: LockedTotals,
-): boolean {
-  // Totals are optional so a caller with none is not silently told a pool is
-  // unused: with nothing to check against, this filter keeps everything.
-  if (active.has('inUse') && totals && !inUse(signer, totals)) return false;
-  if (active.has('bitcoin') && !signer.bitcoinRewards) return false;
-  if (active.has('open') && !signer.openToAnyone) return false;
-  if (active.has('cappedFee')) {
-    // A ceiling the code enforces, unlike the fee itself which can move.
-    if (signer.maxFeeBips === null || signer.maxFeeBips > CAPPED_FEE_BIPS) {
-      return false;
-    }
-  }
-  if (active.has('feeNotice') && !signer.feeChangeNotice) return false;
-  if (active.has('lowFee')) {
-    // A pool with no fee in its own contract is not counted as low: the fee
-    // may simply live somewhere else. Better to leave it out than to promise.
-    if (signer.feeBips === null || signer.feeBips > LOW_FEE_BIPS) return false;
-  }
-  return true;
-}
+export { matches, type FilterId } from './lib/pool-filters';
 
 export default function App() {
   const route = useRoute();
@@ -175,7 +134,7 @@ export default function App() {
   }, [choosable, liveTemplates]);
 
   const shown = useMemo(() => {
-    const matching = live.filter((s) => matches(s, active, totals));
+    const matching = live.filter((s) => poolMatches(s, active, totals));
     // Biggest first: the list is easier to read when the pools people
     // actually use are at the top.
     return [...matching].sort((a, b) => {
