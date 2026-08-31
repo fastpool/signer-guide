@@ -37,6 +37,10 @@ export type RootStackParamList = {
   Preferences: undefined;
   /** Everything else: the full pool list, the payout history, the data. */
   Pools: undefined;
+  /** Who is behind the signer set, largest share of the vote first. */
+  Groups: undefined;
+  /** One entity, and every signer node behind it. */
+  Group: { groupId: string };
   History: undefined;
   DataStatus: undefined;
 };

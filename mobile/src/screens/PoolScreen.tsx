@@ -3,6 +3,7 @@ import * as Clipboard from 'expo-clipboard';
 import { satsLabel } from '@guide/lib/amounts';
 import { profileById } from '@guide/lib/profiles';
 import { localizeProfile } from '@guide/lib/profile-i18n';
+import { groupsForContract } from '@guide/lib/signer-groups';
 import { templateFor } from '@guide/lib/templates';
 import { poolName, signerFor, stakedUstx, templatesFrom } from '../data/signers';
 import { useSnapshot } from '../data/snapshot';
@@ -17,6 +18,7 @@ import {
   Divider,
   Field,
   Label,
+  ListRow,
   Note,
   Pill,
   Row,
@@ -64,6 +66,12 @@ export default function PoolScreen({ route, navigation }: ScreenProps<'Pool'>) {
   const now = stakedUstx(snapshot.totals, contractId);
   const next = snapshot.totals.next?.ustx?.[contractId];
   const joinable = signer.registered && signer.openToAnyone;
+  /*
+   * Who else signs with this key. A pool holding four percent is a small
+   * signer; a pool holding four percent whose operator holds four more under
+   * two other keys is not, and this is the only place in the app that says so.
+   */
+  const groups = groupsForContract(contractId, signer.signerKey);
 
   return (
     <Screen testID='pool-screen'>
@@ -158,6 +166,23 @@ export default function PoolScreen({ route, navigation }: ScreenProps<'Pool'>) {
           )}
         </Card>
       </Section>
+
+      {groups.length > 0 ? (
+        <Section title={t('groups.partOf')}>
+          <Card style={{ gap: 0 }}>
+            {groups.map((group, index) => (
+              <ListRow
+                key={group.id}
+                first={index === 0}
+                title={group.name}
+                hint={t(`groups.kind.${group.kind}`)}
+                onPress={() => navigation.navigate('Group', { groupId: group.id })}
+                testID={`pool-group-${group.id}`}
+              />
+            ))}
+          </Card>
+        </Section>
+      ) : null}
 
       <Section title={t('pool.identity')}>
         <Card>

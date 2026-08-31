@@ -48,11 +48,27 @@ describe('the rate', () => {
 });
 
 describe('with nobody connected', () => {
-  it('offers the way to a wallet rather than an empty position', async () => {
+  it('offers the way to a wallet in one row rather than an empty position', async () => {
+    // One row, not a card of five things: with nothing staked there is
+    // nothing to show, and the rest of the guide is what this reader can
+    // actually use. Both buttons that used to be here went to the same
+    // screen anyway.
     renderApp();
     expect(await screen.findByTestId('not-connected')).toBeOnTheScreen();
     expect(screen.getByTestId('home-connect')).toBeOnTheScreen();
-    expect(screen.getByTestId('home-watch')).toBeOnTheScreen();
+    expect(screen.getByTestId('home-connect')).toHaveTextContent(
+      /Your stake.*Connect a wallet, or watch an address/,
+    );
+  });
+
+  it('leaves the rest of the guide on the screen', async () => {
+    // The reason the card above became a row. Somebody with nothing staked is
+    // usually here to read.
+    renderApp();
+    await screen.findByTestId('not-connected');
+    for (const id of ['more-contracts', 'more-pools', 'more-groups']) {
+      expect(screen.getByTestId(id)).toBeOnTheScreen();
+    }
   });
 
   it('puts the wallets on a screen of their own, one tap away', async () => {
@@ -68,7 +84,7 @@ describe('with nobody connected', () => {
   it('lets somebody watch an address without a wallet at all', async () => {
     staking();
     renderApp();
-    fireEvent.press(await screen.findByTestId('home-watch'));
+    fireEvent.press(await screen.findByTestId('home-connect'));
     fireEvent.changeText(await screen.findByTestId('watch-input'), MOCK_ADDRESS);
     fireEvent.press(screen.getByTestId('watch-submit'));
 
@@ -83,7 +99,7 @@ describe('with nobody connected', () => {
 
   it('will not watch something that is not a Stacks address', async () => {
     renderApp();
-    fireEvent.press(await screen.findByTestId('home-watch'));
+    fireEvent.press(await screen.findByTestId('home-connect'));
     fireEvent.changeText(await screen.findByTestId('watch-input'), 'not-an-address');
     expect(screen.getByTestId('watch-submit')).toBeDisabled();
   });

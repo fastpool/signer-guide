@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { View } from 'react-native';
+import { isHighFee } from '@guide/lib/pool-filters';
 import type { Signer } from '@guide/lib/types';
 import { poolName } from '../data/signers';
 import { useT } from '../i18n';
@@ -37,6 +38,13 @@ function SignerRow({
     signer.feeBips === null || signer.feeBips === undefined
       ? null
       : signer.feeBips / 100;
+  /*
+   * A fee of 99.99% used to be drawn in the same grey as a fee of 5%: a
+   * number, in a row somebody is scrolling past, saying nothing about itself.
+   * Four pools charge it and each holds around a million STX, so the pill
+   * says which kind of number it is before anybody reads the digits.
+   */
+  const steep = isHighFee(signer);
 
   return (
     <TouchCard testID={testID} accessibilityLabel={name} onPress={onPress}>
@@ -61,12 +69,13 @@ function SignerRow({
           {t('pools.stakedPill', { amount: stxShort(stakedUstx, locale) })}
         </Pill>
         {feePercent !== null ? (
-          <Pill tone={feePercent === 0 ? 'good' : 'muted'}>
+          <Pill tone={steep ? 'bad' : feePercent === 0 ? 'good' : 'muted'}>
             {t('pools.feePill', { percent: feePercent })}
           </Pill>
         ) : (
           <Pill tone='warn'>{t('pools.feeUnknown')}</Pill>
         )}
+        {steep ? <Pill tone='bad'>{t('pools.keepsAlmostAll')}</Pill> : null}
         {signer.registered ? null : (
           <Pill tone='warn'>{t('pools.notRegistered')}</Pill>
         )}

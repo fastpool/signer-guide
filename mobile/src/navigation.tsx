@@ -6,6 +6,8 @@ import { useSettings } from './settings';
 import ChooseContractScreen from './screens/ChooseContractScreen';
 import ContractScreen from './screens/ContractScreen';
 import DataStatusScreen from './screens/DataStatusScreen';
+import GroupScreen from './screens/GroupScreen';
+import GroupsScreen from './screens/GroupsScreen';
 import HistoryScreen from './screens/HistoryScreen';
 import HomeScreen from './screens/HomeScreen';
 import PoolScreen from './screens/PoolScreen';
@@ -121,6 +123,16 @@ export default function Navigation() {
           name='Pools'
           component={PoolsScreen}
           options={{ title: t('pools.title') }}
+        />
+        <Stack.Screen
+          name='Groups'
+          component={GroupsScreen}
+          options={{ title: t('groups.title') }}
+        />
+        <Stack.Screen
+          name='Group'
+          component={GroupScreen}
+          options={{ title: t('groups.one') }}
         />
         <Stack.Screen
           name='History'

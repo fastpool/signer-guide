@@ -94,20 +94,28 @@ export default function HomeScreen({ navigation }: ScreenProps<'Home'>) {
       <RateCard rate={rate} onPress={() => navigation.navigate('History')} />
 
       {!address ? (
-        <Card testID='not-connected'>
-          <Label>{t('home.connect.label')}</Label>
-          <Text variant='title'>{t('home.connect.title')}</Text>
-          <Note>{t('home.connect.body')}</Note>
-          <Button
-            title={t('home.connect.button')}
+        /*
+         * One row, not a card of five things.
+         *
+         * With nobody connected there is no stake to show, and what stood here
+         * was a title, a paragraph and two buttons — which both went to the
+         * same screen, because the wallet screen is where watching and
+         * connecting have lived since they moved off here. Four elements'
+         * height to say "there is nothing yet", pushing the rest of the guide
+         * below the fold on the one screen most people will ever look at.
+         *
+         * So it is a row of the same shape as the ones at the bottom: what it
+         * is, what to do about it, a chevron. Somebody with nothing staked is
+         * usually here to read rather than to connect, and now they can see
+         * what there is to read.
+         */
+        <Card testID='not-connected' style={{ gap: 0 }}>
+          <ListRow
+            first
+            title={t('home.connect.label')}
+            hint={t('home.connect.hint')}
             onPress={() => navigation.navigate('Wallet')}
             testID='home-connect'
-          />
-          <Button
-            title={t('home.connect.watch')}
-            kind='quiet'
-            onPress={() => navigation.navigate('Wallet')}
-            testID='home-watch'
           />
         </Card>
       ) : chain.loading && chain.position === null ? (
@@ -205,6 +213,12 @@ export default function HomeScreen({ navigation }: ScreenProps<'Home'>) {
           })}
           onPress={() => navigation.navigate('Pools')}
           testID='more-pools'
+        />
+        <ListRow
+          title={t('home.more.groups')}
+          hint={t('home.more.groupsHint')}
+          onPress={() => navigation.navigate('Groups')}
+          testID='more-groups'
         />
         <ListRow
           title={t('home.more.data')}

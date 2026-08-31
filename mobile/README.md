@@ -8,7 +8,7 @@ them.
 
 ```bash
 npm install
-npm test                    # 187 tests, no device needed
+npm test                    # 220 tests, no device needed
 npx expo run:android        # build and install on a connected device
 npm run e2e                 # Maestro, against that device
 ```
@@ -266,6 +266,15 @@ Below that is the position, if there is one: how much, what it earns at that
 rate, with whom, until when, and where the rewards land. If there is not, the
 same space holds the way to make one.
 
+**With nobody connected, that space is one row.** It used to be a card with a
+label, a heading, a paragraph and two buttons — and the two buttons went to the
+same screen, since watching and connecting both live on `WalletScreen`. Four
+elements' height to say "there is nothing here yet", on the one screen most
+people will ever look at, pushing everything the guide actually knows below the
+fold. So it is now a row of the same shape as the ones at the bottom: what it
+is, what to do about it, a chevron. Somebody with nothing staked is usually
+here to read.
+
 Below *that*, under a heading of its own, is the rest of the guide. That
 placement is the whole layout decision. A tab bar would have put "every pool"
 at equal weight with "your stake", and they are not of equal weight.
@@ -288,6 +297,54 @@ On the way to staking, a pool that is not registered or will not take a stake
 from a stranger is left out rather than offered and then refused by the chain.
 Reached from the browse-everything side, the same list is complete, because
 there it claims to be.
+
+## Who holds the vote
+
+The pool list answers *where could my STX go*. `GroupsScreen` answers the
+question underneath it, which the chain does not: three keys at six percent
+each read as three small signers until somebody writes down that they are one
+company, at which point they are a fifth of a veto.
+
+It is a row in the same "rest of the guide" card as the pool list, and never
+above it — somebody opening this app is checking a rate, not auditing the
+signer set. The index is every group with its share of the cycle, largest
+first, and one card at the bottom that is deliberately not a claim about
+anybody: **Not grouped**, what no group here covers, drawn outlined rather than
+filled and not openable. It sits below the groups rather than sorted in among
+them, where its share would put it in the middle of the list.
+
+`GroupScreen` is one entity. Its headline is the only number in this app the
+chain cannot check, so the screen shows its work rather than asking to be
+believed: every node added together with what each holds, whether the group
+takes a whole key or a single contract on it, which contracts are counted under
+two names — and, at the bottom, `source` in full, the evidence the claim rests
+on. Each pool on it opens, and `PoolScreen` now says who is behind that pool in
+the other direction.
+
+Not one line of the arithmetic is this app's. `allGroups`, `groupVotingPowerBips`
+and `ungroupedVotingPowerBips` come from `@guide/lib/signer-groups`, reading the
+same hand-written `src/data/signer-groups.json` the website reads, so the two
+cannot disagree about who carries what. What is this app's own is the layout and
+its own Korean.
+
+## A fee that keeps almost everything
+
+Four pools charge **99.99%** today, and each is holding around a million STX.
+In a list of forty-five rows their fee was drawn in the same grey as a fee of
+5%: a number, in a row somebody is scrolling past, saying nothing about itself.
+
+`isHighFee` in `@guide/lib/pool-filters` is the shared judgement — 95%, because
+a pool keeping ninety-five percent of the rewards has done the same thing to
+the staker as one keeping all of it — and it does two things here. Every
+`SignerRow` with a fee that steep draws it in the warning colour and adds
+_keeps almost every reward_ beside it, so it is legible everywhere pools are
+listed. And the pool list gets **one** switch above it.
+
+One, not the website's six. The other five filters there narrow forty-five
+pools to the ones somebody might want, and on a phone that row of chips would
+push the first pool off the screen to say nothing a reader could not type into
+the search field. This one is not a preference: it finds the pools somebody
+should walk away from, which is not something a search field can be asked.
 
 ## The wallet
 
@@ -359,6 +416,8 @@ question.
 | `lib/snapshot-shape.ts` | whether a published file is usable                  |
 | `lib/stx-only-cycles.ts`| grouping payouts into cycles                        |
 | `lib/identicon.ts`      | SIP-043's icon, from the same seed                  |
+| `lib/pool-filters.ts`   | what counts as a low, capped or ruinous fee         |
+| `lib/signer-groups.ts`  | who is behind which signer keys, and what that adds to |
 
 `metro.config.js` watches `../src` and resolves any bare import made from those
 files against this project's `node_modules`, so the bundle carries one copy of

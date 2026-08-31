@@ -37,11 +37,8 @@ export const ko: MobileBundle = {
     'home.preferences': '설정',
 
     'home.connect.label': '내 스테이킹',
-    'home.connect.title': '지갑을 연결하면 보입니다',
-    'home.connect.body':
-      '지갑은 별도의 앱입니다 — Leather, Xverse, OKX. 사용하는 지갑을 고르면 그 앱이 열리고, 거기서 확인만 하면 바로 여기로 돌아옵니다. 연결만으로는 아무것도 서명되지 않고 아무것도 움직이지 않습니다.',
+    'home.connect.hint': '지갑을 연결하거나 주소만 조회해 보세요',
     'home.connect.button': '지갑 연결',
-    'home.connect.watch': '주소만 조회하기',
 
     'home.notStaking.label': '내 스테이킹',
     'home.notStaking.title': '아직 스테이킹이 없습니다',
@@ -57,6 +54,8 @@ export const ko: MobileBundle = {
     'home.more.poolsHint': '총 {count}개와 각 풀의 스테이킹 규모',
     'home.more.history': '지급 회차별 실제 지급액',
     'home.more.historyHint': '사이클별, 1,000 STX당 sats',
+    'home.more.groups': '의결 지분은 누가 쥐고 있나',
+    'home.more.groupsHint': '서명자 키 뒤에 있는 주체들, 지분이 큰 순서로',
     'home.more.data': '이 숫자들의 출처',
     'home.more.dataUpdated': '{when} 갱신',
     'home.more.dataStale': '저장된 사본을 표시 중 — 브랜치가 응답하지 않았습니다',
@@ -375,6 +374,43 @@ export const ko: MobileBundle = {
     'pools.feeUnknown': '수수료 불명',
     'pools.notRegistered': '미등록',
     'pools.notOpen': '전체 공개 아님',
+    'pools.keepsAlmostAll': '보상을 거의 전부 가져감',
+    'pools.steepFilter': '수수료 95% 이상 ({count})',
+    'pools.steepHelp':
+      '이 풀들은 대신 벌어 준 보상을 사실상 전부 가져가며, 그 컨트랙트에는 이를 막는 장치가 없습니다. 다시 누르면 전체 풀이 표시됩니다.',
+
+    // ------------------------------------------------------------- groups --
+    'groups.title': '의결 지분은 누가 쥐고 있나',
+    'groups.one': '서명자 그룹',
+    'groups.intro':
+      '서명자 노드는 키 하나입니다. 그룹은 한 주체가 뒤에 있는 노드의 집합이며, 서명자 집합을 실제로 움직일 수 있는 쪽이 누구인지는 이 수치가 정합니다. 체인은 그것을 보여 주지 않습니다.',
+    'groups.asOf': '지분은 {cycle} 사이클 기준입니다.',
+    'groups.counts': '노드 {nodes}개 · 컨트랙트 {contracts}개 · {staked} 스테이킹',
+    'groups.unknown': '알 수 없음',
+    'groups.missing': '해당 그룹이 없습니다. 이름이 바뀌었을 수 있습니다.',
+    'groups.kind.operator': '노드를 직접 운영',
+    'groups.kind.stake': '스테이킹 물량을 공급',
+    'groups.kindNote.operator':
+      '아래 노드를 모두 한 주체가 운영하므로 그 전부로 서명합니다. 따라서 아래 노드에 스테이킹된 전체가 이 주체의 가중치입니다.',
+    'groups.kindNote.stake':
+      '아래 노드는 다른 사람들이 운영합니다. 이 주체가 통제하는 것은 표시된 컨트랙트 뒤의 STX입니다. 물량은 옮길 수 있지만, 그 물량으로 서명하는 키는 가지고 있지 않습니다.',
+    'groups.ungrouped': '그룹 없음',
+    'groups.ungroupedNote':
+      '여기서 아무도 그룹으로 묶지 않은 서명자들입니다. 이는 이 파일의 공백일 뿐, 그들이 서로 무관하다는 뜻은 아닙니다. 또한 키가 아니라 컨트랙트 단위로 집계하므로, 여기의 컨트랙트가 위 그룹이 주장하는 키 위에 있을 수도 있습니다.',
+    'groups.ungroupedCounts': '컨트랙트 {contracts}개 · {staked} 스테이킹',
+    'groups.votingPower': '의결 지분, {cycle} 사이클',
+    'groups.staked': '그룹 전체 스테이킹 양',
+    'groups.nodeCount': '서명자 노드 수',
+    'groups.contractCount': '서명자 컨트랙트 수',
+    'groups.whatIsIn': '그룹 구성',
+    'groups.wholeNode': '이 키에 등록된 모든 컨트랙트',
+    'groups.contractOnly':
+      '이 컨트랙트만 해당합니다. 같은 노드가 보유한 나머지는 이 그룹에 포함되지 않습니다.',
+    'groups.alsoIn': '{names}에도 함께 집계됨',
+    'groups.source': '근거',
+    'groups.sourceNote':
+      '서명자 노드를 누가 운영하는지는 체인에 기록되지 않으므로, 여기의 모든 그룹은 사람이 직접 작성한 것입니다. 한 노드가 두 그룹에 동시에 속할 수 있어 지분의 합은 100%가 되지 않으며, 그것이 정상입니다.',
+    'groups.partOf': '이 풀 뒤에 있는 주체',
 
     // ------------------------------------------------------------ history --
     'history.title': '지급 회차별 실제 지급액',

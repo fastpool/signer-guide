@@ -1,5 +1,6 @@
 import { useCallback, useDeferredValue, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, TextInput, View } from 'react-native';
+import { isHighFee } from '@guide/lib/pool-filters';
 import { contractTypeName } from '@guide/lib/profile-i18n';
 import type { Signer } from '@guide/lib/types';
 import { allSigners, stakedUstx } from '../data/signers';
@@ -7,7 +8,7 @@ import { useSnapshot } from '../data/snapshot';
 import { useT } from '../i18n';
 import { useColors, useSettings } from '../settings';
 import { radius, SCREEN_GAP, space } from '../theme';
-import { Note, Screen, Text } from '../ui';
+import { Choice, Note, Row, Screen, Text } from '../ui';
 import SignerRow from '../components/SignerRow';
 import type { ScreenProps } from '../navigation-types';
 
@@ -30,6 +31,15 @@ export default function PoolsScreen({ navigation }: ScreenProps<'Pools'>) {
   const t = useT();
   const { locale } = useSettings();
   const [query, setQuery] = useState('');
+  /*
+   * The web guide offers six filters as chips above its list. This screen has
+   * a search field and one switch, and the switch is the filter that is not a
+   * preference: the others narrow forty-five pools to the ones somebody might
+   * want, and this one finds the four they should walk away from. A row of
+   * chips on a phone would push the first pool off the screen to say nothing
+   * a reader could not type into the field above it.
+   */
+  const [steepOnly, setSteepOnly] = useState(false);
 
   /*
    * The field updates on every keystroke; the list is allowed to lag behind
@@ -39,7 +49,8 @@ export default function PoolsScreen({ navigation }: ScreenProps<'Pools'>) {
   const deferredQuery = useDeferredValue(query);
 
   const signers = useMemo(() => {
-    const all = allSigners(snapshot);
+    const listed = allSigners(snapshot);
+    const all = steepOnly ? listed.filter(isHighFee) : listed;
     const needle = deferredQuery.trim().toLowerCase();
     if (!needle) return all;
     return all.filter(
@@ -50,7 +61,12 @@ export default function PoolsScreen({ navigation }: ScreenProps<'Pools'>) {
         // which in Korean is not the one in the data.
         (contractTypeName(signer, locale) ?? '').toLowerCase().includes(needle),
     );
-  }, [snapshot, deferredQuery, locale]);
+  }, [snapshot, deferredQuery, locale, steepOnly]);
+
+  const steepCount = useMemo(
+    () => allSigners(snapshot).filter(isHighFee).length,
+    [snapshot],
+  );
 
   const renderItem = useCallback(
     ({ item }: { item: Signer }) => (
@@ -107,6 +123,17 @@ export default function PoolsScreen({ navigation }: ScreenProps<'Pools'>) {
                 },
               ]}
             />
+            {steepCount > 0 ? (
+              <Row gap={space.sm} wrap>
+                <Choice
+                  label={t('pools.steepFilter', { count: steepCount })}
+                  selected={steepOnly}
+                  onPress={() => setSteepOnly((on) => !on)}
+                  testID='pools-steep-filter'
+                />
+              </Row>
+            ) : null}
+            {steepOnly ? <Note>{t('pools.steepHelp')}</Note> : null}
           </View>
         }
         ListEmptyComponent={

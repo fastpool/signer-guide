@@ -56,6 +56,34 @@ name: The rest of the guide is one tap away, and no closer
     id: 'pools-screen'
 - back
 
+# Who is behind the signer keys. One tap from the same section, and the group
+# it opens has to name what it holds — a claim about who controls a third of
+# the signer set is the one screen here whose number the chain cannot check.
+- scrollUntilVisible:
+    element:
+      id: 'more-groups'
+    direction: DOWN
+    centerElement: true
+- tapOn:
+    id: 'more-groups'
+- extendedWaitUntil:
+    visible:
+      id: 'groups-screen'
+    timeout: 20000
+- assertVisible: 'Who holds the vote'
+- assertVisible:
+    id: 'groups-ungrouped'
+- tapOn:
+    id: 'groups-row-same-funder'
+- extendedWaitUntil:
+    visible:
+      id: 'group-screen'
+    timeout: 20000
+- assertVisible:
+    id: 'group-share'
+- back
+- back
+
 # What each payout actually paid — reached from the rate card's own footer
 # link, which is the only route to it now.
 - scrollUntilVisible:

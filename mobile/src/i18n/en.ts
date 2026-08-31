@@ -36,11 +36,8 @@ const messages = {
   'home.preferences': 'Preferences',
 
   'home.connect.label': 'Your stake',
-  'home.connect.title': 'Connect a wallet to see it',
-  'home.connect.body':
-    'Your wallet lives in its own app — Leather, Xverse or OKX. Pick the one you use, say yes there, and you will come straight back. Connecting signs nothing and moves nothing.',
+  'home.connect.hint': 'Connect a wallet, or watch an address',
   'home.connect.button': 'Connect a wallet',
-  'home.connect.watch': 'Watch an address',
 
   'home.notStaking.label': 'Your stake',
   'home.notStaking.title': 'Nothing staked yet',
@@ -56,6 +53,8 @@ const messages = {
   'home.more.poolsHint': 'All {count}, with what each holds',
   'home.more.history': 'What each payout paid',
   'home.more.historyHint': 'Cycle by cycle, sats per 1,000 STX',
+  'home.more.groups': 'Who holds the vote',
+  'home.more.groupsHint': 'The entities behind the signer keys, largest first',
   'home.more.data': 'Where these numbers come from',
   'home.more.dataUpdated': 'Updated {when}',
   'home.more.dataStale': 'Showing a saved copy — the branch did not answer',
@@ -373,6 +372,43 @@ const messages = {
   'pools.feeUnknown': 'fee unknown',
   'pools.notRegistered': 'not registered',
   'pools.notOpen': 'not open to all',
+  'pools.keepsAlmostAll': 'keeps almost every reward',
+  'pools.steepFilter': 'Fee of 95% or more ({count})',
+  'pools.steepHelp':
+    'These pools keep almost every reward they earn for you, and nothing in their contracts stops it. Tap again to show every pool.',
+
+  // --------------------------------------------------------------- groups --
+  'groups.title': 'Who holds the vote',
+  'groups.one': 'Signer group',
+  'groups.intro':
+    'A signer node is one key. A group is a set of them with one entity behind it — which is what decides who could move the signer set, and what the chain never shows you.',
+  'groups.asOf': 'Shares are of cycle {cycle}.',
+  'groups.counts': '{nodes} nodes · {contracts} contracts · {staked} staked',
+  'groups.unknown': 'not known',
+  'groups.missing': 'No such group. It may have been renamed.',
+  'groups.kind.operator': 'Runs these nodes',
+  'groups.kind.stake': 'Supplies the stake',
+  'groups.kindNote.operator':
+    'One entity runs every node below, so it signs with all of them. Its weight is everything staked with them.',
+  'groups.kindNote.stake':
+    'The nodes below are run by other people. What this entity controls is the STX behind the contracts listed — it can move that stake, but it does not hold the keys that sign with it.',
+  'groups.ungrouped': 'Not grouped',
+  'groups.ungroupedNote':
+    'Signers nobody here has grouped. A gap in this file, not a finding that they are unrelated to one another — and counted by contract, so a contract here may sit on a key one of the groups above does claim.',
+  'groups.ungroupedCounts': '{contracts} contracts · {staked} staked',
+  'groups.votingPower': 'Voting power, cycle {cycle}',
+  'groups.staked': 'Staked across the group',
+  'groups.nodeCount': 'Signer nodes',
+  'groups.contractCount': 'Signer contracts',
+  'groups.whatIsIn': 'What is in the group',
+  'groups.wholeNode': 'Every contract on this key',
+  'groups.contractOnly':
+    'This contract only — the rest of what this node holds is not part of the group.',
+  'groups.alsoIn': 'Also counted in {names}',
+  'groups.source': 'What this is based on',
+  'groups.sourceNote':
+    'Nothing on chain says who runs a signer node, so every group here was written down by hand. A node can be in two groups at once, so these shares do not add to a hundred and are not meant to.',
+  'groups.partOf': 'Who is behind this pool',
 
   // --------------------------------------------------------------- history --
   'history.title': 'What each payout paid',
