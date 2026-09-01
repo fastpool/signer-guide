@@ -78,6 +78,15 @@ const ROTATIONS = path.join(
   'key-rotations.json',
 );
 
+/**
+ * Write an empty pool list anyway.
+ *
+ * For the day the chain really has no registered signers, and for a first run
+ * against a repository with nothing committed yet — which the floor does not
+ * block, since there is nothing there to empty.
+ */
+const ALLOW_EMPTY = process.argv.includes('--allow-empty');
+
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /** What is already committed, or null on the first run. */
@@ -142,7 +151,22 @@ async function getJson<T>(
   return null;
 }
 
-async function fetchRegisteredSigners(): Promise<Map<string, string>> {
+/**
+ * Every registered signer, or null when the node would not say.
+ *
+ * The distinction is the whole of this function. A page that fails used to
+ * `break`, which reads as "that was the last one" — so a node having a bad
+ * afternoon answered "there are no signers", the generator wrote a pool list
+ * with nothing in it, and the only thing between that and the published site
+ * was the test step further down the workflow. It happened: six runs between
+ * 30 and 31 August 2026 wrote `0 signer(s)` and were caught by the tests.
+ *
+ * Null now, and the run stops. A partial read is refused for the same reason
+ * rather than returned short: page one succeeding and page two failing is a
+ * list missing half the pools, which is a worse lie than no list at all
+ * because nothing downstream can tell it from pools that unregistered.
+ */
+async function fetchRegisteredSigners(): Promise<Map<string, string> | null> {
   const signers = new Map<string, string>();
   let cursor: string | null = null;
 
@@ -155,7 +179,7 @@ async function fetchRegisteredSigners(): Promise<Map<string, string>> {
       results: { signer: string; signer_key: string }[];
       cursor?: { next: string | null };
     }>(url.toString());
-    if (!page) break;
+    if (!page) return null;
 
     for (const entry of page.results ?? []) {
       signers.set(entry.signer, entry.signer_key);
@@ -175,11 +199,38 @@ async function fetchSource(contractId: string): Promise<string | null> {
   return result?.source ?? null;
 }
 
-async function fetchCurrentCycle(): Promise<number> {
+/**
+ * The cycle now, or null when the node would not say.
+ *
+ * It used to answer 0 for that, and 0 is not a cycle — it is written into the
+ * file as the cycle every figure describes, and handed to `firstSeenCycle`,
+ * where it would stamp forty-five pools as first seen before the chain
+ * existed. The same run that wrote no signers wrote `cycle 0 is current`.
+ */
+async function fetchCurrentCycle(): Promise<number | null> {
   const pox = await getJson<{ current_cycle: { id: number } }>(
     `${API_URL}/v2/pox`,
   );
-  return pox?.current_cycle.id ?? 0;
+  return typeof pox?.current_cycle?.id === 'number'
+    ? pox.current_cycle.id
+    : null;
+}
+
+/**
+ * Whether writing this many signers would empty a list that has some.
+ *
+ * The floor under everything above. Even a node that answers cleanly with an
+ * empty list, or one that answers the list and then refuses every source read,
+ * must not replace a working pool list with nothing: `signers.json` is written
+ * from scratch every run, so there is no previous value left to fall back on
+ * once it has been.
+ *
+ * Zero and not a proportion, deliberately. A pool can unregister and the guide
+ * should follow it down; a drop to none has no innocent reading that is worth
+ * the risk of guessing at one.
+ */
+export function wouldEmptyTheList(writing: number, committed: number): boolean {
+  return writing === 0 && committed > 0;
 }
 
 /**
@@ -482,6 +533,39 @@ async function main() {
   console.log(`Reading registered signers from ${describeNode()} ...`);
   const registered = await fetchRegisteredSigners();
   const cycle = await fetchCurrentCycle();
+
+  /*
+   * Nothing is written on an answer nobody gave.
+   *
+   * This file is replaced every run, so a read that failed is not a smaller
+   * update — it is the pool list, gone. Stopping here costs an hour of a fee
+   * being stale; carrying on cost forty failing tests and a workflow that
+   * looked broken for a day and a half while what was actually happening was
+   * that api.hiro.so would not answer.
+   */
+  if (registered === null || cycle === null) {
+    console.error(
+      `\n${describeNode()} would not answer:` +
+        `${registered === null ? '\n  the list of registered signers' : ''}` +
+        `${cycle === null ? '\n  which cycle it is' : ''}` +
+        '\n\nNothing written. What is committed stands until a run reads' +
+        ' the chain, which is the right outcome for an hour of an outage.',
+    );
+    process.exit(1);
+  }
+
+  if (
+    !ALLOW_EMPTY &&
+    wouldEmptyTheList(registered.size, committed?.signers.length ?? 0)
+  ) {
+    console.error(
+      `\n${describeNode()} says there are no registered signers at all,` +
+        ` and ${committed?.signers.length} are on file.\n\nNothing written.` +
+        ' Run with --allow-empty if the chain really has emptied.',
+    );
+    process.exit(1);
+  }
+
   // Every cycle pox-5 might still be holding rewards for, read once for the
   // whole run rather than per pool.
   const pox5Cycles = await rewardCycles(cycle);
@@ -607,6 +691,23 @@ async function main() {
       : (committed?.standardisedWith ?? null),
     signers: withManual,
   };
+
+  /*
+   * The floor again, on what is about to be written rather than on what was
+   * asked for. A node that lists every signer and then refuses every source
+   * read gets this far with an empty list and a clean conscience.
+   */
+  if (
+    !ALLOW_EMPTY &&
+    wouldEmptyTheList(withManual.length, committed?.signers.length ?? 0)
+  ) {
+    console.error(
+      `\nRead ${registered.size} registered signer(s) and could not make a` +
+        ` single one of them into an entry; ${committed?.signers.length} are` +
+        ' on file.\n\nNothing written.',
+    );
+    process.exit(1);
+  }
 
   fs.mkdirSync(path.dirname(OUTPUT), { recursive: true });
   fs.writeFileSync(OUTPUT, JSON.stringify(data, null, 2));

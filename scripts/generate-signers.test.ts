@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { summariseEarned } from './generate-signers.js';
+import { summariseEarned, wouldEmptyTheList } from './generate-signers.js';
 
 /*
  * Two rules meet here, and the second exists to pay for the first.
@@ -99,5 +99,34 @@ describe('summariseEarned', () => {
       sats: 0n,
       from: 142,
     });
+  });
+});
+
+/*
+ * The floor under the pool list.
+ *
+ * `signers.json` is written from scratch every run, so a read that failed is
+ * not a smaller update — it is the list, gone. Six scheduled runs between 30
+ * and 31 August 2026 wrote `0 signer(s)` because api.hiro.so would not answer
+ * and a failed page read as the end of the list; what stopped it reaching the
+ * site was forty failing tests, which is a guard by luck rather than by
+ * design.
+ */
+describe('refusing to empty the guide', () => {
+  it('stops a run that would replace every pool with none', () => {
+    expect(wouldEmptyTheList(0, 51)).toBe(true);
+  });
+
+  it('lets a first run write, having nothing to empty', () => {
+    // A repository with no committed file yet, where zero is the truth.
+    expect(wouldEmptyTheList(0, 0)).toBe(false);
+  });
+
+  it('does not stand in the way of pools coming and going', () => {
+    // A pool can unregister and the guide should follow it down. Only a drop
+    // to none is refused, because only that one has no innocent reading.
+    expect(wouldEmptyTheList(50, 51)).toBe(false);
+    expect(wouldEmptyTheList(1, 51)).toBe(false);
+    expect(wouldEmptyTheList(52, 51)).toBe(false);
   });
 });

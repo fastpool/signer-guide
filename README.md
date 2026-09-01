@@ -867,6 +867,25 @@ conduct are the softest things on the site, they keep their previous values
 rather than blanking, and losing an hour of any of them should not stop a fee
 change reaching the page.
 
+**And the first one refuses to write nothing.** `signers.json` is replaced
+every run, so there is no previous value to fall back on once it has been — a
+read that failed is not a smaller update, it is the pool list gone. Two things
+now stop that. A page of the signer list that fails is no longer read as the
+end of the list, so an unreachable node returns nothing rather than an empty
+list and the run stops with one line; and `wouldEmptyTheList` refuses to
+replace a list that has entries with one that has none, both when the chain
+answers empty and when it answers the list and then refuses every source read.
+`--allow-empty` is there for the day the chain really has emptied.
+
+It is not hypothetical. Six scheduled runs between 30 and 31 August 2026 wrote
+`0 signer(s)` — `0 registered, cycle 0 is current, and pox-5 would not say
+which cycles it has` — because api.hiro.so answered nothing for the whole run.
+What caught it was the test step, forty tests deep, which is a guard by luck:
+it holds only as long as every empty file happens to break a test. A drop to
+none is refused outright rather than a proportion, because a pool can
+unregister and the guide should follow it down; only zero has no innocent
+reading.
+
 The refresh also writes down anything it sees change that a snapshot cannot
 hold: a contract whose signer key is not the one it had last hour goes in
 `src/data/key-rotations.json` — a log rather than a snapshot, and the only

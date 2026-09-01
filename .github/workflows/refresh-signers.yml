@@ -86,6 +86,14 @@ jobs:
         # shows on the page as new code, until someone with clarinet on their
         # PATH runs `pnpm generate:signers` — the same person who has to read
         # that contract anyway, per the issue this job opens.
+        #
+        # It stops the run rather than writing when the node will not answer,
+        # and refuses to replace a pool list that has entries with an empty
+        # one. Before that a failed read wrote `0 signer(s)` and the job got
+        # as far as the test step below — six times over two days in August
+        # 2026, each one a six-minute run and forty red tests to say "the API
+        # was down". Now it is one line, half a minute in, and what is
+        # committed stands.
         env:
           HIRO_API_KEY: ${{ secrets.HIRO_API_KEY }}
         run: pnpm generate:signers
