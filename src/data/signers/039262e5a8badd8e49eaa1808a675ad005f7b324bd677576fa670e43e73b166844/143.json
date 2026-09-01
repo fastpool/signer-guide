@@ -6,11 +6,6 @@
       "staker": "SM185QHDAW14PW6ANX5PYDJ2KT3H2VSEMQSYQZD4B",
       "ustx": "7999900000000",
       "contractId": "SP1RWRWKM2364FY3XZTWFFK8K4MVBQYQX5V1E2KVC.signer-manager"
-    },
-    {
-      "staker": "SP10XDBKJBKX6Y49S5D1N34813HPGW1SFTNAEHDDM",
-      "ustx": "10000000",
-      "contractId": "SP1RWRWKM2364FY3XZTWFFK8K4MVBQYQX5V1E2KVC.signer-manager"
     }
   ]
 }

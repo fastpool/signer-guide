@@ -83,8 +83,18 @@
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
+      "staker": "SP3CBKJV78QSSY1MHDHH3E5FDJNEJJVMHAJ3Q9K17",
+      "ustx": "315966490220",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
+    },
+    {
       "staker": "SP1YRWD90RN9BSKESTED8PWABB6K7553NZJVXEEBG",
       "ustx": "311503428106",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
+    },
+    {
+      "staker": "SP22Z0MMJ1MBH4705S5MQWF64DX0CQ86K6KJ2BDXW",
+      "ustx": "308200000000",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
@@ -93,13 +103,8 @@
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
-      "staker": "SP22Z0MMJ1MBH4705S5MQWF64DX0CQ86K6KJ2BDXW",
-      "ustx": "287530096940",
-      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
-    },
-    {
       "staker": "SP1P0RG8EBYVP8Q7J20B39TPTXGNWZD80ZA5W5KCH",
-      "ustx": "276300000000",
+      "ustx": "280935000000",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
@@ -135,6 +140,11 @@
     {
       "staker": "SPMQAMQP7SD25HRENNHHRK38PY5M2AE6SWVZVY56",
       "ustx": "140825000000",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
+    },
+    {
+      "staker": "SP2082R1TBJZF3BDVCB6103KYRH30EEW7SEQPH2S4",
+      "ustx": "123265000000",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
@@ -175,6 +185,11 @@
     {
       "staker": "SP2HJ2RBVJ7RETRK4K8AYRK5HWY1SQ1EH6JQ2Q8PS",
       "ustx": "61748333735",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
+    },
+    {
+      "staker": "SP8C9568HPWSBQRBAGKTQCY7R55S9AJFVD46TT24",
+      "ustx": "54585880065",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
@@ -308,6 +323,11 @@
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
+      "staker": "SP1XWJJY7R1SWHBZWCM0J6F6XVSKECWTW67C3ZBV7",
+      "ustx": "20000000000",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
+    },
+    {
       "staker": "SP38B7GRE0MZ8P2W9553VF2H8CQPBWQ49TBVQYDA3",
       "ustx": "15200000000",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
@@ -350,11 +370,6 @@
     {
       "staker": "SPJVSNDH0ZAH7BEF5B6ND5KBHA93PNZKYRQR2976",
       "ustx": "11119000000",
-      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
-    },
-    {
-      "staker": "SP1XWJJY7R1SWHBZWCM0J6F6XVSKECWTW67C3ZBV7",
-      "ustx": "11090000000",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
@@ -428,6 +443,11 @@
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
+      "staker": "SP17VQTP1T95S4KE74J5FBHWD0M6P8N5FJXJXV9TF",
+      "ustx": "6000000000",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
+    },
+    {
       "staker": "SP1WYHPJJVN3P0PS32BMF33P6WVVK1SNRRS28ZF0G",
       "ustx": "6000000000",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
@@ -435,11 +455,6 @@
     {
       "staker": "SPJN63YWJP48HDQP24HBPW3HAXTQHCNSQKKEQ8CR",
       "ustx": "5670000000",
-      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
-    },
-    {
-      "staker": "SP17VQTP1T95S4KE74J5FBHWD0M6P8N5FJXJXV9TF",
-      "ustx": "5500000000",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
@@ -608,6 +623,11 @@
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
+      "staker": "SP2W01TKZDZEXMSNTSQ48N162RB1DTHAQPWDZ4PCD",
+      "ustx": "1116430010",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
+    },
+    {
       "staker": "SP2G7E3P5B5CMA8HK7XB1D3XDVDVXS56HGCDD2D76",
       "ustx": "1003998209",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
@@ -713,6 +733,11 @@
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
+      "staker": "SP3N1FSQMFQGEBDH4SZB7A4FAMZ3FNGMEY3GYGSDF",
+      "ustx": "330000000",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
+    },
+    {
       "staker": "SP1XMDTN5ABKT236X508KB4QZ46QM10EFCCK9465",
       "ustx": "281000000",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
@@ -728,6 +753,11 @@
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
+      "staker": "SP1XEDTAQWEKC0Q3J2ZAK4KE2K47Q72HRZZ6J1JV0",
+      "ustx": "201101196",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
+    },
+    {
       "staker": "SPHZW8N7EMXHY7N72JNE2EE1TD4Z1FZ8GENAHYFS",
       "ustx": "200000000",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
@@ -735,6 +765,11 @@
     {
       "staker": "SP20WMC8HC5QMWJXM5VXYAGXEJQ0212D6GXYPXJ5A",
       "ustx": "190000000",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
+    },
+    {
+      "staker": "SP12YT5ZP2BJTVEMHM5TSF75FYXPHPB3D7DW15XCP",
+      "ustx": "159644286",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
