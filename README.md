@@ -1377,9 +1377,14 @@ does not support WalletConnect at all.
 
 That was said only inside the staking dialog, which is several taps past the
 point where somebody has decided the site is no use to them on a phone. So a
-small bar now sits at the top of every page with the two links on it, and
+small bar now sits at the top of every page with the two links on it — in
+`Chrome`, which wraps whichever page is showing and holds both of the bars
+that belong to the site rather than to a route. `UpdateBanner` had been
+written into all nine route branches by hand; a second bar beside it would
+have been nine more copies of a line, which is the point at which a thing on
+every page should stop being pasted onto every page. The links come from
 `src/lib/wallet-browser.ts` — shared with the phone app, so both ends of the
-round trip use the same table — has the two that were fired at a real device:
+round trip use the same table — and were fired at a real device:
 
 ```
 leather://browser?url=…                   the scheme it registers

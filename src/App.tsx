@@ -11,8 +11,7 @@ import MyRewardsPage from './components/MyRewardsPage';
 import StxOnlyHistoryPage from './components/StxOnlyHistoryPage';
 import StxOnlyRewardsEstimate from './components/StxOnlyRewardsEstimate';
 import StatusPage from './components/StatusPage';
-import UpdateBanner from './components/UpdateBanner';
-import WalletBrowserBanner from './components/WalletBrowserBanner';
+import Chrome from './components/Chrome';
 import { stxLabel, sumUstx } from './lib/amounts';
 import { useSnapshot } from './lib/data-source';
 import {
@@ -157,68 +156,58 @@ export default function App() {
     ? sumUstx(contractIds, totals.next.ustx)
     : null;
 
-  if (route.name === 'contract') {
-    const template = templateFor(templates, route.profileId);
-    if (template) {
-      return (
-        <>
-          <WalletBrowserBanner locale={locale} />
+  /**
+   * Which page this is, and nothing about what surrounds it.
+   *
+   * Every branch below returns a page and only a page. What is on all of
+   * them whichever one it is — the wallet bar, the update offer — is
+   * `Chrome`, once, around whatever this returns.
+   */
+  const page = () => {
+    if (route.name === 'contract') {
+      const template = templateFor(templates, route.profileId);
+      if (template) {
+        return (
           <ContractPage
             template={template}
             lockedUstx={totals.ustx}
             locale={locale}
             onLocaleChange={setLocale}
           />
-          <UpdateBanner update={update} locale={locale} />
-        </>
-      );
+        );
+      }
     }
-  }
 
-  if (route.name === 'status') {
-    return (
-      <>
-        <WalletBrowserBanner locale={locale} />
+    if (route.name === 'status') {
+      return (
         <StatusPage
           principals={route.principals}
           signers={signerData.signers}
           locale={locale}
           onLocaleChange={setLocale}
         />
-        <UpdateBanner update={update} locale={locale} />
-      </>
-    );
-  }
+      );
+    }
 
-  if (route.name === 'myRewards') {
-    return (
-      <>
-        <WalletBrowserBanner locale={locale} />
+    if (route.name === 'myRewards') {
+      return (
         <MyRewardsPage
           address={route.address}
           signers={signerData.signers}
           locale={locale}
           onLocaleChange={setLocale}
         />
-        <UpdateBanner update={update} locale={locale} />
-      </>
-    );
-  }
+      );
+    }
 
-  if (route.name === 'stxOnlyHistory') {
-    return (
-      <>
-        <WalletBrowserBanner locale={locale} />
+    if (route.name === 'stxOnlyHistory') {
+      return (
         <StxOnlyHistoryPage locale={locale} onLocaleChange={setLocale} />
-        <UpdateBanner update={update} locale={locale} />
-      </>
-    );
-  }
+      );
+    }
 
-  if (route.name === 'stxOnlyRewards') {
-    return (
-      <>
-        <WalletBrowserBanner locale={locale} />
+    if (route.name === 'stxOnlyRewards') {
+      return (
         <main className='mx-auto max-w-3xl px-5 py-12 md:py-20'>
           <div className='flex flex-wrap items-center justify-between gap-3'>
             <a
@@ -237,34 +226,26 @@ export default function App() {
             asOf={lastUpdateStxOnlyCalculations}
           />
         </main>
-        <UpdateBanner update={update} locale={locale} />
-      </>
-    );
-  }
+      );
+    }
 
-  if (route.name === 'groups') {
-    return (
-      <>
-        <WalletBrowserBanner locale={locale} />
+    if (route.name === 'groups') {
+      return (
         <SignerGroupsPage
           signers={signerData.signers}
           totals={totals}
           locale={locale}
           onLocaleChange={setLocale}
         />
-        <UpdateBanner update={update} locale={locale} />
-      </>
-    );
-  }
+      );
+    }
 
-  if (route.name === 'group') {
-    // Same rule as a pool that has gone: a group id nobody wrote lands on the
-    // list, which is the page somebody who followed that link wanted.
-    const group = groupById(route.groupId);
-    if (group) {
-      return (
-        <>
-          <WalletBrowserBanner locale={locale} />
+    if (route.name === 'group') {
+      // Same rule as a pool that has gone: a group id nobody wrote lands on the
+      // list, which is the page somebody who followed that link wanted.
+      const group = groupById(route.groupId);
+      if (group) {
+        return (
           <SignerGroupPage
             group={group}
             signers={signerData.signers}
@@ -272,24 +253,20 @@ export default function App() {
             locale={locale}
             onLocaleChange={setLocale}
           />
-          <UpdateBanner update={update} locale={locale} />
-        </>
-      );
+        );
+      }
     }
-  }
 
-  if (route.name === 'signer') {
-    // A link to a pool that has since gone from the data falls through to the
-    // list rather than to an error: the pool is not there, and the list is
-    // what somebody who wanted it should be looking at.
-    const node = nodeForContract(signerData.signers, route.contractId);
-    const signer = node?.contracts.find(
-      (contract) => contract.contractId === route.contractId,
-    );
-    if (node && signer) {
-      return (
-        <>
-          <WalletBrowserBanner locale={locale} />
+    if (route.name === 'signer') {
+      // A link to a pool that has since gone from the data falls through to the
+      // list rather than to an error: the pool is not there, and the list is
+      // what somebody who wanted it should be looking at.
+      const node = nodeForContract(signerData.signers, route.contractId);
+      const signer = node?.contracts.find(
+        (contract) => contract.contractId === route.contractId,
+      );
+      if (node && signer) {
+        return (
           <SignerPage
             signer={signer}
             node={node}
@@ -298,38 +275,34 @@ export default function App() {
             locale={locale}
             onLocaleChange={setLocale}
           />
-          <UpdateBanner update={update} locale={locale} />
-        </>
-      );
+        );
+      }
     }
-  }
 
-  const toggle = (id: FilterId) =>
-    setActive((current) => {
-      const next = new Set(current);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
+    const toggle = (id: FilterId) =>
+      setActive((current) => {
+        const next = new Set(current);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        return next;
+      });
+
+    const total = live.length;
+    // The keys are checked, not cast: a filter added without its copy is a
+    // build error rather than a raw key on a button.
+    const filters = FILTER_IDS.map((id) => {
+      const label: MessageKey = `filter.${id}.label`;
+      const help: MessageKey = `filter.${id}.help`;
+      return { id, label: t(label), help: t(help) };
     });
+    const profileSummaryFor = (profileId: string | null): string | null => {
+      if (!profileId) return null;
+      const profile = Object.values(PROFILES).find((p) => p.id === profileId);
+      if (!profile) return null;
+      return localizeProfile(profile, locale).summary;
+    };
 
-  const total = live.length;
-  // The keys are checked, not cast: a filter added without its copy is a
-  // build error rather than a raw key on a button.
-  const filters = FILTER_IDS.map((id) => {
-    const label: MessageKey = `filter.${id}.label`;
-    const help: MessageKey = `filter.${id}.help`;
-    return { id, label: t(label), help: t(help) };
-  });
-  const profileSummaryFor = (profileId: string | null): string | null => {
-    if (!profileId) return null;
-    const profile = Object.values(PROFILES).find((p) => p.id === profileId);
-    if (!profile) return null;
-    return localizeProfile(profile, locale).summary;
-  };
-
-  return (
-    <>
-      <WalletBrowserBanner locale={locale} />
+    return (
       <main className='mx-auto max-w-3xl px-5 py-12 md:py-20'>
         <header className='flex flex-col gap-4'>
           <div className='flex flex-wrap items-center justify-between gap-3'>
@@ -615,9 +588,13 @@ export default function App() {
             })}
           </p>
         </footer>
-
-        <UpdateBanner update={update} locale={locale} />
       </main>
-    </>
+    );
+  };
+
+  return (
+    <Chrome update={update} locale={locale}>
+      {page()}
+    </Chrome>
   );
 }
