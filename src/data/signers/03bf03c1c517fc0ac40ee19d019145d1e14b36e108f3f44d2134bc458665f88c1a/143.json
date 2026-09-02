@@ -11,6 +11,26 @@
       "staker": "SM2J8M7RZF347FG2B3F9EQP7ES8J514AY03EMGGSG",
       "ustx": "15511850",
       "contractId": "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs"
+    },
+    {
+      "staker": "SP1BHF6SD780Y1J401B85YPGHX0JG1HQJ24R9X7P4",
+      "ustx": "15511850",
+      "contractId": "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs"
+    },
+    {
+      "staker": "SP3T7WM0JQD8DXQCS1HBWQGPFKW15A3DTS4JWNWVS",
+      "ustx": "15511850",
+      "contractId": "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs"
+    },
+    {
+      "staker": "SPJYNB7A3SGVZMXKHYPJJ9V9WWPN986NRESMN3P9",
+      "ustx": "15511850",
+      "contractId": "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs"
+    },
+    {
+      "staker": "SP25GRYER8K9S45CACESTANMNGEE7X2XHMD49SADE",
+      "ustx": "7755925",
+      "contractId": "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs"
     }
   ]
 }
