@@ -7,7 +7,7 @@
     {
       "cycle": 143,
       "ustx": {
-        "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1": "14680555280180"
+        "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1": "14684555280180"
       },
       "memberCount": 530,
       "membersAddUp": true,
@@ -45,5 +45,5 @@
     }
   ],
   "currentCycle": 142,
-  "generatedAt": "2026-09-01T22:39:45.487Z"
+  "generatedAt": "2026-09-02T01:06:32.537Z"
 }
