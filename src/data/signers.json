@@ -1,8 +1,38 @@
 {
-  "generatedAt": "2026-09-01T05:18:49.208Z",
+  "generatedAt": "2026-09-04T18:06:26.185Z",
   "cycle": 142,
   "standardisedWith": "clarinet 3.23.2",
   "signers": [
+    {
+      "contractId": "SP1N3G8X1X2FTZFD5Y9MAT8KHE1FVBE2GPKAPVSSV.meria-signer-manager",
+      "displayName": "Meria",
+      "displayNameSource": "contract",
+      "implementationName": "Standard",
+      "registered": true,
+      "firstSeenCycle": 142,
+      "signerKey": "0x021e5bc15e37b6946ec0d384e746386e62e82ffee1054b778f8ad22d85bb7f9056",
+      "sourceSha256": "05aaf409ed285f02d8b6d5d540f94feb8baea139a14263b7e7de7ba9f054d3c5",
+      "canonicalSha256": "004da6bde5f91b9cdf555a020494cab73d29cc75733ad0c05e4f4b32a94e251b",
+      "groupSha256": "09aa95c7bdeb5ba47970ef47eec3122bf1e1c38ac796799622bc9a4a48c0867e",
+      "identiconHash": "d89fc8775ea2b1b5db173427cef51e3b7e164d33b7b4b11ff925e0ea78b2c20c",
+      "match": "canonical",
+      "profileId": "standard",
+      "bitcoinRewards": true,
+      "openToAnyone": true,
+      "feeBips": 9999,
+      "maxFeeBips": null,
+      "feeChangeNotice": null,
+      "feeExemption": null,
+      "undistributedSats": "0",
+      "unclaimedFromPoxSats": "0",
+      "unclaimedFromCycle": 142,
+      "earnedFeesSats": "0",
+      "evidence": {
+        "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
+        "openToAnyone": null,
+        "maxFee": null
+      }
+    },
     {
       "contractId": "SP1N8F8BBBC60XF6HJBNJHKPRGJ7WZBRGNDJX4YDR.signer-manager",
       "displayName": "signer-manager",
@@ -24,7 +54,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "26551192",
+      "unclaimedFromPoxSats": "62745595",
       "unclaimedFromCycle": 141,
       "earnedFeesSats": "0",
       "evidence": {
@@ -40,7 +70,7 @@
       "implementationName": "Standard",
       "registered": true,
       "firstSeenCycle": 140,
-      "signerKey": "0x022a87e9a49848592cdbda9eb25a0b674032cf3f7be2ee47f4baa713aba6ffbd2a",
+      "signerKey": "0x03c6edf3fe57faeeb880ea1f0aa4d7b1cb220cad0079510163685787e0a7db10e8",
       "sourceSha256": "05aaf409ed285f02d8b6d5d540f94feb8baea139a14263b7e7de7ba9f054d3c5",
       "canonicalSha256": "004da6bde5f91b9cdf555a020494cab73d29cc75733ad0c05e4f4b32a94e251b",
       "groupSha256": "09aa95c7bdeb5ba47970ef47eec3122bf1e1c38ac796799622bc9a4a48c0867e",
@@ -54,7 +84,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": "437756",
       "unclaimedFromCycle": 142,
       "earnedFeesSats": "0",
       "evidence": {
@@ -234,7 +264,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": "3502008",
       "unclaimedFromCycle": 142,
       "earnedFeesSats": "0",
       "evidence": {
@@ -264,7 +294,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "758608",
+      "unclaimedFromPoxSats": "1196365",
       "unclaimedFromCycle": 141,
       "earnedFeesSats": "0",
       "evidence": {
@@ -323,9 +353,9 @@
       "maxFeeBips": null,
       "feeChangeNotice": null,
       "feeExemption": null,
-      "undistributedSats": "0",
-      "unclaimedFromPoxSats": "273106",
-      "unclaimedFromCycle": 141,
+      "undistributedSats": "273106",
+      "unclaimedFromPoxSats": "157592",
+      "unclaimedFromCycle": 142,
       "earnedFeesSats": "0",
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
@@ -354,7 +384,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "273099",
+      "unclaimedFromPoxSats": "430691",
       "unclaimedFromCycle": 141,
       "earnedFeesSats": "0",
       "evidence": {
@@ -383,7 +413,7 @@
       "maxFeeBips": null,
       "feeChangeNotice": null,
       "feeExemption": null,
-      "undistributedSats": "17",
+      "undistributedSats": "25",
       "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 142,
       "earnedFeesSats": "0",
@@ -413,10 +443,10 @@
       "maxFeeBips": null,
       "feeChangeNotice": null,
       "feeExemption": null,
-      "undistributedSats": "4",
+      "undistributedSats": "6",
       "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 142,
-      "earnedFeesSats": "151708",
+      "earnedFeesSats": "239252",
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
         "openToAnyone": null,
@@ -444,7 +474,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "11037749",
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": "31201931",
       "unclaimedFromCycle": 142,
       "earnedFeesSats": "0",
       "evidence": {
@@ -504,7 +534,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "7586076",
+      "unclaimedFromPoxSats": "11963641",
       "unclaimedFromCycle": 141,
       "earnedFeesSats": "0",
       "evidence": {
@@ -564,7 +594,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "6068853",
+      "unclaimedFromPoxSats": "9570901",
       "unclaimedFromCycle": 141,
       "earnedFeesSats": "0",
       "evidence": {
@@ -624,7 +654,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "2",
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": "21896",
       "unclaimedFromCycle": 142,
       "earnedFeesSats": "1896",
       "evidence": {
@@ -1255,7 +1285,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "738",
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": "6231410",
       "unclaimedFromCycle": 142,
       "earnedFeesSats": "397941",
       "evidence": {
@@ -1285,7 +1315,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "151",
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": "6154124",
       "unclaimedFromCycle": 142,
       "earnedFeesSats": "397978",
       "evidence": {
@@ -1315,7 +1345,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "149",
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": "5898622",
       "unclaimedFromCycle": 142,
       "earnedFeesSats": "393609",
       "evidence": {
@@ -1345,7 +1375,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": "437756",
       "unclaimedFromCycle": 142,
       "earnedFeesSats": "0",
       "evidence": {
@@ -1378,10 +1408,10 @@
         "evidence": "(var-set pending-fees-cycle (+ cycle FEE_ACTIVATION_DELAY_CYCLES))"
       },
       "feeExemption": null,
-      "undistributedSats": "120",
+      "undistributedSats": "232",
       "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 142,
-      "earnedFeesSats": "0",
+      "earnedFeesSats": "1147276",
       "evidence": {
         "bitcoinRewards": null,
         "openToAnyone": null,
@@ -1409,7 +1439,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "3071602",
+      "unclaimedFromPoxSats": "4844078",
       "unclaimedFromCycle": 141,
       "earnedFeesSats": "0",
       "evidence": {
@@ -1508,7 +1538,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "463691",
+      "unclaimedFromPoxSats": "731265",
       "unclaimedFromCycle": 141,
       "earnedFeesSats": "0",
       "evidence": {
@@ -1542,7 +1572,7 @@
       },
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "409648",
+      "unclaimedFromPoxSats": "646036",
       "unclaimedFromCycle": 141,
       "earnedFeesSats": "0",
       "evidence": {

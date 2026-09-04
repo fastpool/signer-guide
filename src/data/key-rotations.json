@@ -1,11 +1,18 @@
 {
-  "generatedAt": "2026-08-31T08:04:08.606Z",
+  "generatedAt": "2026-09-04T18:06:26.186Z",
   "rotations": [
     {
       "contractId": "SPEMC1B9BG0BNGMDVQE1SG2DY8X95ZS157N98P7N.signer-manager-stakin-1",
       "from": "0x02bd7401138851ccf21e79cfa2923a5e7d7ddb31be6fad8102ada6abaf5e92859c",
       "to": "0x03810f16994e46ad0401ddf8d4b112b23bdcda3594688c089850c88c2206ac6ded",
       "observedAt": "2026-08-28T05:29:04+00:00",
+      "cycle": 142
+    },
+    {
+      "contractId": "SP1PHZZW24DHBA4SJB27XEAD0Z4HTG7219S428RFA.signer-manager",
+      "from": "0x022a87e9a49848592cdbda9eb25a0b674032cf3f7be2ee47f4baa713aba6ffbd2a",
+      "to": "0x03c6edf3fe57faeeb880ea1f0aa4d7b1cb220cad0079510163685787e0a7db10e8",
+      "observedAt": "2026-09-04T18:06:26.185Z",
       "cycle": 142
     }
   ]
