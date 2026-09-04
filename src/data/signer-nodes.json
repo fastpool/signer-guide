@@ -489,7 +489,7 @@
     {
       "signerKey": "0228a566db9a7b3212d612aa06e34fa981351a4372737849bfcaa1a28e8a044e5d",
       "pools": [
-        "(anonymous)"
+        "signer-manager"
       ],
       "groups": [],
       "ourUstx": "3999770000000",
@@ -675,7 +675,7 @@
     {
       "signerKey": "037e7c6b6d6b9840beb8dc23c2b25d0b8bc4047a001c8a19c0878a77bbd753780e",
       "pools": [
-        "(anonymous)"
+        "signer-manager"
       ],
       "groups": [],
       "ourUstx": "611240000000",

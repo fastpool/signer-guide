@@ -12,13 +12,26 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import SignerConductSection from './SignerConductSection';
 import signers from '../data/signers.json';
-import { ROTATIONS } from '../lib/key-rotations';
-import { answeredRate } from '../lib/performance';
+import { lastRotation, ROTATIONS } from '../lib/key-rotations';
+import { answeredRate, neverAnswered } from '../lib/performance';
 import { performanceFor, PERFORMANCE } from '../lib/performance-data';
 import type { Signer, SignerData } from '../lib/types';
 
 const all = (signers as SignerData).signers;
 const find = (id: string) => all.find((s) => s.contractId === id)!;
+
+/*
+ * The row the section will actually show for a pool: its own key's, or —
+ * once it has rotated and the new key holds nothing yet — the row of the key
+ * that kept the seat. The same fallback the component makes, so that tests
+ * can pick a signer by what a reader would see rather than by name.
+ */
+const shownRow = (signer: Signer) => {
+  const own = performanceFor(signer.signerKey);
+  if (own !== null) return own;
+  const rotation = lastRotation(signer.contractId);
+  return rotation === null ? null : performanceFor(rotation.from);
+};
 
 beforeEach(() => {
   vi.stubGlobal('navigator', { language: 'en-GB' });
@@ -68,13 +81,31 @@ describe('a pool whose key was rotated', () => {
     expect(html).toContain('the key that was rotated away from');
   });
 
-  it('calls a signer that never answered absent, not fast', () => {
-    /*
-     * The real cycle-142 row for this key: seated with a million STX, asked
-     * about every block, never heard from. The API reports its mean response
-     * as 0 ms, which would read as the quickest node on the network.
-     */
-    const html = render(signer);
+});
+
+describe('a signer that never answered', () => {
+  /*
+   * Seated when the cycle was locked in, asked about every block, never heard
+   * from. The API reports its mean response as 0 ms, which would read as the
+   * quickest node on the network.
+   *
+   * Found by the absence rather than by name: a rotation makes one of these
+   * for a fortnight, but not every rotation does — a pool that rotated half
+   * way through a cycle leaves behind a key that answered most of it — and an
+   * operator who registered and never started the node makes one without ever
+   * rotating anything.
+   */
+  const silent = all.find((s) => {
+    const row = shownRow(s);
+    return row !== null && neverAnswered(row);
+  });
+
+  it('is in the data at all', () => {
+    expect(silent).toBeDefined();
+  });
+
+  it('is called absent, not fast', () => {
+    const html = render(silent!);
     expect(html).toContain('Never answered');
     expect(html).not.toContain('0.0 s');
   });
@@ -82,8 +113,10 @@ describe('a pool whose key was rotated', () => {
 
 describe('a key with no record', () => {
   it('says so plainly', () => {
+    // Nothing on file means nothing to fall back on either: a rotated pool
+    // has no row for its own key and is still not this case.
     const unseated = all.find(
-      (s) => s.signerKey !== null && performanceFor(s.signerKey) === null,
+      (s) => s.signerKey !== null && shownRow(s) === null,
     )!;
     expect(unseated).toBeDefined();
     expect(render(unseated)).toContain('Nothing on file for this key');

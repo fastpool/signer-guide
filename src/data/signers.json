@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-04T18:06:26.185Z",
+  "generatedAt": "2026-09-04T18:28:43.258Z",
   "cycle": 142,
   "standardisedWith": "clarinet 3.23.2",
   "signers": [
@@ -425,8 +425,8 @@
     },
     {
       "contractId": "SP2369QN53586176SYRF4XFGF4E84V0J0EWKRG0ZH.signer-manager",
-      "displayName": "(anonymous)",
-      "displayNameSource": "manual",
+      "displayName": "signer-manager",
+      "displayNameSource": "contract",
       "implementationName": "Standard",
       "registered": true,
       "firstSeenCycle": 140,
@@ -1519,8 +1519,8 @@
     },
     {
       "contractId": "SPWJG9ZQT7VG8F3YS9TK0YN3VK34M76NYDZMTCWT.signer-manager",
-      "displayName": "(anonymous)",
-      "displayNameSource": "manual",
+      "displayName": "signer-manager",
+      "displayNameSource": "contract",
       "implementationName": "Standard",
       "registered": true,
       "firstSeenCycle": 140,

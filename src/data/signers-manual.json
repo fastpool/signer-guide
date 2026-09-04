@@ -26,8 +26,7 @@
     "displayName": "Fast Pool v1"
   },
   "SP2369QN53586176SYRF4XFGF4E84V0J0EWKRG0ZH.signer-manager": {
-    "note": "Nothing but the plumbing words, so there is no name in the contract to read. Say so rather than print 'signer-manager' as if it were a pool's name. slotwatch.dev has no name for this signer key either.",
-    "displayName": "(anonymous)"
+    "note": "Nothing but the plumbing words, so there is no name in the contract to read. Say so rather than print 'signer-manager' as if it were a pool's name. slotwatch.dev has no name for this signer key either."
   },
   "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager": {
     "note": "Run by Stacking DAO, which the contract name does not say. Its fee is taken through .native-pool-v1 rather than here, so the card reads the amounts from that contract instead of pox-5.",
@@ -58,8 +57,7 @@
     "displayName": "STX Juice"
   },
   "SPWJG9ZQT7VG8F3YS9TK0YN3VK34M76NYDZMTCWT.signer-manager": {
-    "note": "As above — the contract name is all plumbing, so there is no pool name to show. This signer key is not in the current signer set, so slotwatch.dev has nothing on it.",
-    "displayName": "(anonymous)"
+    "note": "As above — the contract name is all plumbing, so there is no pool name to show. This signer key is not in the current signer set, so slotwatch.dev has nothing on it."
   },
   "SPZACCJ8XPZ14P7K7NGFMT1BWQYF2JA9DFA2ZR8A.signer-manager": {
     "note": "The contract id is all plumbing, so the generator prints 'signer-manager' where a name should be. slotwatch.dev names this signer key Assymetric Labs, spelled as they spell it.",
