@@ -1,18 +1,18 @@
 {
-  "signerKey": "0x0344dc9c4ccd3c537205b22c673b4b717d88211c4110537ff034aa924c9678aa54",
+  "signerKey": "0x021e5bc15e37b6946ec0d384e746386e62e82ffee1054b778f8ad22d85bb7f9056",
   "contractIds": [
-    "SP3RXEYRBECSGNPDPZD5XRR7MT5DC1FT1SNZZXGVX.signer-manager"
+    "SP1N3G8X1X2FTZFD5Y9MAT8KHE1FVBE2GPKAPVSSV.meria-signer-manager"
   ],
   "cycles": [
     {
       "cycle": 143,
       "ustx": {
-        "SP3RXEYRBECSGNPDPZD5XRR7MT5DC1FT1SNZZXGVX.signer-manager": "0"
+        "SP1N3G8X1X2FTZFD5Y9MAT8KHE1FVBE2GPKAPVSSV.meria-signer-manager": "0"
       },
       "memberCount": 0,
       "membersAddUp": true,
       "walks": 1,
-      "walkedAt": "2026-08-27T08:19:29.040Z",
+      "walkedAt": "2026-09-01T16:45:25.153Z",
       "walkedUstx": "0",
       "fileFinal": false,
       "cycleFinal": false
@@ -20,12 +20,12 @@
     {
       "cycle": 142,
       "ustx": {
-        "SP3RXEYRBECSGNPDPZD5XRR7MT5DC1FT1SNZZXGVX.signer-manager": "0"
+        "SP1N3G8X1X2FTZFD5Y9MAT8KHE1FVBE2GPKAPVSSV.meria-signer-manager": "0"
       },
       "memberCount": 0,
       "membersAddUp": true,
       "walks": 1,
-      "walkedAt": "2026-08-24T14:08:59.963Z",
+      "walkedAt": "2026-09-01T16:45:25.153Z",
       "walkedUstx": "0",
       "fileFinal": false,
       "cycleFinal": true
@@ -33,17 +33,17 @@
     {
       "cycle": 141,
       "ustx": {
-        "SP3RXEYRBECSGNPDPZD5XRR7MT5DC1FT1SNZZXGVX.signer-manager": "0"
+        "SP1N3G8X1X2FTZFD5Y9MAT8KHE1FVBE2GPKAPVSSV.meria-signer-manager": "0"
       },
       "memberCount": 0,
       "membersAddUp": true,
       "walks": 1,
-      "walkedAt": "2026-08-24T14:08:59.963Z",
+      "walkedAt": "2026-09-01T16:45:25.153Z",
       "walkedUstx": "0",
       "fileFinal": true,
       "cycleFinal": true
     }
   ],
   "currentCycle": 142,
-  "generatedAt": "2026-09-04T06:03:05.829Z"
+  "generatedAt": "2026-09-04T06:03:05.394Z"
 }

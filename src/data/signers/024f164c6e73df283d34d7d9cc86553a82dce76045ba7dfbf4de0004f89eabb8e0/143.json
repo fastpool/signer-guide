@@ -6,6 +6,11 @@
       "staker": "SM1TNJ9YHZ5RC1YY6Y8W5NN9DMZ2BJM1BWV8TH6D3",
       "ustx": "360000500110",
       "contractId": "SP20XZGWBWSMRE94WDJ6YJ1EKPJ55RGRGK4JDJHNK.signer-manager-pox5"
+    },
+    {
+      "staker": "SPQ18H608N66WMD44YBXFQE3A01PYMZJ3JPGZZA2",
+      "ustx": "1366000000",
+      "contractId": "SP20XZGWBWSMRE94WDJ6YJ1EKPJ55RGRGK4JDJHNK.signer-manager-pox5"
     }
   ]
 }
