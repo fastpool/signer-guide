@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   contractHref,
+  howToHref,
   parseHash,
   signerHref,
   statusHref,
@@ -24,6 +25,11 @@ describe('parseHash', () => {
     expect(parseHash('')).toEqual({ name: 'list' });
     expect(parseHash('#/')).toEqual({ name: 'list' });
     expect(parseHash('#/nonsense')).toEqual({ name: 'list' });
+  });
+
+  it('reads the how-to page, with or without the trailing slash', () => {
+    expect(parseHash('#/how-to')).toEqual({ name: 'howTo' });
+    expect(parseHash('#/how-to/')).toEqual({ name: 'howTo' });
   });
 
   it('reads the group index from the plural', () => {
@@ -60,20 +66,23 @@ describe('parseHash', () => {
     });
   });
 
-  it('reads an address out of the my-rewards link, and refuses a bad one', () => {
+  it('lands the old my-rewards links on the merged page', () => {
+    // The rewards page and the address check answered two halves of one
+    // question about one address, and are one page now. The links handed out
+    // while they were separate still have to arrive somewhere useful.
     expect(parseHash('#/rewards/mine')).toEqual({
-      name: 'myRewards',
-      address: null,
+      name: 'status',
+      principals: [],
     });
     expect(parseHash('#/rewards/mine/friedger.btc')).toEqual({
-      name: 'myRewards',
-      address: 'friedger.btc',
+      name: 'status',
+      principals: ['friedger.btc'],
     });
     // It goes into the path of a request, so anything that is not a principal
     // or a name lands on the empty box rather than being asked about.
     expect(parseHash('#/rewards/mine/../../etc')).toEqual({
-      name: 'myRewards',
-      address: null,
+      name: 'status',
+      principals: [],
     });
   });
 
@@ -183,5 +192,6 @@ describe('parseHash', () => {
     expect(parseHash(stxOnlyRewardsHref())).toEqual({
       name: 'stxOnlyRewards',
     });
+    expect(parseHash(howToHref())).toEqual({ name: 'howTo' });
   });
 });

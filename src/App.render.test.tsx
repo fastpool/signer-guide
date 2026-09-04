@@ -353,21 +353,23 @@ describe('the page as a reader sees it', () => {
       scrollTo: () => {},
     });
     const html = renderToStaticMarkup(<App />);
-    expect(html).toContain('Where is my STX staked?');
+    expect(html).toContain('Where is my STX, and what has it earned?');
     expect(html).toContain('Stacks addresses');
     expect(html).toContain('Up to 20');
     expect(fetch).not.toHaveBeenCalled();
   });
 
-  it('offers both address questions from the header, and no newsletter', () => {
+  it('asks the address question once in the header, and offers no newsletter', () => {
+    // It was two buttons — where is my STX, and what has it earned — for one
+    // address and one answer. One page, so one way in.
     const html = renderToStaticMarkup(<App />);
     expect(html).toContain('href="#/status"');
-    expect(html).toContain('href="#/rewards/mine"');
+    expect(html).not.toContain('href="#/rewards/mine"');
     // The signup was the first thing under the amounts and is gone.
     expect(html).not.toContain('newsletter');
   });
 
-  it('opens the rewards page with a box, asking the chain nothing', () => {
+  it('lands an old rewards link on the merged page, asking the chain nothing', () => {
     const fetch = vi.fn();
     vi.stubGlobal('fetch', fetch);
     vi.stubGlobal('window', {
@@ -378,8 +380,8 @@ describe('the page as a reader sees it', () => {
     });
 
     const html = renderToStaticMarkup(<App />);
-    expect(html).toContain('What are my rewards?');
-    expect(html).toContain('A Stacks address or a BNS name');
+    expect(html).toContain('Where is my STX, and what has it earned?');
+    expect(html).toContain('Stacks addresses');
     // Nothing to look up until somebody types something.
     expect(fetch).not.toHaveBeenCalled();
   });

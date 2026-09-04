@@ -8,6 +8,7 @@ import {
   takeAddresses,
   type AddressEntry,
 } from '../lib/principals';
+import { readFirstPox5Cycle } from '../lib/rewards';
 import { signerHref, statusHref } from '../lib/route';
 import { cyclesRemaining, fetchCycleState } from '../lib/staking';
 import {
@@ -18,11 +19,12 @@ import {
 } from '../lib/status';
 import { ellipsedAddr } from '../lib/strings';
 import type { Signer } from '../lib/types';
+import AddressRewards from './AddressRewards';
 import Badge from './Badge';
 import LocaleSwitch from './LocaleSwitch';
 
 /**
- * What one or more addresses are staking.
+ * What one or more addresses are staking, and what it has earned them.
  *
  * The one page here that asks a node about something a reader typed, and the
  * one that says "you" — everywhere else the guide describes pools, and this
@@ -36,6 +38,16 @@ import LocaleSwitch from './LocaleSwitch';
  * anybody with more than one address has already got written down somewhere.
  * Both end in the same place, and looking a list up rewrites the hash so the
  * result is a link that can be sent on.
+ *
+ * The rewards half of it used to be `#/rewards/mine`, its own page with its
+ * own box asking for the same address to answer the other half of the same
+ * question — where is my STX, and what has it earned. Nobody arrives wanting
+ * one and not the other, and having to know which page held which answer was
+ * the whole of the difficulty. So the reads are stacked rather than the pages:
+ * the position is cheap and every row gets it, and {@link AddressRewards} —
+ * a call to pox-5 per cycle, then the pool — hangs off the row it belongs to,
+ * opened by a reader who wants it or opened already when there is only one
+ * address on the page and no ambiguity about what they came to ask.
  */
 export default function StatusPage({
   principals,
@@ -58,8 +70,16 @@ export default function StatusPage({
   const [dropped, setDropped] = useState(0);
   const [reading, setReading] = useState(false);
   const [currentCycle, setCurrentCycle] = useState<number | null>(null);
+  /** The first cycle pox-5 holds anything for; read once, used by every row. */
+  const [firstCycle, setFirstCycle] = useState<number | null>(null);
   /** Bumped per look-up, so a slow one cannot land on top of a newer one. */
   const readId = useRef(0);
+
+  useEffect(() => {
+    // Once for the page rather than once per row: it is the same answer for
+    // everybody, and the rows that want it are the expensive ones already.
+    void readFirstPox5Cycle().then(setFirstCycle).catch(() => {});
+  }, []);
 
   const asked: AddressEntry[] = useMemo(
     () => principals.map((address) => ({ address, label: null })),
@@ -213,6 +233,11 @@ export default function StatusPage({
                 row={row}
                 signers={signers}
                 currentCycle={currentCycle}
+                firstCycle={firstCycle}
+                // One address on the page is a reader who asked about that
+                // address. Several is a list being scanned, and asking pox-5
+                // sixty times for each of them is not what they asked for.
+                autoRewards={rows.length === 1}
                 locale={locale}
               />
             ))}
@@ -224,16 +249,20 @@ export default function StatusPage({
   );
 }
 
-/** One address, in the staking dialog's words. */
+/** One address, in the staking dialog's words, with what it has earned under it. */
 function StatusCard({
   row,
   signers,
   currentCycle,
+  firstCycle,
+  autoRewards,
   locale,
 }: {
   row: AddressStatus;
   signers: Signer[];
   currentCycle: number | null;
+  firstCycle: number | null;
+  autoRewards: boolean;
   locale: Locale;
 }) {
   const t = translator(locale);
@@ -385,6 +414,20 @@ function StatusCard({
                 {t('status.aboutPool', { pool: pool.displayName })}
               </a>
             </p>
+          )}
+
+          {/* Only for a position we can key the reads by: pox-5 is asked
+              about a staker *of a signer*, and a row whose address never
+              resolved has nothing to ask about. */}
+          {row.address !== null && (
+            <AddressRewards
+              address={row.address}
+              signer={row.position.signer}
+              firstCycle={firstCycle}
+              currentCycle={currentCycle}
+              auto={autoRewards}
+              locale={locale}
+            />
           )}
         </>
       )}

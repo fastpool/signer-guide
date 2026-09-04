@@ -466,9 +466,9 @@ const messages = {
    * same facts — one vocabulary for one thing. These are the page around it.
    */
   'status.back': '← All pools',
-  'status.heading': 'Where is my STX staked?',
+  'status.heading': 'Where is my STX, and what has it earned?',
   'status.intro':
-    'Paste an address and see what it is staking, with whom, and until when. Nothing is sent anywhere — the addresses are read straight from the chain and never leave this page.',
+    'Paste an address and see what it is staking, with whom, until when, and what sBTC is waiting for it. Nothing is sent anywhere — the addresses are read straight from the chain and never leave this page.',
   'status.inputLabel': 'Stacks addresses or BNS names',
   'status.inputHint':
     'One per line, or separated by commas. Up to {max}. BNS names like friedger.btc work, so do contract addresses, and anything after a # is kept as a label.',
@@ -498,25 +498,41 @@ const messages = {
   'status.readNote':
     'Read from the chain just now, one address at a time. Everything else in this guide comes from a file refreshed each hour; this cannot, because it is about addresses only you know.',
   'status.open': 'Check an address',
-  'myRewards.open': 'My rewards',
-  'myRewards.back': '← Back to the pools',
-  'myRewards.heading': 'What are my rewards?',
-  'myRewards.intro':
-    'Rewards are not sent to you — they wait until somebody fetches them, and for most of the last cycle nobody has. Put in an address to see what is being held for it, where, and who can move it.',
-  'myRewards.inputLabel': 'A Stacks address or a BNS name',
-  'myRewards.inputHint':
-    'One at a time. Each answer is several questions to the chain, asked slowly enough not to be turned away.',
-  'myRewards.lookUp': 'Show my rewards',
-  'myRewards.reading': 'Reading…',
+
+  'howTo.open': 'How staking works',
+  'howTo.back': '← Back to the pools',
+  'howTo.title': 'Staking in three steps',
+  'howTo.intro':
+    'The rest of this guide is the detail. This page is the whole of it.',
+  'howTo.stx.heading': 'Staking STX',
+  'howTo.stx.one.title': 'Choose a signer',
+  'howTo.stx.one.body':
+    'Pick a pool from the list. Its fee, its ceiling and who it lets in are on the card.',
+  'howTo.stx.one.link': 'See the pools',
+  'howTo.stx.two.title': 'Call the stake function',
+  'howTo.stx.two.body':
+    'One transaction from your wallet. Your STX is locked where it already is — it never moves to the pool.',
+  'howTo.stx.three.title': 'Done',
+  'howTo.stx.three.body':
+    'Rewards arrive every week, for as long as you locked — up to 96 cycles, around three and a half years.',
+  'howTo.stx.three.link': 'Check what you are owed',
+  'howTo.sbtc.heading': 'Staking sBTC',
+  'howTo.sbtc.intro':
+    'Same three steps, one difference: the sBTC leaves your wallet and the pool does the staking.',
+  'howTo.sbtc.one.title': 'Choose a pool',
+  'howTo.sbtc.one.body': 'Three are open today.',
+  'howTo.sbtc.two.title': 'Send sBTC to the pool',
+  'howTo.sbtc.two.body':
+    'From the pool’s own app. It holds the sBTC while it is staked.',
+  'howTo.sbtc.three.title': 'The pool takes it from there',
+  'howTo.sbtc.three.body':
+    'It stakes, it claims, and it passes the rewards back to you.',
+  'howTo.sbtc.poolsNote':
+    'They work slightly differently — what they charge, what you hold while it is staked, how quickly you get the sBTC back. Read the pool’s own terms before you send anything; this guide does not read them off the chain the way it reads the signer pools.',
+  'howTo.sbtc.noLink': 'No link on file yet.',
+  'myRewards.title': 'What it has earned',
+  'myRewards.show': 'What has it earned?',
   'myRewards.readingRow': 'Asking pox-5, cycle by cycle…',
-  'myRewards.orCheckAddress': 'or check where your STX is staked',
-  'myRewards.resultsHeading': 'For {address}',
-  'myRewards.unread':
-    'The chain would not answer about this address just now. That is a busy endpoint, not an empty balance — try again in a moment.',
-  'myRewards.notStaking':
-    'This address is not staking with any pool right now, so pox-5 is holding nothing for it. If it staked in an earlier cycle, what it earned then is with that pool.',
-  'myRewards.withPool':
-    'Staking {amount} with {pool}.',
   'myRewards.atPox5': 'Waiting for you at pox-5',
   'myRewards.perCycle': 'Cycle {cycle}: {amount}',
   'myRewards.unreadCycle': 'could not be read',

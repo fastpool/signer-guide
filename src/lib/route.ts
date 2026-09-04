@@ -3,19 +3,27 @@ import { isLookupTarget } from './principals';
 
 /**
  * Hash routing, so the whole guide stays a static file that can be dropped on
- * any host without server rewrites. Four routes:
+ * any host without server rewrites. The routes:
  *   #/                       the list
+ *   #/how-to                 staking in three steps, for somebody who has
+ *                            not done it — the one page here that assumes
+ *                            nothing
  *   #/contract/<profileId>   one signer contract — the code, and every pool
  *                            running it
  *   #/signer/<contractId>    one deployed pool: its signer key, the sibling
  *                            contracts sharing that key, and its history
  *   #/groups                 every group, largest share of the vote first
  *   #/group/<id>             one entity, and every signer node behind it
- *   #/status[/<principals>]  what one or more addresses are staking, if
- *                            anything; empty for the box to paste them into
+ *   #/status[/<principals>]  what one or more addresses are staking and what
+ *                            it has earned them; empty for the box to paste
+ *                            them into
  *   #/rewards/stx-only       full breakdown of the STX-only rewards estimate
  *   #/rewards/stx-only/history   what every distribution has paid so far
- *   #/rewards/mine[/<address>]   what one address is owed, and where it sits
+ *
+ * `#/rewards/mine[/<address>]` was a page of its own — what one address is
+ * owed — until the two were merged: they asked the same question of the same
+ * address and made a reader pick which half they wanted first. It still parses,
+ * onto the status route, because links to it have been handed out.
  *
  * The first two are easy to confuse and are genuinely different pages. A
  * contract is a piece of reviewed code that a dozen pools may share; a signer
@@ -25,14 +33,14 @@ import { isLookupTarget } from './principals';
  */
 export type Route =
   | { name: 'list' }
+  | { name: 'howTo' }
   | { name: 'contract'; profileId: string }
   | { name: 'signer'; contractId: string }
   | { name: 'groups' }
   | { name: 'group'; groupId: string }
   | { name: 'status'; principals: string[] }
   | { name: 'stxOnlyRewards' }
-  | { name: 'stxOnlyHistory' }
-  | { name: 'myRewards'; address: string | null };
+  | { name: 'stxOnlyHistory' };
 
 /** `SP…ADDRESS.contract-name`, which is all a contract id can be. */
 const CONTRACT_ID = /^[A-Z0-9]+\.[a-zA-Z0-9][a-zA-Z0-9-]*$/;
@@ -47,12 +55,16 @@ function decode(value: string): string | null {
 }
 
 export function parseHash(hash: string): Route {
+  if (hash === '#/how-to' || hash === '#/how-to/') return { name: 'howTo' };
+
   // Before the estimate, which is a prefix of it.
   if (hash === '#/rewards/stx-only/history') return { name: 'stxOnlyHistory' };
   if (hash === '#/rewards/stx-only') return { name: 'stxOnlyRewards' };
 
+  // The old rewards page, kept as a way in rather than as a page: an address
+  // in one of those links is one address for the merged page to look up.
   if (hash === '#/rewards/mine' || hash === '#/rewards/mine/') {
-    return { name: 'myRewards', address: null };
+    return { name: 'status', principals: [] };
   }
   const mine = /^#\/rewards\/mine\/(.+)$/.exec(hash);
   if (mine) {
@@ -62,8 +74,8 @@ export function parseHash(hash: string): Route {
     // lands on the empty box, which is a page that still works.
     const typed = decode(mine[1]);
     return {
-      name: 'myRewards',
-      address: typed !== null && isLookupTarget(typed) ? typed : null,
+      name: 'status',
+      principals: typed !== null && isLookupTarget(typed) ? [typed] : [],
     };
   }
 
@@ -118,6 +130,11 @@ export function parseHash(hash: string): Route {
   return { name: 'list' };
 }
 
+/** A link to the three-step explanation of staking. */
+export function howToHref(): string {
+  return '#/how-to';
+}
+
 export function contractHref(profileId: string): string {
   return `#/contract/${profileId}`;
 }
@@ -148,11 +165,6 @@ export function stxOnlyRewardsHref(): string {
 
 export function stxOnlyHistoryHref(): string {
   return '#/rewards/stx-only/history';
-}
-
-/** A link to what one address is owed, or to the empty box for none. */
-export function myRewardsHref(address?: string): string {
-  return address ? `#/rewards/mine/${address}` : '#/rewards/mine';
 }
 
 export function useRoute(): Route {

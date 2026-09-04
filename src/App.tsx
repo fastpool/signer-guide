@@ -7,11 +7,11 @@ import SignerCard from './components/SignerCard';
 import SignerGroupPage from './components/SignerGroupPage';
 import SignerGroupsPage from './components/SignerGroupsPage';
 import SignerPage from './components/SignerPage';
-import MyRewardsPage from './components/MyRewardsPage';
 import StxOnlyHistoryPage from './components/StxOnlyHistoryPage';
 import StxOnlyRewardsEstimate from './components/StxOnlyRewardsEstimate';
 import StatusPage from './components/StatusPage';
 import Chrome from './components/Chrome';
+import HowToStakePage from './components/HowToStakePage';
 import { stxLabel, sumUstx } from './lib/amounts';
 import { useSnapshot } from './lib/data-source';
 import {
@@ -27,7 +27,7 @@ import { PROFILES } from './lib/profiles';
 import {
   contractHref,
   groupsHref,
-  myRewardsHref,
+  howToHref,
   statusHref,
   stxOnlyRewardsHref,
   useRoute,
@@ -164,6 +164,10 @@ export default function App() {
    * `Chrome`, once, around whatever this returns.
    */
   const page = () => {
+    if (route.name === 'howTo') {
+      return <HowToStakePage locale={locale} onLocaleChange={setLocale} />;
+    }
+
     if (route.name === 'contract') {
       const template = templateFor(templates, route.profileId);
       if (template) {
@@ -182,17 +186,6 @@ export default function App() {
       return (
         <StatusPage
           principals={route.principals}
-          signers={signerData.signers}
-          locale={locale}
-          onLocaleChange={setLocale}
-        />
-      );
-    }
-
-    if (route.name === 'myRewards') {
-      return (
-        <MyRewardsPage
-          address={route.address}
           signers={signerData.signers}
           locale={locale}
           onLocaleChange={setLocale}
@@ -331,21 +324,26 @@ export default function App() {
               </a>
             </div>
             <div className='flex flex-wrap items-center gap-3'>
+              {/* First, and the only one of these in solid grape. Everything
+                  else on this page is for a reader who has staked before; this
+                  is the one link for a reader who has not, and it should not
+                  have to be found among the others. */}
+              <a
+                href={howToHref()}
+                className='rounded-full bg-card px-4 py-2 text-sm font-semibold text-ink shadow-lift transition-colors hover:bg-grape-soft'
+              >
+                {t('howTo.open')}
+              </a>
               {/* The one question this guide could not answer until now: not
-                  which pool to pick, but where your own STX already is. It was
-                  below the pool list, which is the last place somebody arriving
-                  with that question would look. */}
+                  which pool to pick, but where your own STX already is — and,
+                  since the rewards page was folded into it, what it has earned
+                  there. Two buttons for one address was the reader being asked
+                  to guess which half of the answer they wanted first. */}
               <a
                 href={statusHref()}
                 className='rounded-full bg-card px-4 py-2 text-sm font-semibold text-ink shadow-lift transition-colors hover:bg-grape-soft'
               >
                 {t('status.open')}
-              </a>
-              <a
-                href={myRewardsHref()}
-                className='rounded-full bg-card px-4 py-2 text-sm font-semibold text-ink shadow-lift transition-colors hover:bg-grape-soft'
-              >
-                {t('myRewards.open')}
               </a>
               {/* The list below is forty-odd pools read one at a time. This is
                   the same set read the other way round — by who is behind them —

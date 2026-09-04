@@ -500,9 +500,9 @@ export const ko: LocaleBundle = {
     'signerPage.noMembers': '이 사이클의 참여자 목록이 없습니다.',
 
     'status.back': '← 전체 풀',
-    'status.heading': '내 STX는 어디에 스테이킹되어 있을까?',
+    'status.heading': '내 STX는 어디에 있고, 얼마를 벌었을까?',
     'status.intro':
-      '주소를 붙여넣으면 무엇을, 어느 풀에, 언제까지 스테이킹했는지 확인할 수 있습니다. 주소는 이 페이지를 벗어나지 않으며 체인에서 직접 읽습니다.',
+      '주소를 붙여넣으면 무엇을, 어느 풀에, 언제까지 스테이킹했는지, 그리고 어떤 sBTC가 기다리고 있는지 확인할 수 있습니다. 주소는 이 페이지를 벗어나지 않으며 체인에서 직접 읽습니다.',
     'status.inputLabel': 'Stacks 주소 또는 BNS 이름',
     'status.inputHint':
       '한 줄에 하나씩, 또는 쉼표로 구분해 최대 {max}개까지. friedger.btc 같은 BNS 이름과 컨트랙트 주소도 가능하며 # 뒤의 내용은 라벨로 표시됩니다.',
@@ -532,24 +532,41 @@ export const ko: LocaleBundle = {
     'status.readNote':
       '방금 체인에서 주소를 하나씩 읽었습니다. 이 가이드의 다른 정보는 매시간 갱신되는 파일에서 오지만, 이 페이지는 여러분만 아는 주소를 다루므로 그럴 수 없습니다.',
     'status.open': '주소 조회',
-    'myRewards.open': '내 보상',
-    'myRewards.back': '← 풀 목록으로',
-    'myRewards.heading': '내 보상은 얼마인가요?',
-    'myRewards.intro':
-      '보상은 저절로 오지 않습니다. 누군가 가져와야 하며, 지난 사이클 대부분은 아직 아무도 가져오지 않았습니다. 주소를 넣으면 무엇이 어디에 얼마나 남아 있고 누가 움직일 수 있는지 보여줍니다.',
-    'myRewards.inputLabel': 'Stacks 주소 또는 BNS 이름',
-    'myRewards.inputHint':
-      '한 번에 하나씩. 한 건의 답을 위해 체인에 여러 번 물어보며, 거절당하지 않을 만큼 천천히 진행합니다.',
-    'myRewards.lookUp': '내 보상 보기',
-    'myRewards.reading': '읽는 중…',
+
+    'howTo.open': '스테이킹하는 법',
+    'howTo.back': '← 풀 목록으로',
+    'howTo.title': '세 단계로 끝나는 스테이킹',
+    'howTo.intro':
+      '이 가이드의 나머지는 세부 사항입니다. 이 페이지가 전부입니다.',
+    'howTo.stx.heading': 'STX 스테이킹',
+    'howTo.stx.one.title': '서명자를 고르세요',
+    'howTo.stx.one.body':
+      '목록에서 풀을 하나 고릅니다. 수수료와 상한, 누구를 받아주는지가 카드에 적혀 있습니다.',
+    'howTo.stx.one.link': '풀 목록 보기',
+    'howTo.stx.two.title': 'stake 함수를 호출하세요',
+    'howTo.stx.two.body':
+      '지갑에서 트랜잭션 한 번이면 됩니다. STX는 있던 자리에서 잠길 뿐, 풀로 옮겨가지 않습니다.',
+    'howTo.stx.three.title': '끝났습니다',
+    'howTo.stx.three.body':
+      '잠근 기간 동안 매주 보상이 들어옵니다. 최대 96 사이클, 약 3년 반입니다.',
+    'howTo.stx.three.link': '받을 보상 확인하기',
+    'howTo.sbtc.heading': 'sBTC 스테이킹',
+    'howTo.sbtc.intro':
+      '단계는 똑같고 한 가지만 다릅니다. sBTC는 지갑을 떠나고, 스테이킹은 풀이 대신 합니다.',
+    'howTo.sbtc.one.title': '풀을 고르세요',
+    'howTo.sbtc.one.body': '현재 세 곳이 열려 있습니다.',
+    'howTo.sbtc.two.title': 'sBTC를 보내세요',
+    'howTo.sbtc.two.body':
+      '각 풀의 앱에서 보냅니다. 스테이킹되어 있는 동안 sBTC는 풀이 보관합니다.',
+    'howTo.sbtc.three.title': '나머지는 풀이 합니다',
+    'howTo.sbtc.three.body':
+      '풀이 스테이킹하고 보상을 수령해 여러분에게 돌려줍니다.',
+    'howTo.sbtc.poolsNote':
+      '세부 사항은 조금씩 다릅니다. 얼마를 떼는지, 스테이킹 중에 무엇을 들고 있게 되는지, sBTC를 얼마나 빨리 돌려받는지가 다릅니다. 보내기 전에 각 풀의 약관을 직접 읽어 보세요. 이 가이드는 서명자 풀과 달리 이들의 조건을 체인에서 읽어 오지 않습니다.',
+    'howTo.sbtc.noLink': '아직 등록된 링크가 없습니다.',
+    'myRewards.title': '이 주소가 번 금액',
+    'myRewards.show': '얼마를 벌었나요?',
     'myRewards.readingRow': 'pox-5에 사이클별로 물어보는 중…',
-    'myRewards.orCheckAddress': '또는 내 STX가 어디에 스테이킹되어 있는지 확인',
-    'myRewards.resultsHeading': '{address}의 보상',
-    'myRewards.unread':
-      '지금은 체인이 이 주소에 대해 답하지 않았습니다. 잔액이 없다는 뜻이 아니라 엔드포인트가 바쁘다는 뜻이니 잠시 후 다시 시도하세요.',
-    'myRewards.notStaking':
-      '이 주소는 현재 어떤 풀에도 스테이킹하고 있지 않아 pox-5가 보관 중인 금액이 없습니다. 이전 사이클에 스테이킹했다면 그때 받은 보상은 해당 풀에 있습니다.',
-    'myRewards.withPool': '{pool}에 {amount}를 스테이킹 중입니다.',
     'myRewards.atPox5': 'pox-5에서 기다리는 금액',
     'myRewards.perCycle': '{cycle} 사이클: {amount}',
     'myRewards.unreadCycle': '읽지 못했습니다',
