@@ -9,11 +9,11 @@
       "ustx": {
         "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1": "15263629719881"
       },
-      "memberCount": 562,
+      "memberCount": 564,
       "membersAddUp": true,
-      "walks": 8,
-      "walkedAt": "2026-09-05T23:58:52.380Z",
-      "walkedUstx": "14714223619881",
+      "walks": 9,
+      "walkedAt": "2026-09-07T00:00:44.910Z",
+      "walkedUstx": "15263629719881",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -45,5 +45,5 @@
     }
   ],
   "currentCycle": 142,
-  "generatedAt": "2026-09-06T21:29:22.514Z"
+  "generatedAt": "2026-09-07T00:02:35.211Z"
 }
