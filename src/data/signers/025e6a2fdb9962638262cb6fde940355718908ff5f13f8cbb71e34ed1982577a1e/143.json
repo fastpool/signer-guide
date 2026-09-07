@@ -1,0 +1,11 @@
+{
+  "signerKey": "0x025e6a2fdb9962638262cb6fde940355718908ff5f13f8cbb71e34ed1982577a1e",
+  "cycle": 143,
+  "members": [
+    {
+      "staker": "SP8MB1XT8NZXVMDKMZWXX9G56QP9N1V57EH8FQ09",
+      "ustx": "77559250000",
+      "contractId": "SP206Y7BR5NFCR517VGVX04BSGNA5425GM6DMF9H.signer-manager-hashkeycloud-v1"
+    }
+  ]
+}
