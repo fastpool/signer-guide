@@ -3,6 +3,26 @@
   "cycle": 143,
   "members": [
     {
+      "staker": "SP2SVSZ7XBAC7AQM729MJM7JRX0RJPPN05K0C3EPE",
+      "ustx": "155118500000",
+      "contractId": "SP206Y7BR5NFCR517VGVX04BSGNA5425GM6DMF9H.signer-manager-hashkeycloud-v1"
+    },
+    {
+      "staker": "SP34XGNAPNDXT7ZFPYXXTAN66VYZ8BM1SNA1N44SJ",
+      "ustx": "155118500000",
+      "contractId": "SP206Y7BR5NFCR517VGVX04BSGNA5425GM6DMF9H.signer-manager-hashkeycloud-v1"
+    },
+    {
+      "staker": "SP3BHVH78P9P79KDWVDNWFHT3SAEKJ6CGBVTXYTBH",
+      "ustx": "155118500000",
+      "contractId": "SP206Y7BR5NFCR517VGVX04BSGNA5425GM6DMF9H.signer-manager-hashkeycloud-v1"
+    },
+    {
+      "staker": "SP3TCBS1CQJ0E60N3EJM7FA5ZZJT4E3Y6K3PV7Z02",
+      "ustx": "77559250000",
+      "contractId": "SP206Y7BR5NFCR517VGVX04BSGNA5425GM6DMF9H.signer-manager-hashkeycloud-v1"
+    },
+    {
       "staker": "SP8MB1XT8NZXVMDKMZWXX9G56QP9N1V57EH8FQ09",
       "ustx": "77559250000",
       "contractId": "SP206Y7BR5NFCR517VGVX04BSGNA5425GM6DMF9H.signer-manager-hashkeycloud-v1"
