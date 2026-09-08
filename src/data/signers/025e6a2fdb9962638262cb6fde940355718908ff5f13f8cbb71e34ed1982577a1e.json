@@ -7,7 +7,7 @@
     {
       "cycle": 143,
       "ustx": {
-        "SP206Y7BR5NFCR517VGVX04BSGNA5425GM6DMF9H.signer-manager-hashkeycloud-v1": "77559250000"
+        "SP206Y7BR5NFCR517VGVX04BSGNA5425GM6DMF9H.signer-manager-hashkeycloud-v1": "620474000000"
       },
       "memberCount": 1,
       "membersAddUp": true,
@@ -45,5 +45,5 @@
     }
   ],
   "currentCycle": 142,
-  "generatedAt": "2026-09-08T04:48:56.748Z"
+  "generatedAt": "2026-09-08T09:49:29.525Z"
 }
