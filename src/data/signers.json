@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-09T19:50:29.920Z",
+  "generatedAt": "2026-09-09T22:37:22.250Z",
   "cycle": 142,
   "standardisedWith": "clarinet 3.23.2",
   "signers": [
@@ -689,6 +689,36 @@
       "earnedFeesSats": "1896",
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
+        "openToAnyone": null,
+        "maxFee": null
+      }
+    },
+    {
+      "contractId": "SP3ZA8J49HPS7M3KD7EB01Y0ZAJS7VJS2NG87MDGN.planbetter-signer-manager",
+      "displayName": "Planbetter",
+      "displayNameSource": "contract",
+      "implementationName": null,
+      "registered": true,
+      "firstSeenCycle": 142,
+      "signerKey": "0x023f96d7650baa87d09beca7d024a14a3f84dada24de608d2221d81a967f82c368",
+      "sourceSha256": "88ed3dc12ca60886ec283304cf230707fcf85a3f74228ec9f05b1b14dce5debe",
+      "canonicalSha256": "b07f60077a3e7463e50cc7bfb4f3cf6b747d96cf1999fd1d2905a5ca80ae263e",
+      "groupSha256": "b52f096114ec55623aa82dde6b89a6849107e42c48d71e93a042374ea7433d14",
+      "identiconHash": null,
+      "match": "unknown",
+      "profileId": null,
+      "bitcoinRewards": false,
+      "openToAnyone": true,
+      "feeBips": null,
+      "maxFeeBips": null,
+      "feeChangeNotice": null,
+      "feeExemption": null,
+      "undistributedSats": null,
+      "unclaimedFromPoxSats": "0",
+      "unclaimedFromCycle": 142,
+      "earnedFeesSats": "0",
+      "evidence": {
+        "bitcoinRewards": "(try! (check-pox-addr pox-addr))",
         "openToAnyone": null,
         "maxFee": null
       }
