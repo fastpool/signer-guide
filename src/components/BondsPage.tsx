@@ -269,8 +269,23 @@ function StakerRow({
   const pool = signers.find((s) => s.contractId === staker.signer);
 
   return (
-    <li className='flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1'>
-      <span className='min-w-0'>
+    /*
+     * Two columns, and the amount column is pinned rather than allowed to
+     * drop.
+     *
+     * A staker id can be a contract with a long name — `shortPrincipal` keeps
+     * those whole on purpose, since the name is the only part a reader
+     * recognises — and with both halves free to wrap, the one row that had one
+     * pushed its amounts onto a second line and left them aligned to the
+     * *left* margin. That is the column the page exists to let somebody run
+     * their eye down, so it is given a width of its own and the description
+     * wraps inside its own column instead.
+     *
+     * Stacked below `sm`, where there is not room for two columns and the
+     * amount reads better under the name than squeezed beside it.
+     */
+    <li className='flex flex-wrap items-baseline gap-x-4 gap-y-1 sm:flex-nowrap'>
+      <span className='min-w-0 flex-1 break-words'>
         <a
           className='font-medium underline underline-offset-2 hover:text-grape'
           href={explorerUrl(staker.staker)}
@@ -280,9 +295,9 @@ function StakerRow({
           {shortPrincipal(staker.staker)}
         </a>
         {/*
-         * How the bitcoin is held, and through which pool. Only for a staker
-         * who has actually registered: both facts come from the membership,
-         * and an invited staker has none.
+         * How the bitcoin is held, through which pool, and the STX locked
+         * beside it. Only for a staker who has actually registered: all three
+         * come from the membership, and an invited staker has none.
          */}
         {locked && (
           <span className='ml-2 text-sm text-muted'>
@@ -295,21 +310,27 @@ function StakerRow({
                 })}
               </>
             )}
-          </span>
-        )}
-        {locked && staker.amountUstx !== null && (
-          <span className='ml-2 text-sm text-muted'>
-            {stxLabel(staker.amountUstx, locale)}
+            {staker.amountUstx !== null && (
+              <> · {stxLabel(staker.amountUstx, locale)}</>
+            )}
           </span>
         )}
       </span>
-      <span className='shrink-0 text-right text-sm'>
+      {/*
+       * Each half kept whole, so a column too narrow for both breaks between
+       * the amount and the ceiling rather than inside either of them.
+       */}
+      <span className='shrink-0 text-sm sm:w-44 sm:text-right'>
         {locked ? (
-          <strong>{btcLabel(staker.registeredSats, locale)}</strong>
+          <strong className='whitespace-nowrap'>
+            {btcLabel(staker.registeredSats, locale)}
+          </strong>
         ) : (
-          <span className='text-muted'>{t('app.bonds.notLockedYet')}</span>
-        )}
-        <span className='ml-2 text-muted'>
+          <span className='whitespace-nowrap text-muted'>
+            {t('app.bonds.notLockedYet')}
+          </span>
+        )}{' '}
+        <span className='whitespace-nowrap text-muted'>
           {t('app.bonds.ofCeiling', {
             ceiling: btcLabel(staker.maxSats, locale),
           })}
