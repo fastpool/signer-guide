@@ -7,13 +7,13 @@
     {
       "cycle": 143,
       "ustx": {
-        "SP20XZGWBWSMRE94WDJ6YJ1EKPJ55RGRGK4JDJHNK.signer-manager-pox5": "361882879850"
+        "SP20XZGWBWSMRE94WDJ6YJ1EKPJ55RGRGK4JDJHNK.signer-manager-pox5": "360000500110"
       },
-      "memberCount": 2,
+      "memberCount": 1,
       "membersAddUp": true,
-      "walks": 3,
-      "walkedAt": "2026-09-06T17:08:40.834Z",
-      "walkedUstx": "361882879850",
+      "walks": 4,
+      "walkedAt": "2026-09-09T00:21:34.996Z",
+      "walkedUstx": "360000500110",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -45,5 +45,5 @@
     }
   ],
   "currentCycle": 142,
-  "generatedAt": "2026-09-08T21:56:02.036Z"
+  "generatedAt": "2026-09-09T00:21:43.067Z"
 }
