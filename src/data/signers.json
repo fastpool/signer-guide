@@ -1,8 +1,38 @@
 {
-  "generatedAt": "2026-09-09T11:32:48.396Z",
+  "generatedAt": "2026-09-09T16:44:36.240Z",
   "cycle": 142,
   "standardisedWith": "clarinet 3.23.2",
   "signers": [
+    {
+      "contractId": "SP157D30QDYQPJ1AZPHVKKQVTTHPH0558Y8PA29SP.pb-signer-manager",
+      "displayName": "Pb",
+      "displayNameSource": "contract",
+      "implementationName": null,
+      "registered": true,
+      "firstSeenCycle": 142,
+      "signerKey": "0x024af09892a492e78f91b39818e8136ddd527df7d5cde23a71906b7fbde8f905e2",
+      "sourceSha256": "f6005f18da5b6b6e13136a85cdb5d8344ed2f2b1bbfc595566c816a45398e91f",
+      "canonicalSha256": "8e6c641d7c35f0732a154563113c0d19aa21af508180683d093be78b339ddf0c",
+      "groupSha256": "abd7d55c747dee025ceb9e29a177cc9b4906b018b228044415e957038a3c1f70",
+      "identiconHash": null,
+      "match": "unknown",
+      "profileId": null,
+      "bitcoinRewards": false,
+      "openToAnyone": true,
+      "feeBips": null,
+      "maxFeeBips": null,
+      "feeChangeNotice": null,
+      "feeExemption": null,
+      "undistributedSats": null,
+      "unclaimedFromPoxSats": "0",
+      "unclaimedFromCycle": 142,
+      "earnedFeesSats": "0",
+      "evidence": {
+        "bitcoinRewards": "(try! (check-pox-addr pox-addr))",
+        "openToAnyone": null,
+        "maxFee": null
+      }
+    },
     {
       "contractId": "SP1N3G8X1X2FTZFD5Y9MAT8KHE1FVBE2GPKAPVSSV.meria-signer-manager",
       "displayName": "Meria",

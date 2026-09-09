@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-09-09T11:15:14.825Z",
+  "generatedAt": "2026-09-09T16:45:03.750Z",
   "cycle": 142,
-  "burnHeight": 966192,
+  "burnHeight": 966240,
   "firstBondPeriodCycle": 141,
   "gapCycles": 2,
   "lengthCycles": 12,
@@ -31,7 +31,7 @@
     "stxValueRatio": "310237",
     "minUstxRatio": 500,
     "allowlistedSats": "25000500000",
-    "registeredSats": "22000450000",
+    "registeredSats": "23017662628",
     "allowlistComplete": true,
     "stakers": [
       {
@@ -53,10 +53,10 @@
       {
         "staker": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.sbtc-bond-staker-v1-1",
         "maxSats": "2500000000",
-        "registeredSats": "0",
-        "amountUstx": null,
-        "isL1Lock": null,
-        "signer": null
+        "registeredSats": "517841845",
+        "amountUstx": "80326850251",
+        "isL1Lock": false,
+        "signer": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-2"
       },
       {
         "staker": "SP2SVSZ7XBAC7AQM729MJM7JRX0RJPPN05K0C3EPE",
@@ -109,10 +109,10 @@
       {
         "staker": "SPFCGF789WX1B737VQYAQ6BG3QYVMJGPDKRKYK00.esbee-dao-bond-staker-1",
         "maxSats": "500000000",
-        "registeredSats": "0",
-        "amountUstx": null,
-        "isL1Lock": null,
-        "signer": null
+        "registeredSats": "499370783",
+        "amountUstx": "77461646805",
+        "isL1Lock": false,
+        "signer": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
       },
       {
         "staker": "SM2J8M7RZF347FG2B3F9EQP7ES8J514AY03EMGGSG",
