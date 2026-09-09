@@ -25,7 +25,7 @@ pnpm dev
 
 pnpm members max500     # who stakes with a pool, and how much each of them has
 pnpm movement max500 141 142   # who joined and left between two cycles, and where they went
-pnpm addresses --file addresses.txt --token sbtc   # what a list of addresses holds
+pnpm addresses --file addresses.txt   # what a list of addresses holds, sBTC included
 
 pnpm card:lesson        # a shareable card of something the chain taught us
 pnpm film:lesson        # the same lesson as a nine-second film, with a score
@@ -492,8 +492,10 @@ of them somebody has to do something about.
 
 ```bash
 pnpm addresses SP2C2… SP3VR…
-pnpm addresses --file addresses.txt --token sbtc
+pnpm addresses --file addresses.txt --token alex
 pnpm addresses --file addresses.txt --min-stx 1000 --ending-in 3 --json
+pnpm addresses --file addresses.txt --cache held.json   # ask once
+pnpm addresses --from-cache held.json --json            # report many times
 ```
 
 Two reads per address — `/extended/v1/address/{principal}/balances` for STX,
@@ -516,14 +518,52 @@ worth knowing during the changeover: locked STX with no pox-5 position is a
 pox-4 stack, which "not staking" would describe wrongly and "staking" would
 describe worse.
 
-`--token` takes an asset identifier or any part of one. A fragment matching
-two assets — `sbtc` is both `sbtc-token` and `sbtc-token-locked` — is reported
-rather than resolved, but one the query names in full wins over one that
-merely contains it. A full identifier is taken as itself even when nobody in
-the list holds it, since "which of these is missing it" is the question.
+sBTC has a column without being asked for. The balances call already carries
+every fungible token, so it costs no extra request, and on a list of addresses
+in this repo's world it is the token that is always the question. It is what
+each address holds itself: sBTC locked against a pox-5 bond is custodied by
+pox-5 and is in nobody's balance, so it is not in that column —
+`get-staker-custodied-sbtc` is the read for that, and a different question.
 
-The script writes nothing to disk. The list of addresses is yours, and where
-it lives is not a script's decision.
+`--token` names any other, and takes an asset identifier or any part of one. A
+fragment matching two assets — `sbtc` is both `sbtc-token` and
+`sbtc-token-locked` — is reported rather than resolved, but one the query names
+in full wins over one that merely contains it. A full identifier is taken as
+itself even when nobody in the list holds it, since "which of these is missing
+it" is the question. Naming sBTC that way folds the two columns into one rather
+than printing the same number twice.
+
+#### Asking once and reporting many times
+
+The asking is the slow part — two paced, rate-limited requests an address — and
+the reporting is instant and is what somebody actually iterates on. So
+`--cache` writes down every answer the API gave, and `--from-cache` reports off
+that file without a single request, in under a second.
+
+A cached run is frozen at the moment of capture, cycle included: the flags
+compare a stake's end against the cycle it was read in, and pairing yesterday's
+stakes with today's cycle would invent a warning nobody could act on. Every
+cached report says when it was captured, in the header and in the JSON, because
+a figure about somebody's money must never quietly read as current. `--token`
+on a cached run stays offline too, falling back to the asset's own name rather
+than reaching for metadata.
+
+Addresses named alongside `--from-cache` narrow it to those; one the capture has
+nothing on is reported `unread` rather than dropped, since dropping it would
+answer "nothing needs attention" about an address the run never looked at. The
+two flags are refused together — a narrowed run rewriting the capture with a
+subset of itself is how the slow part gets paid for twice.
+
+The `--cache` path is checked before a single request goes out — a directory, a
+missing parent, an unwritable file, or the flag with no path at all stops the
+run in under a second. The write happens at the end, after minutes of paced
+asking, so a typo caught then would throw away the answers, the report and the
+retry round with them. If the write fails anyway, because something changed
+underneath, the report still prints and says the answers were not kept.
+
+Nothing is written unless `--cache` asks for it, and there is no default path.
+That file holds balances for addresses only their owner has a list of, so where
+it lives is theirs to decide, not a script's.
 
 ## Whether the signer turns up
 

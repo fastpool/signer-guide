@@ -18,25 +18,50 @@
  * pox-4 changeover is most of them. None of that is visible in a balance, and
  * none of it is visible in a stake — it is only visible in both at once.
  *
+ * sBTC gets a column of its own, without being asked for. The balances call
+ * above already carries it — every fungible token in one request — so it
+ * costs nothing, and on a list of addresses in this repo's world it is the
+ * one token that is always the question. `--token` still names any other.
+ *
  * Usage:
  *   npx tsx scripts/address-report.ts SP2C2… SP3VR…
- *   npx tsx scripts/address-report.ts --file addresses.txt --token sbtc
+ *   npx tsx scripts/address-report.ts --file addresses.txt --token alex
  *   npx tsx scripts/address-report.ts --file addresses.txt --json
+ *   npx tsx scripts/address-report.ts --file addresses.txt --cache held.json
+ *   npx tsx scripts/address-report.ts --from-cache held.json --json
  *
  *   --file <path>     addresses one per line; blank lines and # comments skipped
  *   --token <name>    a token to report and flag, as an asset identifier or
- *                     any part of one ("sbtc"). Fungible or NFT.
+ *                     any part of one ("alex"). Fungible or NFT.
  *   --min-token <n>   flag an address holding less than this much of it
  *                     (default: any amount at all is enough)
  *   --min-stx <n>     how much unlocked STX counts as idle (default 100)
  *   --ending-in <n>   flag a stake ending within this many cycles (default 2)
+ *   --cache <path>    also write every answer the API gave to this file
+ *   --from-cache <p>  report on a file written by --cache, asking nothing
  *   --json            the whole report as JSON
  *
  * Reads STACKS_API_URL and HIRO_API_KEY — see scripts/node.ts.
  *
- * Nothing here is written to a file. It answers a question somebody asked
- * this morning about addresses only they have a list of; committing that list
- * or its balances into a public repo is not something a script should decide.
+ * ## Asking once and reporting many times
+ *
+ * The asking is the slow, rate-limited, and rate-limited-again part: two
+ * requests an address, paced, and a long list run anonymously takes minutes.
+ * The reporting is instant and is what somebody actually iterates on — a
+ * different `--min-stx`, a different token, JSON this time.
+ *
+ * So `--cache` writes down what the API said, and `--from-cache` reports off
+ * that file without a single request. A cached run is deliberately frozen at
+ * the moment of capture, cycle included: the flags compare a stake's end
+ * against the cycle it was read in, and pairing yesterday's stakes with
+ * today's cycle would invent a warning nobody could act on. Every cached
+ * report says when it was captured, in the header and in the JSON, because a
+ * figure about somebody's money must never quietly read as current.
+ *
+ * Nothing is written unless `--cache` asks for it. That file holds balances
+ * for addresses only its owner has a list of, so it is theirs to put
+ * somewhere — committing that into a public repo is not something a script
+ * should decide, which is why there is no default path.
  */
 
 import * as fs from 'node:fs';
@@ -79,6 +104,31 @@ const SIGNERS = path.join(
 // The parts with no node in them
 // ---------------------------------------------------------------------------
 
+/**
+ * sBTC, which gets a column whether or not anybody asked for one.
+ *
+ * The full asset identifier, not the contract: the balances endpoint keys
+ * fungible tokens by asset, and this contract defines two of them —
+ * `sbtc-token` and `sbtc-token-locked`. This is the liquid one, which is what
+ * "how much sBTC does this address have" means.
+ *
+ * sBTC locked against a pox-5 bond is in neither: pox-5 custodies it, and the
+ * address's balance goes down by exactly that much. `get-staker-custodied-sbtc`
+ * is the read for that, and it is a different question from this column.
+ */
+export const SBTC_ASSET =
+  'SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token::sbtc-token';
+
+/**
+ * What to divide sBTC by when nobody on the list holds any.
+ *
+ * Metadata is fetched for every asset the list actually holds, so on a run
+ * where sBTC turns up the decimals come from the chain like every other
+ * token's. This is only for the column of zeroes on a list holding none —
+ * where the scale cannot change the answer, and eight is right anyway.
+ */
+export const SBTC_DECIMALS = 8;
+
 export interface Options {
   addresses: string[];
   file: string | null;
@@ -86,7 +136,27 @@ export interface Options {
   minToken: string | null;
   minStx: string;
   endingIn: number;
+  cache: string | null;
+  fromCache: string | null;
   json: boolean;
+}
+
+/**
+ * The path after a flag, refusing a flag that was given without one.
+ *
+ * The older options read a missing value as "not given" and carry on, which
+ * for `--token` costs a column. For these two it would cost the whole point
+ * of the run: `--cache` with nothing after it would ask for everything, keep
+ * none of it, and say nothing about that until somebody went looking for the
+ * file. A path that looks like another flag is the same mistake typed
+ * differently.
+ */
+function takesPath(flag: string, argv: string[], at: number): string {
+  const value = argv[at];
+  if (value === undefined || value.startsWith('--')) {
+    throw new Error(`${flag} takes the path of a file`);
+  }
+  return value;
 }
 
 export function parseArgs(argv: string[]): Options {
@@ -97,6 +167,8 @@ export function parseArgs(argv: string[]): Options {
     minToken: null,
     minStx: '100',
     endingIn: 2,
+    cache: null,
+    fromCache: null,
     json: false,
   };
 
@@ -108,6 +180,10 @@ export function parseArgs(argv: string[]): Options {
     else if (arg === '--min-token') options.minToken = argv[(i += 1)] ?? null;
     else if (arg === '--min-stx') options.minStx = argv[(i += 1)] ?? '';
     else if (arg === '--ending-in') options.endingIn = Number(argv[(i += 1)]);
+    else if (arg === '--cache') options.cache = takesPath(arg, argv, (i += 1));
+    else if (arg === '--from-cache') {
+      options.fromCache = takesPath(arg, argv, (i += 1));
+    }
     else if (arg.startsWith('--')) throw new Error(`Unknown option: ${arg}`);
     else options.addresses.push(arg);
   }
@@ -117,6 +193,17 @@ export function parseArgs(argv: string[]): Options {
   }
   if (options.minToken !== null && options.token === null) {
     throw new Error('--min-token needs a --token to be a minimum of');
+  }
+  // Reading a capture and writing one in the same run would rewrite the
+  // capture with whatever this run happened to report on — and with an
+  // address list narrowing it, that is a good file replaced by a subset of
+  // itself. There is no reason to want it, so it is refused rather than
+  // allowed to quietly cost somebody the slow part twice.
+  if (options.cache !== null && options.fromCache !== null) {
+    throw new Error(
+      '--cache writes what the API said and --from-cache reads it back; ' +
+        'a run does one or the other',
+    );
   }
   return options;
 }
@@ -145,6 +232,31 @@ export interface Holdings {
 export function availableStx(holdings: Holdings): bigint | null {
   if (holdings.stxTotal === null || holdings.stxLocked === null) return null;
   return holdings.stxTotal - holdings.stxLocked;
+}
+
+/**
+ * The sBTC an address holds.
+ *
+ * Null, not zero, for an address whose balance would not read: `fungible` is
+ * empty on a failed call exactly as it is on an address holding nothing, and
+ * the two are not the same claim. Every other figure in this report keeps
+ * that distinction and so does this one.
+ */
+export function sbtcHeld(holdings: Holdings): bigint | null {
+  if (holdings.stxTotal === null) return null;
+  return holdings.fungible[SBTC_ASSET] ?? 0n;
+}
+
+/** sBTC across the list. Addresses that would not read are counted, not summed. */
+export function sbtcTotal(all: Holdings[]): { total: bigint; unread: number } {
+  let total = 0n;
+  let unread = 0;
+  for (const holdings of all) {
+    const held = sbtcHeld(holdings);
+    if (held === null) unread += 1;
+    else total += held;
+  }
+  return { total, unread };
 }
 
 /** The cycle a stake ends in — the first cycle it is no longer stacked for. */
@@ -399,6 +511,185 @@ export function stxTotal(all: Holdings[]): StxTotal {
 }
 
 // ---------------------------------------------------------------------------
+// Keeping what the API said
+// ---------------------------------------------------------------------------
+
+/**
+ * Everything one run asked for, so the next one need not ask again.
+ *
+ * The whole answer and not a summary: balances, stakes, token metadata and
+ * the cycle it was all read in. A cache that dropped anything would make
+ * `--from-cache` a different report from the one that captured it, which is
+ * the one thing it must not be.
+ *
+ * `stakeRead` carries what `Holdings.stake` says with three states and JSON
+ * only has two. Undefined there means pox-5 would not answer, and null means
+ * it answered "no position" — the difference between not knowing and knowing
+ * nothing, which this report is largely about. `stakeRead: false` is the
+ * first; `stake: null` with `stakeRead: true` is the second.
+ *
+ * Every amount is a decimal string. `JSON.stringify` throws outright on a
+ * bigint rather than rounding one, so a `Stake` cannot go in as it stands —
+ * and a cache that only worked for addresses with no stake would fail on
+ * exactly the addresses this report is for.
+ */
+export interface CachedReport {
+  /** ISO 8601, and the reason every cached report says its own age out loud. */
+  capturedAt: string;
+  /** Which node answered, so a capture taken against a local node says so. */
+  node: string;
+  /** The cycle at capture. A cached run reports against this, not against today. */
+  cycle: number;
+  addresses: {
+    address: string;
+    label: string | null;
+    stxTotal: string | null;
+    stxLocked: string | null;
+    stake: {
+      signer: string;
+      ustx: string;
+      firstCycle: number;
+      numCycles: number;
+    } | null;
+    stakeRead: boolean;
+    fungible: Record<string, string>;
+    nfts: Record<string, number>;
+  }[];
+  tokenMeta: TokenMeta[];
+}
+
+/**
+ * Whether `--cache` can be written, asked before a single request goes out.
+ *
+ * The write itself happens at the end, after minutes of paced, rate-limited
+ * asking. A path that cannot be written is therefore the most expensive kind
+ * of typo in this script: it throws away the answers, the report and the
+ * retry round with them. `--cache addr` where `addr` is a directory did
+ * exactly that.
+ *
+ * So the path is tested first, and the run stops before it costs anything.
+ * A sentence naming the problem, or null when there is none.
+ */
+export function cachePathProblem(target: string): string | null {
+  if (target === '') return '--cache was given an empty path';
+
+  if (fs.existsSync(target) && fs.statSync(target).isDirectory()) {
+    return (
+      `${target} is a directory — --cache takes the path of the file to ` +
+      'write, and picking a name inside a directory is not a script\'s call'
+    );
+  }
+
+  const parent = path.dirname(path.resolve(target));
+  if (!fs.existsSync(parent)) {
+    return `${parent} does not exist, so ${target} cannot be written`;
+  }
+  try {
+    fs.accessSync(parent, fs.constants.W_OK);
+  } catch {
+    return `${parent} cannot be written to, so neither can ${target}`;
+  }
+
+  // A writable directory is not a writable file: an existing capture could be
+  // read-only, or owned by somebody else.
+  if (fs.existsSync(target)) {
+    try {
+      fs.accessSync(target, fs.constants.W_OK);
+    } catch {
+      return `${target} exists and cannot be written to`;
+    }
+  }
+  return null;
+}
+
+export function toCache(
+  holdings: Holdings[],
+  cycle: number,
+  tokenMeta: Map<string, TokenMeta>,
+  node: string,
+  capturedAt = new Date().toISOString(),
+): CachedReport {
+  return {
+    capturedAt,
+    node,
+    cycle,
+    addresses: holdings.map((h) => ({
+      address: h.address,
+      label: h.label,
+      stxTotal: h.stxTotal === null ? null : h.stxTotal.toString(),
+      stxLocked: h.stxLocked === null ? null : h.stxLocked.toString(),
+      stake: h.stake
+        ? { ...h.stake, ustx: h.stake.ustx.toString() }
+        : null,
+      stakeRead: h.stake !== undefined,
+      fungible: Object.fromEntries(
+        Object.entries(h.fungible).map(([asset, amount]) => [
+          asset,
+          amount.toString(),
+        ]),
+      ),
+      nfts: h.nfts,
+    })),
+    tokenMeta: [...tokenMeta.values()],
+  };
+}
+
+/**
+ * A capture, read back.
+ *
+ * Throws by name on anything that is not one. A cache is a file a person
+ * points at, and pointing at the wrong file should say so rather than produce
+ * a report of no addresses — which would read as a list where nothing needs
+ * attention.
+ */
+export function fromCache(value: unknown): {
+  capturedAt: string;
+  node: string;
+  cycle: number;
+  holdings: Holdings[];
+  tokenMeta: Map<string, TokenMeta>;
+} {
+  const data = value as Partial<CachedReport> | null;
+  if (
+    typeof data !== 'object' ||
+    data === null ||
+    typeof data.capturedAt !== 'string' ||
+    typeof data.cycle !== 'number' ||
+    !Array.isArray(data.addresses)
+  ) {
+    throw new Error('Not an address-report cache — see --cache');
+  }
+
+  const holdings: Holdings[] = data.addresses.map((entry) => ({
+    address: entry.address,
+    label: entry.label ?? null,
+    stxTotal: entry.stxTotal === null ? null : BigInt(entry.stxTotal),
+    stxLocked: entry.stxLocked === null ? null : BigInt(entry.stxLocked),
+    stake: entry.stakeRead
+      ? entry.stake && { ...entry.stake, ustx: BigInt(entry.stake.ustx) }
+      : undefined,
+    fungible: Object.fromEntries(
+      Object.entries(entry.fungible ?? {}).map(([asset, amount]) => [
+        asset,
+        BigInt(amount),
+      ]),
+    ),
+    nfts: entry.nfts ?? {},
+  }));
+
+  const tokenMeta = new Map<string, TokenMeta>();
+  for (const meta of data.tokenMeta ?? []) tokenMeta.set(meta.asset, meta);
+
+  return {
+    capturedAt: data.capturedAt,
+    node: data.node ?? 'an unnamed node',
+    cycle: data.cycle,
+    holdings,
+    tokenMeta,
+  };
+}
+
+// ---------------------------------------------------------------------------
 // The parts that ask
 // ---------------------------------------------------------------------------
 
@@ -649,6 +940,7 @@ function printReport(
   cycle: number,
   thresholds: Thresholds,
   tokenMeta: Map<string, TokenMeta>,
+  captured: { at: string; node: string } | null,
 ) {
   const needing = rows.filter((row) => row.reasons.length > 0);
 
@@ -656,6 +948,15 @@ function printReport(
     `\n${rows.length} address(es), reward cycle ${cycle}` +
       (meta ? `, token ${meta.symbol} (${meta.asset})` : ''),
   );
+  // Said before anything else, and every time: a cached report is a report
+  // about the past, and the one way it could mislead is by not saying so.
+  if (captured) {
+    console.log(
+      `Cached answers captured ${captured.at} from ${captured.node}.` +
+        ' Nothing was asked of the chain, so every figure below is as it was' +
+        ' then — the cycle included.',
+    );
+  }
 
   if (needing.length === 0) {
     console.log('\nNothing needs attention.\n');
@@ -687,6 +988,14 @@ function printReport(
   // One definition of the columns, used by the heading, every row and the
   // totals. Three copies of the widths is how a totals line ends up under the
   // wrong column, which in a report about money is worse than ugly.
+  /*
+   * sBTC has a column of its own unless `--token` already named it, in which
+   * case that column is this one and printing both would be the same number
+   * twice under two headings.
+   */
+  const sbtcColumn = meta?.asset !== SBTC_ASSET;
+  const sbtcDecimals = tokenMeta.get(SBTC_ASSET)?.decimals ?? SBTC_DECIMALS;
+
   const columns: { heading: string; width: number; left?: boolean }[] = [
     { heading: 'address', width: labelled ? 15 : 41, left: true },
     ...(labelled ? [{ heading: 'label', width: 24, left: true }] : []),
@@ -695,6 +1004,7 @@ function printReport(
     { heading: 'with', width: 20, left: true },
     { heading: 'ends', width: 5 },
     ...(meta ? [{ heading: meta.symbol.slice(0, 14), width: 16 }] : []),
+    ...(sbtcColumn ? [{ heading: 'sBTC', width: 16 }] : []),
     { heading: 'NFTs', width: 5 },
   ];
   const line = (cells: string[]) =>
@@ -713,6 +1023,7 @@ function printReport(
     const { holdings } = row;
     const stake = holdings.stake ?? null;
     const held = tokenHeld(holdings, meta);
+    const sbtc = sbtcHeld(holdings);
     const nftCount = Object.values(holdings.nfts).reduce((a, b) => a + b, 0);
 
     console.log(
@@ -725,6 +1036,12 @@ function printReport(
         stake ? `c${unlockCycle(stake)}` : '—',
         ...(meta
           ? [held === null ? '?' : formatUnits(held, meta.decimals)]
+          : []),
+        // '?' rather than a zero, for the same reason the STX column says
+        // "not known": an address this run could not read holds an unknown
+        // amount of sBTC, which is not none of it.
+        ...(sbtcColumn
+          ? [sbtc === null ? '?' : formatUnits(sbtc, sbtcDecimals)]
           : []),
         String(nftCount),
       ]),
@@ -739,6 +1056,7 @@ function printReport(
     }),
     { stx: 0n, staked: 0n, token: 0n },
   );
+  const sbtc = sbtcTotal(rows.map((row) => row.holdings));
 
   console.log('');
   console.log(
@@ -750,6 +1068,7 @@ function printReport(
       '',
       '',
       ...(meta ? [formatUnits(totals.token, meta.decimals)] : []),
+      ...(sbtcColumn ? [formatUnits(sbtc.total, sbtcDecimals)] : []),
       '',
     ]),
   );
@@ -766,6 +1085,17 @@ function printReport(
         : '') +
       ' unread — this run could not find out, which is not the same as nothing.',
   );
+  if (sbtcColumn) {
+    console.log(
+      'sBTC is what each address holds itself. sBTC locked against a pox-5' +
+        ' bond is custodied by pox-5 and is in nobody\'s balance, so it is not' +
+        ' in this column.' +
+        (sbtc.unread
+          ? ` ${sbtc.unread} address(es) would not read, so the total is at` +
+            ' least this much.'
+          : ''),
+    );
+  }
   console.log(
     'Amounts are exact, never rounded. An address the API would not answer' +
       ' for shows as "not known" rather than as empty.\n',
@@ -777,12 +1107,18 @@ function toJson(
   meta: TokenMeta | null,
   cycle: number,
   tokenMeta: Map<string, TokenMeta>,
+  captured: { at: string; node: string } | null,
 ) {
   const holdings = rows.map((row) => row.holdings);
   const stx = stxTotal(holdings);
+  const sbtc = sbtcTotal(holdings);
 
   return {
     cycle,
+    // Null for a run that asked the chain. Present means every figure here
+    // is as it was at `at`, and a consumer that ignores it is reading old
+    // balances as current ones.
+    captured,
     token: meta && {
       asset: meta.asset,
       symbol: meta.symbol,
@@ -795,6 +1131,12 @@ function toJson(
         unlocked: stx.unlocked.toString(),
         holders: stx.holders,
         unread: stx.unread,
+      },
+      sbtc: {
+        asset: SBTC_ASSET,
+        decimals: tokenMeta.get(SBTC_ASSET)?.decimals ?? SBTC_DECIMALS,
+        total: sbtc.total.toString(),
+        unread: sbtc.unread,
       },
       assets: assetTotals(holdings).map((entry) => ({
         asset: entry.asset,
@@ -825,6 +1167,7 @@ function toJson(
             },
       stakingRead: row.holdings.stake !== undefined,
       token: meta && (tokenHeld(row.holdings, meta)?.toString() ?? null),
+      sbtc: sbtcHeld(row.holdings)?.toString() ?? null,
       fungible: Object.fromEntries(
         Object.entries(row.holdings.fungible).map(([k, v]) => [
           k,
@@ -839,6 +1182,17 @@ function toJson(
 
 async function main() {
   const options = parseArgs(process.argv.slice(2));
+
+  // Before the address list, and long before the asking: a `--cache` path
+  // that cannot be written is a run that will cost minutes and keep nothing.
+  if (options.cache !== null) {
+    const problem = cachePathProblem(options.cache);
+    if (problem !== null) {
+      console.error(`Nothing has been asked yet — ${problem}.`);
+      process.exit(1);
+      return;
+    }
+  }
 
   const named: AddressEntry[] = options.addresses.map((address) => ({
     address,
@@ -857,56 +1211,145 @@ async function main() {
     (entry, index) =>
       named.findIndex((other) => other.address === entry.address) === index,
   );
-  if (wanted.length === 0) {
+  // A cached run needs no list: the capture is the list. Naming addresses
+  // alongside it narrows the report to those, which is how somebody asks
+  // about a handful without paying for the whole file again.
+  if (wanted.length === 0 && options.fromCache === null) {
     console.error(
       'Name some addresses, or point at a file of them.\n' +
         '  npx tsx scripts/address-report.ts SP2C2… --token sbtc\n' +
-        '  npx tsx scripts/address-report.ts --file addresses.txt\n',
+        '  npx tsx scripts/address-report.ts --file addresses.txt\n' +
+        '  npx tsx scripts/address-report.ts --from-cache held.json\n',
     );
     process.exit(1);
   }
 
-  if (!options.json) {
-    console.log(
-      `Asking ${describeNode()} about ${wanted.length} address(es) ...`,
+  let cycle: number;
+  let holdings: Holdings[];
+  let tokenMeta: Map<string, TokenMeta>;
+  let captured: { at: string; node: string } | null = null;
+
+  if (options.fromCache !== null) {
+    const cached = fromCache(
+      JSON.parse(fs.readFileSync(options.fromCache, 'utf8')),
     );
-  }
+    cycle = cached.cycle;
+    tokenMeta = cached.tokenMeta;
+    captured = { at: cached.capturedAt, node: cached.node };
 
-  const cycle = await fetchCurrentCycle();
-  if (cycle === null) {
-    console.error('The node would not say what cycle it is in.');
-    process.exit(1);
-    return;
-  }
-
-  const holdings: Holdings[] = [];
-  for (const entry of wanted) holdings.push(await readHoldings(entry));
-
-  // A long list run anonymously outruns the rate limit somewhere in the
-  // middle, and those addresses come back unread — which the report says
-  // plainly, but "run it again" is a poor answer when asking again about the
-  // few that failed costs seconds. Once, at the end, after a pause.
-  const unread = holdings.filter(
-    (h) => h.stxTotal === null || h.stake === undefined,
-  );
-  if (unread.length) {
-    console.error(
-      `  ${unread.length} address(es) went unread; asking again in a moment ...`,
-    );
-    await sleep(RETRY_DELAYS_MS[RETRY_DELAYS_MS.length - 1]);
-    for (const stale of unread) {
-      const fresh = await readHoldings({
-        address: stale.address,
-        label: stale.label,
+    if (wanted.length === 0) {
+      holdings = cached.holdings;
+    } else {
+      /*
+       * The list narrows the capture. An address asked for that the capture
+       * has nothing on is kept rather than dropped, as an address nothing
+       * could be read about — dropping it would answer "nothing needs
+       * attention" about an address this run never looked at.
+       *
+       * The label comes from the list where the list gives one: a label is
+       * the reader's own annotation, and theirs today beats theirs at capture.
+       */
+      const byAddress = new Map(cached.holdings.map((h) => [h.address, h]));
+      holdings = wanted.map((entry) => {
+        const found = byAddress.get(entry.address);
+        if (!found) {
+          return {
+            address: entry.address,
+            label: entry.label,
+            stxTotal: null,
+            stxLocked: null,
+            stake: undefined,
+            fungible: {},
+            nfts: {},
+          };
+        }
+        return { ...found, label: entry.label ?? found.label };
       });
-      Object.assign(stale, fresh);
+      const missing = holdings.filter((h) => !byAddress.has(h.address)).length;
+      if (missing && !options.json) {
+        console.error(
+          `  ${missing} address(es) are not in the capture, and are reported` +
+            ' as unread rather than as empty.',
+        );
+      }
+    }
+  } else {
+    if (!options.json) {
+      console.log(
+        `Asking ${describeNode()} about ${wanted.length} address(es) ...`,
+      );
+    }
+
+    const read = await fetchCurrentCycle();
+    if (read === null) {
+      console.error('The node would not say what cycle it is in.');
+      process.exit(1);
+      return;
+    }
+    cycle = read;
+
+    holdings = [];
+    for (const entry of wanted) holdings.push(await readHoldings(entry));
+
+    // A long list run anonymously outruns the rate limit somewhere in the
+    // middle, and those addresses come back unread — which the report says
+    // plainly, but "run it again" is a poor answer when asking again about the
+    // few that failed costs seconds. Once, at the end, after a pause.
+    const unread = holdings.filter(
+      (h) => h.stxTotal === null || h.stake === undefined,
+    );
+    if (unread.length) {
+      console.error(
+        `  ${unread.length} address(es) went unread; asking again in a moment ...`,
+      );
+      await sleep(RETRY_DELAYS_MS[RETRY_DELAYS_MS.length - 1]);
+      for (const stale of unread) {
+        const fresh = await readHoldings({
+          address: stale.address,
+          label: stale.label,
+        });
+        Object.assign(stale, fresh);
+      }
+    }
+
+    // Every asset anybody holds, so the roll-up can print amounts the way
+    // their holders write them. One request per token contract, and the
+    // answer for `--token` comes out of the same map rather than being asked
+    // for twice.
+    tokenMeta = await readAllTokenMeta(assetTotals(holdings));
+
+    if (options.cache !== null) {
+      /*
+       * Before the report, so a capture survives a report that throws on
+       * something further down — the asking is the part nobody wants to
+       * repeat.
+       *
+       * And never at the report's expense. The path was checked before any
+       * of this ran, so a failure here is something that changed underneath
+       * — a disk filling, a directory going away — and losing the answers is
+       * bad enough without also losing the thing they were asked for.
+       */
+      try {
+        fs.writeFileSync(
+          options.cache,
+          `${JSON.stringify(toCache(holdings, cycle, tokenMeta, API_URL), null, 2)}\n`,
+        );
+        if (!options.json) {
+          console.log(
+            `  Wrote what the API said to ${options.cache} — report off it` +
+              ` again with --from-cache ${options.cache}`,
+          );
+        }
+      } catch (err) {
+        console.error(
+          `  Could not write ${options.cache}: ${
+            err instanceof Error ? err.message : String(err)
+          }\n  The report still follows, but this run's answers were not` +
+            ' kept — reporting again means asking again.',
+        );
+      }
     }
   }
-
-  // Every asset anybody holds, so the roll-up can print amounts the way their
-  // holders write them. One request per token contract, and the answer for
-  // `--token` comes out of the same map rather than being asked for twice.
-  const tokenMeta = await readAllTokenMeta(assetTotals(holdings));
 
   let meta: TokenMeta | null = null;
   if (options.token) {
@@ -926,12 +1369,29 @@ async function main() {
       process.exit(1);
       return;
     }
+    const nft = holdings.some((h) => h.nfts[resolved.asset] !== undefined);
+    /*
+     * A cached run asks nothing, including this.
+     *
+     * The capture carries metadata for every asset the list actually held, so
+     * a `--token` naming one of those is already answered. The gap is a full
+     * asset identifier nobody holds — "which of these is missing it" — and
+     * there the fallback is the asset's own name and no decimals, exactly as
+     * `readTokenMeta` gives for a token with no metadata published. Reaching
+     * for the network here would make `--from-cache` sometimes online, which
+     * is worse than a symbol read off the identifier.
+     */
     meta =
       tokenMeta.get(resolved.asset) ??
-      (await readTokenMeta(
-        resolved.asset,
-        holdings.some((h) => h.nfts[resolved.asset] !== undefined),
-      ));
+      (captured
+        ? {
+            asset: resolved.asset,
+            symbol: assetName(resolved.asset),
+            decimals: 0,
+            nft,
+            known: nft,
+          }
+        : await readTokenMeta(resolved.asset, nft));
   }
 
   const thresholds: Thresholds = {
@@ -969,10 +1429,12 @@ async function main() {
     });
 
   if (options.json) {
-    console.log(JSON.stringify(toJson(rows, meta, cycle, tokenMeta), null, 2));
+    console.log(
+      JSON.stringify(toJson(rows, meta, cycle, tokenMeta, captured), null, 2),
+    );
     return;
   }
-  printReport(rows, meta, cycle, thresholds, tokenMeta);
+  printReport(rows, meta, cycle, thresholds, tokenMeta, captured);
 }
 
 // Only when run, not when imported — see the note in signer-members.ts.

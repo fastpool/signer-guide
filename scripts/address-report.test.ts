@@ -1,14 +1,23 @@
-import { describe, expect, it } from 'vitest';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+import * as path from 'node:path';
+import { afterAll, describe, expect, it } from 'vitest';
 import {
   assetTotals,
   attentionFor,
   availableStx,
+  cachePathProblem,
+  fromCache,
   parseArgs,
   resolveToken,
+  sbtcHeld,
+  sbtcTotal,
   stxTotal,
+  toCache,
   unlockCycle,
   type Holdings,
   type Thresholds,
+  type TokenMeta,
 } from './address-report.js';
 import { parseAddressList } from '../src/lib/principals.js';
 
@@ -330,6 +339,8 @@ describe('the command line', () => {
       minToken: null,
       minStx: '100',
       endingIn: 2,
+      cache: null,
+      fromCache: null,
       json: true,
     });
   });
@@ -338,5 +349,180 @@ describe('the command line', () => {
     expect(() => parseArgs(['--min-token', '1'])).toThrow(/needs a --token/);
     expect(() => parseArgs(['--ending-in', 'soon'])).toThrow(/cycles/);
     expect(() => parseArgs(['--tpo'])).toThrow(/Unknown option/);
+  });
+
+  it('refuses a cache flag given without a path', () => {
+    // The older flags read a missing value as "not given". For these it would
+    // mean asking for everything, keeping none of it, and saying nothing.
+    expect(() => parseArgs(['--cache'])).toThrow(/takes the path/);
+    expect(() => parseArgs(['--from-cache'])).toThrow(/takes the path/);
+    expect(() => parseArgs(['--cache', '--json'])).toThrow(/takes the path/);
+  });
+
+  it('takes the two cache paths', () => {
+    expect(parseArgs(['--file', 'a.txt', '--cache', 'held.json']).cache).toBe(
+      'held.json',
+    );
+    expect(parseArgs(['--from-cache', 'held.json']).fromCache).toBe(
+      'held.json',
+    );
+  });
+
+  it('refuses to read a capture and write one in the same run', () => {
+    // Otherwise a narrowed run rewrites the capture with a subset of itself,
+    // and the slow part has to be paid for twice.
+    expect(() =>
+      parseArgs(['--cache', 'held.json', '--from-cache', 'held.json']),
+    ).toThrow(/one or the other/);
+  });
+});
+
+describe('the sBTC column', () => {
+  it('reads the balance off the address', () => {
+    expect(sbtcHeld(holdings({ fungible: { [SBTC]: 80_873_915_755n } }))).toBe(
+      80_873_915_755n,
+    );
+  });
+
+  it('is zero for an address that holds none', () => {
+    // A real zero: the balance read, and there was none of it.
+    expect(sbtcHeld(holdings())).toBe(0n);
+    expect(sbtcHeld(holdings({ fungible: { [LOCKED_SBTC]: 5n } }))).toBe(0n);
+  });
+
+  it('is not known for an address that would not read', () => {
+    // `fungible` is empty on a failed call exactly as on an empty address,
+    // so the balance failing is what tells the two apart.
+    expect(sbtcHeld(holdings({ stxTotal: null }))).toBeNull();
+  });
+
+  it('adds up what it could read and counts what it could not', () => {
+    expect(
+      sbtcTotal([
+        holdings({ fungible: { [SBTC]: 100n } }),
+        holdings({ fungible: { [SBTC]: 23n } }),
+        holdings({ stxTotal: null }),
+      ]),
+    ).toEqual({ total: 123n, unread: 1 });
+  });
+});
+
+describe('keeping what the API said', () => {
+  const meta: TokenMeta = {
+    asset: SBTC,
+    symbol: 'sBTC',
+    decimals: 8,
+    nft: false,
+    known: true,
+  };
+
+  const captured = [
+    holdings({
+      address: 'SP1',
+      label: 'one',
+      fungible: { [SBTC]: 5n },
+      nfts: { 'SP9.thing::thing': 2 },
+    }),
+    // pox-5 answered "no position".
+    holdings({ address: 'SP2', stake: null }),
+    // pox-5 would not answer at all, which is a different fact.
+    holdings({ address: 'SP3', stake: undefined, stxTotal: null, stxLocked: null }),
+    holdings({ address: 'SP4', stake: staked }),
+  ];
+
+  const roundTrip = () => {
+    const file = toCache(
+      captured,
+      142,
+      new Map([[SBTC, meta]]),
+      'https://api.hiro.so',
+      '2026-09-09T13:20:10.437Z',
+    );
+    // Through JSON, which is where a bigint or an undefined would be lost.
+    return fromCache(JSON.parse(JSON.stringify(file)));
+  };
+
+  it('brings back every amount as the bigint it was', () => {
+    const back = roundTrip();
+    expect(back.holdings[0].fungible[SBTC]).toBe(5n);
+    expect(back.holdings[0].stxTotal).toBe(1_000_000_000n);
+    expect(back.holdings[0].nfts).toEqual({ 'SP9.thing::thing': 2 });
+    expect(back.holdings[3].stake).toEqual(staked);
+  });
+
+  it('keeps "no position" apart from "pox-5 would not say"', () => {
+    // Both are falsy and JSON has one word for them, so this is the pair the
+    // cache is most able to get wrong — and the report reads them as
+    // different flags.
+    const back = roundTrip();
+    expect(back.holdings[1].stake).toBeNull();
+    expect(back.holdings[2].stake).toBeUndefined();
+  });
+
+  it('keeps an unread balance unread rather than zero', () => {
+    expect(roundTrip().holdings[2].stxTotal).toBeNull();
+  });
+
+  it('carries the cycle and the capture time, not today’s', () => {
+    const back = roundTrip();
+    expect(back.cycle).toBe(142);
+    expect(back.capturedAt).toBe('2026-09-09T13:20:10.437Z');
+    expect(back.node).toBe('https://api.hiro.so');
+    expect(back.tokenMeta.get(SBTC)?.decimals).toBe(8);
+  });
+
+  it('refuses a file that is not a capture', () => {
+    // Pointing at the wrong file must say so — a report of no addresses
+    // would read as a list where nothing needs attention.
+    expect(() => fromCache(null)).toThrow(/not an address-report cache/i);
+    expect(() => fromCache({ addresses: [] })).toThrow(/cache/i);
+    expect(() => fromCache({ capturedAt: 'now', cycle: 1 })).toThrow(/cache/i);
+  });
+});
+
+
+describe('where a capture may be written', () => {
+  /*
+   * Checked before a single request, because the write happens after minutes
+   * of paced asking: a path that cannot be written throws away the answers,
+   * the report and the retry round with them. `--cache addr` against an
+   * existing directory did exactly that.
+   */
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'address-report-'));
+  afterAll(() => fs.rmSync(tmp, { recursive: true, force: true }));
+
+  it('is happy with a file that does not exist yet in a directory that does', () => {
+    expect(cachePathProblem(path.join(tmp, 'held.json'))).toBeNull();
+  });
+
+  it('is happy with an existing file it can overwrite', () => {
+    const target = path.join(tmp, 'again.json');
+    fs.writeFileSync(target, '{}');
+    expect(cachePathProblem(target)).toBeNull();
+  });
+
+  it('refuses a directory, rather than naming a file inside it', () => {
+    const dir = path.join(tmp, 'addr');
+    fs.mkdirSync(dir);
+    expect(cachePathProblem(dir)).toMatch(/is a directory/);
+  });
+
+  it('refuses a path whose directory is not there', () => {
+    expect(cachePathProblem(path.join(tmp, 'nope', 'held.json'))).toMatch(
+      /does not exist/,
+    );
+  });
+
+  it('refuses an empty path', () => {
+    expect(cachePathProblem('')).toMatch(/empty path/);
+  });
+
+  it('refuses a file it cannot write to', () => {
+    const target = path.join(tmp, 'readonly.json');
+    fs.writeFileSync(target, '{}');
+    fs.chmodSync(target, 0o444);
+    // Root ignores the mode, so this asserts nothing when tests run as root.
+    if (process.getuid?.() === 0) return;
+    expect(cachePathProblem(target)).toMatch(/cannot be written/);
   });
 });

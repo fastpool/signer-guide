@@ -21,8 +21,9 @@
  *   pnpm generate:share-card
  */
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 
 const GRAPE = '#403374';
 const CREAM = '#fdf8f3';
@@ -120,6 +121,73 @@ execFileSync('magick', [
   target,
 ]);
 
+/*
+ * What `index.html` says about the card, written from what was just drawn.
+ *
+ * Two tags, and both had to be kept in step by hand until now — which is
+ * exactly why the alt text drifted to a card with eight fewer pools on it.
+ * Alt text is what a screen reader gets *instead of* the card, so a stale one
+ * is not a cosmetic mismatch: it is the only version of this card some people
+ * ever get, saying something the picture does not.
+ *
+ * Loud rather than silent when a tag moves. A replace that quietly matched
+ * nothing would restore exactly the drift this exists to end.
+ */
+const INDEX = path.join(root, 'index.html');
+let html = readFileSync(INDEX, 'utf8');
+
+function setMeta(property, pattern, value) {
+  if (!pattern.test(html)) {
+    throw new Error(
+      `No ${property} tag found in ${path.relative(process.cwd(), INDEX)} — ` +
+        'the card was drawn, but this tag now has to be written by hand.',
+    );
+  }
+  html = html.replace(pattern, `$1${value}$2`);
+}
+
+/*
+ * The cache-buster.
+ *
+ * Every crawler and chat client that unfurls a link fetches `og:image` once
+ * and caches it against the URL string it was given — Twitter, Slack and
+ * Discord for days, and none of them look at the file's date. Redrawing the
+ * card therefore changes nothing anybody sees until the URL changes too, and
+ * for a card whose whole job is to carry two counts, that is the card being
+ * wrong everywhere it has already been shared.
+ *
+ * The hash is of the PNG's own bytes rather than of the two counts, because
+ * the counts are not the only thing that can change: a wording or a colour
+ * moves the picture without moving them, and a buster that missed that would
+ * be a buster nobody could trust. Bytes change, URL changes; bytes do not,
+ * the URL does not, and re-running this leaves the tree clean.
+ *
+ * A query rather than a hashed filename, so `public/` keeps exactly one card,
+ * `/share-card.png` stays a working link for anyone who has used it, and no
+ * stale copies accumulate in the repository.
+ */
+const version = createHash('sha256')
+  .update(readFileSync(target))
+  .digest('hex')
+  .slice(0, 8);
+
+setMeta(
+  'og:image',
+  /(property="og:image"\s*\n\s*content=")[^"?]*(?:\?[^"]*)?(")/,
+  `https://signer-guide.fastpool.org/share-card.png?v=${version}`,
+);
+
+setMeta(
+  'og:image:alt',
+  /(property="og:image:alt"\s*\n\s*content=")[^"]*(")/,
+  `Signer Guide - lock STX, earn bitcoin. ${pools} pools on pox-5, ${contracts} signer contracts.`,
+);
+
+writeFileSync(INDEX, html);
+
 console.log(
   `drew ${path.relative(process.cwd(), target)} — ${pools} pools, ${contracts} contracts`,
+);
+console.log(
+  `  and its tags in ${path.relative(process.cwd(), INDEX)}, at ?v=${version}`,
 );
