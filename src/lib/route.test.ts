@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  bondsHref,
   contractHref,
   howToHref,
   parseHash,
@@ -30,6 +31,13 @@ describe('parseHash', () => {
   it('reads the how-to page, with or without the trailing slash', () => {
     expect(parseHash('#/how-to')).toEqual({ name: 'howTo' });
     expect(parseHash('#/how-to/')).toEqual({ name: 'howTo' });
+  });
+
+  it('reads the bonds page, with or without the trailing slash', () => {
+    expect(parseHash('#/bonds')).toEqual({ name: 'bonds' });
+    expect(parseHash('#/bonds/')).toEqual({ name: 'bonds' });
+    // Singular is not a route, and lands on the list rather than a blank page.
+    expect(parseHash('#/bond')).toEqual({ name: 'list' });
   });
 
   it('reads the group index from the plural', () => {
@@ -193,5 +201,6 @@ describe('parseHash', () => {
       name: 'stxOnlyRewards',
     });
     expect(parseHash(howToHref())).toEqual({ name: 'howTo' });
+    expect(parseHash(bondsHref())).toEqual({ name: 'bonds' });
   });
 });

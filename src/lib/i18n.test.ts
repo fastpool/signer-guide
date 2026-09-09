@@ -73,6 +73,7 @@ describe('the language files', () => {
       'amount.plain',
       'amount.sats',
       'amount.sbtc',
+      'amount.btc',
       // A figure and its unit, with no sentence around it to translate.
       'app.stxOnlyEstimate.satsShort',
     ]);

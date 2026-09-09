@@ -1292,6 +1292,87 @@ recovered with `settle-accepted-withdrawal` then `claim-refund` — and that pai
 has an ordering caveat the reclaim does not, since it infers the refund from a
 balance rather than reading it off the request.
 
+## The bitcoin side: bonds
+
+Every other page in this guide is about STX. Bonds are the other half of pox-5:
+an invited staker locks bitcoin against one — as sBTC on Stacks, or on Bitcoin
+itself with an L1 timelock — for the bond's whole term, alongside the STX they
+stake. Until now the guide mentioned them only as the share that comes off the
+top of everybody else's rewards, on the STX-only estimate page. `#/bonds` is
+the page that says what they actually hold.
+
+### Periods, not bonds
+
+pox-5 runs bonds on a schedule of *periods*. Period `i` opens at reward cycle
+`first-bond-period-cycle + i * BOND_GAP_CYCLES` and runs for
+`BOND_LENGTH_CYCLES` from there. On mainnet the gap is 2 and the term is 12, so
+a period opens every other cycle and six of them are running at any moment.
+
+A period exists whether or not anybody makes a bond of it. It becomes a bond
+when the bond admin calls `setup-bond` with an allowlist, and that call is only
+accepted in the two cycles before the period opens — so a period can pass with
+no bond at all, which is what happened to period 0. The page says so in
+words rather than showing a bond holding nothing, because those are different
+facts and only one of them is about a bond nobody joined.
+
+Two periods and not six. Bonds overlap, but the pair worth a page is the period
+the chain is in and the next one to open — the one running, and the one
+somebody could still get into.
+
+### A ceiling is not a promise
+
+`setup-bond` carries a list of stakers and, for each, a `max-sats`: the most
+pox-5 will let them lock against that bond. That is the whole basis of the
+estimate, and it binds nobody. An invited staker may lock all of it, some of
+it, or never turn up.
+
+So the page keeps two numbers apart and names the gap between them:
+
+| | what it is |
+|---|---|
+| **Locked so far** | pox-5's own `get-total-sbtc-staked-for-bond`. Settled, not an estimate of anything. |
+| **Ceiling** | every allowlisted staker's `max-sats` added up. What the bond *can* hold. |
+| **Still open** | the difference, named rather than left as a subtraction. |
+
+The headline figure is what is locked; the bar is drawn against the ceiling,
+which is the only thing that figure has to be measured against. A period with
+no readable ceiling gets no bar rather than an empty one — an empty track
+beside a locked amount reads as "none of it", which is the opposite of unknown.
+
+### Getting the allowlist back out
+
+pox-5 stores allowances in a map keyed by `{bond-index, staker}` and offers no
+way to list its keys. There is no read that answers "who is on this bond's
+allowlist".
+
+What there is: `setup-bond` prints one `add-to-allowlist` event per staker, and
+it can only be called once per bond. So the names come from that transaction's
+events — found by looking through the bond admin's own transactions — and then
+every one of them is confirmed against `get-bond-allowance`, the map itself. A
+print says what was asked for; the map says what is true. Each name then costs
+one more read, `get-bond-membership`, for what they have actually locked and
+through which pool.
+
+That transaction search is the one soft edge. An allowlist set up by a previous
+bond admin, or further back than the pages searched, will not be found — and
+then the rows do not add up to what pox-5 says is in the bond. `bonds.json`
+carries `allowlistComplete` for exactly that case, and the page says the
+ceiling is a floor rather than quietly stating a smaller number as fact.
+
+### What is written down
+
+`scripts/generate-bonds.ts` writes `src/data/bonds.json` on the hourly refresh,
+allowed to fail like the amounts and the nodes. It refuses to write at all if
+it cannot read the cycle or the bond schedule: a run guessing at either would
+describe the wrong periods, which is worse than describing none, and the last
+good file stands.
+
+`BOND_LENGTH_CYCLES` is a Clarity constant that no read-only function exposes.
+Rather than hard-code 12 into a page that states an unlock cycle as fact, the
+term is subtracted out of the bond's own `setup-bond` print, which carries both
+the first reward cycle and the unlock one. The constant is the fallback for a
+period that has no bond to read it from.
+
 ## Installing it
 
 The guide also installs to a phone's home screen, as **Bitcoin Staking**. It is

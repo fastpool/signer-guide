@@ -104,6 +104,35 @@ export function satsLabel(
   return t('amount.sbtc', { value: frac ? `${whole}.${frac}` : whole });
 }
 
+/**
+ * "1.5 BTC" — the same amount, said as bitcoin rather than as sBTC.
+ *
+ * `satsLabel` above is for rewards, which arrive as sBTC on Stacks and are
+ * named as such. A bond's collateral is not: a staker may lock sBTC or lock
+ * bitcoin on L1 against the same bond, for the same sats, and calling the
+ * whole of it sBTC would tell half of them their bitcoin is on the wrong
+ * chain. So this one says BTC, and never abbreviates to sats — a page
+ * comparing bonds is comparing whole coins, and switching units halfway down
+ * a column stops the eye from doing the comparison at all.
+ */
+export function btcLabel(
+  sats: string | bigint | null | undefined,
+  locale: Locale = 'en',
+): string {
+  const t = translator(locale);
+  if (sats === null || sats === undefined) return t('amount.unknown');
+
+  const total = BigInt(sats);
+  if (total === 0n) return t('amount.nothing');
+
+  const whole = groupDigits(total / SATS_PER_SBTC);
+  const frac = (total % SATS_PER_SBTC)
+    .toString()
+    .padStart(8, '0')
+    .replace(/0+$/, '');
+  return t('amount.btc', { value: frac ? `${whole}.${frac}` : whole });
+}
+
 /** Sum of the amounts we could read; pools we could not are left out. */
 export function sumUstx(
   contractIds: string[],

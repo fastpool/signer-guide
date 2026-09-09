@@ -149,6 +149,41 @@ const messages = {
   'app.stxOnlyHistory.rateUnknown': 'not known',
   'app.stxOnlyHistory.note':
     'A reward cycle’s total comes from what pox-5 has accrued for that cycle, not from adding the two halves — each half is rounded down to a whole sat on its own. A half reads as “not known” when no refresh ran between the two payouts, which is the only moment the first of them can be told from the pair.',
+  'bonds.open': 'The bonds',
+  'app.bonds.back': '← All pools',
+  'app.bonds.title': 'What the bonds are holding',
+  'app.bonds.intro':
+    'Beside the STX side of pox-5 there are bonds. An invited staker locks bitcoin against one — as sBTC on Stacks, or on Bitcoin itself — for {length} reward cycles, alongside the STX they stake. A new bond period opens every {gap} cycles, and the two below are the ones worth looking at: the period the chain is in, and the next one to open.',
+  'app.bonds.loading': 'Reading the bonds…',
+  'app.bonds.none':
+    'Nothing on file for the bonds yet. They appear here once the hourly refresh has read them.',
+  'app.bonds.failed':
+    'The bonds could not be fetched. Try again in a moment.',
+  'app.bonds.current': 'The bond period now',
+  'app.bonds.next': 'The next bond period',
+  'app.bonds.period': 'Bond {index} · cycles {first} to {last}',
+  'app.bonds.notSetUp':
+    'Nobody made a bond of this period. A period becomes a bond when the bond admin calls setup-bond with an allowlist, which can only happen in the two cycles before it opens — so a period can pass without one.',
+  'app.bonds.locked': 'Locked so far',
+  'app.bonds.stillOpen': 'Still open',
+  'app.bonds.ceiling': 'Ceiling',
+  'app.bonds.invited.one': '{count} invited staker',
+  'app.bonds.invited.other': '{count} invited stakers',
+  'app.bonds.opensAt': 'Opens at burn height {height}.',
+  'app.bonds.running': 'Open since burn height {height}.',
+  'app.bonds.incomplete':
+    'The allowlist below is short — its rows do not add up to what pox-5 says is in this bond — so read the ceiling as “at least this much”. pox-5 will not list an allowlist, so the guide recovers it from the setup-bond transaction, and some of it could not be found.',
+  'app.bonds.who': 'Who was invited',
+  'app.bonds.whoIntro':
+    'What each staker may lock, and what they have locked. Biggest ceiling first.',
+  'app.bonds.ofCeiling': 'of {ceiling}',
+  'app.bonds.notLockedYet': 'nothing locked yet',
+  'app.bonds.onL1': 'on Bitcoin',
+  'app.bonds.asSbtc': 'as sBTC',
+  'app.bonds.throughPool': 'through {pool}',
+  'app.bonds.note':
+    'A ceiling is not a promise. It is the most pox-5 will let a staker lock, fixed by the bond admin when the bond was made; what is locked is what they have actually put up, and an invited staker may put up nothing at all. Everything here is read from pox-5 by the hourly refresh.',
+  'app.bonds.generatedAt': 'Generated at: {at}',
   'app.stxOnlyEstimate.back': '← All pools',
   'app.stxOnlyEstimate.note':
     'Estimate only. It depends on what has reached pox-5 since the last payout and on how far this distribution cycle has run, so it settles as that cycle goes on.',
@@ -242,6 +277,7 @@ const messages = {
   'amount.nothing': 'nothing',
   'amount.sats': '{value} sats',
   'amount.sbtc': '{value} sBTC',
+  'amount.btc': '{value} BTC',
 
   'signer.runsContract': 'Runs the {link}',
   'signer.contractLink': '{name} signer contract',

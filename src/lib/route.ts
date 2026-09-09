@@ -19,6 +19,8 @@ import { isLookupTarget } from './principals';
  *                            them into
  *   #/rewards/stx-only       full breakdown of the STX-only rewards estimate
  *   #/rewards/stx-only/history   what every distribution has paid so far
+ *   #/bonds                  the bitcoin side: what the current and next bond
+ *                            period hold, and who was invited to them
  *
  * `#/rewards/mine[/<address>]` was a page of its own — what one address is
  * owed — until the two were merged: they asked the same question of the same
@@ -40,7 +42,8 @@ export type Route =
   | { name: 'group'; groupId: string }
   | { name: 'status'; principals: string[] }
   | { name: 'stxOnlyRewards' }
-  | { name: 'stxOnlyHistory' };
+  | { name: 'stxOnlyHistory' }
+  | { name: 'bonds' };
 
 /** `SP…ADDRESS.contract-name`, which is all a contract id can be. */
 const CONTRACT_ID = /^[A-Z0-9]+\.[a-zA-Z0-9][a-zA-Z0-9-]*$/;
@@ -56,6 +59,7 @@ function decode(value: string): string | null {
 
 export function parseHash(hash: string): Route {
   if (hash === '#/how-to' || hash === '#/how-to/') return { name: 'howTo' };
+  if (hash === '#/bonds' || hash === '#/bonds/') return { name: 'bonds' };
 
   // Before the estimate, which is a prefix of it.
   if (hash === '#/rewards/stx-only/history') return { name: 'stxOnlyHistory' };
@@ -165,6 +169,11 @@ export function stxOnlyRewardsHref(): string {
 
 export function stxOnlyHistoryHref(): string {
   return '#/rewards/stx-only/history';
+}
+
+/** A link to the bitcoin side: what the current and next bond hold. */
+export function bondsHref(): string {
+  return '#/bonds';
 }
 
 export function useRoute(): Route {

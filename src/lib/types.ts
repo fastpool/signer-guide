@@ -590,3 +590,89 @@ export interface KeyRotations {
   /** Oldest first. */
   rotations: KeyRotation[];
 }
+
+/**
+ * One staker on a bond's allowlist, as `src/data/bonds.json` holds them.
+ *
+ * `maxSats` is a ceiling the bond admin set and pox-5 enforces; it is never a
+ * commitment. `registeredSats` is what the staker has actually locked against
+ * this bond, and it is "0" for somebody who was invited and has not turned up
+ * — a real zero, read from the chain, not an amount nobody could take.
+ */
+export interface BondStaker {
+  staker: string;
+  /** The most sats pox-5 will let them lock for this bond, in sats. */
+  maxSats: string;
+  /** What they have locked against it so far, in sats. */
+  registeredSats: string;
+  /** The STX they locked alongside it; null until they register. */
+  amountUstx: string | null;
+  /** True when the bitcoin is locked on L1 rather than custodied as sBTC. */
+  isL1Lock: boolean | null;
+  /** The signer manager they registered through; null until they register. */
+  signer: string | null;
+}
+
+/**
+ * One bond period: a slot in pox-5's schedule, set up or not.
+ *
+ * A period exists whether or not anybody has made a bond of it — the schedule
+ * runs on regardless — so `setUp` is false for a period the bond admin never
+ * called `setup-bond` for, and everything the call would have fixed is null
+ * beside it rather than zero.
+ */
+export interface BondPeriod {
+  bondIndex: number;
+  /** The first cycle the bond covers. */
+  firstRewardCycle: number;
+  /** The first cycle it no longer covers, `firstRewardCycle` plus the term. */
+  unlockCycle: number;
+  /** The burn height the period opens at; null when it could not be read. */
+  startBurnHeight: number | null;
+  /** Whether that height has passed. */
+  started: boolean;
+  /** False for a period nobody has called `setup-bond` for. */
+  setUp: boolean;
+  /** Basis points, from `setup-bond`; null for a period with no bond. */
+  targetRate: number | null;
+  stxValueRatio: string | null;
+  minUstxRatio: number | null;
+  /** Every allowlisted staker's ceiling added up, in sats. */
+  allowlistedSats: string;
+  /** pox-5's own total for the bond, in sats; null when it could not be read. */
+  registeredSats: string | null;
+  /**
+   * Whether `stakers` accounts for every sat pox-5 says is in the bond.
+   *
+   * The allowlist is reconstructed from the `setup-bond` transaction's events
+   * — pox-5 offers no way to list it — so it can come back short. False means
+   * the ceiling below is a floor: read it as "at least this much", not as the
+   * whole allowlist. See the header of scripts/bonds.ts.
+   */
+  allowlistComplete: boolean;
+  /** Biggest ceiling first. */
+  stakers: BondStaker[];
+}
+
+/**
+ * What the bonds are holding, as `src/data/bonds.json`.
+ *
+ * Two periods, because two is what a reader is deciding between: the bond
+ * running now and the one they could still get into. Written by the refresh —
+ * see scripts/generate-bonds.ts.
+ */
+export interface BondsData {
+  generatedAt: string;
+  cycle: number;
+  burnHeight: number | null;
+  /** The cycle bond period 0 opened at. */
+  firstBondPeriodCycle: number;
+  /** Cycles between one period opening and the next. 2 on mainnet. */
+  gapCycles: number;
+  /** Cycles a bond runs for. 12 on mainnet. */
+  lengthCycles: number;
+  /** The period the chain is in; null before the first one has opened. */
+  current: BondPeriod | null;
+  /** The next period to open. */
+  next: BondPeriod;
+}

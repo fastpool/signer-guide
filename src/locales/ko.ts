@@ -190,6 +190,41 @@ export const ko: LocaleBundle = {
     'app.stxOnlyHistory.rateUnknown': '알 수 없음',
     'app.stxOnlyHistory.note':
       '보상 사이클 합계는 두 번의 지급액을 더한 값이 아니라 pox-5가 해당 사이클에 적립한 값에서 가져옵니다. 각 지급액은 개별적으로 1사토시 단위로 내림되기 때문입니다. 두 지급 사이에 갱신이 실행되지 않으면 전반 지급액은 \'알 수 없음\'으로 표시됩니다. 두 번을 구분할 수 있는 시점은 그때뿐입니다.',
+    'bonds.open': '본드 현황',
+    'app.bonds.back': '← 전체 풀',
+    'app.bonds.title': '본드에 들어 있는 비트코인',
+    'app.bonds.intro':
+      'pox-5에는 STX 외에 본드가 있습니다. 초대받은 스테이커는 스테이킹하는 STX와 함께 비트코인을 — Stacks의 sBTC로, 또는 비트코인 체인에 직접 — {length} 보상 사이클 동안 잠금니다. 본드 기간은 {gap} 사이클마다 새로 열리며, 아래 둘은 지금 진행 중인 기간과 다음에 열릴 기간입니다.',
+    'app.bonds.loading': '본드를 불러오는 중…',
+    'app.bonds.none':
+      '아직 본드 기록이 없습니다. 시간단위 갱신이 읽어오면 여기에 표시됩니다.',
+    'app.bonds.failed':
+      '본드 정보를 가져오지 못했습니다. 잠시 후 다시 시도하세요.',
+    'app.bonds.current': '현재 본드 기간',
+    'app.bonds.next': '다음 본드 기간',
+    'app.bonds.period': '본드 {index} · {first}–{last} 사이클',
+    'app.bonds.notSetUp':
+      '이 기간에는 본드가 만들어지지 않았습니다. 본드 관리자가 허용 목록과 함께 setup-bond를 호출해야 본드가 되며, 그것은 기간이 열리기 전 두 사이클 안에서만 가능합니다.',
+    'app.bonds.locked': '지금까지 잠긴 금액',
+    'app.bonds.stillOpen': '남은 여유',
+    'app.bonds.ceiling': '상한',
+    'app.bonds.invited.one': '초대된 스테이커 {count}명',
+    'app.bonds.invited.other': '초대된 스테이커 {count}명',
+    'app.bonds.opensAt': '번 높이 {height}에 열립니다.',
+    'app.bonds.running': '번 높이 {height}부터 열려 있습니다.',
+    'app.bonds.incomplete':
+      '아래 허용 목록이 불완전합니다. 항목의 합계가 pox-5가 말하는 본드 총액과 맞지 않으므로 상한은 “최소 이 정도”로 읽어야 합니다. pox-5는 허용 목록을 조회해 주지 않아 setup-bond 트랜잭션에서 복원하는데, 일부를 찾지 못했습니다.',
+    'app.bonds.who': '초대된 스테이커',
+    'app.bonds.whoIntro':
+      '각 스테이커의 상한과 실제로 잠긴 금액입니다. 상한이 큰 순서입니다.',
+    'app.bonds.ofCeiling': '/ {ceiling}',
+    'app.bonds.notLockedYet': '아직 잠긴 금액 없음',
+    'app.bonds.onL1': '비트코인 체인',
+    'app.bonds.asSbtc': 'sBTC',
+    'app.bonds.throughPool': '{pool} 통해',
+    'app.bonds.note':
+      '상한은 약속이 아닙니다. 본드를 만들 때 관리자가 정한, pox-5가 허용하는 최대 금액일 뿐입니다. 잠긴 금액은 실제로 낸 금액이며, 초대받고도 전혀 내지 않을 수 있습니다. 모든 수치는 시간단위 갱신이 pox-5에서 읽은 것입니다.',
+    'app.bonds.generatedAt': '생성 시각: {at}',
     'app.stxOnlyEstimate.back': '← 전체 풀',
     'app.stxOnlyEstimate.note':
       '참고용 예상치입니다. 지난 지급 이후 pox-5에 들어온 금액과 현재 분배 사이클 진행도에 따라 달라지며, 사이클이 진행될수록 안정됩니다.',
@@ -284,6 +319,7 @@ export const ko: LocaleBundle = {
     'amount.nothing': '없음',
     'amount.sats': '{value} sats',
     'amount.sbtc': '{value} sBTC',
+    'amount.btc': '{value} BTC',
 
     'signer.runsContract': '다음 서명자 컨트랙트를 사용합니다: {link}',
     'signer.contractLink': '{name} 서명자 컨트랙트',

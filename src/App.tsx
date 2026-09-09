@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import BondsPage from './components/BondsPage';
 import ContractPage from './components/ContractPage';
 import Identicon from './components/Identicon';
 import LocaleSwitch from './components/LocaleSwitch';
@@ -25,6 +26,7 @@ import { applyLocaleMetadata } from './lib/metadata';
 import { localizeProfile } from './lib/profile-i18n';
 import { PROFILES } from './lib/profiles';
 import {
+  bondsHref,
   contractHref,
   groupsHref,
   howToHref,
@@ -193,6 +195,16 @@ export default function App() {
       );
     }
 
+    if (route.name === 'bonds') {
+      return (
+        <BondsPage
+          signers={signerData.signers}
+          locale={locale}
+          onLocaleChange={setLocale}
+        />
+      );
+    }
+
     if (route.name === 'stxOnlyHistory') {
       return (
         <StxOnlyHistoryPage locale={locale} onLocaleChange={setLocale} />
@@ -354,6 +366,16 @@ export default function App() {
                 className='rounded-full bg-card px-4 py-2 text-sm font-semibold text-ink shadow-lift transition-colors hover:bg-grape-soft'
               >
                 {t('groups.open')}
+              </a>
+              {/* The one page here that is not about STX. Bonds are the other
+                  half of pox-5 — bitcoin locked against a term — and until now
+                  the guide has only ever mentioned them as the share that comes
+                  off the top of somebody else's rewards. */}
+              <a
+                href={bondsHref()}
+                className='rounded-full bg-card px-4 py-2 text-sm font-semibold text-ink shadow-lift transition-colors hover:bg-grape-soft'
+              >
+                {t('bonds.open')}
               </a>
               <LocaleSwitch locale={locale} onChange={setLocale} />
             </div>
