@@ -33,6 +33,11 @@
       "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
     },
     {
+      "staker": "SPEFWDTXMFQQD9QZV9W6H0VEJDMPRC4S6CTQPMPA",
+      "ustx": "53004877912",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
       "staker": "SP3TA7SMY7APYR9SFKDT0527NC0GWR84S3AHEM0NE",
       "ustx": "50055762570",
       "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
@@ -40,11 +45,6 @@
     {
       "staker": "SP3A4CP63QJB1R0EJR3TJ1PN16FC5HVJSPT77C8C0",
       "ustx": "42025933179",
-      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
-    },
-    {
-      "staker": "SPEFWDTXMFQQD9QZV9W6H0VEJDMPRC4S6CTQPMPA",
-      "ustx": "35004880611",
       "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
     },
     {

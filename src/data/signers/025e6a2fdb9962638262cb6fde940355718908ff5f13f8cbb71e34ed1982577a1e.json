@@ -7,13 +7,13 @@
     {
       "cycle": 143,
       "ustx": {
-        "SP206Y7BR5NFCR517VGVX04BSGNA5425GM6DMF9H.signer-manager-hashkeycloud-v1": "0"
+        "SP206Y7BR5NFCR517VGVX04BSGNA5425GM6DMF9H.signer-manager-hashkeycloud-v1": "620474000000"
       },
-      "memberCount": 0,
+      "memberCount": 5,
       "membersAddUp": true,
-      "walks": 1,
-      "walkedAt": "2026-08-27T08:19:29.040Z",
-      "walkedUstx": "0",
+      "walks": 3,
+      "walkedAt": "2026-09-08T18:47:11.946Z",
+      "walkedUstx": "620474000000",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -45,5 +45,5 @@
     }
   ],
   "currentCycle": 142,
-  "generatedAt": "2026-09-04T18:11:19.445Z"
+  "generatedAt": "2026-09-09T11:33:28.776Z"
 }
