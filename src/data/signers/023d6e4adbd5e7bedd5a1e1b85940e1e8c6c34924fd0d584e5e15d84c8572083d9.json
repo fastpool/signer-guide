@@ -7,13 +7,13 @@
     {
       "cycle": 143,
       "ustx": {
-        "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager": "71321244209432"
+        "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager": "71322339752768"
       },
-      "memberCount": 264,
+      "memberCount": 268,
       "membersAddUp": true,
-      "walks": 11,
-      "walkedAt": "2026-09-08T18:47:11.946Z",
-      "walkedUstx": "71241570235787",
+      "walks": 12,
+      "walkedAt": "2026-09-09T19:51:03.152Z",
+      "walkedUstx": "71322339752768",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -45,5 +45,5 @@
     }
   ],
   "currentCycle": 142,
-  "generatedAt": "2026-09-09T16:45:13.374Z"
+  "generatedAt": "2026-09-10T06:04:32.168Z"
 }
