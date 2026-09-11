@@ -97,6 +97,8 @@ export const ko: LocaleBundle = {
       '합쳐서 현재 {amount}를 {cycle} 사이클 기준으로 맡고 있습니다.',
     'app.stakedNext':
       '{cycle} 사이클은 아직 채워지는 중입니다. 지금까지 {amount}가 맡겨졌습니다.',
+    'app.stakedNextLocked':
+      '{cycle} 사이클은 확정되었습니다. {amount}가 확정되었으며 더 이상 참여할 수 없습니다.',
     'app.contractsHeading': '서명자 컨트랙트',
     'app.contractsIntro':
       '컨트랙트마다 동작이 다릅니다. 컨트랙트를 눌러 어떤 기능인지, 누가 운영하는지 확인하세요.',
@@ -205,6 +207,10 @@ export const ko: LocaleBundle = {
     'app.bonds.period': '본드 {index} · {first}–{last} 사이클',
     'app.bonds.notSetUp':
       '이 기간에는 본드가 만들어지지 않았습니다. 본드 관리자가 허용 목록과 함께 setup-bond를 호출해야 본드가 되며, 그것은 기간이 열리기 전 두 사이클 안에서만 가능합니다.',
+    'app.bonds.closed':
+      '신규 등록이 마감되었습니다. 아래 잠긴 금액으로 번 높이 {height}에 시작됩니다.',
+    'app.bonds.wentUnused': '미사용',
+    'app.bonds.lockedFinal': '잠긴 금액',
     'app.bonds.locked': '지금까지 잠긴 금액',
     'app.bonds.stillOpen': '남은 여유',
     'app.bonds.ceiling': '상한',

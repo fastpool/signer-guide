@@ -143,6 +143,42 @@ describe('the bonds as a reader sees them', () => {
     expect(page).toContain('Stacks Labs');
   });
 
+  it('stops saying "still open" once registration has shut', () => {
+    /*
+     * A bond can be closed while it has not opened: pox-5 refuses
+     * `register-for-bond` throughout a prepare phase, and a bond opens on a
+     * cycle boundary, so registration shuts 100 burn blocks early. In that
+     * window "opens at height X" and "still open" both invite a call the
+     * chain will refuse, and the figures are already final.
+     */
+    useBonds.mockReturnValueOnce({
+      state: 'ready',
+      value: {
+        ...BONDS,
+        next: { ...BONDS.next, registrationClosed: true },
+      },
+    });
+    const page = html();
+    // The height still gets named — knowing when it opens is useful. What
+    // must go is the invitation to join it.
+    expect(page).toContain('Closed to new registrations');
+    expect(page).toContain('with what is locked below');
+    expect(page).not.toContain('Still open');
+    expect(page).not.toContain('Locked so far');
+    // The same number, said as a fact about a shut bond rather than as room.
+    expect(page).toContain('Went unused');
+    expect(page).toContain('30.0005 BTC');
+  });
+
+  it('still says "still open" while a bond is taking registrations', () => {
+    const page = html();
+    expect(page).toContain('Opens at burn height');
+    expect(page).toContain('Still open');
+    expect(page).toContain('Locked so far');
+    expect(page).not.toContain('Closed to new registrations');
+    expect(page).not.toContain('Went unused');
+  });
+
   it('warns when the ceiling is only a floor', () => {
     useBonds.mockReturnValueOnce({
       state: 'ready',

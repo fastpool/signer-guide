@@ -55,6 +55,35 @@ export const POX5 = 'SP000000000000000000002Q6VF78.pox-5';
  */
 export const BOND_LENGTH_CYCLES = 12;
 
+/**
+ * Whether a bond period can still be registered for, ever.
+ *
+ * Two gates close it, and the second closes first. `register-for-bond`
+ * refuses once the bond has started (`burn-block-height < bond-start-height`),
+ * and refuses throughout any prepare phase (`verify-not-prepare-phase`) —
+ * pox-5 freezing the next cycle's staker set. A bond opens at the start of a
+ * reward cycle, so the last `prepareLength` blocks before it are always that
+ * freeze: registration shuts one prepare phase early and cannot reopen.
+ *
+ * A period further out is only paused by a prepare phase, not closed, so the
+ * height compared against is the bond's own start rather than today's cycle.
+ *
+ * Null when the heights could not be read — "closed" and "open" are both
+ * claims about whether somebody can still act, and neither should be guessed.
+ */
+export function registrationClosed(
+  burnHeight: number | null,
+  startBurnHeight: number | null,
+  prepareLength: number | null,
+): boolean | null {
+  if (burnHeight === null || startBurnHeight === null) return null;
+  if (prepareLength === null) {
+    // The start alone still settles a bond that is already running.
+    return burnHeight >= startBurnHeight ? true : null;
+  }
+  return burnHeight >= startBurnHeight - prepareLength;
+}
+
 /** How many pages of the admin's transactions to look through for a setup. */
 const SETUP_TX_PAGES = 4;
 const TX_PAGE = 50;

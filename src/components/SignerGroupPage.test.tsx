@@ -41,7 +41,11 @@ describe('an operator group', () => {
     expect(html).toContain('Xverse 1');
     expect(html).toContain('Xverse 2');
     expect(html).toContain('Xverse 3');
-    expect(html).toContain('of cycle 142');
+    // Off the committed file rather than pinned. The page names the cycle its
+    // amounts are for, and hard-coding one made this fail at every rollover —
+    // in the refresh, which runs the tests before it commits, so a cycle
+    // turning over stopped the data updating until somebody bumped a number.
+    expect(html).toContain(`of cycle ${(totals as LockedTotals).cycle}`);
   });
 
   it('shows what the claim rests on', () => {

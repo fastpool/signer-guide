@@ -179,6 +179,15 @@ export interface LockedTotals {
   next?: {
     cycle: number;
     ustx: Record<string, string | null>;
+    /**
+     * True once pox-5's prepare phase has frozen this cycle's staker set, so
+     * these amounts are final rather than a running total.
+     *
+     * Absent when the refresh could not read it, and from files written
+     * before it existed — so the page falls back to "still filling", which is
+     * what it said for both cases until now.
+     */
+    lockedIn?: boolean;
   };
   /**
    * The cycle before it, which is over and cannot change again.
@@ -631,6 +640,19 @@ export interface BondPeriod {
   startBurnHeight: number | null;
   /** Whether that height has passed. */
   started: boolean;
+  /**
+   * True once nobody can register for this bond any more.
+   *
+   * Not the same as `started`, and it happens first: `register-for-bond` is
+   * refused throughout a prepare phase, and a bond opens on a cycle boundary,
+   * so registration shuts one prepare phase — 100 burn blocks on mainnet —
+   * before the bond itself opens. While this is true the amounts below are
+   * final, and "still open" is no longer something the page may say.
+   *
+   * Absent when the heights could not be read, and from files written before
+   * it existed.
+   */
+  registrationClosed?: boolean;
   /** False for a period nobody has called `setup-bond` for. */
   setUp: boolean;
   /** Basis points, from `setup-bond`; null for a period with no bond. */

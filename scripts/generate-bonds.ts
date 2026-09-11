@@ -34,6 +34,7 @@ import {
   allowlistComplete,
   allowlistFromEvents,
   bondIndexes,
+  registrationClosed,
   bondLengthFromEvents,
   BOND_LENGTH_CYCLES,
   buildStakerRows,
@@ -83,6 +84,7 @@ function toStaker(row: StakerRow): BondStaker {
 async function readPeriod(
   bondIndex: number,
   burnHeight: number | null,
+  prepareLength: number | null,
   admin: string | null,
   fallbackLength: number,
 ): Promise<BondPeriod | null> {
@@ -114,6 +116,8 @@ async function readPeriod(
     }
   }
 
+  const closed = registrationClosed(burnHeight, startBurnHeight, prepareLength);
+
   return {
     bondIndex,
     firstRewardCycle,
@@ -123,6 +127,10 @@ async function readPeriod(
       burnHeight !== null &&
       startBurnHeight !== null &&
       burnHeight >= startBurnHeight,
+    // Left out rather than written as false when it could not be worked out:
+    // the page has one sentence for a bond still taking registrations and
+    // another for one that has shut, and a failed read must not pick either.
+    ...(closed === null ? {} : { registrationClosed: closed }),
     setUp,
     targetRate: terms.kind === 'value' ? Number(terms.value.targetRate) : null,
     stxValueRatio:
@@ -145,7 +153,10 @@ async function main() {
       readFirstBondPeriodCycle(),
       readGapCycles(),
       readBondAdmin(),
-      fetchJson<{ current_burnchain_block_height?: number }>('/v2/pox'),
+      fetchJson<{
+        current_burnchain_block_height?: number;
+        prepare_phase_block_length?: number;
+      }>('/v2/pox'),
     ]);
 
   // Three answers the whole file is expressed in terms of. A run that has to
@@ -160,6 +171,7 @@ async function main() {
   }
 
   const burnHeight = pox?.current_burnchain_block_height ?? null;
+  const prepareLength = pox?.prepare_phase_block_length ?? null;
   const indexes = bondIndexes(cycle, firstBondPeriodCycle, gapCycles);
 
   if (admin === null) {
@@ -173,8 +185,20 @@ async function main() {
   const [current, next] = await Promise.all([
     indexes.current === null
       ? Promise.resolve(null)
-      : readPeriod(indexes.current, burnHeight, admin, BOND_LENGTH_CYCLES),
-    readPeriod(indexes.next, burnHeight, admin, BOND_LENGTH_CYCLES),
+      : readPeriod(
+          indexes.current,
+          burnHeight,
+          prepareLength,
+          admin,
+          BOND_LENGTH_CYCLES,
+        ),
+    readPeriod(
+      indexes.next,
+      burnHeight,
+      prepareLength,
+      admin,
+      BOND_LENGTH_CYCLES,
+    ),
   ]);
 
   if (next === null) {

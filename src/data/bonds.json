@@ -1,31 +1,17 @@
 {
-  "generatedAt": "2026-09-09T16:45:03.750Z",
-  "cycle": 142,
-  "burnHeight": 966240,
+  "generatedAt": "2026-09-10T15:56:28.966Z",
+  "cycle": 143,
+  "burnHeight": 966374,
   "firstBondPeriodCycle": 141,
   "gapCycles": 2,
   "lengthCycles": 12,
   "current": {
-    "bondIndex": 0,
-    "firstRewardCycle": 141,
-    "unlockCycle": 153,
-    "startBurnHeight": 962150,
-    "started": true,
-    "setUp": false,
-    "targetRate": null,
-    "stxValueRatio": null,
-    "minUstxRatio": null,
-    "allowlistedSats": "0",
-    "registeredSats": "0",
-    "allowlistComplete": true,
-    "stakers": []
-  },
-  "next": {
     "bondIndex": 1,
     "firstRewardCycle": 143,
     "unlockCycle": 155,
     "startBurnHeight": 966350,
-    "started": false,
+    "started": true,
+    "registrationClosed": true,
     "setUp": true,
     "targetRate": 300,
     "stxValueRatio": "310237",
@@ -155,5 +141,21 @@
         "signer": "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs"
       }
     ]
+  },
+  "next": {
+    "bondIndex": 2,
+    "firstRewardCycle": 145,
+    "unlockCycle": 157,
+    "startBurnHeight": 970550,
+    "started": false,
+    "registrationClosed": false,
+    "setUp": false,
+    "targetRate": null,
+    "stxValueRatio": null,
+    "minUstxRatio": null,
+    "allowlistedSats": "0",
+    "registeredSats": "0",
+    "allowlistComplete": true,
+    "stakers": []
   }
 }

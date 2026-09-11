@@ -53,6 +53,8 @@ const messages = {
     'Between them they are looking after {amount} for cycle {cycle}.',
   'app.stakedNext':
     'Cycle {cycle} is still filling: {amount} committed to them so far.',
+  'app.stakedNextLocked':
+    'Cycle {cycle} is locked in: {amount} committed to them, and no more can join.',
   'app.contractsHeading': 'The signer contracts',
   'app.contractsIntro':
     'Each one behaves differently. Tap a contract to see what it does and who runs it.',
@@ -164,6 +166,10 @@ const messages = {
   'app.bonds.period': 'Bond {index} · cycles {first} to {last}',
   'app.bonds.notSetUp':
     'Nobody made a bond of this period. A period becomes a bond when the bond admin calls setup-bond with an allowlist, which can only happen in the two cycles before it opens — so a period can pass without one.',
+  'app.bonds.closed':
+    'Closed to new registrations. Opens at burn height {height} with what is locked below.',
+  'app.bonds.wentUnused': 'Went unused',
+  'app.bonds.lockedFinal': 'Locked',
   'app.bonds.locked': 'Locked so far',
   'app.bonds.stillOpen': 'Still open',
   'app.bonds.ceiling': 'Ceiling',

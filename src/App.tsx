@@ -409,16 +409,25 @@ export default function App() {
               })}
             </p>
           )}
+          {/* Two sentences, because they are two different claims. Until the
+              prepare phase freezes it, the next cycle's total is a running
+              one; from then on nothing can join it, and calling a settled
+              figure "so far" understates it. */}
           {stakedNext !== null && totals.next && (
             <p className='text-lg text-muted'>
-              {t.rich('app.stakedNext', {
-                amount: (
-                  <strong className='text-ink'>
-                    {stxLabel(stakedNext.toString(), locale)}
-                  </strong>
-                ),
-                cycle: totals.next.cycle,
-              })}
+              {t.rich(
+                totals.next.lockedIn
+                  ? 'app.stakedNextLocked'
+                  : 'app.stakedNext',
+                {
+                  amount: (
+                    <strong className='text-ink'>
+                      {stxLabel(stakedNext.toString(), locale)}
+                    </strong>
+                  ),
+                  cycle: totals.next.cycle,
+                },
+              )}
             </p>
           )}
         </header>

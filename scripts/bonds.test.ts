@@ -25,6 +25,7 @@ import {
   allowlistFromEvents,
   bondIndexes,
   bondLengthFromEvents,
+  registrationClosed,
   sumMaxSats,
   sumRegisteredSats,
   type StakerRow,
@@ -179,6 +180,46 @@ describe('whether the ceiling is the whole story', () => {
   it('adds the ceilings up as the file states them', () => {
     expect(sumMaxSats([row({ maxSats: 1n }), row({ maxSats: 2n })])).toBe(3n);
     expect(sumMaxSats([])).toBe(0n);
+  });
+});
+
+describe('when a bond stops taking registrations', () => {
+  /*
+   * Mainnet: bond 1 opens at burn height 966,350 and the prepare phase is 100
+   * blocks, so registration shut at 966,250 — a hundred blocks before the
+   * bond itself opened. `register-for-bond` asserts on both, and the prepare
+   * phase is the one that bites first.
+   */
+  const OPENS = 966_350;
+  const PREPARE = 100;
+
+  it('is open right up to the prepare phase', () => {
+    expect(registrationClosed(966_249, OPENS, PREPARE)).toBe(false);
+  });
+
+  it('shuts when the prepare phase starts, not when the bond opens', () => {
+    // The whole point: 966,250 is a hundred blocks early, and a page saying
+    // "still open" here invites a call the chain will refuse.
+    expect(registrationClosed(966_250, OPENS, PREPARE)).toBe(true);
+    expect(registrationClosed(966_300, OPENS, PREPARE)).toBe(true);
+  });
+
+  it('stays shut once the bond is running', () => {
+    expect(registrationClosed(966_400, OPENS, PREPARE)).toBe(true);
+  });
+
+  it('says nothing when a height could not be read', () => {
+    // "Closed" and "open" are both claims about whether somebody can still
+    // act, and neither may be guessed.
+    expect(registrationClosed(null, OPENS, PREPARE)).toBeNull();
+    expect(registrationClosed(966_300, null, PREPARE)).toBeNull();
+  });
+
+  it('still settles a running bond with no prepare length to hand', () => {
+    // The start alone is enough once the bond has opened; before that, the
+    // prepare phase is unknowable and the answer is no answer.
+    expect(registrationClosed(966_400, OPENS, null)).toBe(true);
+    expect(registrationClosed(966_300, OPENS, null)).toBeNull();
   });
 });
 

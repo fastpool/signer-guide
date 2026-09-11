@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { readLockedTotals } from './locked.js';
+import { fetchNextCycleLockedIn, readLockedTotals } from './locked.js';
 
 /*
  * These decide whether a reader sees a real number or nothing. The node is
@@ -21,6 +21,8 @@ const uint = (value: bigint) => `0x01${value.toString(16).padStart(32, '0')}`;
 function fakeNode(
   currentCycle: number,
   amounts: Record<number, Record<string, bigint>>,
+  /** What `is-in-prepare-phase` says; null for a node that will not answer. */
+  inPreparePhase: boolean | null = null,
 ) {
   return vi.fn(async (url: string, init?: { body?: string }) => {
     if (url.endsWith('/v2/pox')) {
@@ -28,6 +30,20 @@ function fakeNode(
         ok: true,
         json: async () => ({ current_cycle: { id: currentCycle } }),
       };
+    }
+
+    // Answered by name: it takes a cycle rather than a pool, so it does not
+    // fit the argument shape every other read here has.
+    if (url.endsWith('/is-in-prepare-phase')) {
+      return inPreparePhase === null
+        ? { ok: false, status: 400, json: async () => ({}) }
+        : {
+            ok: true,
+            json: async () => ({
+              okay: true,
+              result: inPreparePhase ? '0x03' : '0x04',
+            }),
+          };
     }
 
     const args = JSON.parse(init?.body ?? '{}').arguments as string[];
@@ -130,6 +146,59 @@ describe('readLockedTotals', () => {
   });
 });
 
+describe('whether the next cycle can still change', () => {
+  /*
+   * pox-5 freezes the next cycle's staker set for the last blocks of the
+   * current one and refuses every call that would change it. In that window
+   * `next` is not a running total — it is the final figure, and a page
+   * calling it "still filling" understates a settled number.
+   */
+  afterEach(() => vi.unstubAllGlobals());
+
+  const twoCycles = {
+    141: { [POOL_A]: 100n },
+    142: { [POOL_A]: 200n },
+  };
+
+  it('marks the next cycle locked in during the prepare phase', async () => {
+    vi.stubGlobal('fetch', fakeNode(141, twoCycles, true));
+    const totals = await readLockedTotals([POOL_A]);
+    expect(totals?.next?.cycle).toBe(142);
+    expect(totals?.next?.lockedIn).toBe(true);
+  });
+
+  it('leaves it filling the rest of the time', async () => {
+    vi.stubGlobal('fetch', fakeNode(141, twoCycles, false));
+    expect((await readLockedTotals([POOL_A]))?.next?.lockedIn).toBe(false);
+  });
+
+  it('says nothing at all when the node would not answer', async () => {
+    // Absent, not false: the page has a sentence for each, and a failed read
+    // must not pick one of them.
+    vi.stubGlobal('fetch', fakeNode(141, twoCycles, null));
+    const totals = await readLockedTotals([POOL_A]);
+    expect(totals?.next?.cycle).toBe(142);
+    expect(totals?.next).not.toHaveProperty('lockedIn');
+  });
+
+  it('reads a bool off the wire, and only a bool', async () => {
+    vi.stubGlobal('fetch', fakeNode(141, twoCycles, true));
+    expect(await fetchNextCycleLockedIn(141)).toBe(true);
+    vi.stubGlobal('fetch', fakeNode(141, twoCycles, false));
+    expect(await fetchNextCycleLockedIn(141)).toBe(false);
+    // A uint where a bool belongs is not a false — it is an answer nobody
+    // should read.
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ okay: true, result: uint(1n) }),
+      })),
+    );
+    expect(await fetchNextCycleLockedIn(141)).toBeNull();
+  });
+});
+
 describe('being told to slow down', () => {
   it('waits and asks again rather than reporting the pool as unknown', async () => {
     // Reading every pool in one run is exactly when the node starts answering
@@ -162,8 +231,10 @@ describe('being told to slow down', () => {
     await vi.runAllTimersAsync();
     const totals = await pending;
 
-    // The 429, its retry, and then the same pool again for the next cycle.
-    expect(calls).toBe(3);
+    // The 429, its retry, the same pool again for the next cycle, and then
+    // `is-in-prepare-phase` — the one read that is about the cycle rather
+    // than about a pool.
+    expect(calls).toBe(4);
     expect(totals?.ustx[POOL_A]).toBe('500');
     vi.useRealTimers();
   });

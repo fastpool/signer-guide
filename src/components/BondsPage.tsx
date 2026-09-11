@@ -150,13 +150,27 @@ function PeriodCard({
         </span>
       </div>
 
+      {/*
+       * Three states, not two. A bond that has not opened may still be closed:
+       * pox-5 refuses `register-for-bond` throughout a prepare phase, and a
+       * bond opens on a cycle boundary, so registration shuts a prepare phase
+       * before the bond does. In that window "opens at height X" invites
+       * somebody to do a thing the chain will refuse.
+       */}
       {period.startBurnHeight !== null && (
         <p className='mt-1 text-sm text-muted'>
-          {t(period.started ? 'app.bonds.running' : 'app.bonds.opensAt', {
-            height: period.startBurnHeight.toLocaleString(
-              t.bundle.intlLocale,
-            ),
-          })}
+          {t(
+            period.started
+              ? 'app.bonds.running'
+              : period.registrationClosed
+                ? 'app.bonds.closed'
+                : 'app.bonds.opensAt',
+            {
+              height: period.startBurnHeight.toLocaleString(
+                t.bundle.intlLocale,
+              ),
+            },
+          )}
         </p>
       )}
 
@@ -164,14 +178,29 @@ function PeriodCard({
         <p className='mt-3 text-muted'>{t('app.bonds.notSetUp')}</p>
       ) : (
         <>
+          {/*
+           * The same three numbers, and for a closed bond two of them are a
+           * different claim. "Locked so far" and "still open" say the figure
+           * is moving and there is room to take; once nobody can register,
+           * the first is final and the second is not room but the part of the
+           * allowlist nobody took up.
+           */}
           <dl className='mt-4 grid gap-3 sm:grid-cols-3'>
             <Figure
-              label={t('app.bonds.locked')}
+              label={t(
+                period.registrationClosed
+                  ? 'app.bonds.lockedFinal'
+                  : 'app.bonds.locked',
+              )}
               value={btcLabel(period.registeredSats, locale)}
               strong
             />
             <Figure
-              label={t('app.bonds.stillOpen')}
+              label={t(
+                period.registrationClosed
+                  ? 'app.bonds.wentUnused'
+                  : 'app.bonds.stillOpen',
+              )}
               value={btcLabel(openSats(period), locale)}
             />
             <Figure

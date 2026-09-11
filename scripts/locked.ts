@@ -22,6 +22,34 @@ import type { LockedTotals } from '../src/lib/types.js';
 import { sleep, SPACING_MS } from './node.js';
 import { callReadOnly, fetchCurrentCycle } from './pox5.js';
 
+/**
+ * Whether the next cycle's staked amounts can still move.
+ *
+ * pox-5 freezes the next reward cycle's staker set for the last
+ * `pox-prepare-cycle-length` blocks of the current one, and refuses every call
+ * that would change it — `stake`, `stake-update`, `unstake`, `unstake-sbtc`,
+ * `register-for-bond`, `update-bond-registration` and `announce-l1-early-exit`
+ * all assert on it. So during that window `next` is not a running total that
+ * happens to be current: it is the final figure, and a page calling it "still
+ * filling" understates a settled number.
+ *
+ * Asked of pox-5 rather than worked out from block heights here, because the
+ * contract's own answer is the one that decides whether a stake goes through.
+ * Null when it could not be read — the page then says nothing about it rather
+ * than guessing, which is the same rule as every other reading in this file.
+ */
+export async function fetchNextCycleLockedIn(
+  currentCycle: number,
+): Promise<boolean | null> {
+  const result = await callReadOnly('is-in-prepare-phase', [
+    `0x${serializeUint(currentCycle)}`,
+  ]);
+  // Clarity bools on the wire: 0x03 is true, 0x04 is false.
+  if (result === '0x03') return true;
+  if (result === '0x04') return false;
+  return null;
+}
+
 /** uSTX pox-5 will count for this signer in this cycle; null if unreadable. */
 export async function fetchAmountDelegated(
   contractId: string,
@@ -104,5 +132,20 @@ export async function readLockedTotals(
   // nothing beats a second line built out of a handful of pools.
   if (Object.values(nextUstx).every((v) => v === null)) return { cycle, ustx };
 
-  return { cycle, ustx, next: { cycle: nextCycle, ustx: nextUstx } };
+  // Off the current cycle, not the next one: it is the current cycle's
+  // prepare phase that freezes the next cycle's set.
+  const lockedIn = await fetchNextCycleLockedIn(currentCycle);
+
+  return {
+    cycle,
+    ustx,
+    next: {
+      cycle: nextCycle,
+      ustx: nextUstx,
+      // Left out rather than written as false when it could not be read: the
+      // page has a sentence for "still filling" and a sentence for "locked
+      // in", and a failed read must not pick one of them.
+      ...(lockedIn === null ? {} : { lockedIn }),
+    },
+  };
 }
