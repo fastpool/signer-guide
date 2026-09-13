@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-09-11T08:54:37.955Z",
+  "generatedAt": "2026-09-13T13:02:09.766Z",
   "cycle": 143,
-  "standardisedWith": "clarinet 3.23.2",
+  "standardisedWith": "clarinet 3.24.0",
   "signers": [
     {
       "contractId": "SP157D30QDYQPJ1AZPHVKKQVTTHPH0558Y8PA29SP.pb-signer-manager",
@@ -383,9 +383,9 @@
       "maxFeeBips": null,
       "feeChangeNotice": null,
       "feeExemption": null,
-      "undistributedSats": "273106",
-      "unclaimedFromPoxSats": "327404",
-      "unclaimedFromCycle": 142,
+      "undistributedSats": "600510",
+      "unclaimedFromPoxSats": "0",
+      "unclaimedFromCycle": 143,
       "earnedFeesSats": "0",
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
@@ -443,7 +443,7 @@
       "maxFeeBips": null,
       "feeChangeNotice": null,
       "feeExemption": null,
-      "undistributedSats": "9468",
+      "undistributedSats": "34",
       "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 143,
       "earnedFeesSats": "0",
@@ -1468,10 +1468,10 @@
         "evidence": "(var-set pending-fees-cycle (+ cycle FEE_ACTIVATION_DELAY_CYCLES))"
       },
       "feeExemption": null,
-      "undistributedSats": "32843",
+      "undistributedSats": "339",
       "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 143,
-      "earnedFeesSats": "2382075",
+      "earnedFeesSats": "2383527",
       "evidence": {
         "bitcoinRewards": null,
         "openToAnyone": null,
@@ -1568,8 +1568,8 @@
         "evidence": "(if (is-og staker) u0 (var-get fee-bips))"
       },
       "undistributedSats": null,
-      "unclaimedFromPoxSats": "441484",
-      "unclaimedFromCycle": 142,
+      "unclaimedFromPoxSats": "0",
+      "unclaimedFromCycle": 143,
       "earnedFeesSats": "0",
       "evidence": {
         "bitcoinRewards": null,
