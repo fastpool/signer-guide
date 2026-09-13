@@ -213,6 +213,7 @@ export const ko: LocaleBundle = {
     'app.bonds.lockedFinal': '잠긴 금액',
     'app.bonds.locked': '지금까지 잠긴 금액',
     'app.bonds.stillOpen': '남은 여유',
+    'app.bonds.split': 'sBTC {sbtc} · 비트코인 체인 {l1}',
     'app.bonds.ceiling': '상한',
     'app.bonds.invited.one': '초대된 스테이커 {count}명',
     'app.bonds.invited.other': '초대된 스테이커 {count}명',

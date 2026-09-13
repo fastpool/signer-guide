@@ -125,6 +125,29 @@ describe('the bonds as a reader sees them', () => {
     expect(page).toContain('30.0005 BTC');
   });
 
+  it('splits what is locked by where the bitcoin sits', () => {
+    // 150 sBTC on Stacks, 25 timelocked on Bitcoin — the one thing the
+    // totals cannot say, since they treat the two as one number.
+    const page = html();
+    expect(page).toContain('150 BTC as sBTC · 25 BTC on Bitcoin');
+    // Two segments rather than one. `h-full` pins these to the bar: the page
+    // says "as sBTC" on a staker row too, and bg-grape is on the locale
+    // switch, so the bare strings would pass whatever the bar did.
+    expect(page).toContain('h-full bg-grape');
+    expect(page).toContain('h-full bg-amber-warm');
+  });
+
+  it('draws one plain bar when the split cannot be stood behind', () => {
+    useBonds.mockReturnValueOnce({
+      state: 'ready',
+      value: { ...BONDS, next: { ...BONDS.next, allowlistComplete: false } },
+    });
+    const page = html();
+    expect(page).not.toContain('BTC as sBTC · ');
+    expect(page).not.toContain('h-full bg-grape');
+    expect(page).toContain('h-full bg-amber-warm');
+  });
+
   it('counts everyone who was invited, not everyone who turned up', () => {
     const page = html();
     expect(page).toContain('3 invited stakers');

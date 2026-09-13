@@ -2,6 +2,7 @@ import { btcLabel, stxLabel } from '../lib/amounts';
 import {
   filledPercent,
   lastCycle,
+  lockedSplit,
   openSats,
   useBonds,
 } from '../lib/bonds';
@@ -136,6 +137,22 @@ function PeriodCard({
 }) {
   const t = translator(locale);
   const filled = filledPercent(period);
+  const split = lockedSplit(period);
+
+  /*
+   * The filled part of the bar, cut where the sBTC ends.
+   *
+   * The second width is the remainder rather than its own division, so the
+   * two segments always add up to exactly the bar this page drew before the
+   * split existed. Flooring both independently leaves a seam of up to a
+   * percent — seven pixels at this width, and visible as a gap that means
+   * nothing.
+   */
+  const ceiling = BigInt(period.allowlistedSats);
+  const sbtcPercent =
+    split && filled !== null && ceiling > 0n
+      ? Math.min(filled, Number((split.sbtcSats * 100n) / ceiling))
+      : null;
 
   return (
     <section className='rounded-3xl bg-card p-5 shadow-lift'>
@@ -217,14 +234,43 @@ function PeriodCard({
            */}
           {filled !== null && (
             <span
-              className='mt-4 block h-2 overflow-hidden rounded-full bg-trough'
+              className='mt-4 flex h-2 overflow-hidden rounded-full bg-trough'
               aria-hidden='true'
             >
-              <span
-                className='block h-full rounded-full bg-amber-warm'
-                style={{ width: `${filled}%` }}
-              />
+              {/*
+               * Two tones when the split is known, one when it is not: grape
+               * for sBTC on Stacks, amber for bitcoin on Bitcoin. The bar is
+               * hidden from screen readers and the line under it carries the
+               * same two numbers in the same order, which is both the
+               * accessible version and the only legend it needs.
+               */}
+              {sbtcPercent === null ? (
+                <span
+                  className='h-full bg-amber-warm'
+                  style={{ width: `${filled}%` }}
+                />
+              ) : (
+                <>
+                  <span
+                    className='h-full bg-grape'
+                    style={{ width: `${sbtcPercent}%` }}
+                  />
+                  <span
+                    className='h-full bg-amber-warm'
+                    style={{ width: `${filled - sbtcPercent}%` }}
+                  />
+                </>
+              )}
             </span>
+          )}
+
+          {split && (
+            <p className='mt-2 text-xs text-muted'>
+              {t('app.bonds.split', {
+                sbtc: btcLabel(split.sbtcSats, locale),
+                l1: btcLabel(split.l1Sats, locale),
+              })}
+            </p>
           )}
 
           <p className='mt-3 text-sm text-muted'>

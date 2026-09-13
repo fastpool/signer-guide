@@ -172,6 +172,7 @@ const messages = {
   'app.bonds.lockedFinal': 'Locked',
   'app.bonds.locked': 'Locked so far',
   'app.bonds.stillOpen': 'Still open',
+  'app.bonds.split': '{sbtc} as sBTC · {l1} on Bitcoin',
   'app.bonds.ceiling': 'Ceiling',
   'app.bonds.invited.one': '{count} invited staker',
   'app.bonds.invited.other': '{count} invited stakers',

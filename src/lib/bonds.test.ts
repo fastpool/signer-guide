@@ -13,6 +13,7 @@ import {
   filledPercent,
   isBondsData,
   lastCycle,
+  lockedSplit,
   openSats,
   splitByRegistered,
 } from './bonds';
@@ -81,6 +82,40 @@ describe('how full the bar is drawn', () => {
     expect(
       filledPercent(period({ allowlistedSats: '100', registeredSats: '500' })),
     ).toBe(100);
+  });
+});
+
+describe('where the locked bitcoin actually sits', () => {
+  const rows = [
+    { staker: 'SP1', maxSats: '10', registeredSats: '6', amountUstx: '1', isL1Lock: false, signer: 'SP.x' },
+    { staker: 'SP2', maxSats: '10', registeredSats: '4', amountUstx: '1', isL1Lock: true, signer: 'SP.x' },
+    { staker: 'SP3', maxSats: '10', registeredSats: '0', amountUstx: null, isL1Lock: null, signer: null },
+  ];
+
+  it('adds each side up, ignoring those who locked nothing', () => {
+    expect(lockedSplit(period({ stakers: rows }))).toEqual({
+      sbtcSats: 6n,
+      l1Sats: 4n,
+    });
+  });
+
+  it('will not split a bond whose allowlist came back short', () => {
+    // The rows are missing sats that are in the bond, so a split of the rows
+    // would read as a split of the whole.
+    expect(
+      lockedSplit(period({ stakers: rows, allowlistComplete: false })),
+    ).toBeNull();
+  });
+
+  it('will not split a registration it cannot place', () => {
+    const odd = [{ ...rows[0], isL1Lock: null }];
+    expect(lockedSplit(period({ stakers: odd }))).toBeNull();
+  });
+
+  it('says nothing for a bond nobody has locked anything in', () => {
+    // Two empty halves of a bar say less than no bar at all.
+    expect(lockedSplit(period({ stakers: [rows[2]] }))).toBeNull();
+    expect(lockedSplit(period({ stakers: [] }))).toBeNull();
   });
 });
 

@@ -99,6 +99,40 @@ export function filledPercent(period: BondPeriod): number | null {
   return Math.min(100, Number(filled));
 }
 
+/**
+ * What is locked, split by where the bitcoin actually sits.
+ *
+ * A bond takes both: sBTC custodied by pox-5 on Stacks, or bitcoin timelocked
+ * on Bitcoin itself, for the same sats and the same rewards. The totals treat
+ * them as one number, which is right — but which of the two a bond is made of
+ * is the thing a reader cannot get from anywhere else on the page.
+ *
+ * Null rather than a guess in three cases, because a split that does not
+ * account for everything would read as one that does:
+ *
+ *   - the allowlist came back short, so the rows are missing sats that are
+ *     in the bond (see `allowlistComplete`);
+ *   - a staker has sats registered but no `isL1Lock` to place them by;
+ *   - nothing is locked at all, and a bar of two empty halves says nothing.
+ */
+export function lockedSplit(
+  period: BondPeriod,
+): { sbtcSats: bigint; l1Sats: bigint } | null {
+  if (!period.allowlistComplete) return null;
+
+  let sbtcSats = 0n;
+  let l1Sats = 0n;
+  for (const staker of period.stakers) {
+    const sats = BigInt(staker.registeredSats);
+    if (sats === 0n) continue;
+    if (staker.isL1Lock === null) return null;
+    if (staker.isL1Lock) l1Sats += sats;
+    else sbtcSats += sats;
+  }
+
+  return sbtcSats + l1Sats === 0n ? null : { sbtcSats, l1Sats };
+}
+
 /** Stakers who have locked something, and those who have not, in that order. */
 export function splitByRegistered(period: BondPeriod): {
   locked: BondPeriod['stakers'];
