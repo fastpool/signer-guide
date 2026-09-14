@@ -119,8 +119,10 @@ describe('the committed file', () => {
 
   it('explains every pool that holds STX and has no seat', () => {
     /*
-     * There are exactly two ways to be stacked without a seat, and the file
-     * has one of each:
+     * There are exactly two ways to be stacked without a seat. Which of them
+     * the file holds depends on the cycle — a rotated key only lasts until
+     * the next set is computed — so the test checks whatever is there and
+     * asks for neither:
      *
      *   under half a slot   slots are shared in proportion and rounded, so a
      *                       signer holding less than half of one rounds to
@@ -149,19 +151,5 @@ describe('the committed file', () => {
           'seat holds that amount — so it is neither too small nor a rotation',
       ).toBe(true);
     }
-  });
-
-  it('has at least one of each, which is why the rule above is worded so', () => {
-    // If either disappears the comment above stops being about this file, and
-    // whoever reads it next should be told rather than left to assume.
-    const half = BigInt(data.ustxPerSlot!) / 2n;
-    const unseated = data.nodes.filter(
-      (node) => node.seat === null && BigInt(node.ourUstx ?? '0') > 0n,
-    );
-    const tooSmall = unseated.filter(
-      (node) => BigInt(node.ourUstx ?? '0') < half,
-    );
-    expect(tooSmall.length).toBeGreaterThan(0);
-    expect(unseated.length).toBeGreaterThan(tooSmall.length);
   });
 });
