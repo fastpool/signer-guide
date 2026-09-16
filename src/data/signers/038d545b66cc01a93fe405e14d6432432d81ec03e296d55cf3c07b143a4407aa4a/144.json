@@ -158,6 +158,11 @@
       "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
     },
     {
+      "staker": "SP30J9EZKY44SS1EBT8XNKJFA77Z4TSDBEP8ES0ND",
+      "ustx": "102954424",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
       "staker": "SP18QG8A8943KY9S15M08AMAWWF58W9X1M90BRCSJ",
       "ustx": "101208721",
       "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"

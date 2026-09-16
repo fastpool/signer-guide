@@ -1,18 +1,18 @@
 {
-  "signerKey": "0x0268e6f499fca2912488e89fc8b6734cafbe24a4ecbcd3312e4eb27ed8e5cfb4f3",
+  "signerKey": "0x023fa1782adcecea84aa8e966bd04c564a9c2289092ce958eb4b7d2131f4085fce",
   "contractIds": [
-    "SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85.signer-manager-stackslabs-2"
+    "SP1CZ9DTBXQN5NT20DGB7NDHQKGB51QJWTVEH9E6P.signer-manager"
   ],
   "cycles": [
     {
       "cycle": 144,
       "ustx": {
-        "SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85.signer-manager-stackslabs-2": "0"
+        "SP1CZ9DTBXQN5NT20DGB7NDHQKGB51QJWTVEH9E6P.signer-manager": "0"
       },
       "memberCount": 0,
       "membersAddUp": true,
       "walks": 1,
-      "walkedAt": "2026-09-13T13:03:33.335Z",
+      "walkedAt": "2026-09-16T23:02:04.441Z",
       "walkedUstx": "0",
       "fileFinal": false,
       "cycleFinal": false
@@ -20,12 +20,12 @@
     {
       "cycle": 143,
       "ustx": {
-        "SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85.signer-manager-stackslabs-2": "0"
+        "SP1CZ9DTBXQN5NT20DGB7NDHQKGB51QJWTVEH9E6P.signer-manager": "0"
       },
       "memberCount": 0,
       "membersAddUp": true,
       "walks": 1,
-      "walkedAt": "2026-08-27T08:19:29.040Z",
+      "walkedAt": "2026-09-16T23:02:04.441Z",
       "walkedUstx": "0",
       "fileFinal": false,
       "cycleFinal": true
@@ -33,12 +33,12 @@
     {
       "cycle": 142,
       "ustx": {
-        "SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85.signer-manager-stackslabs-2": "0"
+        "SP1CZ9DTBXQN5NT20DGB7NDHQKGB51QJWTVEH9E6P.signer-manager": "0"
       },
       "memberCount": 0,
       "membersAddUp": true,
-      "walks": 2,
-      "walkedAt": "2026-08-14T21:29:04.389Z",
+      "walks": 1,
+      "walkedAt": "2026-09-16T23:02:04.441Z",
       "walkedUstx": "0",
       "fileFinal": true,
       "cycleFinal": true
@@ -46,17 +46,17 @@
     {
       "cycle": 141,
       "ustx": {
-        "SP1Q1CZV7X4N1MCW5G96FR3B1MT8XGFB0YTZWAX85.signer-manager-stackslabs-2": "0"
+        "SP1CZ9DTBXQN5NT20DGB7NDHQKGB51QJWTVEH9E6P.signer-manager": "0"
       },
       "memberCount": 0,
       "membersAddUp": true,
-      "walks": 2,
-      "walkedAt": "2026-08-14T21:29:04.389Z",
+      "walks": 1,
+      "walkedAt": "2026-09-16T23:02:04.441Z",
       "walkedUstx": "0",
       "fileFinal": true,
       "cycleFinal": true
     }
   ],
   "currentCycle": 143,
-  "generatedAt": "2026-09-16T23:05:13.223Z"
+  "generatedAt": "2026-09-16T23:02:05.588Z"
 }

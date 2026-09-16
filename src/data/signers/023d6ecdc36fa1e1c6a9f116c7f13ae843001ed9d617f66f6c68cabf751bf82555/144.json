@@ -81,11 +81,6 @@
       "staker": "SP39WR7DRCPK9AHRFC0YF96S43QMZ0S8XWQKTJP0X",
       "ustx": "140000000",
       "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
-    },
-    {
-      "staker": "SP232MNC98HCVS4N165GZEXSPKERR8H6ASRW3TCQN",
-      "ustx": "124800000",
-      "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
     }
   ]
 }
