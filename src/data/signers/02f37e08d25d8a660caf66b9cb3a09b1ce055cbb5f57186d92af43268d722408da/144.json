@@ -138,6 +138,11 @@
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-3"
     },
     {
+      "staker": "SP3571PX1R25HKP70Y785JCW0GMX66T07EJ807Y5N",
+      "ustx": "120000000000",
+      "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-3"
+    },
+    {
       "staker": "SP2W81J656DWR3EK6MH9NNPKHZ3HK7TYXKKKCQPN8",
       "ustx": "115000000000",
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-3"
@@ -174,11 +179,6 @@
     },
     {
       "staker": "SP2YB5AWRNJG2KGP39ZNAJ8XA2K2HQGFBRB9HFK2M",
-      "ustx": "100000000000",
-      "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-3"
-    },
-    {
-      "staker": "SP3571PX1R25HKP70Y785JCW0GMX66T07EJ807Y5N",
       "ustx": "100000000000",
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-3"
     },
@@ -2118,11 +2118,6 @@
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-3"
     },
     {
-      "staker": "SP31M5VVSBACAZMJDSPFEFS9T80PD60N1S4XNDXNH",
-      "ustx": "1710000000",
-      "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-3"
-    },
-    {
       "staker": "SPCV9KJM1Y7YPTA6VHNTD21QH02C3ABDK6R5VEFA",
       "ustx": "1700000000",
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-3"
@@ -2703,13 +2698,13 @@
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-3"
     },
     {
-      "staker": "SPGNKNQ8PMVCDS8HPCTCM2JVJBWY8X9Y77DYGFY9",
-      "ustx": "710000000",
+      "staker": "SP2BWX7BZ7KYKQ8XRQ83SGYMKKGVAZQT35E8C0JR7",
+      "ustx": "726500000",
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-3"
     },
     {
-      "staker": "SP2BWX7BZ7KYKQ8XRQ83SGYMKKGVAZQT35E8C0JR7",
-      "ustx": "701000000",
+      "staker": "SPGNKNQ8PMVCDS8HPCTCM2JVJBWY8X9Y77DYGFY9",
+      "ustx": "710000000",
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-3"
     },
     {

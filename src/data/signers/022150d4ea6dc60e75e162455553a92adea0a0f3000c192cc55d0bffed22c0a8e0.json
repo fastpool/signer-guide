@@ -9,11 +9,11 @@
       "ustx": {
         "SPZACCJ8XPZ14P7K7NGFMT1BWQYF2JA9DFA2ZR8A.signer-manager": "541988500110"
       },
-      "memberCount": 2,
+      "memberCount": 3,
       "membersAddUp": true,
-      "walks": 2,
-      "walkedAt": "2026-09-16T23:02:04.441Z",
-      "walkedUstx": "540001500110",
+      "walks": 3,
+      "walkedAt": "2026-09-18T00:29:13.027Z",
+      "walkedUstx": "541988500110",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -58,5 +58,5 @@
     }
   ],
   "currentCycle": 143,
-  "generatedAt": "2026-09-17T22:15:53.357Z"
+  "generatedAt": "2026-09-18T00:32:05.900Z"
 }
