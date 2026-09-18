@@ -1,0 +1,11 @@
+{
+  "signerKey": "0x021e5bc15e37b6946ec0d384e746386e62e82ffee1054b778f8ad22d85bb7f9056",
+  "cycle": 144,
+  "members": [
+    {
+      "staker": "SMH70Y9194QDZ7DC9GW1KVDW13DVQVQZR3MARVGF",
+      "ustx": "1000000000000",
+      "contractId": "SP1N3G8X1X2FTZFD5Y9MAT8KHE1FVBE2GPKAPVSSV.meria-signer-manager"
+    }
+  ]
+}

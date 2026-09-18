@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-18T11:26:00.051Z",
+  "generatedAt": "2026-09-18T16:31:55.281Z",
   "cycle": 143,
   "standardisedWith": "clarinet 3.24.0",
   "signers": [
@@ -721,6 +721,40 @@
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
         "openToAnyone": null,
         "maxFee": null
+      }
+    },
+    {
+      "contractId": "SP3TB3AJ0XMZ9S6CGY2CQ6R06H1Z6DJQ1SH15ZP2H.signer-manager-stillearly-max500",
+      "displayName": "Stillearly Max500",
+      "displayNameSource": "contract",
+      "implementationName": "Capped Fee",
+      "registered": true,
+      "firstSeenCycle": 143,
+      "signerKey": "0x0294f4bc505c0afcc4d3b2372e517f73a59523da933c95958107223e1be91e4d13",
+      "sourceSha256": "e80395f43dd6dd0008131ed2ba64eef11d4dde54eba1aa8e31c5e5eaa3a30608",
+      "canonicalSha256": "ce411cc010b94f26925c7b02bed02b575bf191488d040ca4eed368a5a013fbd4",
+      "groupSha256": "d6c5e82af733250d80b38be57d02c5ff6677ec2712e31d00381899e3fecc6874",
+      "identiconHash": "7c2f470d6f739678ef31dfd16e4fb8ccc1a013f6e0b39ebbe9997631c3a6143e",
+      "match": "canonical",
+      "profileId": "capped-fee",
+      "bitcoinRewards": false,
+      "openToAnyone": true,
+      "feeBips": 0,
+      "maxFeeBips": 500,
+      "feeChangeNotice": {
+        "amount": 2,
+        "unit": "cycles",
+        "evidence": "(var-set pending-fees-cycle (+ cycle FEE_ACTIVATION_DELAY_CYCLES))"
+      },
+      "feeExemption": null,
+      "undistributedSats": "0",
+      "unclaimedFromPoxSats": "0",
+      "unclaimedFromCycle": 143,
+      "earnedFeesSats": "0",
+      "evidence": {
+        "bitcoinRewards": null,
+        "openToAnyone": null,
+        "maxFee": "(asserts! (<= new-fees MAX_FEE_BIPS) ERR_INVALID_FEES_BIPS)"
       }
     },
     {

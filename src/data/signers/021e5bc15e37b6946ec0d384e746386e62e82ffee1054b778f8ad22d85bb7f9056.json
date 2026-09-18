@@ -7,13 +7,13 @@
     {
       "cycle": 144,
       "ustx": {
-        "SP1N3G8X1X2FTZFD5Y9MAT8KHE1FVBE2GPKAPVSSV.meria-signer-manager": "0"
+        "SP1N3G8X1X2FTZFD5Y9MAT8KHE1FVBE2GPKAPVSSV.meria-signer-manager": "1000000000000"
       },
-      "memberCount": 0,
+      "memberCount": 1,
       "membersAddUp": true,
-      "walks": 1,
-      "walkedAt": "2026-09-13T13:03:33.335Z",
-      "walkedUstx": "0",
+      "walks": 2,
+      "walkedAt": "2026-09-18T16:32:39.053Z",
+      "walkedUstx": "1000000000000",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -58,5 +58,5 @@
     }
   ],
   "currentCycle": 143,
-  "generatedAt": "2026-09-18T11:26:37.388Z"
+  "generatedAt": "2026-09-18T16:32:41.980Z"
 }
