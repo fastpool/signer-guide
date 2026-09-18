@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-18T00:28:40.678Z",
+  "generatedAt": "2026-09-18T06:00:43.595Z",
   "cycle": 143,
   "standardisedWith": "clarinet 3.24.0",
   "signers": [
@@ -1598,7 +1598,7 @@
         "evidence": "(if (is-og staker) u0 (var-get fee-bips))"
       },
       "undistributedSats": null,
-      "unclaimedFromPoxSats": "480795",
+      "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 143,
       "earnedFeesSats": "0",
       "evidence": {
