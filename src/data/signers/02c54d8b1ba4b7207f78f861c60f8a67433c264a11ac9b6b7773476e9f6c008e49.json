@@ -5,17 +5,30 @@
   ],
   "cycles": [
     {
-      "cycle": 144,
+      "cycle": 145,
       "ustx": {
         "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-infstones-v1": "0"
       },
       "memberCount": 0,
       "membersAddUp": true,
       "walks": 1,
-      "walkedAt": "2026-09-13T13:03:33.335Z",
+      "walkedAt": "2026-10-01T00:37:09.181Z",
       "walkedUstx": "0",
       "fileFinal": false,
       "cycleFinal": false
+    },
+    {
+      "cycle": 144,
+      "ustx": {
+        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-infstones-v1": "11499999999999"
+      },
+      "memberCount": 1,
+      "membersAddUp": true,
+      "walks": 2,
+      "walkedAt": "2026-10-01T00:37:09.181Z",
+      "walkedUstx": "11499999999999",
+      "fileFinal": false,
+      "cycleFinal": true
     },
     {
       "cycle": 143,
@@ -27,7 +40,7 @@
       "walks": 2,
       "walkedAt": "2026-09-07T10:27:46.180Z",
       "walkedUstx": "11499999999999",
-      "fileFinal": false,
+      "fileFinal": true,
       "cycleFinal": true
     },
     {
@@ -57,6 +70,6 @@
       "cycleFinal": true
     }
   ],
-  "currentCycle": 143,
-  "generatedAt": "2026-09-22T22:19:06.735Z"
+  "currentCycle": 144,
+  "generatedAt": "2026-10-01T00:43:03.990Z"
 }

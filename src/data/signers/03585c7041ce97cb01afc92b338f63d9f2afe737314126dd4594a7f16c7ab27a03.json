@@ -5,6 +5,19 @@
   ],
   "cycles": [
     {
+      "cycle": 145,
+      "ustx": {
+        "SP3DHX7ZHNTCE1WQHJH0T0HY9NNSVT4SWTY2FRCCT.hiro-contract": "9999999000000"
+      },
+      "memberCount": 1,
+      "membersAddUp": true,
+      "walks": 1,
+      "walkedAt": "2026-10-01T00:37:09.181Z",
+      "walkedUstx": "9999999000000",
+      "fileFinal": false,
+      "cycleFinal": false
+    },
+    {
       "cycle": 144,
       "ustx": {
         "SP3DHX7ZHNTCE1WQHJH0T0HY9NNSVT4SWTY2FRCCT.hiro-contract": "9999999000000"
@@ -15,7 +28,7 @@
       "walkedAt": "2026-09-13T13:03:33.335Z",
       "walkedUstx": "9999999000000",
       "fileFinal": false,
-      "cycleFinal": false
+      "cycleFinal": true
     },
     {
       "cycle": 143,
@@ -27,7 +40,7 @@
       "walks": 1,
       "walkedAt": "2026-08-27T08:19:29.040Z",
       "walkedUstx": "9999999000000",
-      "fileFinal": false,
+      "fileFinal": true,
       "cycleFinal": true
     },
     {
@@ -57,6 +70,6 @@
       "cycleFinal": true
     }
   ],
-  "currentCycle": 143,
-  "generatedAt": "2026-09-22T22:18:56.044Z"
+  "currentCycle": 144,
+  "generatedAt": "2026-10-01T00:42:53.160Z"
 }

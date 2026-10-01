@@ -6,10 +6,24 @@
   ],
   "cycles": [
     {
+      "cycle": 145,
+      "ustx": {
+        "SP20XZGWBWSMRE94WDJ6YJ1EKPJ55RGRGK4JDJHNK.signer-manager-pox5": "0",
+        "SP20XZGWBWSMRE94WDJ6YJ1EKPJ55RGRGK4JDJHNK.signer-manager-senseinode": "1000000500110"
+      },
+      "memberCount": 1,
+      "membersAddUp": true,
+      "walks": 1,
+      "walkedAt": "2026-10-01T00:37:09.181Z",
+      "walkedUstx": "1000000500110",
+      "fileFinal": false,
+      "cycleFinal": false
+    },
+    {
       "cycle": 144,
       "ustx": {
-        "SP20XZGWBWSMRE94WDJ6YJ1EKPJ55RGRGK4JDJHNK.signer-manager-pox5": "1000000500110",
-        "SP20XZGWBWSMRE94WDJ6YJ1EKPJ55RGRGK4JDJHNK.signer-manager-senseinode": "0"
+        "SP20XZGWBWSMRE94WDJ6YJ1EKPJ55RGRGK4JDJHNK.signer-manager-pox5": "0",
+        "SP20XZGWBWSMRE94WDJ6YJ1EKPJ55RGRGK4JDJHNK.signer-manager-senseinode": "1000000500110"
       },
       "memberCount": 1,
       "membersAddUp": true,
@@ -17,7 +31,7 @@
       "walkedAt": "2026-09-22T22:18:34.761Z",
       "walkedUstx": "1000000500110",
       "fileFinal": false,
-      "cycleFinal": false
+      "cycleFinal": true
     },
     {
       "cycle": 143,
@@ -30,7 +44,7 @@
       "walks": 4,
       "walkedAt": "2026-09-09T00:21:34.996Z",
       "walkedUstx": "360000500110",
-      "fileFinal": false,
+      "fileFinal": true,
       "cycleFinal": true
     },
     {
@@ -62,6 +76,6 @@
       "cycleFinal": true
     }
   ],
-  "currentCycle": 143,
-  "generatedAt": "2026-09-22T22:18:54.166Z"
+  "currentCycle": 144,
+  "generatedAt": "2026-10-01T00:42:47.397Z"
 }
