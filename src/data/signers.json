@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-02T00:55:23.831Z",
+  "generatedAt": "2026-10-02T07:07:08.166Z",
   "cycle": 144,
   "standardisedWith": "clarinet 3.24.0",
   "signers": [
@@ -294,7 +294,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": null,
+      "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 144,
       "earnedFeesSats": "0",
       "evidence": {
