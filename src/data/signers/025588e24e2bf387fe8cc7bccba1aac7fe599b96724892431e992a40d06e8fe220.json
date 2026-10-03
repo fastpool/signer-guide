@@ -7,7 +7,7 @@
     {
       "cycle": 145,
       "ustx": {
-        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager": "56963000767383"
+        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager": "56963825767383"
       },
       "memberCount": 214,
       "membersAddUp": true,
@@ -71,5 +71,5 @@
     }
   ],
   "currentCycle": 144,
-  "generatedAt": "2026-10-02T23:59:18.622Z"
+  "generatedAt": "2026-10-03T12:10:16.157Z"
 }
