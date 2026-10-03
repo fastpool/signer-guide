@@ -39,7 +39,7 @@
     },
     {
       "staker": "SP2QGMXH21KFDX99PWNB7Z7WNQ92TWFAECEEK10GE",
-      "ustx": "1913880000000",
+      "ustx": "1915128000000",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
@@ -93,6 +93,11 @@
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
+      "staker": "SP22Z0MMJ1MBH4705S5MQWF64DX0CQ86K6KJ2BDXW",
+      "ustx": "325522148753",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
+    },
+    {
       "staker": "SP3CBKJV78QSSY1MHDHH3E5FDJNEJJVMHAJ3Q9K17",
       "ustx": "315966490220",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
@@ -100,11 +105,6 @@
     {
       "staker": "SP1YRWD90RN9BSKESTED8PWABB6K7553NZJVXEEBG",
       "ustx": "311503428106",
-      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
-    },
-    {
-      "staker": "SP22Z0MMJ1MBH4705S5MQWF64DX0CQ86K6KJ2BDXW",
-      "ustx": "308200000000",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
@@ -523,6 +523,11 @@
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
+      "staker": "SP2PN3KB4SMAYG1D9Z79294ZB83NGKB453WSK18JC",
+      "ustx": "5300000000",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
+    },
+    {
       "staker": "SP2HZZC8Q71W1AQ28KDQ1FT0ZQR6EHHKYTBK0N0B",
       "ustx": "5000000000",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
@@ -815,6 +820,11 @@
     {
       "staker": "SP144BWRHC6QCW506NWMPNCK7DHNTGF1BXXJDNC2B",
       "ustx": "903561926",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
+    },
+    {
+      "staker": "SP2VMPZ7RAEHRC91DPME3KFF65ZTJSXQNN0BPBKK5",
+      "ustx": "825000000",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
