@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-05T09:15:12.520Z",
+  "generatedAt": "2026-10-05T18:36:41.704Z",
   "cycle": 144,
   "standardisedWith": "clarinet 3.24.0",
   "signers": [
@@ -660,7 +660,7 @@
       "undistributedSats": "0",
       "unclaimedFromPoxSats": "32179867",
       "unclaimedFromCycle": 141,
-      "earnedFeesSats": null,
+      "earnedFeesSats": "0",
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
         "openToAnyone": null,
@@ -881,6 +881,36 @@
         "maxFee": null
       },
       "callApi": "nativePool"
+    },
+    {
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2",
+      "displayName": "Native Pool V2",
+      "displayNameSource": "contract",
+      "implementationName": null,
+      "registered": true,
+      "firstSeenCycle": 144,
+      "signerKey": "0x029aff0318988763ef09ae5430da91e21f74952aaff5cbafb017847dbbd526cee8",
+      "sourceSha256": "e1e33bc1fffa0733086357141bfd7eda03167973e4acb335d58d2942b3a465cc",
+      "canonicalSha256": "7d547360a933fb4fd337d5bc7b0b7b98ba883ab580b6a72ab752fc5e702b38f6",
+      "groupSha256": "b1356dec427936db6a95dc607c4b350c868f83e62ee2b342cce6a46879810b3f",
+      "identiconHash": null,
+      "match": "unknown",
+      "profileId": null,
+      "bitcoinRewards": false,
+      "openToAnyone": false,
+      "feeBips": null,
+      "maxFeeBips": null,
+      "feeChangeNotice": null,
+      "feeExemption": null,
+      "undistributedSats": null,
+      "unclaimedFromPoxSats": "0",
+      "unclaimedFromCycle": 144,
+      "earnedFeesSats": null,
+      "evidence": {
+        "bitcoinRewards": null,
+        "openToAnyone": "(contract-call? .native-pool-v2 is-delegating staker current-contract) ERR_STAKER_NOT_ALLOWED)",
+        "maxFee": null
+      }
     },
     {
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-blockdaemon-v1",
@@ -1413,7 +1443,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": null,
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": null,
       "unclaimedFromCycle": 144,
       "earnedFeesSats": null,
       "evidence": {
@@ -1473,7 +1503,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "3127",
-      "unclaimedFromPoxSats": null,
+      "unclaimedFromPoxSats": "12237650",
       "unclaimedFromCycle": 144,
       "earnedFeesSats": "0",
       "evidence": {
