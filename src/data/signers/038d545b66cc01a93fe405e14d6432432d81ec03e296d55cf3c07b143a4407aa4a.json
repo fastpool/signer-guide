@@ -9,11 +9,11 @@
       "ustx": {
         "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer": "1153000198046"
       },
-      "memberCount": 35,
+      "memberCount": 36,
       "membersAddUp": true,
-      "walks": 3,
-      "walkedAt": "2026-10-05T18:40:08.495Z",
-      "walkedUstx": "1146151504889",
+      "walks": 4,
+      "walkedAt": "2026-10-06T20:32:11.255Z",
+      "walkedUstx": "1153000198046",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -71,5 +71,5 @@
     }
   ],
   "currentCycle": 144,
-  "generatedAt": "2026-10-06T15:23:20.149Z"
+  "generatedAt": "2026-10-06T20:33:22.418Z"
 }
