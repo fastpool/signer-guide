@@ -7,7 +7,7 @@
     {
       "cycle": 145,
       "ustx": {
-        "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer": "1153000198046"
+        "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer": "1153034860830"
       },
       "memberCount": 36,
       "membersAddUp": true,
@@ -71,5 +71,5 @@
     }
   ],
   "currentCycle": 144,
-  "generatedAt": "2026-10-07T07:26:47.164Z"
+  "generatedAt": "2026-10-07T15:44:03.183Z"
 }

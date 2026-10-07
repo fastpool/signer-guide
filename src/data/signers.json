@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-07T07:21:29.064Z",
+  "generatedAt": "2026-10-07T15:39:23.482Z",
   "cycle": 144,
   "standardisedWith": "clarinet 3.24.0",
   "signers": [
@@ -1039,7 +1039,7 @@
       "implementationName": "Invite-only (with btc address)",
       "registered": true,
       "firstSeenCycle": 142,
-      "signerKey": "0x03c56effa8046803c0fde0ac489cf6fb0b9c8b3119c12059dac349d4f427ecae01",
+      "signerKey": "0x029aff0318988763ef09ae5430da91e21f74952aaff5cbafb017847dbbd526cee8",
       "sourceSha256": "eab5e971cc096fc6e51e15a1c75641a73e5f9f7134259ddfea209a102c981891",
       "canonicalSha256": "d7104523c7ecffd45651a2e59c388145225b8133d035177ab60106c8a7f6b817",
       "groupSha256": "5fde076339b4920d38de1d8f34ea518cf68380b7a9679bdff5bcda78e8967822",

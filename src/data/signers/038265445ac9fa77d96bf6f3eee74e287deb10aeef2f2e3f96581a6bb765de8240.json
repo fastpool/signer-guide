@@ -7,13 +7,13 @@
     {
       "cycle": 145,
       "ustx": {
-        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-juicy-stake-v1": "0"
+        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-juicy-stake-v1": "11499999999999"
       },
-      "memberCount": 0,
+      "memberCount": 1,
       "membersAddUp": true,
-      "walks": 1,
-      "walkedAt": "2026-10-01T00:37:09.181Z",
-      "walkedUstx": "0",
+      "walks": 2,
+      "walkedAt": "2026-10-07T15:43:07.340Z",
+      "walkedUstx": "11499999999999",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -71,5 +71,5 @@
     }
   ],
   "currentCycle": 144,
-  "generatedAt": "2026-10-07T07:28:08.931Z"
+  "generatedAt": "2026-10-07T15:45:13.988Z"
 }
