@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-10-07T00:55:00.108Z",
+  "generatedAt": "2026-10-07T07:25:02.594Z",
   "cycle": 144,
-  "burnHeight": 970263,
+  "burnHeight": 970306,
   "firstBondPeriodCycle": 141,
   "gapCycles": 2,
   "lengthCycles": 12,
@@ -154,16 +154,16 @@
     "stxValueRatio": "267384",
     "minUstxRatio": 500,
     "allowlistedSats": "50510000000",
-    "registeredSats": "0",
+    "registeredSats": "48300000000",
     "allowlistComplete": true,
     "stakers": [
       {
         "staker": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.stbtc-staker-bond-2-v2",
         "maxSats": "48300000000",
-        "registeredSats": "0",
-        "amountUstx": null,
-        "isL1Lock": null,
-        "signer": null
+        "registeredSats": "48300000000",
+        "amountUstx": "6457323600000",
+        "isL1Lock": false,
+        "signer": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-2-v2"
       },
       {
         "staker": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.sbtc-bond-staker-v1-2",

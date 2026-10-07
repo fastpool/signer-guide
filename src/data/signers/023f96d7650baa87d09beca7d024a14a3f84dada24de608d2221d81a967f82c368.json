@@ -7,13 +7,13 @@
     {
       "cycle": 145,
       "ustx": {
-        "SP3ZA8J49HPS7M3KD7EB01Y0ZAJS7VJS2NG87MDGN.planbetter-signer-manager": "818787861000"
+        "SP3ZA8J49HPS7M3KD7EB01Y0ZAJS7VJS2NG87MDGN.planbetter-signer-manager": "839017861000"
       },
-      "memberCount": 46,
+      "memberCount": 48,
       "membersAddUp": true,
-      "walks": 5,
-      "walkedAt": "2026-10-06T00:59:06.864Z",
-      "walkedUstx": "780446861000",
+      "walks": 6,
+      "walkedAt": "2026-10-07T07:25:10.017Z",
+      "walkedUstx": "839017861000",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -71,5 +71,5 @@
     }
   ],
   "currentCycle": 144,
-  "generatedAt": "2026-10-07T00:55:08.137Z"
+  "generatedAt": "2026-10-07T07:26:21.688Z"
 }
