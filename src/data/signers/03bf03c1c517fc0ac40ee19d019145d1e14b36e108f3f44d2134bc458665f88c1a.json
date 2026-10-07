@@ -7,13 +7,13 @@
     {
       "cycle": 145,
       "ustx": {
-        "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs": "8465415303325"
+        "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs": "8466752223325"
       },
-      "memberCount": 8,
+      "memberCount": 9,
       "membersAddUp": true,
-      "walks": 1,
-      "walkedAt": "2026-10-01T00:37:09.181Z",
-      "walkedUstx": "8465415303325",
+      "walks": 2,
+      "walkedAt": "2026-10-07T21:28:11.277Z",
+      "walkedUstx": "8466752223325",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -71,5 +71,5 @@
     }
   ],
   "currentCycle": 144,
-  "generatedAt": "2026-10-07T15:45:04.631Z"
+  "generatedAt": "2026-10-07T21:30:13.328Z"
 }

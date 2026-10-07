@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-10-07T15:43:00.565Z",
+  "generatedAt": "2026-10-07T21:28:04.156Z",
   "cycle": 144,
-  "burnHeight": 970356,
+  "burnHeight": 970394,
   "firstBondPeriodCycle": 141,
   "gapCycles": 2,
   "lengthCycles": 12,
@@ -154,7 +154,7 @@
     "stxValueRatio": "267384",
     "minUstxRatio": 500,
     "allowlistedSats": "50510000000",
-    "registeredSats": "50500000000",
+    "registeredSats": "50510000000",
     "allowlistComplete": true,
     "stakers": [
       {
@@ -176,10 +176,10 @@
       {
         "staker": "SP2TC7YMDH77T5GP41W6JZK3Q7AJ10ZJ36ZQNGQ79",
         "maxSats": "10000000",
-        "registeredSats": "0",
-        "amountUstx": null,
-        "isL1Lock": null,
-        "signer": null
+        "registeredSats": "10000000",
+        "amountUstx": "1336920000",
+        "isL1Lock": true,
+        "signer": "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs"
       }
     ]
   }

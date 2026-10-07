@@ -11,11 +11,11 @@
         "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2": "12000000",
         "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-2-v2": "6457323600000"
       },
-      "memberCount": 2,
+      "memberCount": 3,
       "membersAddUp": true,
-      "walks": 2,
-      "walkedAt": "2026-10-06T20:32:11.255Z",
-      "walkedUstx": "12000000",
+      "walks": 3,
+      "walkedAt": "2026-10-07T21:28:11.277Z",
+      "walkedUstx": "6457335600000",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -77,5 +77,5 @@
     }
   ],
   "currentCycle": 144,
-  "generatedAt": "2026-10-07T15:43:08.852Z"
+  "generatedAt": "2026-10-07T21:28:13.320Z"
 }
