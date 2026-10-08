@@ -9,11 +9,11 @@
       "ustx": {
         "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-2-v1": "0"
       },
-      "memberCount": 1,
+      "memberCount": 0,
       "membersAddUp": true,
-      "walks": 2,
-      "walkedAt": "2026-10-07T07:25:10.017Z",
-      "walkedUstx": "6457323600000",
+      "walks": 3,
+      "walkedAt": "2026-10-08T09:13:08.412Z",
+      "walkedUstx": "0",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -74,5 +74,5 @@
     }
   ],
   "currentCycle": 144,
-  "generatedAt": "2026-10-08T02:10:14.354Z"
+  "generatedAt": "2026-10-08T09:15:15.719Z"
 }

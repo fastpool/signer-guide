@@ -9,11 +9,11 @@
       "ustx": {
         "SP3ZA8J49HPS7M3KD7EB01Y0ZAJS7VJS2NG87MDGN.planbetter-signer-manager": "840367861000"
       },
-      "memberCount": 48,
+      "memberCount": 49,
       "membersAddUp": true,
-      "walks": 6,
-      "walkedAt": "2026-10-07T07:25:10.017Z",
-      "walkedUstx": "839017861000",
+      "walks": 7,
+      "walkedAt": "2026-10-08T09:13:08.412Z",
+      "walkedUstx": "840367861000",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -71,5 +71,5 @@
     }
   ],
   "currentCycle": 144,
-  "generatedAt": "2026-10-08T02:09:18.226Z"
+  "generatedAt": "2026-10-08T09:14:21.666Z"
 }
