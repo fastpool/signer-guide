@@ -7,7 +7,7 @@
     {
       "cycle": 146,
       "ustx": {
-        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-2-v1": null
+        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-2-v1": "0"
       },
       "memberCount": 0,
       "membersAddUp": false,
@@ -87,5 +87,5 @@
     }
   ],
   "currentCycle": 145,
-  "generatedAt": "2026-10-09T02:55:08.870Z"
+  "generatedAt": "2026-10-09T09:25:17.168Z"
 }
