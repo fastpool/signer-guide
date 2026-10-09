@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-09T17:05:11.080Z",
+  "generatedAt": "2026-10-09T21:48:12.602Z",
   "cycle": 145,
   "standardisedWith": "clarinet 3.24.0",
   "signers": [
@@ -354,7 +354,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": null,
+      "unclaimedFromPoxSats": "26026449",
       "unclaimedFromCycle": 142,
       "earnedFeesSats": "0",
       "evidence": {
@@ -537,9 +537,9 @@
       "maxFeeBips": null,
       "feeChangeNotice": null,
       "feeExemption": null,
-      "undistributedSats": "61",
-      "unclaimedFromPoxSats": "975121",
-      "unclaimedFromCycle": 144,
+      "undistributedSats": "70",
+      "unclaimedFromPoxSats": "0",
+      "unclaimedFromCycle": 145,
       "earnedFeesSats": "0",
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
@@ -1626,10 +1626,10 @@
         "evidence": "(var-set pending-fees-cycle (+ cycle FEE_ACTIVATION_DELAY_CYCLES))"
       },
       "feeExemption": null,
-      "undistributedSats": "62780",
-      "unclaimedFromPoxSats": "56572819",
+      "undistributedSats": "898",
+      "unclaimedFromPoxSats": null,
       "unclaimedFromCycle": 144,
-      "earnedFeesSats": "2082815",
+      "earnedFeesSats": "4644704",
       "evidence": {
         "bitcoinRewards": null,
         "openToAnyone": null,
