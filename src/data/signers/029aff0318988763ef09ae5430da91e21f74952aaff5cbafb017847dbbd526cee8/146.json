@@ -1,0 +1,21 @@
+{
+  "signerKey": "0x029aff0318988763ef09ae5430da91e21f74952aaff5cbafb017847dbbd526cee8",
+  "cycle": 146,
+  "members": [
+    {
+      "staker": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.stbtc-staker-bond-2-v2",
+      "ustx": "6457323600000",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-2-v2"
+    },
+    {
+      "staker": "SP1BQZ7QBWMRCYYFB51F5SGH2NJJ33R3BJQA71AQ0",
+      "ustx": "10000000",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2"
+    },
+    {
+      "staker": "SP1HVQJP44NC68G2HZ3DXYXG6468AD7CSVB07E572",
+      "ustx": "2000000",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2"
+    }
+  ]
+}

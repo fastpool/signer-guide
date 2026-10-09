@@ -1,0 +1,31 @@
+{
+  "signerKey": "0x022150d4ea6dc60e75e162455553a92adea0a0f3000c192cc55d0bffed22c0a8e0",
+  "cycle": 146,
+  "members": [
+    {
+      "staker": "SP23MMGQE8FCEWESXXG0X9AZWWRJ4ZBB9AECMTR7Y",
+      "ustx": "560350253100",
+      "contractId": "SPZACCJ8XPZ14P7K7NGFMT1BWQYF2JA9DFA2ZR8A.signer-manager"
+    },
+    {
+      "staker": "SMKJ5RWXSKRZ6XH4DK8YRTF3PTB3VZS6N5604MAY",
+      "ustx": "540000500110",
+      "contractId": "SPZACCJ8XPZ14P7K7NGFMT1BWQYF2JA9DFA2ZR8A.signer-manager"
+    },
+    {
+      "staker": "SP319VECMZS4DC5G6BKPEA6MMNQ0W1RVH2DM38NJC",
+      "ustx": "10392000000",
+      "contractId": "SPZACCJ8XPZ14P7K7NGFMT1BWQYF2JA9DFA2ZR8A.signer-manager"
+    },
+    {
+      "staker": "SPY4YKYTMP7T4PSCGZB9ECR5RZAQQ37V6PHZJKKA",
+      "ustx": "1987000000",
+      "contractId": "SPZACCJ8XPZ14P7K7NGFMT1BWQYF2JA9DFA2ZR8A.signer-manager"
+    },
+    {
+      "staker": "SP2S72QQFC178QMNHJNQ083DZS645QMN8KJ81A9BB",
+      "ustx": "1000000",
+      "contractId": "SPZACCJ8XPZ14P7K7NGFMT1BWQYF2JA9DFA2ZR8A.signer-manager"
+    }
+  ]
+}
