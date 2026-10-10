@@ -10,10 +10,10 @@
         "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-2-v1": "0"
       },
       "memberCount": 0,
-      "membersAddUp": false,
-      "walks": 1,
-      "walkedAt": "2026-10-09T02:23:09.273Z",
-      "walkedUstx": null,
+      "membersAddUp": true,
+      "walks": 2,
+      "walkedAt": "2026-10-10T08:43:07.308Z",
+      "walkedUstx": "0",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -87,5 +87,5 @@
     }
   ],
   "currentCycle": 145,
-  "generatedAt": "2026-10-10T01:55:11.724Z"
+  "generatedAt": "2026-10-10T09:12:11.982Z"
 }
