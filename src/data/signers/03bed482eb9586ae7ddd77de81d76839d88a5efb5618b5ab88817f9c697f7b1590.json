@@ -1,0 +1,88 @@
+{
+  "signerKey": "0x03bed482eb9586ae7ddd77de81d76839d88a5efb5618b5ab88817f9c697f7b1590",
+  "contractIds": [
+    "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2"
+  ],
+  "cycles": [
+    {
+      "cycle": 146,
+      "ustx": {
+        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2": "12305495226"
+      },
+      "memberCount": 4,
+      "membersAddUp": true,
+      "walks": 1,
+      "walkedAt": "2026-10-12T19:58:04.044Z",
+      "walkedUstx": "12305495226",
+      "fileFinal": false,
+      "cycleFinal": false
+    },
+    {
+      "cycle": 145,
+      "ustx": {
+        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2": "12000000"
+      },
+      "memberCount": 2,
+      "membersAddUp": true,
+      "walks": 1,
+      "walkedAt": "2026-10-12T19:58:04.044Z",
+      "walkedUstx": "12000000",
+      "fileFinal": false,
+      "cycleFinal": true
+    },
+    {
+      "cycle": 144,
+      "ustx": {
+        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2": "0"
+      },
+      "memberCount": 0,
+      "membersAddUp": true,
+      "walks": 1,
+      "walkedAt": "2026-10-12T19:58:04.044Z",
+      "walkedUstx": "0",
+      "fileFinal": true,
+      "cycleFinal": true
+    },
+    {
+      "cycle": 143,
+      "ustx": {
+        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2": "0"
+      },
+      "memberCount": 0,
+      "membersAddUp": true,
+      "walks": 1,
+      "walkedAt": "2026-10-12T19:58:04.044Z",
+      "walkedUstx": "0",
+      "fileFinal": true,
+      "cycleFinal": true
+    },
+    {
+      "cycle": 142,
+      "ustx": {
+        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2": "0"
+      },
+      "memberCount": 0,
+      "membersAddUp": true,
+      "walks": 1,
+      "walkedAt": "2026-10-12T19:58:04.044Z",
+      "walkedUstx": "0",
+      "fileFinal": true,
+      "cycleFinal": true
+    },
+    {
+      "cycle": 141,
+      "ustx": {
+        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2": "0"
+      },
+      "memberCount": 0,
+      "membersAddUp": true,
+      "walks": 1,
+      "walkedAt": "2026-10-12T19:58:04.044Z",
+      "walkedUstx": "0",
+      "fileFinal": true,
+      "cycleFinal": true
+    }
+  ],
+  "currentCycle": 145,
+  "generatedAt": "2026-10-12T19:58:08.662Z"
+}

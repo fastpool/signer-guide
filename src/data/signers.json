@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-12T09:25:13.791Z",
+  "generatedAt": "2026-10-12T19:55:04.412Z",
   "cycle": 145,
   "standardisedWith": "clarinet 3.24.0",
   "signers": [
@@ -627,7 +627,7 @@
       "maxFeeBips": null,
       "feeChangeNotice": null,
       "feeExemption": null,
-      "undistributedSats": "0",
+      "undistributedSats": null,
       "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 145,
       "earnedFeesSats": "0",
@@ -889,7 +889,7 @@
       "implementationName": null,
       "registered": true,
       "firstSeenCycle": 144,
-      "signerKey": "0x029aff0318988763ef09ae5430da91e21f74952aaff5cbafb017847dbbd526cee8",
+      "signerKey": "0x03bed482eb9586ae7ddd77de81d76839d88a5efb5618b5ab88817f9c697f7b1590",
       "sourceSha256": "e1e33bc1fffa0733086357141bfd7eda03167973e4acb335d58d2942b3a465cc",
       "canonicalSha256": "7d547360a933fb4fd337d5bc7b0b7b98ba883ab580b6a72ab752fc5e702b38f6",
       "groupSha256": "b1356dec427936db6a95dc607c4b350c868f83e62ee2b342cce6a46879810b3f",
@@ -1383,7 +1383,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": null,
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": null,
       "unclaimedFromCycle": 145,
       "earnedFeesSats": null,
       "evidence": {
@@ -1657,7 +1657,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": null,
+      "unclaimedFromPoxSats": "3071602",
       "unclaimedFromCycle": 141,
       "earnedFeesSats": "0",
       "evidence": {
