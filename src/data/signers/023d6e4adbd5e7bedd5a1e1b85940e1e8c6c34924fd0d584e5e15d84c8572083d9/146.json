@@ -74,7 +74,7 @@
     },
     {
       "staker": "SPTXKYRSKQQMZXTGZP8086RDB1Q8YJYY0ZH2B5EZ",
-      "ustx": "387247000000",
+      "ustx": "392112000000",
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
     },
     {
@@ -390,6 +390,11 @@
     {
       "staker": "SP1BTS8YX360XZM953PMXR3JM22ZHXP28DYTYZ0FT",
       "ustx": "42011347817",
+      "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
+    },
+    {
+      "staker": "SP282TDX54Z0A3XAVCW7RY7BNFEXSS1AKY6273C68",
+      "ustx": "41825783709",
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
     },
     {
@@ -1493,11 +1498,6 @@
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
     },
     {
-      "staker": "SP192X5PVCK5QQYHZSW5MFXF86KWXSPGJHANYR8CE",
-      "ustx": "400000000",
-      "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
-    },
-    {
       "staker": "SP28S94PYETGZC3F1F8TXKHQWKM0RAGWQ3YZG3P67",
       "ustx": "398513692",
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
@@ -1545,6 +1545,11 @@
     {
       "staker": "SP0DXBZ3HPRVXBK6D001710G1317V2TNQXJ8TCW3",
       "ustx": "318457255",
+      "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
+    },
+    {
+      "staker": "SP2DZXBA7PZZ5PWWKT4TSMH1GF0EDD9KC6EN20RWA",
+      "ustx": "313000000",
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
     },
     {
@@ -1725,11 +1730,6 @@
     {
       "staker": "SP2ZYPCNQV54SKY8BVWJ8M3CEAA6HJM4163MZ67H8",
       "ustx": "53844095",
-      "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
-    },
-    {
-      "staker": "SP3P8PTK27866N94JZYFXCGNE7HMKRN88FTX777HM",
-      "ustx": "53000000",
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
     },
     {
