@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-15T07:36:14.176Z",
+  "generatedAt": "2026-10-15T13:34:23.267Z",
   "cycle": 145,
   "standardisedWith": "clarinet 3.24.0",
   "signers": [
@@ -1789,7 +1789,7 @@
         "evidence": "(var-set pending-fees-cycle (+ cycle FEE_ACTIVATION_DELAY_CYCLES))"
       },
       "feeExemption": null,
-      "undistributedSats": "0",
+      "undistributedSats": null,
       "unclaimedFromPoxSats": "1774646",
       "unclaimedFromCycle": 142,
       "earnedFeesSats": "0",
