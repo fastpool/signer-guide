@@ -9,11 +9,11 @@
       "ustx": {
         "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager": "73244403982585"
       },
-      "memberCount": 368,
+      "memberCount": 371,
       "membersAddUp": true,
-      "walks": 5,
-      "walkedAt": "2026-10-13T22:59:15.112Z",
-      "walkedUstx": "73139692882585",
+      "walks": 6,
+      "walkedAt": "2026-10-15T01:39:07.141Z",
+      "walkedUstx": "73244403982585",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -84,5 +84,5 @@
     }
   ],
   "currentCycle": 145,
-  "generatedAt": "2026-10-14T18:49:25.104Z"
+  "generatedAt": "2026-10-15T01:47:30.197Z"
 }
