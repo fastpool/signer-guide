@@ -8,13 +8,13 @@
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2"
     },
     {
-      "staker": "SP2YY93GF8JZKH5BY8H89EH9PX6R1T80WDZRH51QG",
-      "ustx": "296045000000",
+      "staker": "SPZWCQGQFE9R6WT3Q27CFT6W5FCG2B9W1F4EFC3C",
+      "ustx": "205583964100",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2"
     },
     {
-      "staker": "SPZWCQGQFE9R6WT3Q27CFT6W5FCG2B9W1F4EFC3C",
-      "ustx": "205583964100",
+      "staker": "SP2M9ZVDWPT9BXVAYM70115S99EYK3H3A0536C94H",
+      "ustx": "99993000000",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2"
     },
     {
@@ -33,8 +33,13 @@
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2"
     },
     {
+      "staker": "SP3EXTRKM97577JFSC11TER2B8HTXJPQJB94MJ31S",
+      "ustx": "12000000000",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2"
+    },
+    {
       "staker": "SP2J4MFJYPD2ZA4KFT9BQF577TZQN3Y7QH68KGD7F",
-      "ustx": "10700000000",
+      "ustx": "11700000000",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2"
     },
     {
@@ -75,6 +80,21 @@
     {
       "staker": "SPSBZ9H3BQS0M0H4NXJBYMTQV8A6Y9GD4MGG5ZKD",
       "ustx": "1405000000",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2"
+    },
+    {
+      "staker": "SP1KBPJCT3Q73C1FX6PHRX4Y03TBFZ7P4AT34SRFN",
+      "ustx": "1055284736",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2"
+    },
+    {
+      "staker": "SP2DG7NP284B52ZTQEY7B1SQFW56SA2FJ4BTTBYME",
+      "ustx": "974884473",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2"
+    },
+    {
+      "staker": "SP1JGMXXH8JMA3660WYM2KDPQNGFN9AMDXFK1RBNV",
+      "ustx": "618986371",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2"
     },
     {
