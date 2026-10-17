@@ -1,12 +1,14 @@
 {
   "signerKey": "0x038d545b66cc01a93fe405e14d6432432d81ec03e296d55cf3c07b143a4407aa4a",
   "contractIds": [
+    "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-sbtc-signer",
     "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
   ],
   "cycles": [
     {
       "cycle": 146,
       "ustx": {
+        "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-sbtc-signer": "0",
         "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer": "1153034860830"
       },
       "memberCount": 36,
@@ -20,6 +22,7 @@
     {
       "cycle": 145,
       "ustx": {
+        "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-sbtc-signer": "0",
         "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer": "1153034860830"
       },
       "memberCount": 36,
@@ -33,6 +36,7 @@
     {
       "cycle": 144,
       "ustx": {
+        "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-sbtc-signer": "0",
         "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer": "1144409742680"
       },
       "memberCount": 34,
@@ -46,6 +50,7 @@
     {
       "cycle": 143,
       "ustx": {
+        "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-sbtc-signer": "0",
         "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer": "1144268950316"
       },
       "memberCount": 33,
@@ -59,6 +64,7 @@
     {
       "cycle": 142,
       "ustx": {
+        "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-sbtc-signer": "0",
         "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer": "935943996097"
       },
       "memberCount": 31,
@@ -72,6 +78,7 @@
     {
       "cycle": 141,
       "ustx": {
+        "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-sbtc-signer": "0",
         "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer": "917571520762"
       },
       "memberCount": 30,
@@ -84,5 +91,5 @@
     }
   ],
   "currentCycle": 145,
-  "generatedAt": "2026-10-16T21:27:02.500Z"
+  "generatedAt": "2026-10-17T00:40:15.988Z"
 }

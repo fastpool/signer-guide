@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-16T21:22:38.149Z",
+  "generatedAt": "2026-10-17T00:37:12.896Z",
   "cycle": 145,
   "standardisedWith": "clarinet 3.24.0",
   "signers": [
@@ -294,7 +294,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": null,
+      "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 145,
       "earnedFeesSats": "0",
       "evidence": {
@@ -628,7 +628,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": null,
+      "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 145,
       "earnedFeesSats": "0",
       "evidence": {
@@ -1353,7 +1353,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": null,
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": null,
       "unclaimedFromCycle": 145,
       "earnedFeesSats": null,
       "evidence": {
@@ -1443,7 +1443,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": null,
-      "unclaimedFromPoxSats": null,
+      "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 145,
       "earnedFeesSats": null,
       "evidence": {
@@ -1473,7 +1473,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": null,
-      "unclaimedFromPoxSats": null,
+      "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 145,
       "earnedFeesSats": null,
       "evidence": {
@@ -1697,6 +1697,40 @@
       }
     },
     {
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-sbtc-signer",
+      "displayName": "Juice Pool Sbtc",
+      "displayNameSource": "contract",
+      "implementationName": null,
+      "registered": true,
+      "firstSeenCycle": 145,
+      "signerKey": "0x038d545b66cc01a93fe405e14d6432432d81ec03e296d55cf3c07b143a4407aa4a",
+      "sourceSha256": "08ad562554b8ba4807b768c3591d2a13ab9a7f72566274ac2ea18d66a9ebcd33",
+      "canonicalSha256": "2d9413779ffddf67926c043a4bb272fff718b3be1b7fc5fa89800cfd147906c2",
+      "groupSha256": "90af146adb931782eee07c7bb84dd39eeed9895eea7e0fa53ae2f0350896cb3c",
+      "identiconHash": null,
+      "match": "unknown",
+      "profileId": null,
+      "bitcoinRewards": false,
+      "openToAnyone": true,
+      "feeBips": 450,
+      "maxFeeBips": 500,
+      "feeChangeNotice": {
+        "amount": 144,
+        "unit": "blocks",
+        "evidence": "(asserts! (>= burn-block-height (+ (var-get pending-fee-height) FEE_COOLDOWN))"
+      },
+      "feeExemption": null,
+      "undistributedSats": null,
+      "unclaimedFromPoxSats": "0",
+      "unclaimedFromCycle": 145,
+      "earnedFeesSats": "0",
+      "evidence": {
+        "bitcoinRewards": null,
+        "openToAnyone": null,
+        "maxFee": "(asserts! (<= new-fee MAX_FEE_BIPS) ERR_INVALID_FEE)"
+      }
+    },
+    {
       "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer",
       "displayName": "STX Juice",
       "displayNameSource": "manual",
@@ -1790,7 +1824,7 @@
       },
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": null,
+      "unclaimedFromPoxSats": "2650788",
       "unclaimedFromCycle": 142,
       "earnedFeesSats": "0",
       "evidence": {
