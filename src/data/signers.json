@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-17T05:43:06.427Z",
+  "generatedAt": "2026-10-17T10:57:18.464Z",
   "cycle": 145,
   "standardisedWith": "clarinet 3.24.0",
   "signers": [
@@ -294,7 +294,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": null,
+      "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 145,
       "earnedFeesSats": "0",
       "evidence": {
@@ -508,7 +508,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "1727760",
+      "unclaimedFromPoxSats": null,
       "unclaimedFromCycle": 141,
       "earnedFeesSats": "0",
       "evidence": {
@@ -628,7 +628,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": null,
+      "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 145,
       "earnedFeesSats": "0",
       "evidence": {
@@ -963,7 +963,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": null,
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": null,
       "unclaimedFromCycle": 145,
       "earnedFeesSats": null,
       "evidence": {
@@ -1443,7 +1443,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": null,
-      "unclaimedFromPoxSats": null,
+      "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 145,
       "earnedFeesSats": null,
       "evidence": {
@@ -1473,7 +1473,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": null,
-      "unclaimedFromPoxSats": null,
+      "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 145,
       "earnedFeesSats": null,
       "evidence": {
@@ -1687,7 +1687,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "2765287",
+      "unclaimedFromPoxSats": null,
       "unclaimedFromCycle": 143,
       "earnedFeesSats": "0",
       "evidence": {

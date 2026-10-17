@@ -9,11 +9,11 @@
       "ustx": {
         "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2": "1082346974280"
       },
-      "memberCount": 22,
+      "memberCount": 25,
       "membersAddUp": true,
-      "walks": 4,
-      "walkedAt": "2026-10-16T07:24:04.760Z",
-      "walkedUstx": "770683305818",
+      "walks": 5,
+      "walkedAt": "2026-10-17T11:00:12.349Z",
+      "walkedUstx": "1082346974280",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -84,5 +84,5 @@
     }
   ],
   "currentCycle": 145,
-  "generatedAt": "2026-10-17T05:46:06.963Z"
+  "generatedAt": "2026-10-17T11:01:14.448Z"
 }

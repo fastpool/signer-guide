@@ -258,6 +258,11 @@
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
     },
     {
+      "staker": "SPSNEZ28P6K731P3JCJXBPS7SNS1J3PQX44Q1TXX",
+      "ustx": "87900000000",
+      "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
+    },
+    {
       "staker": "SP6XJ29M2M8B06RPC9E9YBV6BDH73YC3YAWE41SY",
       "ustx": "84080255991",
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
@@ -335,11 +340,6 @@
     {
       "staker": "SP381ADB7AH9NNCMRQH828SBY996MS3HMA2KV5ES1",
       "ustx": "59343628449",
-      "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
-    },
-    {
-      "staker": "SPSNEZ28P6K731P3JCJXBPS7SNS1J3PQX44Q1TXX",
-      "ustx": "55900000000",
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
     },
     {
@@ -468,13 +468,13 @@
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
     },
     {
-      "staker": "SP26R0QZS2TTYEDVABJ2BG8MRZWGCA35ZT7HQY4MK",
-      "ustx": "31188500000",
+      "staker": "SP1YY4NJJKNAHSETHHFAAB78V4T0BDDWZPYND2TXS",
+      "ustx": "31512982802",
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
     },
     {
-      "staker": "SP1YY4NJJKNAHSETHHFAAB78V4T0BDDWZPYND2TXS",
-      "ustx": "29356992602",
+      "staker": "SP26R0QZS2TTYEDVABJ2BG8MRZWGCA35ZT7HQY4MK",
+      "ustx": "31188500000",
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
     },
     {
@@ -1225,11 +1225,6 @@
     {
       "staker": "SP3EX9Z6TR5R1Q325EXGHM4S12BYCVDAZ0JMRM071",
       "ustx": "1498000000",
-      "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
-    },
-    {
-      "staker": "SP3TWV22PH9G814D4TENTEDCR1GVMMQP843BRH6JK",
-      "ustx": "1311000000",
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
     },
     {
