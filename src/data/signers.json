@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-18T01:13:15.546Z",
+  "generatedAt": "2026-10-18T06:04:20.819Z",
   "cycle": 145,
   "standardisedWith": "clarinet 3.24.0",
   "signers": [
@@ -354,7 +354,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "32325416",
+      "unclaimedFromPoxSats": null,
       "unclaimedFromCycle": 142,
       "earnedFeesSats": "0",
       "evidence": {
@@ -1353,7 +1353,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": null,
-      "unclaimedFromPoxSats": null,
+      "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 145,
       "earnedFeesSats": null,
       "evidence": {
@@ -1790,7 +1790,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": null,
+      "unclaimedFromPoxSats": "2933543",
       "unclaimedFromCycle": 141,
       "earnedFeesSats": "0",
       "evidence": {
