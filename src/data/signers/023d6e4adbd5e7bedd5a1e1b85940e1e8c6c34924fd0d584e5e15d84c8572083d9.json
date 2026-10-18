@@ -7,7 +7,7 @@
     {
       "cycle": 146,
       "ustx": {
-        "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager": "73262270911252"
+        "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager": "73263086225360"
       },
       "memberCount": 370,
       "membersAddUp": false,
@@ -84,5 +84,5 @@
     }
   ],
   "currentCycle": 145,
-  "generatedAt": "2026-10-18T16:04:21.671Z"
+  "generatedAt": "2026-10-18T18:48:07.707Z"
 }
