@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-18T18:45:01.935Z",
+  "generatedAt": "2026-10-18T21:37:04.610Z",
   "cycle": 145,
   "standardisedWith": "clarinet 3.24.0",
   "signers": [
@@ -1502,8 +1502,8 @@
       "maxFeeBips": null,
       "feeChangeNotice": null,
       "feeExemption": null,
-      "undistributedSats": "5464",
-      "unclaimedFromPoxSats": "16385572",
+      "undistributedSats": "16391036",
+      "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 145,
       "earnedFeesSats": "0",
       "evidence": {
@@ -1626,8 +1626,8 @@
         "evidence": "(var-set pending-fees-cycle (+ cycle FEE_ACTIVATION_DELAY_CYCLES))"
       },
       "feeExemption": null,
-      "undistributedSats": "898",
-      "unclaimedFromPoxSats": "56580393",
+      "undistributedSats": "56581291",
+      "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 145,
       "earnedFeesSats": "4644704",
       "evidence": {
