@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-19T10:56:15.142Z",
+  "generatedAt": "2026-10-19T17:36:09.185Z",
   "cycle": 145,
   "standardisedWith": "clarinet 3.24.0",
   "signers": [
@@ -414,7 +414,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "20",
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": null,
       "unclaimedFromCycle": 145,
       "earnedFeesSats": "3959975",
       "evidence": {
@@ -537,8 +537,8 @@
       "maxFeeBips": null,
       "feeChangeNotice": null,
       "feeExemption": null,
-      "undistributedSats": "70",
-      "unclaimedFromPoxSats": "794913",
+      "undistributedSats": "76",
+      "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 145,
       "earnedFeesSats": "0",
       "evidence": {
@@ -597,7 +597,7 @@
       "maxFeeBips": null,
       "feeChangeNotice": null,
       "feeExemption": null,
-      "undistributedSats": null,
+      "undistributedSats": "11037762",
       "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 145,
       "earnedFeesSats": "0",
@@ -1263,7 +1263,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": null,
-      "unclaimedFromPoxSats": null,
+      "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 145,
       "earnedFeesSats": null,
       "evidence": {
@@ -1593,7 +1593,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": "2227640",
+      "unclaimedFromPoxSats": null,
       "unclaimedFromCycle": 144,
       "earnedFeesSats": "0",
       "evidence": {
@@ -1626,10 +1626,10 @@
         "evidence": "(var-set pending-fees-cycle (+ cycle FEE_ACTIVATION_DELAY_CYCLES))"
       },
       "feeExemption": null,
-      "undistributedSats": "56581291",
+      "undistributedSats": "65799",
       "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 145,
-      "earnedFeesSats": "4644704",
+      "earnedFeesSats": "7187748",
       "evidence": {
         "bitcoinRewards": null,
         "openToAnyone": null,
