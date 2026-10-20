@@ -26,6 +26,11 @@
       "staker": "SP2S72QQFC178QMNHJNQ083DZS645QMN8KJ81A9BB",
       "ustx": "1000000",
       "contractId": "SPZACCJ8XPZ14P7K7NGFMT1BWQYF2JA9DFA2ZR8A.signer-manager"
+    },
+    {
+      "staker": "SP3FJQK31NMDM594YKP1640V5WESX38ENSSJ3YC6B",
+      "ustx": "1000000",
+      "contractId": "SPZACCJ8XPZ14P7K7NGFMT1BWQYF2JA9DFA2ZR8A.signer-manager"
     }
   ]
 }
