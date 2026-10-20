@@ -8,8 +8,8 @@
     {
       "cycle": 146,
       "ustx": {
-        "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-sbtc-signer": "42507350622",
-        "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer": "1035842955034"
+        "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-sbtc-signer": "50507350722",
+        "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer": "1035958959540"
       },
       "memberCount": 34,
       "membersAddUp": false,
@@ -91,5 +91,5 @@
     }
   ],
   "currentCycle": 145,
-  "generatedAt": "2026-10-20T18:38:12.822Z"
+  "generatedAt": "2026-10-20T22:29:07.506Z"
 }
