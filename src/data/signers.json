@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-22T07:46:24.928Z",
+  "generatedAt": "2026-10-22T13:56:24.072Z",
   "cycle": 145,
   "standardisedWith": "clarinet 3.24.0",
   "signers": [
@@ -356,7 +356,7 @@
       "undistributedSats": "0",
       "unclaimedFromPoxSats": "32325416",
       "unclaimedFromCycle": 142,
-      "earnedFeesSats": null,
+      "earnedFeesSats": "0",
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
         "openToAnyone": null,
@@ -1293,7 +1293,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": null,
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": null,
       "unclaimedFromCycle": 145,
       "earnedFeesSats": null,
       "evidence": {
@@ -1633,6 +1633,40 @@
       }
     },
     {
+      "contractId": "SPJ101BVXKT47N2V263FGRWDSRMCASBDXV52AKPW.signer-manager-republic",
+      "displayName": "Republic",
+      "displayNameSource": "contract",
+      "implementationName": "Capped Fee",
+      "registered": true,
+      "firstSeenCycle": 145,
+      "signerKey": "0x02e14b1c08b27dbdd89d1ca46e2a1f35361b0d53097a66af973875967cb2f05cd0",
+      "sourceSha256": "e80395f43dd6dd0008131ed2ba64eef11d4dde54eba1aa8e31c5e5eaa3a30608",
+      "canonicalSha256": "ce411cc010b94f26925c7b02bed02b575bf191488d040ca4eed368a5a013fbd4",
+      "groupSha256": "d6c5e82af733250d80b38be57d02c5ff6677ec2712e31d00381899e3fecc6874",
+      "identiconHash": "7c2f470d6f739678ef31dfd16e4fb8ccc1a013f6e0b39ebbe9997631c3a6143e",
+      "match": "canonical",
+      "profileId": "capped-fee",
+      "bitcoinRewards": false,
+      "openToAnyone": true,
+      "feeBips": 0,
+      "maxFeeBips": 500,
+      "feeChangeNotice": {
+        "amount": 2,
+        "unit": "cycles",
+        "evidence": "(var-set pending-fees-cycle (+ cycle FEE_ACTIVATION_DELAY_CYCLES))"
+      },
+      "feeExemption": null,
+      "undistributedSats": "0",
+      "unclaimedFromPoxSats": "0",
+      "unclaimedFromCycle": 145,
+      "earnedFeesSats": "0",
+      "evidence": {
+        "bitcoinRewards": null,
+        "openToAnyone": null,
+        "maxFee": "(asserts! (<= new-fees MAX_FEE_BIPS) ERR_INVALID_FEES_BIPS)"
+      }
+    },
+    {
       "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager",
       "displayName": "Fast Pool Max500",
       "displayNameSource": "manual",
@@ -1856,7 +1890,7 @@
       "undistributedSats": "0",
       "unclaimedFromPoxSats": "2159682",
       "unclaimedFromCycle": 143,
-      "earnedFeesSats": null,
+      "earnedFeesSats": "19644",
       "evidence": {
         "bitcoinRewards": null,
         "openToAnyone": null,

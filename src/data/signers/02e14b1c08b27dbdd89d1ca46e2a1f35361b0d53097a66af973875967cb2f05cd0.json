@@ -1,0 +1,88 @@
+{
+  "signerKey": "0x02e14b1c08b27dbdd89d1ca46e2a1f35361b0d53097a66af973875967cb2f05cd0",
+  "contractIds": [
+    "SPJ101BVXKT47N2V263FGRWDSRMCASBDXV52AKPW.signer-manager-republic"
+  ],
+  "cycles": [
+    {
+      "cycle": 146,
+      "ustx": {
+        "SPJ101BVXKT47N2V263FGRWDSRMCASBDXV52AKPW.signer-manager-republic": "0"
+      },
+      "memberCount": 0,
+      "membersAddUp": true,
+      "walks": 1,
+      "walkedAt": "2026-10-22T13:59:22.209Z",
+      "walkedUstx": "0",
+      "fileFinal": false,
+      "cycleFinal": false
+    },
+    {
+      "cycle": 145,
+      "ustx": {
+        "SPJ101BVXKT47N2V263FGRWDSRMCASBDXV52AKPW.signer-manager-republic": "0"
+      },
+      "memberCount": 0,
+      "membersAddUp": true,
+      "walks": 1,
+      "walkedAt": "2026-10-22T13:59:22.209Z",
+      "walkedUstx": "0",
+      "fileFinal": false,
+      "cycleFinal": true
+    },
+    {
+      "cycle": 144,
+      "ustx": {
+        "SPJ101BVXKT47N2V263FGRWDSRMCASBDXV52AKPW.signer-manager-republic": "0"
+      },
+      "memberCount": 0,
+      "membersAddUp": true,
+      "walks": 1,
+      "walkedAt": "2026-10-22T13:59:22.209Z",
+      "walkedUstx": "0",
+      "fileFinal": true,
+      "cycleFinal": true
+    },
+    {
+      "cycle": 143,
+      "ustx": {
+        "SPJ101BVXKT47N2V263FGRWDSRMCASBDXV52AKPW.signer-manager-republic": "0"
+      },
+      "memberCount": 0,
+      "membersAddUp": true,
+      "walks": 1,
+      "walkedAt": "2026-10-22T13:59:22.209Z",
+      "walkedUstx": "0",
+      "fileFinal": true,
+      "cycleFinal": true
+    },
+    {
+      "cycle": 142,
+      "ustx": {
+        "SPJ101BVXKT47N2V263FGRWDSRMCASBDXV52AKPW.signer-manager-republic": "0"
+      },
+      "memberCount": 0,
+      "membersAddUp": true,
+      "walks": 1,
+      "walkedAt": "2026-10-22T13:59:22.209Z",
+      "walkedUstx": "0",
+      "fileFinal": true,
+      "cycleFinal": true
+    },
+    {
+      "cycle": 141,
+      "ustx": {
+        "SPJ101BVXKT47N2V263FGRWDSRMCASBDXV52AKPW.signer-manager-republic": "0"
+      },
+      "memberCount": 0,
+      "membersAddUp": true,
+      "walks": 1,
+      "walkedAt": "2026-10-22T13:59:22.209Z",
+      "walkedUstx": "0",
+      "fileFinal": true,
+      "cycleFinal": true
+    }
+  ],
+  "currentCycle": 145,
+  "generatedAt": "2026-10-22T13:59:24.097Z"
+}
