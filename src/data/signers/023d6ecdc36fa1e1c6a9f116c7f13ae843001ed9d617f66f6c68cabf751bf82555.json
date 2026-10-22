@@ -5,6 +5,19 @@
   ],
   "cycles": [
     {
+      "cycle": 147,
+      "ustx": {
+        "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager": "1009567360843"
+      },
+      "memberCount": null,
+      "membersAddUp": false,
+      "walks": 0,
+      "walkedAt": null,
+      "walkedUstx": null,
+      "fileFinal": false,
+      "cycleFinal": false
+    },
+    {
       "cycle": 146,
       "ustx": {
         "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager": "1009567360843"
@@ -15,7 +28,7 @@
       "walkedAt": "2026-10-09T02:23:09.273Z",
       "walkedUstx": "1009567360843",
       "fileFinal": false,
-      "cycleFinal": false
+      "cycleFinal": true
     },
     {
       "cycle": 145,
@@ -27,7 +40,7 @@
       "walks": 2,
       "walkedAt": "2026-10-02T01:00:11.120Z",
       "walkedUstx": "1009567360843",
-      "fileFinal": false,
+      "fileFinal": true,
       "cycleFinal": true
     },
     {
@@ -83,6 +96,6 @@
       "cycleFinal": true
     }
   ],
-  "currentCycle": 145,
-  "generatedAt": "2026-10-22T18:44:16.645Z"
+  "currentCycle": 146,
+  "generatedAt": "2026-10-22T23:15:11.796Z"
 }

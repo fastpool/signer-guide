@@ -1,0 +1,11 @@
+{
+  "signerKey": "0x029aff0318988763ef09ae5430da91e21f74952aaff5cbafb017847dbbd526cee8",
+  "cycle": 147,
+  "members": [
+    {
+      "staker": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.stbtc-staker-bond-2-v2",
+      "ustx": "6457323600000",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-2-v2"
+    }
+  ]
+}
