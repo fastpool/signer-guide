@@ -9,11 +9,11 @@
       "ustx": {
         "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs": "8466752223325"
       },
-      "memberCount": null,
-      "membersAddUp": false,
-      "walks": 0,
-      "walkedAt": null,
-      "walkedUstx": null,
+      "memberCount": 9,
+      "membersAddUp": true,
+      "walks": 1,
+      "walkedAt": "2026-10-23T01:43:23.797Z",
+      "walkedUstx": "8466752223325",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -97,5 +97,5 @@
     }
   ],
   "currentCycle": 146,
-  "generatedAt": "2026-10-22T23:16:03.607Z"
+  "generatedAt": "2026-10-23T01:54:31.099Z"
 }

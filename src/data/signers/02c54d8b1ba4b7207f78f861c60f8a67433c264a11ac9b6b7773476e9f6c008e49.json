@@ -9,11 +9,11 @@
       "ustx": {
         "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-infstones-v1": "0"
       },
-      "memberCount": null,
-      "membersAddUp": false,
-      "walks": 0,
-      "walkedAt": null,
-      "walkedUstx": null,
+      "memberCount": 0,
+      "membersAddUp": true,
+      "walks": 1,
+      "walkedAt": "2026-10-23T01:43:23.797Z",
+      "walkedUstx": "0",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -97,5 +97,5 @@
     }
   ],
   "currentCycle": 146,
-  "generatedAt": "2026-10-22T23:17:03.445Z"
+  "generatedAt": "2026-10-23T02:03:12.845Z"
 }

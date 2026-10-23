@@ -9,11 +9,11 @@
       "ustx": {
         "SP2369QN53586176SYRF4XFGF4E84V0J0EWKRG0ZH.signer-manager": "3684770000000"
       },
-      "memberCount": null,
-      "membersAddUp": false,
-      "walks": 0,
-      "walkedAt": null,
-      "walkedUstx": null,
+      "memberCount": 4,
+      "membersAddUp": true,
+      "walks": 1,
+      "walkedAt": "2026-10-23T01:43:23.797Z",
+      "walkedUstx": "3684770000000",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -97,5 +97,5 @@
     }
   ],
   "currentCycle": 146,
-  "generatedAt": "2026-10-22T23:15:12.423Z"
+  "generatedAt": "2026-10-23T01:54:28.343Z"
 }
