@@ -9,7 +9,7 @@
       "cycle": 147,
       "ustx": {
         "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-sbtc-signer": "53717350722",
-        "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer": "1035958959540"
+        "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer": "1035691472439"
       },
       "memberCount": 39,
       "membersAddUp": true,
@@ -105,5 +105,5 @@
     }
   ],
   "currentCycle": 146,
-  "generatedAt": "2026-10-23T07:47:16.046Z"
+  "generatedAt": "2026-10-23T13:41:02.325Z"
 }

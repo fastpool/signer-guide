@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-23T07:43:12.180Z",
+  "generatedAt": "2026-10-23T13:37:04.021Z",
   "cycle": 146,
   "standardisedWith": "clarinet 3.24.0",
   "signers": [
@@ -597,7 +597,7 @@
       "maxFeeBips": null,
       "feeChangeNotice": null,
       "feeExemption": null,
-      "undistributedSats": null,
+      "undistributedSats": "11037763",
       "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 146,
       "earnedFeesSats": "0",
@@ -1113,7 +1113,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": null,
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": null,
       "unclaimedFromCycle": 146,
       "earnedFeesSats": null,
       "evidence": {
@@ -1532,10 +1532,10 @@
       "maxFeeBips": null,
       "feeChangeNotice": null,
       "feeExemption": null,
-      "undistributedSats": "533434",
+      "undistributedSats": "9707",
       "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 146,
-      "earnedFeesSats": "1639993",
+      "earnedFeesSats": "1665910",
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
         "openToAnyone": null,
@@ -1562,10 +1562,10 @@
       "maxFeeBips": null,
       "feeChangeNotice": null,
       "feeExemption": null,
-      "undistributedSats": "796580",
+      "undistributedSats": "1620",
       "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 146,
-      "earnedFeesSats": "1563011",
+      "earnedFeesSats": "1602344",
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
         "openToAnyone": null,
@@ -1592,10 +1592,10 @@
       "maxFeeBips": null,
       "feeChangeNotice": null,
       "feeExemption": null,
-      "undistributedSats": "896608",
+      "undistributedSats": "1456",
       "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 146,
-      "earnedFeesSats": "1749780",
+      "earnedFeesSats": "1794075",
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
         "openToAnyone": null,
@@ -1690,10 +1690,10 @@
         "evidence": "(var-set pending-fees-cycle (+ cycle FEE_ACTIVATION_DELAY_CYCLES))"
       },
       "feeExemption": null,
-      "undistributedSats": "316901",
+      "undistributedSats": "1229",
       "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 146,
-      "earnedFeesSats": "9861345",
+      "earnedFeesSats": "0",
       "evidence": {
         "bitcoinRewards": null,
         "openToAnyone": null,
