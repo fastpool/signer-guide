@@ -7,7 +7,7 @@
     {
       "cycle": 147,
       "ustx": {
-        "SP3ZA8J49HPS7M3KD7EB01Y0ZAJS7VJS2NG87MDGN.planbetter-signer-manager": "950776861000"
+        "SP3ZA8J49HPS7M3KD7EB01Y0ZAJS7VJS2NG87MDGN.planbetter-signer-manager": "952776861000"
       },
       "memberCount": 57,
       "membersAddUp": true,
@@ -97,5 +97,5 @@
     }
   ],
   "currentCycle": 146,
-  "generatedAt": "2026-10-24T01:48:20.946Z"
+  "generatedAt": "2026-10-24T07:30:17.535Z"
 }
