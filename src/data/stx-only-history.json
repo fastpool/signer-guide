@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-24T16:47:00.054Z",
+  "generatedAt": "2026-10-24T22:39:11.235Z",
   "distributions": [
     {
       "cycle": 141,
@@ -79,7 +79,7 @@
       "firstOfCycle": false,
       "burnHeight": 972649,
       "cumulativeRewardsPerUstx": "1617724895229",
-      "rateSatsPer1000Stx": null
+      "rateSatsPer1000Stx": "0"
     }
   ]
 }
