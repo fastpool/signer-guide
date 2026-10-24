@@ -11,11 +11,11 @@
         "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-sbtc-signer": "53717350722",
         "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer": "1035691472439"
       },
-      "memberCount": 39,
+      "memberCount": 38,
       "membersAddUp": true,
-      "walks": 1,
-      "walkedAt": "2026-10-23T01:43:23.797Z",
-      "walkedUstx": "1089676310262",
+      "walks": 2,
+      "walkedAt": "2026-10-24T01:46:06.493Z",
+      "walkedUstx": "1089408823161",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -105,5 +105,5 @@
     }
   ],
   "currentCycle": 146,
-  "generatedAt": "2026-10-23T22:26:05.478Z"
+  "generatedAt": "2026-10-24T02:12:20.090Z"
 }
