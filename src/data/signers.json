@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-24T22:37:17.812Z",
+  "generatedAt": "2026-10-25T01:19:20.150Z",
   "cycle": 146,
   "standardisedWith": "clarinet 3.24.0",
   "signers": [
@@ -628,7 +628,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": null,
+      "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 146,
       "earnedFeesSats": "0",
       "evidence": {
@@ -1053,7 +1053,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": null,
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": null,
       "unclaimedFromCycle": 146,
       "earnedFeesSats": null,
       "evidence": {
@@ -1293,7 +1293,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": null,
-      "unclaimedFromPoxSats": null,
+      "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 146,
       "earnedFeesSats": null,
       "evidence": {
@@ -1323,7 +1323,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": null,
-      "unclaimedFromPoxSats": null,
+      "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 146,
       "earnedFeesSats": null,
       "evidence": {
@@ -1785,7 +1785,7 @@
       },
       "feeExemption": null,
       "undistributedSats": null,
-      "unclaimedFromPoxSats": null,
+      "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 146,
       "earnedFeesSats": "0",
       "evidence": {
@@ -1887,10 +1887,10 @@
         "evidence": "(var-set pending-fees-cycle (+ cycle FEE_ACTIVATION_DELAY_CYCLES))"
       },
       "feeExemption": null,
-      "undistributedSats": "0",
-      "unclaimedFromPoxSats": "3083632",
-      "unclaimedFromCycle": 143,
-      "earnedFeesSats": "19644",
+      "undistributedSats": "9",
+      "unclaimedFromPoxSats": "2595662",
+      "unclaimedFromCycle": 144,
+      "earnedFeesSats": "39162",
       "evidence": {
         "bitcoinRewards": null,
         "openToAnyone": null,
