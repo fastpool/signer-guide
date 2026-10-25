@@ -10,10 +10,10 @@
         "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager": "51544628355540"
       },
       "memberCount": 201,
-      "membersAddUp": false,
-      "walks": 2,
-      "walkedAt": "2026-10-24T01:46:06.493Z",
-      "walkedUstx": "51543217878700",
+      "membersAddUp": true,
+      "walks": 3,
+      "walkedAt": "2026-10-25T06:24:22.574Z",
+      "walkedUstx": "51544628355540",
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -97,5 +97,5 @@
     }
   ],
   "currentCycle": 146,
-  "generatedAt": "2026-10-25T01:24:17.344Z"
+  "generatedAt": "2026-10-25T06:55:22.533Z"
 }
