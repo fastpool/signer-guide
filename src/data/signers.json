@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-25T11:52:07.493Z",
+  "generatedAt": "2026-10-25T16:35:15.868Z",
   "cycle": 146,
   "standardisedWith": "clarinet 3.24.0",
   "signers": [
@@ -354,7 +354,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": null,
+      "unclaimedFromPoxSats": "38968086",
       "unclaimedFromCycle": 142,
       "earnedFeesSats": "0",
       "evidence": {
@@ -593,7 +593,7 @@
       "profileId": "standard",
       "bitcoinRewards": true,
       "openToAnyone": true,
-      "feeBips": 0,
+      "feeBips": null,
       "maxFeeBips": null,
       "feeChangeNotice": null,
       "feeExemption": null,
@@ -688,7 +688,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": null,
+      "unclaimedFromPoxSats": "56296788",
       "unclaimedFromCycle": 141,
       "earnedFeesSats": "0",
       "evidence": {
@@ -1083,7 +1083,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": null,
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": null,
       "unclaimedFromCycle": 146,
       "earnedFeesSats": null,
       "evidence": {
@@ -1854,7 +1854,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": "0",
-      "unclaimedFromPoxSats": null,
+      "unclaimedFromPoxSats": "3441083",
       "unclaimedFromCycle": 141,
       "earnedFeesSats": "0",
       "evidence": {
@@ -1887,10 +1887,10 @@
         "evidence": "(var-set pending-fees-cycle (+ cycle FEE_ACTIVATION_DELAY_CYCLES))"
       },
       "feeExemption": null,
-      "undistributedSats": "9",
-      "unclaimedFromPoxSats": "2595662",
-      "unclaimedFromCycle": 144,
-      "earnedFeesSats": "39162",
+      "undistributedSats": "10",
+      "unclaimedFromPoxSats": "1800092",
+      "unclaimedFromCycle": 145,
+      "earnedFeesSats": "70983",
       "evidence": {
         "bitcoinRewards": null,
         "openToAnyone": null,
