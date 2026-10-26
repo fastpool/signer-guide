@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-26T01:21:19.988Z",
+  "generatedAt": "2026-10-26T06:31:06.675Z",
   "cycle": 146,
   "standardisedWith": "clarinet 3.24.0",
   "signers": [
@@ -416,7 +416,7 @@
       "undistributedSats": "24",
       "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 146,
-      "earnedFeesSats": "4751970",
+      "earnedFeesSats": "2751970",
       "evidence": {
         "bitcoinRewards": "(try! (check-pox-addr (get pox-addr pox-addr)))",
         "openToAnyone": null,
@@ -1113,7 +1113,7 @@
       "feeChangeNotice": null,
       "feeExemption": null,
       "undistributedSats": null,
-      "unclaimedFromPoxSats": "0",
+      "unclaimedFromPoxSats": null,
       "unclaimedFromCycle": 146,
       "earnedFeesSats": null,
       "evidence": {
