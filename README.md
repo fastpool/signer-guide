@@ -502,7 +502,10 @@ pnpm addresses --from-cache held.json --json            # report many times
 
 Two reads per address — `/extended/v1/address/{principal}/balances` for STX,
 every fungible token and every NFT collection in one request, and
-`pox-5.get-staker-info` for the stake. The report is the difference between
+`pox-5.get-staker-info` for the stake — plus two more for its recent
+transactions and its mempool, to spot a key somebody else is using
+(`--no-activity` skips them; `--activity-only` reads and reports nothing
+else). Every transfer is listed with its amount, asset and recipient. The report is the difference between
 them, because neither one alone is a decision:
 
 | flag          | what it means                                                       |
@@ -512,6 +515,29 @@ them, because neither one alone is a decision:
 | `idle`        | the same, but beside a stake it could be added to                   |
 | `not pox-5`   | STX locked that pox-5 has no position for — stacked elsewhere       |
 | `token`       | holds none of `--token`, or less than `--min-token`                 |
+| `pending`     | a transaction this address signed is waiting in the mempool         |
+| `outflow`     | STX or tokens left it in the last `--activity-days` (default 30)    |
+| `signed`      | anything else it signed in that window                              |
+| `woke up`     | its first signature in 90+ days, or ever                            |
+
+If some keys may have leaked, put a `// --- safe ---` line in the address file:
+everything after it is a new, known-good address, everything before it is
+treated as possibly compromised. Then transfers from an old key to a safe one
+(the rescue) are left out of the flags, a safe key is only flagged for sending
+outside the safe set, and the report opens with what is still sitting on the
+old keys — unlocked STX, locked STX with the cycle it unlocks in, sBTC and
+other tokens.
+
+```bash
+pnpm addresses --file addresses.txt --html report.html   # sortable, filterable page
+pnpm addresses --file addresses.txt --since 2026-09-29    # flag from a date, not the last 30 days
+```
+
+`--html` writes one self-contained page (no network requests): filter by key
+status, search, pick any token to see each address's balance of it, and a
+transfers table that by default hides moves to safe addresses and groups pool
+payouts into one row per transaction. NFTs are hidden there and in the text
+report until asked for (`--nfts`, or the toggle on the page).
 | `unread`      | this run could not find out                                         |
 
 `unread` is a flag rather than a blank because an address nothing is known

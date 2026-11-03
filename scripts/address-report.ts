@@ -23,6 +23,48 @@
  * costs nothing, and on a list of addresses in this repo's world it is the
  * one token that is always the question. `--token` still names any other.
  *
+ * ## Who else is signing
+ *
+ * A balance cannot tell you that a key has leaked; the transactions can. So
+ * each address also has its recent history read — the last fifty
+ * transactions it took part in, and what is waiting in the mempool — and
+ * what it *signed* is the part that matters. Airdrops and transfers in are
+ * other people's keys at work; a transaction with this address as its sender
+ * is this key at work, and on a list of addresses somebody holds the keys to
+ * every one of those is something they should recognise.
+ *
+ *  - `pending`  a transaction this address signed, not yet mined — the one
+ *               flag that may still leave time to act.
+ *  - `outflow`  STX sent out, or tokens moved by a transaction it signed,
+ *               within `--activity-days`. A transfer to an address on the
+ *               list is named as such; anything else says "not on the list".
+ *  - `signed`   anything else it signed in that window.
+ *  - `woke up`  the first signature in 90 days or more — a dormant key
+ *               suddenly in use is what a leaked one usually looks like.
+ *
+ * Every transfer is spelled out — amount, asset and the address on the other
+ * end — whether it was STX, a token or an NFT.
+ *
+ * ## Safe and possibly compromised
+ *
+ * A line `// --- safe ---` in the address file splits it: everything after it
+ * is a new address whose key is known to be good, everything before it may
+ * have leaked. (`// --- <anything else> ---` ends the safe section again.)
+ * With the split, the activity flags change meaning:
+ *
+ *  - on a possibly compromised address, a transfer to a safe address is the
+ *    rescue, not the theft, and is left out of the flags; everything else it
+ *    signs is flagged as before;
+ *  - on a safe address, signing is expected — only something leaving for an
+ *    address that is not safe is flagged.
+ *
+ * And the report opens with what is still sitting on the possibly
+ * compromised addresses, which is the list of things left to move.
+ *
+ * It costs two more requests an address; `--no-activity` skips them, and
+ * `--activity-only` asks nothing else and reports nothing else — the quick
+ * check to run often while a leak is suspected.
+ *
  * Usage:
  *   npx tsx scripts/address-report.ts SP2C2… SP3VR…
  *   npx tsx scripts/address-report.ts --file addresses.txt --token alex
@@ -37,6 +79,15 @@
  *                     (default: any amount at all is enough)
  *   --min-stx <n>     how much unlocked STX counts as idle (default 100)
  *   --ending-in <n>   flag a stake ending within this many cycles (default 2)
+ *   --activity-days <n>  how far back a signed transaction is flagged
+ *                     (default 30)
+ *   --since <date>    flag transactions from this date on (2026-09-29, UTC),
+ *                     instead of the last --activity-days
+ *   --no-activity     skip reading recent transactions
+ *   --activity-only   read and report recent transactions and nothing else
+ *   --nfts            list NFTs in the text report (hidden by default)
+ *   --html <path>     also write the report as one self-contained page with
+ *                     sortable, filterable tables — see address-report-html.ts
  *   --cache <path>    also write every answer the API gave to this file
  *   --from-cache <p>  report on a file written by --cache, asking nothing
  *   --json            the whole report as JSON
@@ -76,6 +127,7 @@ import {
   parseUnits,
   shortPrincipal,
 } from './format.js';
+import { renderHtml } from './address-report-html.js';
 import { getJson } from './hiro.js';
 import {
   API_URL,
@@ -136,6 +188,13 @@ export interface Options {
   minToken: string | null;
   minStx: string;
   endingIn: number;
+  activityDays: number;
+  /** Unix seconds; when given, the window starts here instead. */
+  since: number | null;
+  activity: boolean;
+  activityOnly: boolean;
+  nfts: boolean;
+  html: string | null;
   cache: string | null;
   fromCache: string | null;
   json: boolean;
@@ -159,6 +218,19 @@ function takesPath(flag: string, argv: string[], at: number): string {
   return value;
 }
 
+/**
+ * A date, or a moment, as Unix seconds. A bare date is midnight UTC — the
+ * same day everywhere a report is read, which a local midnight would not be.
+ */
+export function parseSince(value: string | undefined): number {
+  const iso = value && /^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T00:00:00Z` : value;
+  const ms = iso ? Date.parse(iso) : NaN;
+  if (!Number.isFinite(ms)) {
+    throw new Error('--since takes a date, like 2026-09-29');
+  }
+  return ms / 1000;
+}
+
 export function parseArgs(argv: string[]): Options {
   const options: Options = {
     addresses: [],
@@ -167,6 +239,12 @@ export function parseArgs(argv: string[]): Options {
     minToken: null,
     minStx: '100',
     endingIn: 2,
+    activityDays: 30,
+    since: null,
+    activity: true,
+    activityOnly: false,
+    nfts: false,
+    html: null,
     cache: null,
     fromCache: null,
     json: false,
@@ -180,6 +258,14 @@ export function parseArgs(argv: string[]): Options {
     else if (arg === '--min-token') options.minToken = argv[(i += 1)] ?? null;
     else if (arg === '--min-stx') options.minStx = argv[(i += 1)] ?? '';
     else if (arg === '--ending-in') options.endingIn = Number(argv[(i += 1)]);
+    else if (arg === '--activity-days') {
+      options.activityDays = Number(argv[(i += 1)]);
+    }
+    else if (arg === '--since') options.since = parseSince(argv[(i += 1)]);
+    else if (arg === '--no-activity') options.activity = false;
+    else if (arg === '--activity-only') options.activityOnly = true;
+    else if (arg === '--nfts') options.nfts = true;
+    else if (arg === '--html') options.html = takesPath(arg, argv, (i += 1));
     else if (arg === '--cache') options.cache = takesPath(arg, argv, (i += 1));
     else if (arg === '--from-cache') {
       options.fromCache = takesPath(arg, argv, (i += 1));
@@ -190,6 +276,27 @@ export function parseArgs(argv: string[]): Options {
 
   if (!Number.isInteger(options.endingIn) || options.endingIn < 0) {
     throw new Error('--ending-in takes a number of cycles');
+  }
+  if (!Number.isFinite(options.activityDays) || options.activityDays <= 0) {
+    throw new Error('--activity-days takes a number of days');
+  }
+  if (options.activityOnly && !options.activity) {
+    throw new Error('--activity-only and --no-activity leave nothing to report');
+  }
+  // A capture of transactions alone would read back as a list of addresses
+  // whose balances could not be read — every one of them flagged unread.
+  // `--from-cache` with `--activity-only` is fine: a full capture has it all.
+  if (options.activityOnly && options.cache !== null) {
+    throw new Error(
+      '--cache keeps a full run; capture without --activity-only and report ' +
+        'off it with --from-cache … --activity-only',
+    );
+  }
+  if (options.activityOnly && options.html !== null) {
+    throw new Error('--html is a page about balances too; drop --activity-only');
+  }
+  if (options.activityOnly && options.token !== null) {
+    throw new Error('--activity-only reports no balances, so no --token');
   }
   if (options.minToken !== null && options.token === null) {
     throw new Error('--min-token needs a --token to be a minimum of');
@@ -226,7 +333,67 @@ export interface Holdings {
   stake: Stake | null | undefined;
   fungible: Record<string, bigint>;
   nfts: Record<string, number>;
+  /**
+   * Recent transactions. Absent when this run did not ask (`--no-activity`,
+   * or a capture from before the check existed) — which is not the same as
+   * asking and hearing nothing, so it raises no flag either way.
+   */
+  activity?: Activity;
 }
+
+/** One transaction, cut down to what says whose key was used for what. */
+export interface ActivityTx {
+  txId: string;
+  /** Who signed it. */
+  sender: string;
+  /** Unix seconds: mined at, or for a pending one, received at. */
+  time: number;
+  type: string;
+  status: string;
+  /** Sponsored transactions have their fee paid by somebody else. */
+  sponsored: boolean;
+  fee: bigint;
+  /** `contract.function` for a call, the contract for a deploy. */
+  call: string | null;
+  /**
+   * What moved to or from this address, as the chain recorded it. The fee is
+   * not in here — it is `fee`, and paying it is what signing costs.
+   */
+  transfers: Transfer[];
+}
+
+/** One asset moving, with both ends named. */
+export interface Transfer {
+  kind: 'stx' | 'ft' | 'nft';
+  /** `STX`, or the asset identifier of the token or NFT collection. */
+  asset: string;
+  /** Base units of a token or of STX; 1 for an NFT. */
+  amount: bigint;
+  /** Which NFT, as Clarity writes its id (`u231645`). */
+  item: string | null;
+  /** Empty for a mint. */
+  sender: string;
+  /** Empty for a burn. */
+  recipient: string;
+}
+
+export interface Activity {
+  /** Newest first. Null when the API would not list them. */
+  confirmed: ActivityTx[] | null;
+  /** Null when the mempool would not answer. */
+  pending: ActivityTx[] | null;
+}
+
+/** How many transactions are read per address. */
+export const ACTIVITY_LIMIT = 50;
+
+/** A key unused for this long and then used is worth saying so about. */
+export const DORMANT_DAYS = 90;
+
+/** At most this many transactions are spelled out per address. */
+const ACTIVITY_SHOWN = 5;
+
+const DAY = 24 * 60 * 60;
 
 /** Unlocked STX: what is theirs to stake, spend or move today. */
 export function availableStx(holdings: Holdings): bigint | null {
@@ -274,6 +441,92 @@ export interface Thresholds {
   /** How to write an amount of it, so a reason can name the number. */
   tokenSymbol: string;
   tokenDecimals: number;
+  /** Days back a transaction this address signed is flagged. */
+  activityDays: number;
+  /** Unix seconds the window starts at, overriding `activityDays`. */
+  activitySince?: number | null;
+}
+
+/** Where the activity window starts. */
+export const windowStart = (thresholds: Thresholds, now: number) =>
+  thresholds.activitySince ?? now - thresholds.activityDays * DAY;
+
+/** The window in words, for the end of a sentence. */
+export const windowLabel = (thresholds: Thresholds) =>
+  thresholds.activitySince != null
+    ? `since ${isoDay(thresholds.activitySince)} UTC`
+    : `in the last ${thresholds.activityDays} day(s)`;
+
+/** What `attentionFor` needs beyond the address itself. */
+export interface Context {
+  /** Unix seconds — the capture's moment for a cached run, not today's. */
+  now: number;
+  /** Every address on the list, with its label, to name a counterparty by. */
+  listed: ReadonlyMap<string, string | null>;
+  /** Symbols and decimals, so a token amount reads the way holders write it. */
+  tokenMeta: ReadonlyMap<string, TokenMeta>;
+  /**
+   * The addresses after `// --- safe ---`. Null when the list has no such
+   * section, and then nothing is called compromised either — a list that
+   * never said which keys are good cannot be read as saying they are all bad.
+   */
+  safe: ReadonlySet<string> | null;
+}
+
+const emptyContext = (): Context => ({
+  now: Date.now() / 1000,
+  listed: new Map(),
+  tokenMeta: new Map(),
+  safe: null,
+});
+
+/** Where an address stands, as far as the list says. */
+export type KeyStatus = 'safe' | 'compromised' | 'unmarked';
+
+export function keyStatus(
+  address: string,
+  safe: ReadonlySet<string> | null,
+): KeyStatus {
+  if (safe === null) return 'unmarked';
+  return safe.has(address) ? 'safe' : 'compromised';
+}
+
+export interface ListEntry extends AddressEntry {
+  safe: boolean;
+}
+
+/** `// --- safe ---`, and any other `--- name ---` heading. */
+const SECTION = /^\s*(?:\/\/|#)\s*-{2,}\s*(.*?)\s*-{2,}\s*$/;
+
+/**
+ * The address file, with the safe section marked.
+ *
+ * Read a line at a time through `parseAddressList`, so the file means exactly
+ * what it meant before a section was added to it; the heading only decides
+ * which side of the line each address is on.
+ */
+export function parseSections(text: string): {
+  entries: ListEntry[];
+  rejected: string[];
+  marked: boolean;
+} {
+  const entries: ListEntry[] = [];
+  const rejected: string[] = [];
+  let safe = false;
+  let marked = false;
+
+  for (const line of text.split('\n')) {
+    const heading = SECTION.exec(line);
+    if (heading) {
+      safe = heading[1].toLowerCase() === 'safe';
+      marked = marked || safe;
+      continue;
+    }
+    const parsed = parseAddressList(line);
+    rejected.push(...parsed.rejected);
+    entries.push(...parsed.entries.map((entry) => ({ ...entry, safe })));
+  }
+  return { entries, rejected, marked };
 }
 
 export interface Attention {
@@ -297,6 +550,7 @@ export function attentionFor(
   holdings: Holdings,
   thresholds: Thresholds,
   currentCycle: number,
+  context: Context = emptyContext(),
 ): Attention[] {
   const reasons: Attention[] = [];
   const available = availableStx(holdings);
@@ -313,6 +567,10 @@ export function attentionFor(
       detail: 'pox-5 would not say whether this address is staking',
     });
   }
+
+  // Before anything about staking: a key somebody else holds outranks every
+  // other decision on the list, and a stake ending is no news by comparison.
+  reasons.push(...activityAttention(holdings, thresholds, context));
 
   const stake = holdings.stake ?? null;
 
@@ -373,6 +631,216 @@ export function attentionFor(
     }
   }
 
+  return reasons;
+}
+
+/** `0xa844885245…16b1` — enough to find it, short enough to read. */
+const shortTx = (txId: string) => `${txId.slice(0, 12)}…${txId.slice(-4)}`;
+
+const isoDay = (seconds: number) =>
+  new Date(seconds * 1000).toISOString().slice(0, 16).replace('T', ' ');
+
+/** A counterparty by its label when the list gives it one. */
+function nameParty(
+  party: string,
+  listed: ReadonlyMap<string, string | null>,
+  safe: ReadonlySet<string> | null = null,
+): string {
+  if (!listed.has(party)) return `${party} (not on the list)`;
+  const label = listed.get(party);
+  return `${shortPrincipal(party)} (${label ? label : 'on the list'}${
+    safe?.has(party) ? ', safe' : ''
+  })`;
+}
+
+/**
+ * An amount of an asset the way its holders would write it — or, with no
+ * metadata to go on, in base units and saying so, because `42487` of a token
+ * with eight decimals read as whole tokens is wrong by a hundred million.
+ */
+export function describeAmount(
+  transfer: Transfer,
+  tokenMeta: ReadonlyMap<string, TokenMeta>,
+): string {
+  if (transfer.kind === 'stx') return `${formatStx(transfer.amount)} STX`;
+  if (transfer.kind === 'nft') {
+    return `${assetName(transfer.asset)} ${transfer.item ?? ''}`.trimEnd();
+  }
+  const meta = tokenMeta.get(transfer.asset);
+  return meta?.known
+    ? `${formatUnits(transfer.amount, meta.decimals)} ${meta.symbol}`
+    : `${transfer.amount} ${assetName(transfer.asset)} (base units)`;
+}
+
+/** At most this many transfers are spelled out per transaction. */
+const TRANSFERS_SHOWN = 3;
+
+/** One transaction in a sentence: what it did and where things went. */
+export function describeTx(
+  tx: ActivityTx,
+  address: string,
+  context: Pick<Context, 'listed' | 'tokenMeta'> & Partial<Pick<Context, 'safe'>>,
+): string {
+  let what: string | null;
+  if (tx.type === 'contract_call' && tx.call) {
+    // `shortPrincipal` keeps one dot's worth, and a call has two.
+    const at = tx.call.lastIndexOf('.');
+    what = `called ${shortPrincipal(tx.call.slice(0, at))}${tx.call.slice(at)}`;
+  } else if (tx.type === 'smart_contract' && tx.call) {
+    what = `deployed ${shortPrincipal(tx.call)}`;
+  } else if (tx.type === 'token_transfer') {
+    // The transfer below says all of it.
+    what = tx.transfers.length ? null : 'STX transfer';
+  } else {
+    what = tx.type.replace(/_/g, ' ');
+  }
+
+  // Out before in: what left is what somebody has to account for.
+  const out = tx.transfers.filter((t) => t.sender === address);
+  const into = tx.transfers.filter(
+    (t) => t.sender !== address && t.recipient === address,
+  );
+  const moved = [
+    ...out.map(
+      (t) =>
+        `sent ${describeAmount(t, context.tokenMeta)} to ` +
+        (t.recipient
+          ? nameParty(t.recipient, context.listed, context.safe)
+          : 'nobody (burned)'),
+    ),
+    ...into.map(
+      (t) =>
+        `received ${describeAmount(t, context.tokenMeta)}` +
+        (t.sender
+          ? ` from ${nameParty(t.sender, context.listed, context.safe)}`
+          : ' (minted)'),
+    ),
+  ];
+  const shown = moved.slice(0, TRANSFERS_SHOWN);
+  if (moved.length > TRANSFERS_SHOWN) {
+    shown.push(`${moved.length - TRANSFERS_SHOWN} more transfer(s)`);
+  }
+
+  return (
+    [what, shown.join('; ')].filter(Boolean).join(': ') +
+    (tx.status === 'success' || tx.status === 'pending'
+      ? ''
+      : ` [${tx.status}]`) +
+    (tx.sponsored ? ' [sponsored]' : '') +
+    ` ${shortTx(tx.txId)}`
+  );
+}
+
+/** Whether a transaction took anything out of `address`. */
+const movesOut = (tx: ActivityTx, address: string) =>
+  tx.transfers.some((t) => t.sender === address);
+
+/**
+ * What the recent history says about who holds this key.
+ *
+ * Only what the address signed, plus anything else that took something out
+ * of it.
+ * Everything coming in is somebody else's doing and says nothing about this
+ * key — airdrops especially, which would bury the one line that matters.
+ */
+export function activityAttention(
+  holdings: Holdings,
+  thresholds: Thresholds,
+  context: Context,
+): Attention[] {
+  const { activity, address } = holdings;
+  if (activity === undefined) return [];
+
+  const reasons: Attention[] = [];
+  if (activity.confirmed === null || activity.pending === null) {
+    reasons.push({
+      tag: 'unread',
+      detail:
+        'the API would not list recent transactions, so nobody can say ' +
+        'whether this key has been used',
+    });
+  }
+
+  const status = keyStatus(address, context.safe);
+  const isSafe = (other: string) => context.safe?.has(other) ?? false;
+  /*
+   * Whether a transaction is worth a line, given whose key this is.
+   *
+   * A possibly compromised key moving everything to a safe one is the rescue
+   * — the thing that is supposed to be happening — and listing it would bury
+   * the transaction nobody here sent. A safe key signing is its owner using
+   * it; what matters there is only something leaving for an address that is
+   * not safe.
+   */
+  const outsideSafe = (tx: ActivityTx) =>
+    tx.transfers.some((t) => t.sender === address && !isSafe(t.recipient));
+  const rescueOnly = (tx: ActivityTx) =>
+    movesOut(tx, address) && !outsideSafe(tx);
+  const worthSaying = (tx: ActivityTx) => {
+    if (status === 'safe') return outsideSafe(tx);
+    if (status === 'compromised') return !rescueOnly(tx);
+    return true;
+  };
+
+  for (const tx of activity.pending ?? []) {
+    if (tx.sender !== address || !worthSaying(tx)) continue;
+    reasons.push({
+      tag: 'pending',
+      detail: `signed and waiting in the mempool: ${describeTx(tx, address, context)}`,
+    });
+  }
+
+  const since = windowStart(thresholds, context.now);
+  const confirmed = activity.confirmed ?? [];
+  const recent = confirmed.filter(
+    (tx) =>
+      tx.time >= since &&
+      (tx.sender === address || movesOut(tx, address)) &&
+      worthSaying(tx),
+  );
+  if (recent.length === 0) return reasons;
+
+  // A key that sat unused for months and is suddenly signing. The previous
+  // signature is looked for in what was read; finding none in a full page
+  // says nothing, finding none in a short one means this is the first ever.
+  // Not for a safe key, which is new and meant to be used, and not when the
+  // signature that woke it was the rescue.
+  const signed = confirmed.filter((tx) => tx.sender === address);
+  const firstRecent = signed
+    .filter((tx) => tx.time >= since && worthSaying(tx))
+    .at(-1);
+  if (firstRecent && status !== 'safe') {
+    const before = signed.find((tx) => tx.time < firstRecent.time);
+    const quiet = before ? (firstRecent.time - before.time) / DAY : null;
+    if (quiet !== null && quiet >= DORMANT_DAYS) {
+      reasons.push({
+        tag: 'woke up',
+        detail: `signed on ${isoDay(firstRecent.time)} after ${Math.floor(quiet)} days of nothing (last before: ${isoDay(before!.time)})`,
+      });
+    } else if (before === undefined && confirmed.length < ACTIVITY_LIMIT) {
+      reasons.push({
+        tag: 'woke up',
+        detail: `signed on ${isoDay(firstRecent.time)}, the first transaction this address ever signed`,
+      });
+    }
+  }
+
+  for (const tx of recent.slice(0, ACTIVITY_SHOWN)) {
+    reasons.push({
+      tag: outsideSafe(tx) || (status === 'unmarked' && movesOut(tx, address))
+        ? 'outflow'
+        : 'signed',
+      detail:
+        `${isoDay(tx.time)} ${describeTx(tx, address, context)}` +
+        (tx.sender === address ? '' : ` — signed by ${tx.sender}`),
+    });
+  }
+  if (recent.length > ACTIVITY_SHOWN) {
+    reasons.push({
+      tag: 'signed',
+      detail: `… and ${recent.length - ACTIVITY_SHOWN} more ${windowLabel(thresholds)}`,
+    });
+  }
   return reasons;
 }
 
@@ -510,6 +978,63 @@ export function stxTotal(all: Holdings[]): StxTotal {
   return sum;
 }
 
+export interface AtRisk {
+  address: string;
+  label: string | null;
+  /** Null when the balance would not read. */
+  unlocked: bigint | null;
+  locked: bigint | null;
+  /** The cycle a pox-5 stake unlocks in; null for no stake, or a pox-4 lock. */
+  unlocksAt: number | null;
+  sbtc: bigint | null;
+  /** Other fungible tokens with a balance, by asset. */
+  tokens: Record<string, bigint>;
+  nfts: number;
+}
+
+/**
+ * What is still sitting on the possibly compromised addresses — the list of
+ * things left to move, and the reason this report exists.
+ *
+ * Locked STX is on it with the cycle it unlocks in, because that is the date
+ * a thief holding the key can take it, and so the date the rescue has to beat.
+ * An address with nothing left is left out; one that would not read stays in,
+ * because "nothing known" is not "nothing there".
+ */
+export function atRisk(
+  all: Holdings[],
+  safe: ReadonlySet<string> | null,
+): AtRisk[] {
+  if (safe === null) return [];
+  return all
+    .filter((h) => !safe.has(h.address))
+    .map((h) => {
+      const tokens: Record<string, bigint> = {};
+      for (const [asset, amount] of Object.entries(h.fungible)) {
+        if (asset !== SBTC_ASSET && amount > 0n) tokens[asset] = amount;
+      }
+      return {
+        address: h.address,
+        label: h.label,
+        unlocked: availableStx(h),
+        locked: h.stxLocked,
+        unlocksAt: h.stake ? unlockCycle(h.stake) : null,
+        sbtc: sbtcHeld(h),
+        tokens,
+        nfts: Object.values(h.nfts).reduce((a, b) => a + b, 0),
+      };
+    })
+    .filter(
+      (r) =>
+        r.unlocked === null ||
+        r.unlocked > 0n ||
+        (r.locked ?? 0n) > 0n ||
+        (r.sbtc ?? 0n) > 0n ||
+        Object.keys(r.tokens).length > 0 ||
+        r.nfts > 0,
+    );
+}
+
 // ---------------------------------------------------------------------------
 // Keeping what the API said
 // ---------------------------------------------------------------------------
@@ -554,9 +1079,36 @@ export interface CachedReport {
     stakeRead: boolean;
     fungible: Record<string, string>;
     nfts: Record<string, number>;
+    /** Absent when the run did not ask; amounts as strings, as everywhere. */
+    activity?: {
+      confirmed: CachedTx[] | null;
+      pending: CachedTx[] | null;
+    };
   }[];
   tokenMeta: TokenMeta[];
+  /** The list's safe section at capture; absent when it had none. */
+  safe?: string[];
 }
+
+type CachedTx = Omit<ActivityTx, 'fee' | 'transfers'> & {
+  fee: string;
+  transfers: (Omit<Transfer, 'amount'> & { amount: string })[];
+};
+
+const txToCache = (tx: ActivityTx): CachedTx => ({
+  ...tx,
+  fee: tx.fee.toString(),
+  transfers: tx.transfers.map((t) => ({ ...t, amount: t.amount.toString() })),
+});
+
+const txFromCache = (tx: CachedTx): ActivityTx => ({
+  ...tx,
+  fee: BigInt(tx.fee),
+  transfers: (tx.transfers ?? []).map((t) => ({
+    ...t,
+    amount: BigInt(t.amount),
+  })),
+});
 
 /**
  * Whether `--cache` can be written, asked before a single request goes out.
@@ -570,12 +1122,15 @@ export interface CachedReport {
  * So the path is tested first, and the run stops before it costs anything.
  * A sentence naming the problem, or null when there is none.
  */
-export function cachePathProblem(target: string): string | null {
-  if (target === '') return '--cache was given an empty path';
+export function cachePathProblem(
+  target: string,
+  flag = '--cache',
+): string | null {
+  if (target === '') return `${flag} was given an empty path`;
 
   if (fs.existsSync(target) && fs.statSync(target).isDirectory()) {
     return (
-      `${target} is a directory — --cache takes the path of the file to ` +
+      `${target} is a directory — ${flag} takes the path of the file to ` +
       'write, and picking a name inside a directory is not a script\'s call'
     );
   }
@@ -608,8 +1163,10 @@ export function toCache(
   tokenMeta: Map<string, TokenMeta>,
   node: string,
   capturedAt = new Date().toISOString(),
+  safe: ReadonlySet<string> | null = null,
 ): CachedReport {
   return {
+    ...(safe && { safe: [...safe] }),
     capturedAt,
     node,
     cycle,
@@ -629,6 +1186,12 @@ export function toCache(
         ]),
       ),
       nfts: h.nfts,
+      ...(h.activity && {
+        activity: {
+          confirmed: h.activity.confirmed?.map(txToCache) ?? null,
+          pending: h.activity.pending?.map(txToCache) ?? null,
+        },
+      }),
     })),
     tokenMeta: [...tokenMeta.values()],
   };
@@ -648,6 +1211,7 @@ export function fromCache(value: unknown): {
   cycle: number;
   holdings: Holdings[];
   tokenMeta: Map<string, TokenMeta>;
+  safe: Set<string> | null;
 } {
   const data = value as Partial<CachedReport> | null;
   if (
@@ -675,6 +1239,12 @@ export function fromCache(value: unknown): {
       ]),
     ),
     nfts: entry.nfts ?? {},
+    ...(entry.activity && {
+      activity: {
+        confirmed: entry.activity.confirmed?.map(txFromCache) ?? null,
+        pending: entry.activity.pending?.map(txFromCache) ?? null,
+      },
+    }),
   }));
 
   const tokenMeta = new Map<string, TokenMeta>();
@@ -686,6 +1256,7 @@ export function fromCache(value: unknown): {
     cycle: data.cycle,
     holdings,
     tokenMeta,
+    safe: Array.isArray(data.safe) ? new Set(data.safe) : null,
   };
 }
 
@@ -699,8 +1270,174 @@ interface BalancesResponse {
   non_fungible_tokens?: Record<string, { count?: string }>;
 }
 
-async function readHoldings(entry: AddressEntry): Promise<Holdings> {
+export interface ApiTx {
+  tx_id: string;
+  sender_address: string;
+  block_time?: number;
+  receipt_time?: number;
+  tx_type: string;
+  tx_status: string;
+  sponsored?: boolean;
+  fee_rate?: string;
+  token_transfer?: { recipient_address?: string; amount?: string };
+  contract_call?: { contract_id?: string; function_name?: string };
+  smart_contract?: { contract_id?: string };
+}
+
+interface ApiAddressTx {
+  tx: ApiTx;
+  stx_transfers?: { amount: string; sender?: string; recipient?: string }[];
+  ft_transfers?: {
+    amount: string;
+    asset_identifier: string;
+    sender?: string;
+    recipient?: string;
+  }[];
+  nft_transfers?: {
+    value?: { repr?: string };
+    asset_identifier: string;
+    sender?: string;
+    recipient?: string;
+  }[];
+}
+
+/**
+ * The API's transaction, cut down.
+ *
+ * The transfers come from the API's own lists of what moved to or from this
+ * address — amounts and both ends, not totals — so a contract call that sent
+ * sBTC to a stranger says so, and says how much. A pending transaction has
+ * none of that yet; a plain STX transfer stands in for itself, and a pending
+ * contract call says nothing about what it will move.
+ */
+export function toActivityTx(
+  tx: ApiTx,
+  moved: Omit<ApiAddressTx, 'tx'> = {},
+): ActivityTx {
+  const transfers: Transfer[] = [
+    ...(moved.stx_transfers ?? []).map((t) => ({
+      kind: 'stx' as const,
+      asset: 'STX',
+      amount: BigInt(t.amount),
+      item: null,
+      sender: t.sender ?? '',
+      recipient: t.recipient ?? '',
+    })),
+    ...(moved.ft_transfers ?? []).map((t) => ({
+      kind: 'ft' as const,
+      asset: t.asset_identifier,
+      amount: BigInt(t.amount),
+      item: null,
+      sender: t.sender ?? '',
+      recipient: t.recipient ?? '',
+    })),
+    ...(moved.nft_transfers ?? []).map((t) => ({
+      kind: 'nft' as const,
+      asset: t.asset_identifier,
+      amount: 1n,
+      item: t.value?.repr ?? null,
+      sender: t.sender ?? '',
+      recipient: t.recipient ?? '',
+    })),
+  ];
+  if (
+    transfers.length === 0 &&
+    tx.tx_status === 'pending' &&
+    tx.tx_type === 'token_transfer' &&
+    tx.token_transfer?.recipient_address
+  ) {
+    transfers.push({
+      kind: 'stx',
+      asset: 'STX',
+      amount: BigInt(tx.token_transfer.amount ?? '0'),
+      item: null,
+      sender: tx.sender_address,
+      recipient: tx.token_transfer.recipient_address,
+    });
+  }
+
+  return {
+    txId: tx.tx_id,
+    sender: tx.sender_address,
+    time: tx.block_time ?? tx.receipt_time ?? 0,
+    type: tx.tx_type,
+    status: tx.tx_status,
+    sponsored: tx.sponsored ?? false,
+    fee: BigInt(tx.fee_rate ?? '0'),
+    call: tx.contract_call?.contract_id
+      ? `${tx.contract_call.contract_id}.${tx.contract_call.function_name ?? ''}`
+      : (tx.smart_contract?.contract_id ?? null),
+    transfers,
+  };
+}
+
+async function readActivity(address: string): Promise<Activity> {
+  const confirmed = (
+    await getJson<{ results?: ApiAddressTx[] }>(
+      `${API_URL}/extended/v1/address/${address}/transactions_with_transfers?limit=${ACTIVITY_LIMIT}`,
+    )
+  ).value;
+  await sleep(SPACING_MS);
+  const pending = (
+    await getJson<{ results?: ApiTx[] }>(
+      `${API_URL}/extended/v1/address/${address}/mempool?limit=${ACTIVITY_LIMIT}`,
+    )
+  ).value;
+  await sleep(SPACING_MS);
+
+  return {
+    confirmed:
+      confirmed?.results?.map(({ tx, ...moved }) => toActivityTx(tx, moved)) ??
+      null,
+    pending: pending?.results?.map((tx) => toActivityTx(tx)) ?? null,
+  };
+}
+
+/**
+ * Every asset that moved in a transaction this report will describe, as the
+ * roll-up's totals — so its metadata is read with everything else's. Tokens
+ * an address sent away entirely are in nobody's balance any more, and without
+ * this an amount of them could only be printed undivided.
+ */
+export function transferredAssets(all: Holdings[]): AssetTotal[] {
+  const seen = new Map<string, AssetTotal>();
+  for (const h of all) {
+    for (const tx of [
+      ...(h.activity?.confirmed ?? []),
+      ...(h.activity?.pending ?? []),
+    ]) {
+      for (const t of tx.transfers) {
+        if (t.kind === 'stx' || seen.has(t.asset)) continue;
+        seen.set(t.asset, {
+          asset: t.asset,
+          kind: t.kind,
+          total: 0n,
+          holders: 0,
+        });
+      }
+    }
+  }
+  return [...seen.values()];
+}
+
+async function readHoldings(
+  entry: AddressEntry,
+  withActivity = true,
+  activityOnly = false,
+): Promise<Holdings> {
   const { address } = entry;
+  if (activityOnly) {
+    return {
+      address,
+      label: entry.label,
+      stxTotal: null,
+      stxLocked: null,
+      stake: undefined,
+      fungible: {},
+      nfts: {},
+      activity: await readActivity(address),
+    };
+  }
   const balances = (
     await getJson<BalancesResponse>(
       `${API_URL}/extended/v1/address/${address}/balances`,
@@ -728,6 +1465,7 @@ async function readHoldings(entry: AddressEntry): Promise<Holdings> {
     stake: await readStake(address),
     fungible,
     nfts,
+    ...(withActivity && { activity: await readActivity(address) }),
   };
 }
 
@@ -865,10 +1603,16 @@ function tokenHeld(holdings: Holdings, meta: TokenMeta | null): bigint | null {
  * around actually asks. STX leads because it is the only asset here that is
  * two amounts rather than one: locked is working, unlocked is not.
  */
-function printAssets(rows: Row[], tokenMeta: Map<string, TokenMeta>) {
+function printAssets(
+  rows: Row[],
+  tokenMeta: Map<string, TokenMeta>,
+  showNfts: boolean,
+) {
   const holdings = rows.map((row) => row.holdings);
   const stx = stxTotal(holdings);
-  const assets = assetTotals(holdings);
+  const assets = assetTotals(holdings).filter(
+    (entry) => showNfts || entry.kind === 'ft',
+  );
 
   const columns: { heading: string; width: number; left?: boolean }[] = [
     { heading: 'token', width: 14, left: true },
@@ -917,7 +1661,10 @@ function printAssets(rows: Row[], tokenMeta: Map<string, TokenMeta>) {
   }
 
   if (assets.length === 0) {
-    console.log('  (no tokens and no NFTs)');
+    console.log(showNfts ? '  (no tokens and no NFTs)' : '  (no tokens)');
+  }
+  if (!showNfts) {
+    console.log('  NFTs are left out; --nfts lists them.');
   }
   if (unknown) {
     console.log(
@@ -934,6 +1681,95 @@ function printAssets(rows: Row[], tokenMeta: Map<string, TokenMeta>) {
   console.log('');
 }
 
+/** The list somebody acts on: every address with a reason, and the reasons. */
+function printAttention(rows: Pick<Row, 'holdings' | 'reasons'>[]) {
+  const needing = rows.filter((row) => row.reasons.length > 0);
+  if (needing.length === 0) {
+    console.log('\nNothing needs attention.\n');
+    return;
+  }
+  console.log(`\nNEEDS ATTENTION — ${needing.length} of ${rows.length}\n`);
+  // Tags are only worth a column if they line up, and how wide that column
+  // is depends on which flags this run actually raised.
+  const tagWidth = Math.max(
+    ...needing.flatMap((row) => row.reasons.map((r) => r.tag.length)),
+  );
+  for (const row of needing) {
+    const label = row.holdings.label ? `  — ${row.holdings.label}` : '';
+    console.log(`  ${row.holdings.address}${label}`);
+    for (const reason of row.reasons) {
+      console.log(`      ${reason.tag.padEnd(tagWidth)}  ${reason.detail}`);
+    }
+    console.log('');
+  }
+}
+
+/** `--activity-only`: who signed what, and nothing about balances. */
+function printActivityOnly(
+  rows: Pick<Row, 'holdings' | 'reasons'>[],
+  thresholds: Thresholds,
+  captured: { at: string; node: string } | null,
+) {
+  console.log(
+    `\n${rows.length} address(es), transactions ${windowLabel(thresholds)}`,
+  );
+  if (captured) {
+    console.log(
+      `Cached answers captured ${captured.at} from ${captured.node}; the` +
+        ' window ends then, not now.',
+    );
+  }
+  printAttention(rows);
+  console.log(
+    'Flags: pending — signed and still in the mempool. outflow — something' +
+      ' left the address. signed — anything else it signed. woke up — the' +
+      ` first signature in ${DORMANT_DAYS} days or more, or ever. unread —` +
+      ' the history would not read. If nobody here sent it, treat the key as' +
+      ' compromised.\n',
+  );
+}
+
+function printAtRisk(
+  risks: AtRisk[],
+  tokenMeta: Map<string, TokenMeta>,
+  showNfts: boolean,
+) {
+  console.log('STILL ON POSSIBLY COMPROMISED ADDRESSES\n');
+  if (risks.length === 0) {
+    console.log('  Nothing — every address before the safe section is empty.\n');
+    return;
+  }
+  const sbtcDecimals = tokenMeta.get(SBTC_ASSET)?.decimals ?? SBTC_DECIMALS;
+  const amount = (v: bigint | null, d: number) =>
+    v === null ? 'not known' : v === 0n ? '—' : formatUnits(v, d);
+  console.log(
+    `  ${'address'.padEnd(15)} ${'label'.padEnd(24)} ${'unlocked STX'.padStart(16)} ${'locked STX'.padStart(16)} ${'unlocks'.padStart(7)} ${'sBTC'.padStart(12)}  other`,
+  );
+  const total = { unlocked: 0n, locked: 0n, sbtc: 0n };
+  for (const r of risks) {
+    total.unlocked += r.unlocked ?? 0n;
+    total.locked += r.locked ?? 0n;
+    total.sbtc += r.sbtc ?? 0n;
+    const other = Object.entries(r.tokens).map(([asset, v]) => {
+      const meta = tokenMeta.get(asset);
+      return meta?.known
+        ? `${formatUnits(v, meta.decimals)} ${meta.symbol}`
+        : `${v} ${assetName(asset)}`;
+    });
+    if (showNfts && r.nfts) other.push(`${r.nfts} NFT(s)`);
+    console.log(
+      `  ${shortPrincipal(r.address).padEnd(15)} ${(r.label ?? '—').slice(0, 24).padEnd(24)} ${amount(r.unlocked, 6).padStart(16)} ${amount(r.locked, 6).padStart(16)} ${(r.unlocksAt === null ? ((r.locked ?? 0n) > 0n ? 'pox-4' : '—') : `c${r.unlocksAt}`).padStart(7)} ${amount(r.sbtc, sbtcDecimals).padStart(12)}  ${other.join(', ')}`.trimEnd(),
+    );
+  }
+  console.log(
+    `\n  ${'total'.padEnd(40)} ${formatStx(total.unlocked).padStart(16)} ${formatStx(total.locked).padStart(16)} ${''.padStart(7)} ${formatUnits(total.sbtc, sbtcDecimals).padStart(12)}`,
+  );
+  console.log(
+    '\n  Unlocked STX and tokens can be taken by anyone holding the key today;' +
+      ' locked STX from the cycle it unlocks in.\n',
+  );
+}
+
 function printReport(
   rows: Row[],
   meta: TokenMeta | null,
@@ -941,9 +1777,9 @@ function printReport(
   thresholds: Thresholds,
   tokenMeta: Map<string, TokenMeta>,
   captured: { at: string; node: string } | null,
+  safe: ReadonlySet<string> | null,
+  showNfts: boolean,
 ) {
-  const needing = rows.filter((row) => row.reasons.length > 0);
-
   console.log(
     `\n${rows.length} address(es), reward cycle ${cycle}` +
       (meta ? `, token ${meta.symbol} (${meta.asset})` : ''),
@@ -958,26 +1794,20 @@ function printReport(
     );
   }
 
-  if (needing.length === 0) {
-    console.log('\nNothing needs attention.\n');
-  } else {
-    console.log(`\nNEEDS ATTENTION — ${needing.length} of ${rows.length}\n`);
-    // Tags are only worth a column if they line up, and how wide that column
-    // is depends on which flags this run actually raised.
-    const tagWidth = Math.max(
-      ...needing.flatMap((row) => row.reasons.map((r) => r.tag.length)),
+  printAttention(rows);
+
+  if (safe !== null) {
+    printAtRisk(
+      atRisk(
+        rows.map((row) => row.holdings),
+        safe,
+      ),
+      tokenMeta,
+      showNfts,
     );
-    for (const row of needing) {
-      const label = row.holdings.label ? `  — ${row.holdings.label}` : '';
-      console.log(`  ${row.holdings.address}${label}`);
-      for (const reason of row.reasons) {
-        console.log(`      ${reason.tag.padEnd(tagWidth)}  ${reason.detail}`);
-      }
-      console.log('');
-    }
   }
 
-  printAssets(rows, tokenMeta);
+  printAssets(rows, tokenMeta, showNfts);
 
   // A labelled list is read by its labels, so they get the room and the
   // address gets shortened to make it — the full ones are in the attention
@@ -1005,7 +1835,7 @@ function printReport(
     { heading: 'ends', width: 5 },
     ...(meta ? [{ heading: meta.symbol.slice(0, 14), width: 16 }] : []),
     ...(sbtcColumn ? [{ heading: 'sBTC', width: 16 }] : []),
-    { heading: 'NFTs', width: 5 },
+    ...(showNfts ? [{ heading: 'NFTs', width: 5 }] : []),
   ];
   const line = (cells: string[]) =>
     `  ${cells
@@ -1043,7 +1873,7 @@ function printReport(
         ...(sbtcColumn
           ? [sbtc === null ? '?' : formatUnits(sbtc, sbtcDecimals)]
           : []),
-        String(nftCount),
+        ...(showNfts ? [String(nftCount)] : []),
       ]),
     );
   }
@@ -1069,7 +1899,7 @@ function printReport(
       '',
       ...(meta ? [formatUnits(totals.token, meta.decimals)] : []),
       ...(sbtcColumn ? [formatUnits(sbtc.total, sbtcDecimals)] : []),
-      '',
+      ...(showNfts ? [''] : []),
     ]),
   );
 
@@ -1083,6 +1913,10 @@ function printReport(
           ? ` token — holds no ${meta.symbol}.`
           : ` token — holds under ${formatUnits(thresholds.minToken, meta.decimals)} ${meta.symbol}.`
         : '') +
+      ` pending / outflow / signed — a transaction this address signed (or one` +
+      ` that took something out of it) ${windowLabel(thresholds)};` +
+      ' if nobody here sent it, treat the key as compromised. woke up — the' +
+      ` first signature in ${DORMANT_DAYS} days or more.` +
       ' unread — this run could not find out, which is not the same as nothing.',
   );
   if (sbtcColumn) {
@@ -1102,19 +1936,42 @@ function printReport(
   );
 }
 
-function toJson(
+export function toJson(
   rows: Row[],
   meta: TokenMeta | null,
   cycle: number,
   tokenMeta: Map<string, TokenMeta>,
   captured: { at: string; node: string } | null,
+  context: Pick<Context, 'safe' | 'now'> = { safe: null, now: Date.now() / 1000 },
+  window: { since: number; label: string } = {
+    since: context.now - 30 * DAY,
+    label: 'in the last 30 day(s)',
+  },
 ) {
   const holdings = rows.map((row) => row.holdings);
   const stx = stxTotal(holdings);
   const sbtc = sbtcTotal(holdings);
+  const amounts = (record: Record<string, bigint>) =>
+    Object.fromEntries(
+      Object.entries(record).map(([k, v]) => [k, v.toString()]),
+    );
 
   return {
     cycle,
+    /** Unix seconds the activity window ends at. */
+    now: context.now,
+    /** The activity window: flagged transactions are from `since` on. */
+    window,
+    /** The safe section of the list, or null when it has none. */
+    safe: context.safe && [...context.safe],
+    tokenMeta: [...tokenMeta.values()],
+    atRisk: atRisk(holdings, context.safe).map((r) => ({
+      ...r,
+      unlocked: r.unlocked?.toString() ?? null,
+      locked: r.locked?.toString() ?? null,
+      sbtc: r.sbtc?.toString() ?? null,
+      tokens: amounts(r.tokens),
+    })),
     // Null for a run that asked the chain. Present means every figure here
     // is as it was at `at`, and a consumer that ignores it is reading old
     // balances as current ones.
@@ -1151,6 +2008,7 @@ function toJson(
     addresses: rows.map((row) => ({
       address: row.holdings.address,
       label: row.holdings.label,
+      status: keyStatus(row.holdings.address, context.safe),
       stxTotal: row.holdings.stxTotal?.toString() ?? null,
       stxLocked: row.holdings.stxLocked?.toString() ?? null,
       stxAvailable: availableStx(row.holdings)?.toString() ?? null,
@@ -1175,6 +2033,11 @@ function toJson(
         ]),
       ),
       nfts: row.holdings.nfts,
+      activity: row.holdings.activity && {
+        confirmed:
+          row.holdings.activity.confirmed?.map(txToCache) ?? null,
+        pending: row.holdings.activity.pending?.map(txToCache) ?? null,
+      },
       attention: row.reasons,
     })),
   };
@@ -1185,8 +2048,12 @@ async function main() {
 
   // Before the address list, and long before the asking: a `--cache` path
   // that cannot be written is a run that will cost minutes and keep nothing.
-  if (options.cache !== null) {
-    const problem = cachePathProblem(options.cache);
+  for (const [flag, target] of [
+    ['--cache', options.cache],
+    ['--html', options.html],
+  ] as const) {
+    if (target === null) continue;
+    const problem = cachePathProblem(target, flag);
     if (problem !== null) {
       console.error(`Nothing has been asked yet — ${problem}.`);
       process.exit(1);
@@ -1198,9 +2065,17 @@ async function main() {
     address,
     label: null,
   }));
+  // Which keys are known good. From the file when it says, otherwise from the
+  // capture being reported on — see below.
+  let safe: Set<string> | null = null;
   if (options.file) {
-    const parsed = parseAddressList(fs.readFileSync(options.file, 'utf8'));
+    const parsed = parseSections(fs.readFileSync(options.file, 'utf8'));
     named.push(...parsed.entries);
+    if (parsed.marked) {
+      safe = new Set(
+        parsed.entries.filter((e) => e.safe).map((e) => e.address),
+      );
+    }
     for (const line of parsed.rejected) {
       console.error(`  not a principal, skipped: ${line}`);
     }
@@ -1235,6 +2110,7 @@ async function main() {
     );
     cycle = cached.cycle;
     tokenMeta = cached.tokenMeta;
+    safe = safe ?? cached.safe;
     captured = { at: cached.capturedAt, node: cached.node };
 
     if (wanted.length === 0) {
@@ -1280,7 +2156,8 @@ async function main() {
       );
     }
 
-    const read = await fetchCurrentCycle();
+    // The cycle is only for stakes, which an activity-only run never reads.
+    const read = options.activityOnly ? 0 : await fetchCurrentCycle();
     if (read === null) {
       console.error('The node would not say what cycle it is in.');
       process.exit(1);
@@ -1289,14 +2166,22 @@ async function main() {
     cycle = read;
 
     holdings = [];
-    for (const entry of wanted) holdings.push(await readHoldings(entry));
+    for (const entry of wanted) {
+      holdings.push(
+        await readHoldings(entry, options.activity, options.activityOnly),
+      );
+    }
 
     // A long list run anonymously outruns the rate limit somewhere in the
     // middle, and those addresses come back unread — which the report says
     // plainly, but "run it again" is a poor answer when asking again about the
     // few that failed costs seconds. Once, at the end, after a pause.
     const unread = holdings.filter(
-      (h) => h.stxTotal === null || h.stake === undefined,
+      (h) =>
+        (!options.activityOnly &&
+          (h.stxTotal === null || h.stake === undefined)) ||
+        h.activity?.confirmed === null ||
+        h.activity?.pending === null,
     );
     if (unread.length) {
       console.error(
@@ -1304,10 +2189,11 @@ async function main() {
       );
       await sleep(RETRY_DELAYS_MS[RETRY_DELAYS_MS.length - 1]);
       for (const stale of unread) {
-        const fresh = await readHoldings({
-          address: stale.address,
-          label: stale.label,
-        });
+        const fresh = await readHoldings(
+          { address: stale.address, label: stale.label },
+          options.activity,
+          options.activityOnly,
+        );
         Object.assign(stale, fresh);
       }
     }
@@ -1316,7 +2202,12 @@ async function main() {
     // their holders write them. One request per token contract, and the
     // answer for `--token` comes out of the same map rather than being asked
     // for twice.
-    tokenMeta = await readAllTokenMeta(assetTotals(holdings));
+    tokenMeta = await readAllTokenMeta([
+      ...(options.activityOnly ? [] : assetTotals(holdings)),
+      ...transferredAssets(holdings).filter(
+        (moved) => !holdings.some((h) => moved.asset in h.fungible),
+      ),
+    ]);
 
     if (options.cache !== null) {
       /*
@@ -1332,7 +2223,7 @@ async function main() {
       try {
         fs.writeFileSync(
           options.cache,
-          `${JSON.stringify(toCache(holdings, cycle, tokenMeta, API_URL), null, 2)}\n`,
+          `${JSON.stringify(toCache(holdings, cycle, tokenMeta, API_URL, undefined, safe), null, 2)}\n`,
         );
         if (!options.json) {
           console.log(
@@ -1404,7 +2295,54 @@ async function main() {
     token: meta?.asset ?? null,
     tokenSymbol: meta?.symbol ?? '',
     tokenDecimals: meta?.decimals ?? 0,
+    activityDays: options.activityDays,
+    activitySince: options.since,
   };
+
+  // The window is measured from when the answers were read: a cached run
+  // asks about the days before its capture, as every other figure in it does.
+  const context: Context = {
+    now: captured ? Date.parse(captured.at) / 1000 : Date.now() / 1000,
+    listed: new Map(holdings.map((h) => [h.address, h.label])),
+    tokenMeta,
+    safe,
+  };
+
+  if (options.activityOnly) {
+    const rows = holdings.map((h) => ({
+      holdings: h,
+      reasons: activityAttention(h, thresholds, context),
+    }));
+    if (options.json) {
+      console.log(
+        JSON.stringify(
+          {
+            captured,
+            window: {
+              since: windowStart(thresholds, context.now),
+              label: windowLabel(thresholds),
+            },
+            addresses: rows.map((row) => ({
+              address: row.holdings.address,
+              label: row.holdings.label,
+              status: keyStatus(row.holdings.address, safe),
+              activity: row.holdings.activity && {
+                confirmed:
+                  row.holdings.activity.confirmed?.map(txToCache) ?? null,
+                pending: row.holdings.activity.pending?.map(txToCache) ?? null,
+              },
+              attention: row.reasons,
+            })),
+          },
+          null,
+          2,
+        ),
+      );
+      return;
+    }
+    printActivityOnly(rows, thresholds, captured);
+    return;
+  }
 
   const signers = (JSON.parse(fs.readFileSync(SIGNERS, 'utf8')) as SignerData)
     .signers;
@@ -1414,7 +2352,7 @@ async function main() {
   const rows: Row[] = holdings
     .map((h) => ({
       holdings: h,
-      reasons: attentionFor(h, thresholds, cycle),
+      reasons: attentionFor(h, thresholds, cycle, context),
       // The pool's name as the guide shows it, including the ones a person
       // decided — a contract id says nothing to somebody reading a list.
       poolName: h.stake ? (poolOf(h.stake.signer) ?? h.stake.signer) : null,
@@ -1428,14 +2366,47 @@ async function main() {
       return right > left ? 1 : -1;
     });
 
+  const report = toJson(
+    rows,
+    meta,
+    cycle,
+    tokenMeta,
+    captured,
+    context,
+    {
+      since: windowStart(thresholds, context.now),
+      label: windowLabel(thresholds),
+    },
+  );
+  if (options.html !== null) {
+    try {
+      fs.writeFileSync(options.html, renderHtml(report));
+      if (!options.json) console.log(`  Wrote the page to ${options.html}`);
+    } catch (err) {
+      console.error(
+        `  Could not write ${options.html}: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      );
+    }
+  }
   if (options.json) {
-    console.log(
-      JSON.stringify(toJson(rows, meta, cycle, tokenMeta, captured), null, 2),
-    );
+    console.log(JSON.stringify(report, null, 2));
     return;
   }
-  printReport(rows, meta, cycle, thresholds, tokenMeta, captured);
+  printReport(
+    rows,
+    meta,
+    cycle,
+    thresholds,
+    tokenMeta,
+    captured,
+    safe,
+    options.nfts,
+  );
 }
+
+export type Report = ReturnType<typeof toJson>;
 
 // Only when run, not when imported — see the note in signer-members.ts.
 const invokedAs = process.argv[1] ? path.resolve(process.argv[1]) : '';

@@ -2,7 +2,14 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
+import { embedJson, renderHtml } from './address-report-html.js';
 import {
+  activityAttention,
+  atRisk,
+  keyStatus,
+  parseSections,
+  parseSince,
+  toJson,
   assetTotals,
   attentionFor,
   availableStx,
@@ -13,8 +20,11 @@ import {
   sbtcHeld,
   sbtcTotal,
   stxTotal,
+  toActivityTx,
   toCache,
   unlockCycle,
+  type ActivityTx,
+  type Transfer,
   type Holdings,
   type Thresholds,
   type TokenMeta,
@@ -52,6 +62,7 @@ const thresholds = (over: Partial<Thresholds> = {}): Thresholds => ({
   token: null,
   tokenSymbol: 'sBTC',
   tokenDecimals: 8,
+  activityDays: 30,
   ...over,
 });
 
@@ -339,6 +350,12 @@ describe('the command line', () => {
       minToken: null,
       minStx: '100',
       endingIn: 2,
+      activityDays: 30,
+      since: null,
+      activity: true,
+      activityOnly: false,
+      nfts: false,
+      html: null,
       cache: null,
       fromCache: null,
       json: true,
@@ -524,5 +541,332 @@ describe('where a capture may be written', () => {
     // Root ignores the mode, so this asserts nothing when tests run as root.
     if (process.getuid?.() === 0) return;
     expect(cachePathProblem(target)).toMatch(/cannot be written/);
+  });
+});
+
+describe('who else is signing', () => {
+  const ME = 'SP2SCBYN5HX4WWPJ60G7SKNXD261M7WG24DSD5TQ';
+  const FRIEND = 'SP2ZNPXGZ8S4GE568QSCF66PT02BZ63Y4W3Y7BHNZ';
+  const STRANGER = 'SP3KE3EV3CYP2NZJ0TSP34VPA3XSK82YED38TB97X';
+  const DAY = 86_400;
+  const NOW = 1_790_800_000;
+
+  const tx = (over: Partial<ActivityTx> = {}): ActivityTx => ({
+    txId: '0xa844885245759164aa415068a1183a98440a9aa17ea5c8cb2e35df35db9816b1',
+    sender: ME,
+    time: NOW - DAY,
+    type: 'contract_call',
+    status: 'success',
+    sponsored: false,
+    fee: 1000n,
+    call: `${POOL}.delegate-stx`,
+    transfers: [],
+    ...over,
+  });
+  const move = (over: Partial<Transfer> = {}): Transfer => ({
+    kind: 'stx',
+    asset: 'STX',
+    amount: 107_131_368n,
+    item: null,
+    sender: ME,
+    recipient: STRANGER,
+    ...over,
+  });
+  const sbtcMeta: TokenMeta = {
+    asset: SBTC,
+    symbol: 'sBTC',
+    decimals: 8,
+    nft: false,
+    known: true,
+  };
+  const context = {
+    now: NOW,
+    listed: new Map<string, string | null>([
+      [ME, null],
+      [FRIEND, 'reserve'],
+    ]),
+    tokenMeta: new Map([[SBTC, sbtcMeta]]),
+    safe: null as ReadonlySet<string> | null,
+  };
+  const read = (confirmed: ActivityTx[] | null, pending: ActivityTx[] | null = []) =>
+    activityAttention(
+      holdings({ activity: { confirmed, pending } }),
+      thresholds(),
+      context,
+    );
+  // Signed forty days ago: outside the window, recent enough to be no news.
+  // Without it every test below would also be an address's first signature.
+  const usual = tx({ time: NOW - 40 * DAY });
+  const flags = (confirmed: ActivityTx[], pending: ActivityTx[] = []) =>
+    read([...confirmed, usual], pending);
+
+  it('says nothing about an address whose activity was never asked for', () => {
+    expect(activityAttention(holdings(), thresholds(), context)).toEqual([]);
+  });
+
+  it('ignores what other people sent in — airdrops say nothing about this key', () => {
+    expect(
+      flags([tx({ sender: STRANGER, transfers: [move({ sender: STRANGER, recipient: ME })] })]),
+    ).toEqual([]);
+  });
+
+  it('flags an STX transfer out to an address not on the list, naming both', () => {
+    const reasons = flags([
+      tx({ type: 'token_transfer', call: null, transfers: [move()] }),
+    ]);
+    expect(reasons.map((r) => r.tag)).toEqual(['outflow']);
+    expect(reasons[0].detail).toMatch(
+      /sent 107\.131368 STX to SP3KE3EV3CYP2NZJ0TSP34VPA3XSK82YED38TB97X \(not on the list\)/,
+    );
+  });
+
+  it('gives a token transfer its amount, symbol and recipient', () => {
+    const [reason] = flags([
+      tx({
+        call: `${POOL}.transfer-many`,
+        transfers: [move({ kind: 'ft', asset: SBTC, amount: 42_487n, recipient: FRIEND })],
+      }),
+    ]);
+    expect(reason.tag).toBe('outflow');
+    expect(reason.detail).toMatch(/transfer-many: sent 0\.00042487 sBTC to .*\(reserve\)/);
+  });
+
+  it('prints a token with no metadata in base units, and says so', () => {
+    const [reason] = flags([
+      tx({ transfers: [move({ kind: 'ft', asset: 'SP1.x::alex', amount: 5n })] }),
+    ]);
+    expect(reason.detail).toMatch(/sent 5 alex \(base units\)/);
+  });
+
+  it('names an NFT by its collection and id', () => {
+    const [reason] = flags([
+      tx({ transfers: [move({ kind: 'nft', asset: 'SP1.punks::punk', amount: 1n, item: 'u42' })] }),
+    ]);
+    expect(reason.detail).toMatch(/sent punk u42 to SP3KE3/);
+  });
+
+  it('flags a call that moved nothing as signed, and leaves old ones alone', () => {
+    expect(flags([tx()]).map((r) => r.tag)).toEqual(['signed']);
+    expect(flags([tx({ time: NOW - 31 * DAY })])).toEqual([]);
+  });
+
+  it('flags a pending transaction this address signed', () => {
+    const reasons = flags([], [tx({ status: 'pending' }), tx({ sender: STRANGER })]);
+    expect(reasons.map((r) => r.tag)).toEqual(['pending']);
+  });
+
+  it('flags a key that wakes up after months of nothing', () => {
+    expect(read([tx(), tx({ time: NOW - 200 * DAY })]).map((r) => r.tag)).toEqual([
+      'woke up',
+      'signed',
+    ]);
+    expect(flags([tx(), tx({ time: NOW - 10 * DAY })]).map((r) => r.tag)).toEqual([
+      'signed',
+      'signed',
+    ]);
+  });
+
+  it('flags the first signature an address ever made', () => {
+    const reasons = read([tx()]);
+    expect(reasons[0].tag).toBe('woke up');
+    expect(reasons[0].detail).toMatch(/first transaction this address ever signed/);
+  });
+
+  it('never lets an unread history look like a quiet one', () => {
+    expect(read(null)[0].tag).toBe('unread');
+    expect(read([], null)[0].tag).toBe('unread');
+  });
+
+  it('reads every kind of transfer off the API, and a pending STX transfer too', () => {
+    const confirmed = toActivityTx(
+      { tx_id: '0x1', sender_address: ME, tx_type: 'contract_call', tx_status: 'success' },
+      {
+        stx_transfers: [{ amount: '7', sender: ME, recipient: STRANGER }],
+        ft_transfers: [{ amount: '42487', asset_identifier: SBTC, sender: ME, recipient: FRIEND }],
+        nft_transfers: [
+          { value: { repr: 'u1' }, asset_identifier: 'SP1.punks::punk', sender: '', recipient: ME },
+        ],
+      },
+    );
+    expect(confirmed.transfers.map((t) => [t.kind, t.amount, t.recipient])).toEqual([
+      ['stx', 7n, STRANGER],
+      ['ft', 42_487n, FRIEND],
+      ['nft', 1n, ME],
+    ]);
+    const pending = toActivityTx({
+      tx_id: '0x2',
+      sender_address: ME,
+      tx_type: 'token_transfer',
+      tx_status: 'pending',
+      token_transfer: { recipient_address: STRANGER, amount: '9' },
+    });
+    expect(pending.transfers).toEqual([move({ amount: 9n })]);
+  });
+
+  it('survives a round trip through the cache', () => {
+    const h = holdings({
+      activity: { confirmed: [tx({ transfers: [move()] })], pending: null },
+    });
+    const json = JSON.parse(JSON.stringify(toCache([h], 141, new Map(), 'node')));
+    expect(fromCache(json).holdings[0].activity).toEqual(h.activity);
+  });
+});
+
+describe('asking for activity alone', () => {
+  it('takes --activity-only, and refuses what it would make meaningless', () => {
+    expect(parseArgs(['--activity-only']).activityOnly).toBe(true);
+    expect(() => parseArgs(['--activity-only', '--no-activity'])).toThrow();
+    expect(() => parseArgs(['--activity-only', '--cache', 'x.json'])).toThrow();
+    expect(() => parseArgs(['--activity-only', '--token', 'alex'])).toThrow();
+    expect(parseArgs(['--activity-only', '--from-cache', 'x.json']).fromCache).toBe('x.json');
+  });
+});
+
+describe('safe and possibly compromised keys', () => {
+  const OLD = 'SP2SCBYN5HX4WWPJ60G7SKNXD261M7WG24DSD5TQ';
+  const NEW = 'SP2PJ5J86KSPKYXSWZ7VX21P66M53V96DZ2JW5J8K';
+  const STRANGER = 'SP3KE3EV3CYP2NZJ0TSP34VPA3XSK82YED38TB97X';
+  const NOW = 1_790_800_000;
+
+  it('reads the safe section off the file, and only with the heading', () => {
+    const text = [
+      `"${OLD}", // old`,
+      '// --- safe ---',
+      `"${NEW}", // #1 2026`,
+    ].join('\n');
+    const parsed = parseSections(text);
+    expect(parsed.marked).toBe(true);
+    expect(parsed.entries).toEqual([
+      { address: OLD, label: 'old', safe: false },
+      { address: NEW, label: '#1 2026', safe: true },
+    ]);
+    expect(parseSections(`${OLD}\n${NEW}`).marked).toBe(false);
+    // Another heading ends the section.
+    const back = parseSections(`// --- safe ---\n${NEW}\n# --- old ---\n${OLD}`);
+    expect(back.entries.map((e) => e.safe)).toEqual([true, false]);
+  });
+
+  it('calls nothing compromised on a list that never said what is safe', () => {
+    expect(keyStatus(OLD, null)).toBe('unmarked');
+    expect(keyStatus(OLD, new Set([NEW]))).toBe('compromised');
+    expect(keyStatus(NEW, new Set([NEW]))).toBe('safe');
+  });
+
+  const send = (from: string, to: string, time = NOW - 86_400): ActivityTx => ({
+    txId: '0x7eebdd028e00000000000000000000000000000000000000000000000000009d42',
+    sender: from,
+    time,
+    type: 'token_transfer',
+    status: 'success',
+    sponsored: false,
+    fee: 300n,
+    call: null,
+    transfers: [
+      { kind: 'stx', asset: 'STX', amount: 5n, item: null, sender: from, recipient: to },
+    ],
+  });
+  const context = {
+    now: NOW,
+    listed: new Map<string, string | null>([
+      [OLD, 'old'],
+      [NEW, '#1 2026'],
+    ]),
+    tokenMeta: new Map(),
+    safe: new Set([NEW]) as ReadonlySet<string>,
+  };
+  const tagsOf = (address: string, txs: ActivityTx[]) =>
+    activityAttention(
+      holdings({ address, activity: { confirmed: txs, pending: [] } }),
+      thresholds(),
+      context,
+    ).map((r) => r.tag);
+
+  it('leaves the rescue out, and flags the theft', () => {
+    const earlier = send(OLD, NEW, NOW - 40 * 86_400);
+    expect(tagsOf(OLD, [send(OLD, NEW), earlier])).toEqual([]);
+    expect(tagsOf(OLD, [send(OLD, STRANGER), earlier])).toEqual(['outflow']);
+  });
+
+  it('does not count a move to another old key as a rescue', () => {
+    const OTHER_OLD = 'SP3AQDW78BWS2AZMBZWD7XWGH5HQS3HHVS2MC9NBD';
+    expect(tagsOf(OLD, [send(OLD, OTHER_OLD), send(OLD, NEW, NOW - 40 * 86_400)])).toEqual([
+      'outflow',
+    ]);
+  });
+
+  it('lets a safe key sign, and flags it only sending outside the safe set', () => {
+    expect(tagsOf(NEW, [send(NEW, NEW)])).toEqual([]);
+    expect(tagsOf(NEW, [{ ...send(NEW, NEW), transfers: [] }])).toEqual([]);
+    expect(tagsOf(NEW, [send(NEW, STRANGER)])).toEqual(['outflow']);
+  });
+
+  it('lists what is still on the old keys, and nothing on the safe ones', () => {
+    const risks = atRisk(
+      [
+        holdings({ address: OLD, stxTotal: 10n, stxLocked: 4n, fungible: { [SBTC]: 3n, 'SP1.x::alex': 0n } }),
+        holdings({ address: NEW, stxTotal: 99n }),
+        holdings({ address: 'SP3NF0PJA5SZQCA29BAQDGFF40ZR03VQ4D5WW8AY4', stxTotal: 0n }),
+      ],
+      new Set([NEW]),
+    );
+    expect(risks).toHaveLength(1);
+    expect(risks[0]).toMatchObject({ address: OLD, unlocked: 6n, locked: 4n, sbtc: 3n, tokens: {} });
+    expect(atRisk([holdings()], null)).toEqual([]);
+  });
+});
+
+describe('the page', () => {
+  it('cannot be broken out of by a label', () => {
+    const embedded = embedJson({ label: '</script><script>alert(1)</script>' });
+    expect(embedded).not.toContain('</script>');
+    expect(JSON.parse(embedded)).toEqual({ label: '</script><script>alert(1)</script>' });
+  });
+
+  it('carries the whole report, and fetches nothing', () => {
+    const row = { holdings: holdings({ label: 'a </script> label' }), reasons: [], poolName: null };
+    const report = toJson([row], null, 141, new Map(), null, { safe: null, now: 1 }, { since: 0, label: 'since 1970-01-01 00:00 UTC' });
+    const html = renderHtml(report);
+    const json = /<script type="application\/json" id="report">(.*?)<\/script>/s.exec(html)?.[1];
+    expect(JSON.parse(json ?? 'null').addresses[0].label).toBe('a </script> label');
+    expect(html).not.toMatch(/<(script|link)[^>]+(src|href)=/);
+  });
+});
+
+describe('a window from a date', () => {
+  const ME = 'SP2SCBYN5HX4WWPJ60G7SKNXD261M7WG24DSD5TQ';
+  const SEP_29 = Date.parse('2026-09-29T00:00:00Z') / 1000;
+
+  it('reads a bare date as midnight UTC, and refuses anything else', () => {
+    expect(parseSince('2026-09-29')).toBe(SEP_29);
+    expect(parseArgs(['--since', '2026-09-29']).since).toBe(SEP_29);
+    expect(() => parseArgs(['--since', 'last tuesday'])).toThrow(/--since/);
+    expect(() => parseArgs(['--since'])).toThrow(/--since/);
+  });
+
+  it('flags from the date on, however long ago the window would have been', () => {
+    const signedAt = (time: number) => ({
+      txId: '0x1',
+      sender: ME,
+      time,
+      type: 'contract_call',
+      status: 'success',
+      sponsored: false,
+      fee: 1n,
+      call: 'SP1.x.y',
+      transfers: [],
+    });
+    const now = SEP_29 + 3 * 86_400;
+    const reasons = activityAttention(
+      holdings({
+        activity: {
+          // The day before the date, inside 30 days: not flagged.
+          confirmed: [signedAt(SEP_29 + 3600), signedAt(SEP_29 - 3600), signedAt(SEP_29 - 20 * 86_400)],
+          pending: [],
+        },
+      }),
+      thresholds({ activitySince: SEP_29 }),
+      { now, listed: new Map(), tokenMeta: new Map(), safe: null },
+    );
+    expect(reasons.map((r) => r.tag)).toEqual(['signed']);
   });
 });
