@@ -47,6 +47,12 @@ export const REWARD_CURRENCIES: readonly RewardCurrency[] = [
 ];
 
 export function rewardCurrencies(signer: Signer): RewardCurrency[] {
+  // A payout the detectors cannot see, decided by hand with a note saying
+  // why. Ordered like everything else, whatever order it was written in.
+  if (signer.rewardsIn && signer.rewardsIn.length > 0) {
+    const given = new Set(signer.rewardsIn);
+    return REWARD_CURRENCIES.filter((currency) => given.has(currency));
+  }
   const currencies: RewardCurrency[] = [];
   // Only where the contract itself pays to Bitcoin. A contract that just
   // records an address for the pool to pay from is a promise of the pool's,

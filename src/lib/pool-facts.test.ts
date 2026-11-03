@@ -55,12 +55,19 @@ describe('pool facts', () => {
     }
   });
 
-  it('pays every pool in sBTC, and in BTC only where the code does', () => {
-    for (const signer of ALL) {
+  it('pays in sBTC, and in BTC only where the code does', () => {
+    for (const signer of ALL.filter((s) => !s.rewardsIn)) {
       const currencies = rewardCurrencies(signer);
       expect(currencies).toContain('sbtc');
       expect(currencies.includes('btc')).toBe(signer.bitcoinRewards);
     }
+  });
+
+  it('says what a pool pays in where that was decided by hand', () => {
+    // juice-pool-sbtc-signer swaps its sBTC rewards into STX before paying
+    // anybody, whatever its name says.
+    const juice = byId('.juice-pool-sbtc-signer');
+    expect(rewardCurrencies(juice)).toEqual(['stx']);
   });
 });
 

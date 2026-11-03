@@ -28,6 +28,10 @@
   "SP2369QN53586176SYRF4XFGF4E84V0J0EWKRG0ZH.signer-manager": {
     "note": "Nothing but the plumbing words, so there is no name in the contract to read. Say so rather than print 'signer-manager' as if it were a pool's name. slotwatch.dev has no name for this signer key either."
   },
+  "SP32XZ3NC48PVR8SCKZQ0E6R6WDXTV33QMJNVNZWV.signer-manager": {
+    "note": "Reviewed 2026-11-03 from source 112a7e67…: the Capped Fee (max500) design with a sanctions list and fee discounts added. It does pay to Bitcoin, which the detector misses: validate-stake! stores the address through store-payout-config / check-staker rather than check-pox-addr, and payouts go out through sbtc-withdrawal. Remove this once the detector follows a helper one level down, as for max500.",
+    "bitcoinRewards": true
+  },
   "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager": {
     "note": "Run by Stacking DAO, which the contract name does not say. Its fee is taken through .native-pool-v1 rather than here, so the card reads the amounts from that contract instead of pox-5.",
     "displayName": "Native Pool (Stacking Dao)",
@@ -57,6 +61,13 @@
   "SPTYE94YNFECH2R1RQE1NZC5MZYK0RX9GA32T859.signer-manager": {
     "note": "The contract id is all plumbing, so the generator prints 'signer-manager' where a name should be. slotwatch.dev names this signer key Figment-3.",
     "displayName": "Figment-3"
+  },
+  "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-sbtc-signer": {
+    "note": "Reviewed 2026-11-03 from source 08ad5625…: despite the name, stakers are paid in STX. pox-claim-rewards sends the claimed sBTC to a swap vault, finalize-swap records the STX it returns, and pay-stx-stakers pays that out by share; sBTC reaches stakers only on the emergency-recover path. Its earned-fees var is in uSTX, not sats, so the sats reading is left out rather than shown in the wrong unit.",
+    "rewardsIn": [
+      "stx"
+    ],
+    "earnedFeesSats": null
   },
   "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer": {
     "note": "slotwatch.dev names this signer key STX Juice, which is the pool's own word order; the generator reads the contract id the other way round as 'Juice Pool Stx'.",
