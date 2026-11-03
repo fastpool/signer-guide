@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { mapPaced, normaliseApiUrl } from './node.js';
 
 /*
@@ -163,5 +163,47 @@ describe('mapPaced', () => {
     // Not left running behind the error, which would go on asking the node
     // for things after the caller had given up.
     expect(finished).toEqual([2, 3]);
+  });
+});
+
+/*
+ * A refused key, not the chain, was why every refresh failed from 26 October
+ * to 2 November 2026: Hiro answered 4xx and the log said "would not answer".
+ * A key that has stopped working must cost the run its speed, not its data.
+ */
+describe('nodeFetch', () => {
+  it('drops a refused key once and asks again without it', async () => {
+    vi.resetModules();
+    vi.stubEnv('HIRO_API_KEY', 'stale');
+    const seen: (string | undefined)[] = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (_url: string, init: RequestInit) => {
+        const key = (init.headers as Record<string, string>)['x-api-key'];
+        seen.push(key);
+        return new Response('{}', { status: key ? 403 : 200 });
+      }),
+    );
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      const node = await import('./node.js');
+      expect(node.SPACING_MS).toBe(50);
+      expect((await node.nodeFetch('https://api.hiro.so/v2/pox')).status).toBe(
+        200,
+      );
+      expect((await node.nodeFetch('https://api.hiro.so/v2/pox')).status).toBe(
+        200,
+      );
+      expect(seen).toEqual(['stale', undefined, undefined]);
+      expect(warn).toHaveBeenCalledTimes(1);
+      expect(String(warn.mock.calls[0][0])).toMatch(/HTTP 403/);
+      expect(node.SPACING_MS).toBe(300);
+      expect(node.describeNode()).not.toMatch(/API key/);
+    } finally {
+      warn.mockRestore();
+      vi.unstubAllGlobals();
+      vi.unstubAllEnvs();
+      vi.resetModules();
+    }
   });
 });

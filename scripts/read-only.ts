@@ -20,7 +20,7 @@
  */
 
 import { cvToHex, hexToCV, type ClarityValue } from '@stacks/transactions';
-import { API_URL, nodeHeaders, sleep } from './node.js';
+import { API_URL, nodeFetch, sleep } from './node.js';
 
 export { sleep };
 
@@ -45,11 +45,11 @@ export async function callReadOnly(
 
   for (let attempt = 0; ; attempt += 1) {
     try {
-      const response = await fetch(
+      const response = await nodeFetch(
         `${API_URL}/v2/contracts/call-read/${address}/${name}/${functionName}`,
         {
           method: 'POST',
-          headers: nodeHeaders({ 'Content-Type': 'application/json' }),
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             sender: address,
             arguments: args.map((arg) => cvToHex(arg)),
@@ -87,9 +87,8 @@ export async function readDataVar(
 
   for (let attempt = 0; ; attempt += 1) {
     try {
-      const response = await fetch(
+      const response = await nodeFetch(
         `${API_URL}/v2/data_var/${address}/${name}/${varName}?proof=0`,
-        { headers: nodeHeaders() },
       );
       const retryable = response.status === 429 || response.status >= 500;
       if (retryable && attempt < RETRY_DELAYS_MS.length) {
@@ -109,9 +108,7 @@ export async function readDataVar(
 export async function fetchJson<T>(path: string): Promise<T | null> {
   for (let attempt = 0; ; attempt += 1) {
     try {
-      const response = await fetch(`${API_URL}${path}`, {
-        headers: nodeHeaders(),
-      });
+      const response = await nodeFetch(`${API_URL}${path}`);
       const retryable = response.status === 429 || response.status >= 500;
       if (retryable && attempt < RETRY_DELAYS_MS.length) {
         await sleep(RETRY_DELAYS_MS[attempt]);

@@ -463,6 +463,17 @@ export interface SignerCycleSummary {
    */
   walkedUstx: string | null;
   /**
+   * True once the members have been walked with the pox-5 event index merged
+   * into the list of whom to ask. See scripts/pox5-events.ts.
+   *
+   * The generator's business. Before the event index, a past cycle walked from
+   * Hiro's present-tense index was short by everyone who had moved on since,
+   * and `walks` ran out with the list still short. This lets each of those
+   * cycles have one more walk with the better list, whatever `walks` says.
+   * Absent in files written before it existed.
+   */
+  eventsWalked?: boolean;
+  /**
    * True once **this record** is finished: the generator will not read the
    * cycle from the chain again.
    *

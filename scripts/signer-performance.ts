@@ -23,7 +23,7 @@
  */
 
 import type { SignerCyclePerformance } from '../src/lib/types.js';
-import { nodeHeaders, RETRY_DELAYS_MS, sleep } from './node.js';
+import { nodeFetch, RETRY_DELAYS_MS, sleep } from './node.js';
 
 export const METRICS_URL = (
   process.env.SIGNER_METRICS_URL ?? 'https://api.hiro.so'
@@ -110,7 +110,7 @@ export async function fetchCyclePerformance(
   for (let attempt = 0; ; attempt += 1) {
     let response: Response;
     try {
-      response = await fetch(url, { headers: nodeHeaders() });
+      response = await nodeFetch(url);
     } catch {
       return null;
     }

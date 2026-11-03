@@ -8,7 +8,7 @@
  * a caller could mistake for an address holding nothing.
  */
 
-import { nodeHeaders, RETRY_DELAYS_MS, sleep } from './node.js';
+import { nodeFetch, RETRY_DELAYS_MS, sleep } from './node.js';
 
 export interface GetJsonResult<T> {
   /** Null when the API would not answer, including after its retries. */
@@ -20,7 +20,7 @@ export interface GetJsonResult<T> {
 export async function getJson<T>(url: string): Promise<GetJsonResult<T>> {
   for (let attempt = 0; ; attempt += 1) {
     try {
-      const response = await fetch(url, { headers: nodeHeaders() });
+      const response = await nodeFetch(url);
       const retryable = response.status === 429 || response.status >= 500;
       if (retryable && attempt < RETRY_DELAYS_MS.length) {
         await sleep(RETRY_DELAYS_MS[attempt]);

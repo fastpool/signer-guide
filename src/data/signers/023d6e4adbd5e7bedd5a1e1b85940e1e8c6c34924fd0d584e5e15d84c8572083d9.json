@@ -7,13 +7,14 @@
     {
       "cycle": 147,
       "ustx": {
-        "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager": "73631279609456"
+        "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager": "73689650916014"
       },
-      "memberCount": 387,
-      "membersAddUp": false,
-      "walks": 4,
-      "walkedAt": "2026-10-26T06:34:10.659Z",
-      "walkedUstx": "73631279609456",
+      "memberCount": 388,
+      "membersAddUp": true,
+      "walks": 5,
+      "walkedAt": "2026-11-02T22:25:15.000Z",
+      "walkedUstx": "73689650916014",
+      "eventsWalked": true,
       "fileFinal": false,
       "cycleFinal": false
     },
@@ -22,11 +23,12 @@
       "ustx": {
         "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager": "73560495471804"
       },
-      "memberCount": 370,
-      "membersAddUp": false,
-      "walks": 8,
-      "walkedAt": "2026-10-17T11:00:12.349Z",
-      "walkedUstx": "73247692757677",
+      "memberCount": 387,
+      "membersAddUp": true,
+      "walks": 9,
+      "walkedAt": "2026-11-02T22:25:15.000Z",
+      "walkedUstx": "73560495471804",
+      "eventsWalked": true,
       "fileFinal": false,
       "cycleFinal": true
     },
@@ -35,11 +37,12 @@
       "ustx": {
         "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager": "71936453866457"
       },
-      "memberCount": 346,
-      "membersAddUp": false,
-      "walks": 4,
-      "walkedAt": "2026-10-22T22:33:12.023Z",
+      "memberCount": 352,
+      "membersAddUp": true,
+      "walks": 5,
+      "walkedAt": "2026-11-02T22:25:15.000Z",
       "walkedUstx": "71936453866457",
+      "eventsWalked": true,
       "fileFinal": true,
       "cycleFinal": true
     },
@@ -48,11 +51,12 @@
       "ustx": {
         "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager": "71330776833865"
       },
-      "memberCount": 315,
-      "membersAddUp": false,
-      "walks": 8,
-      "walkedAt": "2026-10-01T00:37:09.181Z",
+      "memberCount": 317,
+      "membersAddUp": true,
+      "walks": 9,
+      "walkedAt": "2026-11-02T22:25:15.000Z",
       "walkedUstx": "71330776833865",
+      "eventsWalked": true,
       "fileFinal": true,
       "cycleFinal": true
     },
@@ -97,5 +101,5 @@
     }
   ],
   "currentCycle": 146,
-  "generatedAt": "2026-10-26T14:30:06.802Z"
+  "generatedAt": "2026-11-03T09:57:39.837Z"
 }

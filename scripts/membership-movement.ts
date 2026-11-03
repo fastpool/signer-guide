@@ -80,7 +80,7 @@ import { readMembership, walkSignerMembers } from './members.js';
 import {
   API_URL,
   describeNode,
-  nodeHeaders,
+  nodeFetch,
   sleep,
   SPACING_MS,
 } from './node.js';
@@ -406,9 +406,7 @@ async function readLock(
   principal: string,
 ): Promise<{ locked: bigint; unlockHeight: number } | null> {
   try {
-    const res = await fetch(`${API_URL}/v2/accounts/${principal}?proof=0`, {
-      headers: nodeHeaders(),
-    });
+    const res = await nodeFetch(`${API_URL}/v2/accounts/${principal}?proof=0`);
     if (!res.ok) return null;
     const body = (await res.json()) as {
       locked: string;

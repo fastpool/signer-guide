@@ -12,7 +12,7 @@
  */
 
 import { cvToJSON, hexToCV } from '@stacks/transactions';
-import { API_URL, nodeHeaders, RETRY_DELAYS_MS, sleep } from './node.js';
+import { API_URL, nodeFetch, RETRY_DELAYS_MS, sleep } from './node.js';
 
 export const POX5 = 'SP000000000000000000002Q6VF78.pox-5';
 
@@ -31,11 +31,11 @@ export async function callReadOnly(
 
   for (let attempt = 0; ; attempt += 1) {
     try {
-      const response = await fetch(
+      const response = await nodeFetch(
         `${API_URL}/v2/contracts/call-read/${address}/${name}/${functionName}`,
         {
           method: 'POST',
-          headers: nodeHeaders({ 'Content-Type': 'application/json' }),
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ sender: address, arguments: args }),
         },
       );
@@ -99,9 +99,7 @@ export function tuplePrincipal(tuple: ClarityTuple, field: string): string {
 export async function fetchCurrentCycle(): Promise<number | null> {
   for (let attempt = 0; ; attempt += 1) {
     try {
-      const response = await fetch(`${API_URL}/v2/pox`, {
-        headers: nodeHeaders(),
-      });
+      const response = await nodeFetch(`${API_URL}/v2/pox`);
 
       const retryable = response.status === 429 || response.status >= 500;
       if (retryable && attempt < RETRY_DELAYS_MS.length) {

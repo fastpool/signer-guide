@@ -9,6 +9,9 @@
 #     a figure nobody can recover afterwards.
 #   src/data/bonds.json — what the current and next bond period hold, and who
 #     was invited to them
+#   src/data/pox5-stakers.json — everyone who has ever staked with each
+#     signer, from secondlayer's pox-5 event index, so the member walks know
+#     whom to ask about a past cycle
 #
 # The guide ships both as committed files, so the page is only ever as current
 # as the last run. That is why this runs hourly rather than daily: a pool can
@@ -109,6 +112,7 @@ jobs:
             "$RUNNER_TEMP/previous-signers.json" src/data/signers.json
 
       - name: Read what each pool is looking after
+        id: totals
         # Reads the pools out of the file the step above just wrote, so the
         # two always agree. Allowed to fail: the amounts are the softest thing
         # on the page, the script leaves the last ones in place rather than
@@ -178,6 +182,22 @@ jobs:
           HIRO_API_KEY: ${{ secrets.HIRO_API_KEY }}
         run: pnpm generate:performance
 
+      - name: Read who has ever staked with each signer
+        # From secondlayer's pox-5 event index, read on from the cursor in the
+        # file: a page or two an hour. The walk below asks the chain about
+        # everyone in it as well as everyone in Hiro's list of stakers. Hiro's
+        # list only has people who are with a signer now, so a past cycle
+        # walked from it alone misses everyone who has moved on since. That
+        # left fastpool-max500's cycle 145 six members and 342k STX short.
+        #
+        # Allowed to fail, and optional like HIRO_API_KEY: without SL_API_KEY,
+        # or on a bad hour there, the walk goes on with the file as committed,
+        # or with Hiro's list alone.
+        continue-on-error: true
+        env:
+          SL_API_KEY: ${{ secrets.SL_API_KEY }}
+        run: pnpm generate:events
+
       - name: Read each signer's cycles, and who was in them
         # The data behind the page for one pool: what its signer held each
         # cycle and who held it. Much the most expensive thing here — a member
@@ -198,9 +218,15 @@ jobs:
         # on the site — losing an hour of it should not stop a fee change
         # reaching the page.
         continue-on-error: true
+        #
+        # The current and next cycle's amounts come from totals.json when the
+        # totals step managed to write it this run: the same 126 calls, made a
+        # minute earlier. When it failed, the file is an earlier run's, and
+        # history asks the chain itself rather than file old amounts as now.
         env:
           HIRO_API_KEY: ${{ secrets.HIRO_API_KEY }}
-        run: pnpm generate:history --budget 2000
+          AMOUNTS_FROM_TOTALS: ${{ steps.totals.outcome == 'success' && '--amounts-from-totals' || '' }}
+        run: pnpm generate:history --budget 2000 $AMOUNTS_FROM_TOTALS
 
       - name: Decide whether there is anything worth committing
         id: commit
@@ -214,7 +240,8 @@ jobs:
               src/data/stx-only-calculations.json \
               src/data/stx-only-history.json \
               src/data/signer-nodes.json \
-              src/data/bonds.json; then
+              src/data/bonds.json \
+              src/data/pox5-stakers.json; then
             amounts=false
           else
             amounts=true
@@ -290,7 +317,11 @@ jobs:
           git add src/data/signers.json src/data/totals.json \
             src/data/stx-only-calculations.json \
             src/data/stx-only-history.json \
-            src/data/bonds.json
+            src/data/bonds.json src/data/pox5-stakers.json
+          # A contract read for the first time leaves its source here, so the
+          # next run does not ask for it again. Only ever new files: a
+          # deployed contract cannot change.
+          git add cache/contract-sources/
           git add -A src/data/signers/
           git commit --file "$RUNNER_TEMP/commit-message.txt"
           git push

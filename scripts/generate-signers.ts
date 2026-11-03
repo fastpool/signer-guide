@@ -48,7 +48,7 @@ import {
   serializeContractPrincipal,
   serializeUint,
 } from '../src/lib/clarity.js';
-import { API_URL, describeNode, nodeHeaders, SPACING_MS } from './node.js';
+import { API_URL, describeNode, nodeFetch, SPACING_MS } from './node.js';
 import { callReadOnly as callPox5 } from './pox5.js';
 import {
   clarinetVersion,
@@ -68,6 +68,22 @@ const OUTPUT = path.join(
   'src',
   'data',
   'signers.json',
+);
+
+/*
+ * Every contract source this has read, one file per sha256 of the source.
+ *
+ * A deployed contract cannot change, so its source only needs asking for
+ * once. Before this, every run asked for all of them again: 63 requests, the
+ * largest answers in the run, for sixteen distinct texts that cannot have
+ * moved. Committed rather than kept in the Actions cache, so a local run
+ * benefits too and the hashes on the page can be checked against the text.
+ */
+export const SOURCES = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '..',
+  'cache',
+  'contract-sources',
 );
 
 const ROTATIONS = path.join(
@@ -131,17 +147,20 @@ async function getJson<T>(
 ): Promise<T | null> {
   for (let attempt = 0; attempt < attempts; attempt += 1) {
     try {
-      const response = await fetch(url, {
+      const response = await nodeFetch(url, {
         ...init,
-        headers: nodeHeaders(
-          init.body ? { 'Content-Type': 'application/json' } : {},
-        ),
+        headers: init.body ? { 'Content-Type': 'application/json' } : {},
         signal: AbortSignal.timeout(30_000),
       });
       if (response.ok) return (await response.json()) as T;
       if (response.status === 429 || response.status >= 500) {
         await sleep(5_000 * (attempt + 1));
         continue;
+      }
+      // Said by status, so "would not answer" below can be told apart from
+      // "answered no". Until this was here, a refused key read as an outage.
+      if (response.status !== 404) {
+        console.error(`  HTTP ${response.status} from ${url}`);
       }
       return null;
     } catch {
@@ -197,6 +216,58 @@ async function fetchSource(contractId: string): Promise<string | null> {
     `${API_URL}/v2/contracts/source/${address}/${name}?proof=0`,
   );
   return result?.source ?? null;
+}
+
+/**
+ * The cached text for this hash, or null when there is none or it does not
+ * hash to what its name says. A file that fails the check is ignored, never
+ * trusted. A checkout that rewrote its line endings must not turn into
+ * different code on the page.
+ */
+export async function readCachedSource(
+  sourceSha256: string,
+  dir = SOURCES,
+): Promise<string | null> {
+  if (!/^[0-9a-f]{64}$/.test(sourceSha256)) return null;
+  let text: string;
+  try {
+    text = fs.readFileSync(path.join(dir, `${sourceSha256}.clar`), 'utf8');
+  } catch {
+    return null;
+  }
+  return (await claritySourceSha256(text)) === sourceSha256 ? text : null;
+}
+
+/** Keep a source for next time, under its own hash. */
+export async function cacheSource(source: string, dir = SOURCES): Promise<void> {
+  const sha = await claritySourceSha256(source);
+  const file = path.join(dir, `${sha}.clar`);
+  if (fs.existsSync(file)) return;
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(file, source);
+}
+
+/**
+ * A contract's source: from the cache when the committed file says which
+ * text it is, from the node otherwise. The second answer is cached.
+ */
+async function sourceFor(
+  contractId: string,
+  knownSha256: string | undefined,
+  counts: { cached: number; fetched: number },
+): Promise<string | null> {
+  if (knownSha256) {
+    const cached = await readCachedSource(knownSha256);
+    if (cached !== null) {
+      counts.cached += 1;
+      return cached;
+    }
+  }
+  const source = await fetchSource(contractId);
+  if (source === null) return null;
+  counts.fetched += 1;
+  await cacheSource(source);
+  return source;
 }
 
 /**
@@ -579,8 +650,20 @@ async function main() {
   const signers: Signer[] = [];
   const unmatched: string[] = [];
 
+  const knownSources = new Map<string, string>(
+    (committed?.signers ?? []).map((signer) => [
+      signer.contractId,
+      signer.sourceSha256,
+    ]),
+  );
+  const sourceCounts = { cached: 0, fetched: 0 };
+
   for (const [contractId, signerKey] of registered) {
-    const source = await fetchSource(contractId);
+    const source = await sourceFor(
+      contractId,
+      knownSources.get(contractId),
+      sourceCounts,
+    );
     if (!source) {
       console.log(`  ! could not read source of ${contractId}`);
       continue;
@@ -668,6 +751,11 @@ async function main() {
 
     await sleep(SPACING_MS);
   }
+
+  console.log(
+    `  sources: ${sourceCounts.cached} from cache/contract-sources,` +
+      ` ${sourceCounts.fetched} asked for`,
+  );
 
   signers.sort((a, b) => a.contractId.localeCompare(b.contractId));
 
