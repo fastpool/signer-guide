@@ -48,6 +48,11 @@
       "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
     },
     {
+      "staker": "SP3A4CP63QJB1R0EJR3TJ1PN16FC5HVJSPT77C8C0",
+      "ustx": "42025933179",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-sbtc-signer"
+    },
+    {
       "staker": "SP28MP1HQDJWQAFSQJN2HBAXBVP7H7THD1W2NYZVK.persevere-safe",
       "ustx": "21450000000",
       "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
@@ -73,6 +78,11 @@
       "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
     },
     {
+      "staker": "SP28MP1HQDJWQAFSQJN2HBAXBVP7H7THD1W2NYZVK.deorg-staking-stx-ac-safe",
+      "ustx": "8000000100",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-sbtc-signer"
+    },
+    {
       "staker": "SPZ2X7Q0Z69KTN7SZF90MR9AZGZ2ETXFGMFXKKN8",
       "ustx": "7098931945",
       "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
@@ -89,8 +99,13 @@
     },
     {
       "staker": "SP4FWJSAFVCRX1R2C6K6BYJ2N2PK6JSY8THWEJ3T",
-      "ustx": "4039669702",
+      "ustx": "4155674208",
       "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SP1ENQJZBQ6SK4XJZCRW2BZFE87WEPJ64W9KP4VWF",
+      "ustx": "3210000000",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-sbtc-signer"
     },
     {
       "staker": "SPV00QHST52GD7D0SEWV3R5N04RD4Q1PMA3TE2MP",
@@ -128,6 +143,11 @@
       "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
     },
     {
+      "staker": "SP1JAG6TV2XRYFGJN7CAAN6Z3CEW2YMZWMHJAJV91",
+      "ustx": "290373791",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-sbtc-signer"
+    },
+    {
       "staker": "SM3EQ9BJHDEQN982YFZCRKY0WVYY64H8VR5FYQAFQ",
       "ustx": "283000000",
       "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
@@ -146,6 +166,11 @@
       "staker": "SP28MP1HQDJWQAFSQJN2HBAXBVP7H7THD1W2NYZVK.blueocean-2000-wallet",
       "ustx": "199950000",
       "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer"
+    },
+    {
+      "staker": "SPZSQNQF9SM88N00K4XYV05ZAZRACC748T78P5P3",
+      "ustx": "191043652",
+      "contractId": "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-sbtc-signer"
     },
     {
       "staker": "SP781P5F0AR41A7H5AD4P8ZVVBM6D8H5TYNJHPCK",
