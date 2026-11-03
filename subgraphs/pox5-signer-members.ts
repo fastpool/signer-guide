@@ -21,7 +21,7 @@
  *   (cd subgraphs && pnpm install --ignore-workspace)   # once: the CLI imports
  *                                                       # @secondlayer/subgraphs
  *   export SECONDLAYER_API_URL=https://api.secondlayer.tools
- *   export SECONDLAYER_API_KEY=…                         # SL_API_KEY in .env
+ *   export SECONDLAYER_API_KEY=…                         # as in .env
  *   secondlayer subgraphs test subgraphs/pox5-signer-members.ts --from 9040000 --to 9050000
  *   secondlayer subgraphs deploy subgraphs/pox5-signer-members.ts
  *

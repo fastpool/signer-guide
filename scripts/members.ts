@@ -20,12 +20,13 @@
  *    this cycle, which signer are they with and for how much. This is what
  *    membership actually means.
  *
- *  - `src/data/pox5-stakers.json` — everyone secondlayer's pox-5 event index
- *    has ever seen stake with a contract, kept by `scripts/pox5-events.ts`.
- *    It doesn't forget, so it covers the people Hiro's index has dropped:
- *    fastpool-max500's cycle 145 was six members and 342k STX short without
- *    it. Merged into Hiro's list rather than replacing it, so a stale or
- *    missing file costs nothing that worked before.
+ *  - `cache/pox5-events/` — every pox-5 print that changed who is with which
+ *    signer, kept by `scripts/pox5-events.ts`. It doesn't forget, so it
+ *    covers the people Hiro's index has dropped: fastpool-max500's cycle 145
+ *    was six members and 342k STX short without it. Merged into Hiro's list
+ *    rather than replacing it, so a stale or missing copy costs nothing that
+ *    worked before. Most cycles never get here: `generate:history` rebuilds
+ *    their lists from the same copy and only walks the ones it cannot settle.
  *
  * The index says who to ask about and the chain says what is true. Neither
  * failure is allowed to look like an answer: a page the index would not hand
