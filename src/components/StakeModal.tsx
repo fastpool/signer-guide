@@ -245,9 +245,12 @@ function Step({
 export default function StakeModal({
   signer,
   locale,
+  compact = false,
 }: {
   signer: Signer;
   locale: Locale;
+  /** The short "Stake" that fits a table row, rather than "Stake with wallet". */
+  compact?: boolean;
 }) {
   const t = translator(locale);
   const titleId = useId();
@@ -972,9 +975,11 @@ export default function StakeModal({
       <button
         type='button'
         onClick={() => setOpen(true)}
-        className='rounded-full bg-grape px-4 py-2 text-sm font-semibold text-on-grape transition-colors hover:bg-grape/90'
+        className={`rounded-full bg-grape font-semibold whitespace-nowrap text-on-grape transition-colors hover:bg-grape/90 ${
+          compact ? 'px-3 py-1.5 text-xs' : 'px-4 py-2 text-sm'
+        }`}
       >
-        {t('stake.open')}
+        {compact ? t('stake.openShort') : t('stake.open')}
       </button>
 
       {open && (

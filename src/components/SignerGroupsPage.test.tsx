@@ -34,7 +34,7 @@ const html = () =>
       signers={all}
       totals={locked}
       locale='en'
-      onLocaleChange={() => {}}
+     
     />,
   );
 

@@ -149,3 +149,25 @@ export function sumUstx(
   }
   return known ? total : null;
 }
+
+/**
+ * "89M STX", "8,900만 STX", "12K STX" — the short form for a table cell, where
+ * "89 million STX" does not fit beside eight other columns.
+ *
+ * Null for an amount that could not be read, so the cell can say so in its
+ * own way ("—" with the reason on hover) rather than with a sentence.
+ */
+export function stxCompact(
+  ustx: string | bigint | null | undefined,
+  locale: Locale = 'en',
+): string | null {
+  if (ustx === null || ustx === undefined) return null;
+  const stx = toStx(ustx);
+  const t = translator(locale);
+  const value = new Intl.NumberFormat(t.bundle.intlLocale, {
+    notation: 'compact',
+    maximumFractionDigits: stx >= 1_000 && stx < 10_000_000 ? 1 : 0,
+  }).format(stx);
+  // British English writes "89m"; a capital reads as the unit it is.
+  return `${value.replace(/(\d)([kmbt])$/, (_, d: string, u: string) => d + u.toUpperCase())} STX`;
+}

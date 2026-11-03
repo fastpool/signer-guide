@@ -1,3 +1,4 @@
+import { Breadcrumbs, Page } from './ui';
 import { stxLabel } from '../lib/amounts';
 import { translator, type Locale } from '../lib/i18n';
 import { groupHref, groupsHref, signerHref } from '../lib/route';
@@ -15,7 +16,6 @@ import { performanceFor } from '../lib/performance-data';
 import { votingPowerBips } from '../lib/signer-nodes';
 import type { LockedTotals, Signer } from '../lib/types';
 import Identicon from './Identicon';
-import LocaleSwitch from './LocaleSwitch';
 import PoolName from './PoolName';
 
 /**
@@ -37,13 +37,11 @@ export default function SignerGroupPage({
   signers,
   totals,
   locale,
-  onLocaleChange,
 }: {
   group: SignerGroup;
   signers: Signer[];
   totals: LockedTotals;
   locale: Locale;
-  onLocaleChange: (locale: Locale) => void;
 }) {
   const t = translator(locale);
   const nodes = groupNodes(group, signers);
@@ -62,16 +60,13 @@ export default function SignerGroupPage({
     group.members.some((member) => member.signerKey === signerKey);
 
   return (
-    <main className='mx-auto max-w-3xl px-5 py-12 md:py-20'>
-      <div className='flex flex-wrap items-center justify-between gap-3'>
-        <a
-          href='#/'
-          className='text-sm font-semibold text-grape underline underline-offset-2'
-        >
-          {t('group.back')}
-        </a>
-        <LocaleSwitch locale={locale} onChange={onLocaleChange} />
-      </div>
+    <Page>
+      <Breadcrumbs
+        items={[
+          { label: t('nav.groups'), href: groupsHref() },
+          { label: group.name },
+        ]}
+      />
 
       <h1 className='mt-6 text-4xl font-extrabold md:text-5xl'>
         {group.name}
@@ -266,6 +261,6 @@ export default function SignerGroupPage({
             </a>
           ))}
       </nav>
-    </main>
+    </Page>
   );
 }

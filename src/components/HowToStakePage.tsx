@@ -1,8 +1,8 @@
+import { Breadcrumbs, Page } from './ui';
 import type { ReactNode } from 'react';
 import { translator, type Locale } from '../lib/i18n';
 import { statusHref } from '../lib/route';
 import { SBTC_POOLS } from '../lib/sbtc-pools';
-import LocaleSwitch from './LocaleSwitch';
 
 /**
  * Staking, in three steps, for somebody who has not done it.
@@ -21,24 +21,16 @@ import LocaleSwitch from './LocaleSwitch';
  */
 export default function HowToStakePage({
   locale,
-  onLocaleChange,
 }: {
   locale: Locale;
-  onLocaleChange: (locale: Locale) => void;
 }) {
   const t = translator(locale);
 
   return (
-    <main className='mx-auto max-w-3xl px-5 py-12 md:py-20'>
-      <div className='flex flex-wrap items-center justify-between gap-3'>
-        <a
-          href='#/'
-          className='text-sm font-semibold text-grape underline underline-offset-2'
-        >
-          {t('howTo.back')}
-        </a>
-        <LocaleSwitch locale={locale} onChange={onLocaleChange} />
-      </div>
+    <Page>
+      <Breadcrumbs
+        items={[{ label: t('nav.pools'), href: '#/' }, { label: t('nav.howTo') }]}
+      />
 
       <h1 className='mt-6 text-3xl font-extrabold md:text-4xl'>
         {t('howTo.title')}
@@ -118,7 +110,7 @@ export default function HowToStakePage({
 
         <p className='mt-4 text-sm text-muted'>{t('howTo.sbtc.poolsNote')}</p>
       </section>
-    </main>
+    </Page>
   );
 }
 

@@ -8,6 +8,8 @@ import { isLookupTarget } from './principals';
  *   #/how-to                 staking in three steps, for somebody who has
  *                            not done it — the one page here that assumes
  *                            nothing
+ *   #/contracts              every contract type, side by side — the tiles
+ *                            that used to sit above the pool list
  *   #/contract/<profileId>   one signer contract — the code, and every pool
  *                            running it
  *   #/signer/<contractId>    one deployed pool: its signer key, the sibling
@@ -36,6 +38,7 @@ import { isLookupTarget } from './principals';
 export type Route =
   | { name: 'list' }
   | { name: 'howTo' }
+  | { name: 'contracts' }
   | { name: 'contract'; profileId: string }
   | { name: 'signer'; contractId: string }
   | { name: 'groups' }
@@ -60,6 +63,9 @@ function decode(value: string): string | null {
 export function parseHash(hash: string): Route {
   if (hash === '#/how-to' || hash === '#/how-to/') return { name: 'howTo' };
   if (hash === '#/bonds' || hash === '#/bonds/') return { name: 'bonds' };
+  if (hash === '#/contracts' || hash === '#/contracts/') {
+    return { name: 'contracts' };
+  }
 
   // Before the estimate, which is a prefix of it.
   if (hash === '#/rewards/stx-only/history') return { name: 'stxOnlyHistory' };
@@ -137,6 +143,11 @@ export function parseHash(hash: string): Route {
 /** A link to the three-step explanation of staking. */
 export function howToHref(): string {
   return '#/how-to';
+}
+
+/** A link to every contract type, side by side. */
+export function contractsHref(): string {
+  return '#/contracts';
 }
 
 export function contractHref(profileId: string): string {

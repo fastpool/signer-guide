@@ -32,6 +32,13 @@
   --color-mint-soft: #e3f3ec;
   --color-amber-warm: #8a5a2b;
   --color-amber-soft: #fbeedd;
+  /*
+   * The one hue that means "this is bad for you": a fee that keeps the
+   * reward, a ceiling that is not there. Used sparingly — amber is caution,
+   * this is a warning — or it stops meaning anything.
+   */
+  --color-rose: #a23b3b;
+  --color-rose-soft: #f8e4e2;
 
   /* Surface roles. */
   --color-surface: #fdf8f3;
@@ -96,6 +103,8 @@
     --color-mint-soft: rgba(92, 199, 154, 0.14);
     --color-amber-warm: #e2a15c;
     --color-amber-soft: rgba(226, 161, 92, 0.14);
+    --color-rose: #ef8a80;
+    --color-rose-soft: rgba(239, 138, 128, 0.14);
 
     --color-surface: #17141f;
     --color-card: #1f1b2b;

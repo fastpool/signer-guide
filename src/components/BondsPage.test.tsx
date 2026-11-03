@@ -94,7 +94,7 @@ const { default: BondsPage } = await import('./BondsPage');
 describe('the bonds as a reader sees them', () => {
   const html = () =>
     renderToStaticMarkup(
-      <BondsPage signers={SIGNERS} locale='en' onLocaleChange={() => {}} />,
+      <BondsPage signers={SIGNERS} locale='en' />,
     );
 
   it('names both periods and the cycles they cover', () => {

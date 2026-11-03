@@ -29,7 +29,7 @@ const render = (principals: string[]) =>
       principals={principals}
       signers={ALL}
       locale='en'
-      onLocaleChange={() => {}}
+     
     />,
   );
 

@@ -18,7 +18,7 @@ beforeEach(() => {
 });
 
 const html = () =>
-  renderToStaticMarkup(<HowToStakePage locale='en' onLocaleChange={() => {}} />);
+  renderToStaticMarkup(<HowToStakePage locale='en' />);
 
 describe('staking in three steps', () => {
   const t = translator('en');

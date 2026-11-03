@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { translator, type Locale } from '../lib/i18n';
+import { formatLastUpdate, translator, type Locale } from '../lib/i18n';
 import { lastRotation, replacedKey } from '../lib/key-rotations';
 import {
   acceptedRate,
@@ -16,6 +16,7 @@ import {
   PERFORMANCE,
 } from '../lib/performance-data';
 import type { Signer, SignerCyclePerformance } from '../lib/types';
+import { Card, InfoTip } from './ui';
 
 /**
  * Whether the signer behind this pool actually answers the miners.
@@ -41,9 +42,15 @@ import type { Signer, SignerCyclePerformance } from '../lib/types';
  */
 export default function SignerConductSection({
   signer,
+  currentCycle,
   locale,
 }: {
   signer: Signer;
+  /**
+   * The cycle the chain is in. When the report on file is for an older one,
+   * "nothing on file" is about the report, not the signer, and says so.
+   */
+  currentCycle?: number;
   locale: Locale;
 }) {
   const t = translator(locale);
@@ -62,12 +69,18 @@ export default function SignerConductSection({
   const abandoned = rotation ? performanceFor(rotation.from) : null;
 
   return (
-    <section className='mt-10 rounded-3xl bg-card p-6 shadow-lift'>
-      <h2 className='text-lg font-bold'>{t('conduct.title')}</h2>
-      <p className='mt-1 text-sm text-muted'>{t('conduct.intro')}</p>
+    <Card
+      id='signing'
+      title={t('conduct.title')}
+      caption={
+        <>
+          {t('conduct.caption')} <InfoTip text={t('conduct.intro')} />
+        </>
+      }
+    >
 
       {rotation && (
-        <p className='mt-4 rounded-2xl bg-grape-soft/40 p-4 text-sm text-ink'>
+        <p className='mb-3 rounded-xl bg-grape-soft/40 p-3 text-sm text-ink'>
           {t('conduct.rotated', {
             when: rotation.observedAt.slice(0, 10),
             cycle: rotation.cycle ?? '—',
@@ -76,7 +89,25 @@ export default function SignerConductSection({
       )}
 
       {row === null && abandoned === null ? (
-        <p className='mt-4 text-sm text-muted'>{t('conduct.none')}</p>
+        /*
+         * Two different absences. A report older than the cycle the chain is
+         * in has simply not been read again — the page once told readers a
+         * signer holding half a percent of the vote had "never held a seat",
+         * because the report on file was two months old. Only a current
+         * report with no row in it says anything about the signer.
+         */
+        currentCycle !== undefined && PERFORMANCE.cycle < currentCycle ? (
+          <p className='rounded-xl bg-card-raised p-3 text-sm text-muted'>
+            <strong className='text-ink'>
+              {t('conduct.staleTitle', {
+                at: formatLastUpdate(PERFORMANCE.generatedAt, locale),
+              })}
+            </strong>{' '}
+            {t('conduct.staleBody', { cycle: PERFORMANCE.cycle })}
+          </p>
+        ) : (
+          <p className='text-sm text-muted'>{t('conduct.none')}</p>
+        )
       ) : (
         <Cycle
           row={row ?? abandoned!}
@@ -118,7 +149,7 @@ export default function SignerConductSection({
           )}
         </div>
       )}
-    </section>
+    </Card>
   );
 }
 
@@ -143,7 +174,7 @@ function Cycle({
 
   if (neverAnswered(row)) {
     return (
-      <div className='mt-4'>
+      <div>
         <p className='text-2xl font-extrabold text-ink'>
           {t('conduct.neverAnswered')}
         </p>
@@ -161,7 +192,7 @@ function Cycle({
   }
 
   return (
-    <div className='mt-4'>
+    <div>
       <p className='text-3xl font-extrabold text-ink'>
         {rate === null
           ? t('conduct.unknown')
