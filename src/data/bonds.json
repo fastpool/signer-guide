@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-10-26T14:29:14.121Z",
+  "generatedAt": "2026-11-03T13:19:40.132Z",
   "cycle": 146,
-  "burnHeight": 973247,
+  "burnHeight": 974389,
   "firstBondPeriodCycle": 141,
   "gapCycles": 2,
   "lengthCycles": 12,
@@ -17,7 +17,7 @@
     "stxValueRatio": "267384",
     "minUstxRatio": 500,
     "allowlistedSats": "50510000000",
-    "registeredSats": "50510000000",
+    "registeredSats": "50509730314",
     "allowlistComplete": true,
     "stakers": [
       {
@@ -31,7 +31,7 @@
       {
         "staker": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.sbtc-bond-staker-v1-2",
         "maxSats": "2200000000",
-        "registeredSats": "2200000000",
+        "registeredSats": "2199730314",
         "amountUstx": "294122400045",
         "isL1Lock": false,
         "signer": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-3"
@@ -53,13 +53,118 @@
     "startBurnHeight": 974750,
     "started": false,
     "registrationClosed": false,
-    "setUp": false,
-    "targetRate": null,
-    "stxValueRatio": null,
-    "minUstxRatio": null,
-    "allowlistedSats": "0",
-    "registeredSats": "0",
+    "setUp": true,
+    "targetRate": 300,
+    "stxValueRatio": "275260",
+    "minUstxRatio": 500,
+    "allowlistedSats": "100511350000",
+    "registeredSats": "51000000",
     "allowlistComplete": true,
-    "stakers": []
+    "stakers": [
+      {
+        "staker": "SM2K48XNZ7ZSRVKKEMTMTXZ0VAJ2W3XZQF7Q9R6C1",
+        "maxSats": "69950050000",
+        "registeredSats": "0",
+        "amountUstx": null,
+        "isL1Lock": null,
+        "signer": null
+      },
+      {
+        "staker": "SM3KXCBRKNG6269PXCFVR4JVN2EA4SJCGTHW7ZCWC",
+        "maxSats": "25000000000",
+        "registeredSats": "0",
+        "amountUstx": null,
+        "isL1Lock": null,
+        "signer": null
+      },
+      {
+        "staker": "SM2G09GHGGW4WS2PSAET0BNJE4MMK871DNKP37KXX",
+        "maxSats": "5000000000",
+        "registeredSats": "0",
+        "amountUstx": null,
+        "isL1Lock": null,
+        "signer": null
+      },
+      {
+        "staker": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.sbtc-bond-staker-v1-3",
+        "maxSats": "500000000",
+        "registeredSats": "0",
+        "amountUstx": null,
+        "isL1Lock": null,
+        "signer": null
+      },
+      {
+        "staker": "SMTWAPKRSWQQ80Q9DMZNK2FA9YBXDB5XSF0BEWMY",
+        "maxSats": "50050000",
+        "registeredSats": "49950000",
+        "amountUstx": "6890000000",
+        "isL1Lock": true,
+        "signer": "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs"
+      },
+      {
+        "staker": "SMHWF7JKWTDBTHC44TCDVVM3AWHKPNPZAANRQDWX",
+        "maxSats": "10000000",
+        "registeredSats": "0",
+        "amountUstx": null,
+        "isL1Lock": null,
+        "signer": null
+      },
+      {
+        "staker": "SM1KTCJ9BS2BD00RPWGD7SXR9P2K312RK8FWNKT9M",
+        "maxSats": "500000",
+        "registeredSats": "500000",
+        "amountUstx": "100000000",
+        "isL1Lock": true,
+        "signer": "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs"
+      },
+      {
+        "staker": "SM1TDB705ZD2HTP98ZVRPGKH4RWSZ8D0RCWM75J7Z",
+        "maxSats": "500000",
+        "registeredSats": "500000",
+        "amountUstx": "100000000",
+        "isL1Lock": true,
+        "signer": "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs"
+      },
+      {
+        "staker": "SM1W3KT1CD969BHPS3CCHZATMJHYPTZXJRA76RATX",
+        "maxSats": "50000",
+        "registeredSats": "0",
+        "amountUstx": null,
+        "isL1Lock": null,
+        "signer": null
+      },
+      {
+        "staker": "SM2J0Z9C4QW5X4DXBAPECM838Z04CJ0JW4WCTYHCB",
+        "maxSats": "50000",
+        "registeredSats": "0",
+        "amountUstx": null,
+        "isL1Lock": null,
+        "signer": null
+      },
+      {
+        "staker": "SM36N7NE5R4YV7G1PQF3GQPZEZ56M02CMVJJT7XRP",
+        "maxSats": "50000",
+        "registeredSats": "50000",
+        "amountUstx": "8000000",
+        "isL1Lock": true,
+        "signer": "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs"
+      },
+      {
+        "staker": "SM4EGRH1P6JCHJ6MQ2B87T2YMV7RHPVZWDNWHBDN",
+        "maxSats": "50000",
+        "registeredSats": "0",
+        "amountUstx": null,
+        "isL1Lock": null,
+        "signer": null
+      },
+      {
+        "staker": "SMDWNBMV74B17R2981PN6DWYYZENQD6NM7P84C2G",
+        "maxSats": "50000",
+        "registeredSats": "0",
+        "amountUstx": null,
+        "isL1Lock": null,
+        "signer": null
+      }
+    ]
   }
 }

@@ -234,7 +234,7 @@
     },
     {
       "staker": "SP2N718HM783CA5W6DH1V3B1DSPNE1YWT9CNHT9S0",
-      "ustx": "92080000000",
+      "ustx": "95560000000",
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-3"
     },
     {
@@ -1295,11 +1295,6 @@
     {
       "staker": "SP2WY97ZTQZYARHGXS71Y6QBTAEKK365NFAG3PFRP",
       "ustx": "7350000000",
-      "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-3"
-    },
-    {
-      "staker": "SP20EXY8BYY6507D761JQGT8RT5Y259ASC9QSEESF",
-      "ustx": "7325500000",
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-3"
     },
     {

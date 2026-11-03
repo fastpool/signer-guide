@@ -14,10 +14,10 @@
       "walks": 1,
       "walkedAt": "2026-10-22T22:33:12.023Z",
       "walkedUstx": "89272590000000",
-      "fileFinal": false,
-      "cycleFinal": false,
       "eventsWalked": true,
-      "membersFrom": "events"
+      "membersFrom": "events",
+      "fileFinal": false,
+      "cycleFinal": false
     },
     {
       "cycle": 146,
@@ -29,10 +29,10 @@
       "walks": 1,
       "walkedAt": "2026-10-09T02:23:09.273Z",
       "walkedUstx": "89272590000000",
-      "fileFinal": false,
-      "cycleFinal": true,
       "eventsWalked": true,
-      "membersFrom": "events"
+      "membersFrom": "events",
+      "fileFinal": false,
+      "cycleFinal": true
     },
     {
       "cycle": 145,
@@ -44,10 +44,10 @@
       "walks": 1,
       "walkedAt": "2026-10-01T00:37:09.181Z",
       "walkedUstx": "89272590000000",
-      "fileFinal": true,
-      "cycleFinal": true,
       "eventsWalked": true,
-      "membersFrom": "events"
+      "membersFrom": "events",
+      "fileFinal": true,
+      "cycleFinal": true
     },
     {
       "cycle": 144,
@@ -59,10 +59,10 @@
       "walks": 1,
       "walkedAt": "2026-09-13T13:03:33.335Z",
       "walkedUstx": "85815090000000",
-      "fileFinal": true,
-      "cycleFinal": true,
       "eventsWalked": true,
-      "membersFrom": "events"
+      "membersFrom": "events",
+      "fileFinal": true,
+      "cycleFinal": true
     },
     {
       "cycle": 143,
@@ -74,10 +74,10 @@
       "walks": 3,
       "walkedAt": "2026-09-09T16:45:10.625Z",
       "walkedUstx": "85815090000000",
-      "fileFinal": true,
-      "cycleFinal": true,
       "eventsWalked": true,
-      "membersFrom": "events"
+      "membersFrom": "events",
+      "fileFinal": true,
+      "cycleFinal": true
     },
     {
       "cycle": 142,
@@ -89,10 +89,10 @@
       "walks": 4,
       "walkedAt": "2026-08-25T21:48:01.968Z",
       "walkedUstx": "82681580000000",
-      "fileFinal": true,
-      "cycleFinal": true,
       "eventsWalked": true,
-      "membersFrom": "events"
+      "membersFrom": "events",
+      "fileFinal": true,
+      "cycleFinal": true
     },
     {
       "cycle": 141,
@@ -104,12 +104,12 @@
       "walks": 2,
       "walkedAt": "2026-08-14T21:29:04.389Z",
       "walkedUstx": "34999900000000",
-      "fileFinal": true,
-      "cycleFinal": true,
       "eventsWalked": true,
-      "membersFrom": "events"
+      "membersFrom": "events",
+      "fileFinal": true,
+      "cycleFinal": true
     }
   ],
   "currentCycle": 146,
-  "generatedAt": "2026-11-03T11:11:03.352Z"
+  "generatedAt": "2026-11-03T13:19:51.473Z"
 }
