@@ -1,0 +1,11 @@
+# Installed on its own (pnpm install --ignore-workspace), so the guide's own
+# install never pulls in the secondlayer packages.
+allowBuilds:
+  # The binary comes as an optional dependency; the build script is not needed.
+  esbuild: false
+# pnpm added these because both were published less than a day before the
+# install (3 November 2026). They are the versions @secondlayer/cli 23.2.1
+# itself runs.
+minimumReleaseAgeExclude:
+  - '@secondlayer/shared@15.0.0'
+  - '@secondlayer/subgraphs@8.0.1'
