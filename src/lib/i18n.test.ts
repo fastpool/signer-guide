@@ -81,6 +81,11 @@ describe('the language files', () => {
       'currency.btc',
       'currency.sbtc',
       'currency.stx',
+      // A symbol and a figure: "≈ $163M", "STX $0.33 · BTC $77,579".
+      'amount.usdAbout',
+      'timing.prices',
+      // "147: 89M ·" — a cycle number and an amount.
+      'pools.nextInline',
     ]);
     const untranslated = Object.keys(BUNDLES.en.messages).filter((key) => {
       const messages = BUNDLES.ko.messages as Record<string, string>;

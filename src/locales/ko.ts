@@ -879,6 +879,55 @@ export const ko: LocaleBundle = {
     'pools.feeElsewhere':
       '이 컨트랙트에 수수료가 없습니다. 다른 곳에서 부과될 수 있습니다',
     'pools.feeElsewhereShort': '별도 설정',
+    'pools.nextInline': '{cycle}: {amount} ·',
+    'pools.nextInlineHelp':
+      '사이클 {cycle}에 현재까지 스테이킹된 금액과 이번 사이클 대비 변화',
+    'amount.usdAbout': '≈ {usd}',
+    'pools.sort.yield': '수수료 차감 후 수익률',
+    'pools.col.yield': '수수료 차감 후 수익률',
+    'pools.yieldHelp':
+      '오늘의 STX 전용 보상률과 오늘의 수수료로 계산한, 스테이킹한 STX 대비 1년 동안 받는 sBTC입니다. STX 전용 풀은 수수료 전에는 모두 같은 보상률을 받으므로, 이 수치는 수수료를 실제로 받는 몫으로 나타낸 것입니다.',
+    'pools.yieldUnknown': '마지막 갱신에 보상률이나 STX 가격이 없었습니다',
+    'pools.bondHelp':
+      '이 서명자는 BTC 본드를 보유하고 있어 STX 전용 보상률에 더해 보상의 일부를 받습니다. 그 몫은 여기에 포함되지 않습니다.',
+    'pools.bondPlus': '+ 본드 몫',
+    'pools.phone.yield': '연 {percent}',
+    'pool.fact.feeYield': '수수료 차감 후 연 약 {percent}%',
+    'pool.fact.nextCloses': '{countdown} 후 마감',
+    'pool.earned.whereNow': '지금 sBTC가 있는 곳',
+    'pool.earned.yield': '수수료 차감 후 수익률',
+    'pool.earned.yieldHelp':
+      '오늘의 STX 전용 보상률, 오늘의 수수료, 오늘의 STX 가격으로 계산한 1년 수익입니다. 보상률은 지급마다 바뀌므로 약속이 아닌 참고치입니다.',
+    'pool.earned.yieldNote': '연간, 오늘의 보상률과 {fee} 수수료 기준',
+    'pool.earned.total': '사이클 {cycle} 이후 획득',
+    'pool.earned.totalPlain': '획득',
+    'pool.earned.how':
+      '각 사이클에 이 컨트랙트가 보유한 금액과 그 사이클의 pox-5 STX당 보상으로 계산했습니다. 이 보상은 모든 STX 전용 지분에 같습니다. 오늘의 수수료만 기록되어 있으므로 풀 수수료 차감 전 금액입니다.',
+    'pool.earned.beforeFee': '수수료 차감 전',
+    'pool.earned.unavailable': '사이클 기록을 불러오지 못했습니다.',
+    'pool.earned.none':
+      '아직 획득한 보상이 없습니다. 이 컨트랙트에 스테이킹이 있던 사이클에 대한 pox-5 지급이 아직 없습니다.',
+    'pool.earned.colEarned': '획득',
+    'pool.earned.colKept': '{fee} 수수료 차감 후',
+    'pool.earned.soFar': '현재까지',
+    'timing.label': '보상 사이클',
+    'timing.prices': 'STX {stx} · BTC {btc}',
+    'timing.pricesHelp':
+      '마지막 갱신 시점의 CoinGecko 가격입니다. 보상은 sBTC로, 스테이킹은 STX로 이루어지며 달러는 규모를 가늠하기 위한 것입니다.',
+    'timing.closes': '사이클 {next} 스테이킹이 {countdown} 후 마감됩니다.',
+    'timing.closesWhen':
+      '준비 단계가 시작되는 비트코인 블록 {block}, 약 {date}입니다. 그 이후에 스테이킹하면 그다음 사이클부터 포함됩니다.',
+    'timing.inPrepare':
+      '사이클 {next} 구성이 확정되었습니다. 지금 스테이킹하면 사이클 {joins}부터 포함됩니다.',
+    'timing.inPrepareWhen':
+      '사이클 {next}은 {countdown} 후, 약 {date}에 시작됩니다.',
+    'timing.soon': '몇 분',
+    'timing.progress': '사이클 {cycle} {percent}% 진행',
+    'timing.started': '사이클 {cycle} 시작 {date}',
+    'timing.next': '사이클 {cycle} 시작 {date} · 블록 {block}',
+    'timing.dh': '{d}일 {h}시간',
+    'timing.hm': '{h}시간 {m}분',
+    'timing.m': '{m}분',
     'pools.amountUnknown': '알 수 없음',
     'pools.amountNotRead': '아직 읽지 않음',
     'pools.noticeShort': '{notice} 고지',
@@ -1000,7 +1049,8 @@ export const ko: LocaleBundle = {
     'pool.members.showKey': '키 전체 보기',
     'pool.members.showThis': '이 컨트랙트만',
     'pool.members.none': '이 사이클에 이 컨트랙트 참여자가 없습니다.',
-    'pool.rewards.caption': '지금 이 풀 안팎에 있는 sBTC입니다.',
+    'pool.rewards.caption':
+      '이 컨트랙트가 획득한 보상과 지금 sBTC가 있는 곳입니다.',
     'pool.rewards.none':
       '이 컨트랙트는 보유 금액을 공개하지 않아서, pox-5가 아직 지급하지 않은 금액만 읽을 수 있습니다.',
     'pool.key.caption':

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { inUse } from '../lib/activity';
-import { stxCompact, sumUstx } from '../lib/amounts';
+import { stxCompact, sumUstx, usdCompact } from '../lib/amounts';
+import { pricesFrom, ustxInUsd } from '../lib/prices';
 import { formatLastUpdate, translator, type Locale } from '../lib/i18n';
 import {
   contractsHref,
@@ -15,6 +16,7 @@ import type {
   StxOnlyCalculations,
 } from '../lib/types';
 import type { Template } from '../lib/templates';
+import CycleTimeline from './CycleTimeline';
 import Freshness from './Freshness';
 import PoolList from './PoolList';
 import { Meter, Page, StatTile } from './ui';
@@ -74,6 +76,7 @@ export default function HomePage({
     ? sumUstx(contractIds, totals.next.ustx)
     : null;
   const rewards = stxOnlySummary(stxOnlyCalculations);
+  const stakedUsd = ustxInUsd(staked, pricesFrom(stxOnlyCalculations));
   const lastUpdate = formatLastUpdate(signerData.generatedAt, locale);
 
   return (
@@ -92,6 +95,12 @@ export default function HomePage({
           label={t('home.stat.staked', { cycle: totals.cycle })}
           value={staked === null ? '—' : (stxCompact(staked, locale) ?? '—')}
         >
+          {stakedUsd !== null && (
+            <>
+              {t('amount.usdAbout', { usd: usdCompact(stakedUsd, locale) })}
+              {' · '}
+            </>
+          )}
           {stakedNext !== null &&
             totals.next &&
             t(
@@ -181,6 +190,8 @@ export default function HomePage({
         </StatTile>
       </div>
 
+      <CycleTimeline calculations={stxOnlyCalculations} locale={locale} />
+
       <div className='mt-3 mb-5'>
         <Freshness
           generatedAt={signerData.generatedAt}
@@ -190,7 +201,12 @@ export default function HomePage({
         />
       </div>
 
-      <PoolList signers={live} totals={totals} locale={locale} />
+      <PoolList
+        signers={live}
+        totals={totals}
+        calculations={stxOnlyCalculations}
+        locale={locale}
+      />
 
       <footer className='mt-12 space-y-3 border-t border-hairline pt-6 text-sm text-muted'>
         <p>

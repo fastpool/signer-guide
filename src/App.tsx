@@ -188,6 +188,7 @@ export default function App() {
             node={node}
             slug={signerSlug(node)}
             totals={totals}
+            calculations={stxOnlyCalculations}
             locale={locale}
           />
         );
