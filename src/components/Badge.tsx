@@ -9,7 +9,9 @@ import { translator, type Locale } from '../lib/i18n';
  *   bad      a warning: a fee that keeps the reward, no ceiling at all
  *   fact     plain fact, neither good nor bad: a status, a contract type
  *   neutral  STX, and things that are about STX — grape is Stacks
- *   btc      bitcoin and sBTC — amber is bitcoin everywhere on the page
+ *   btc      bitcoin and sBTC — amber is bitcoin everywhere on the page,
+ *            drawn as an outline so it is never mistaken for `warm`, which
+ *            shares the hue but is a caution, not a currency
  *
  * Before these were written down, the same purple marked a fee, a reward
  * currency and a cycle's status, and green marked both "anyone can join" and
@@ -23,7 +25,7 @@ const TONES: Record<Tone, string> = {
   warm: 'bg-amber-soft text-amber-warm',
   bad: 'bg-rose-soft text-rose',
   fact: 'bg-card-raised text-muted',
-  btc: 'bg-amber-soft text-amber-warm',
+  btc: 'text-amber-warm ring-1 ring-amber-warm/45 ring-inset',
 };
 
 export default function Badge({

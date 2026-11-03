@@ -1,4 +1,4 @@
-import { Breadcrumbs, Page } from './ui';
+import { Page } from './ui';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { exactStxLabel } from '../lib/amounts';
 import { explorerUrl } from '../lib/explorer';
@@ -147,14 +147,7 @@ export default function StatusPage({
 
   return (
     <Page>
-      <Breadcrumbs
-        items={[
-          { label: t('nav.pools'), href: '#/' },
-          { label: t('nav.status') },
-        ]}
-      />
-
-      <h1 className='mt-6 text-4xl font-extrabold md:text-5xl'>
+      <h1 className='text-4xl font-extrabold md:text-5xl'>
         {t('status.heading')}
       </h1>
       <p className='mt-4 text-lg text-muted'>{t('status.intro')}</p>

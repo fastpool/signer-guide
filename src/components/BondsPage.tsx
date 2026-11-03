@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Breadcrumbs, Page } from './ui';
+import { Page } from './ui';
 import { btcLabel, stxLabel } from '../lib/amounts';
 import {
   filledPercent,
@@ -50,14 +50,7 @@ export default function BondsPage({
 
   return (
     <Page>
-      <Breadcrumbs
-        items={[
-          { label: t('nav.pools'), href: '#/' },
-          { label: t('nav.bonds') },
-        ]}
-      />
-
-      <h1 className='mt-6 text-3xl font-extrabold md:text-4xl'>
+      <h1 className='text-3xl font-extrabold md:text-4xl'>
         {t('app.bonds.title')}
       </h1>
       {bonds.state === 'ready' && (

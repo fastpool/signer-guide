@@ -6,7 +6,7 @@ import type { Template } from '../lib/templates';
 import type { LockedTotals } from '../lib/types';
 import Badge from './Badge';
 import Identicon from './Identicon';
-import { Breadcrumbs, Page, PageHeading } from './ui';
+import { Page, PageHeading } from './ui';
 
 /**
  * Every kind of signer contract, side by side.
@@ -30,19 +30,13 @@ export default function ContractsPage({
   const t = translator(locale);
 
   return (
-    <Page>
-      <Breadcrumbs
-        items={[
-          { label: t('nav.pools'), href: '#/' },
-          { label: t('nav.contracts') },
-        ]}
-      />
+    <Page wide>
       <PageHeading
         title={t('app.contractsHeading')}
         intro={t('app.contractsIntro')}
       />
 
-      <ul className='grid gap-3 sm:grid-cols-2'>
+      <ul className='grid gap-3 sm:grid-cols-2 xl:grid-cols-3'>
         {liveTemplates.map((template) => {
           const profile = localizeProfile(template.profile, locale);
           const staked = sumUstx(

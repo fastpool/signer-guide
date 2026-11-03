@@ -1,4 +1,4 @@
-import { Breadcrumbs, Page } from './ui';
+import { Page } from './ui';
 import type { ReactNode } from 'react';
 import { translator, type Locale } from '../lib/i18n';
 import { statusHref } from '../lib/route';
@@ -24,14 +24,7 @@ export default function HowToStakePage({ locale }: { locale: Locale }) {
 
   return (
     <Page>
-      <Breadcrumbs
-        items={[
-          { label: t('nav.pools'), href: '#/' },
-          { label: t('nav.howTo') },
-        ]}
-      />
-
-      <h1 className='mt-6 text-3xl font-extrabold md:text-4xl'>
+      <h1 className='text-3xl font-extrabold md:text-4xl'>
         {t('howTo.title')}
       </h1>
       <p className='mt-3 text-lg text-muted'>{t('howTo.intro')}</p>

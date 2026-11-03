@@ -1,5 +1,5 @@
 import Badge from './Badge';
-import { Breadcrumbs, Page, PageHeading } from './ui';
+import { Page, PageHeading } from './ui';
 import { stxLabel } from '../lib/amounts';
 import { translator, type Locale } from '../lib/i18n';
 import { groupHref } from '../lib/route';
@@ -60,13 +60,6 @@ export default function SignerGroupsPage({
 
   return (
     <Page>
-      <Breadcrumbs
-        items={[
-          { label: t('nav.pools'), href: '#/' },
-          { label: t('nav.groups') },
-        ]}
-      />
-
       <PageHeading title={t('groups.heading')} intro={t('groups.intro')} />
       <p className='-mt-3 mb-5 text-sm text-muted'>
         {t('groups.asOf', {

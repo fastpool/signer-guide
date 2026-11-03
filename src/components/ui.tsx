@@ -1,4 +1,11 @@
-import type { ReactNode } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+  type RefObject,
+} from 'react';
 
 /**
  * The few pieces every page is built from.
@@ -202,36 +209,133 @@ export function Card({
   );
 }
 
+const FADE = 'linear-gradient(to right, black calc(100% - 3rem), transparent)';
+
+/**
+ * A fade on the right edge of a row that scrolls sideways, while there is
+ * more of it off-screen — the only sign on a phone that a row of chips or
+ * tabs goes on. Gone once the end is reached, so the last item is never
+ * left half-faded.
+ */
+export function useEdgeFade(
+  ref: RefObject<HTMLElement | null>,
+): CSSProperties | undefined {
+  const [more, setMore] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const update = () =>
+      setMore(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+    update();
+    el.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => {
+      el.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, [ref]);
+  return more ? { maskImage: FADE, WebkitMaskImage: FADE } : undefined;
+}
+
 /**
  * Links to the sections of a long page, kept at the top as it scrolls.
  *
  * Buttons that scroll rather than `#id` links: the app routes on the hash,
  * so a fragment link would navigate away from the page it is on.
+ *
+ * The section being read is marked, so the bar says where you are rather
+ * than only where you could go. "Being read" is the last section whose top
+ * has passed under the bar; on a two-column page two sections can start at
+ * the same height, and the one earlier in `sections` wins. List the sections
+ * in the order a phone stacks them, so the bar and the page agree there.
+ *
+ * On a phone the bar scrolls sideways; a fade on the right edge says there
+ * is more until the end has been reached.
  */
 export function SectionNav({
   sections,
 }: {
   sections: { id: string; label: string }[];
 }) {
+  const [current, setCurrent] = useState<string | null>(null);
+  const bar = useRef<HTMLElement>(null);
+  const fade = useEdgeFade(bar);
+  const ids = sections.map((section) => section.id).join(' ');
+
+  useEffect(() => {
+    const list = ids.split(' ');
+    const update = () => {
+      const line = (bar.current?.offsetHeight ?? 0) + 16;
+      let best: string | null = null;
+      let bestTop = -Infinity;
+      for (const id of list) {
+        const top = document.getElementById(id)?.getBoundingClientRect().top;
+        if (top === undefined || top > line) continue;
+        if (top > bestTop + 1) {
+          best = id;
+          bestTop = top;
+        }
+      }
+      // The page's end: the last section may never reach the top.
+      const atEnd =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 2;
+      setCurrent(atEnd && best ? list[list.length - 1] : best);
+    };
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => {
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, [ids]);
+
+  // Keep the marked one in view on a bar that scrolls sideways.
+  useEffect(() => {
+    if (!current || !bar.current) return;
+    const button = bar.current.querySelector<HTMLElement>(
+      `[data-section="${current}"]`,
+    );
+    const el = bar.current;
+    if (!button || el.scrollWidth <= el.clientWidth) return;
+    const left = button.offsetLeft - el.offsetLeft;
+    if (
+      left < el.scrollLeft ||
+      left + button.offsetWidth > el.scrollLeft + el.clientWidth
+    ) {
+      el.scrollTo({ left: left - 16, behavior: 'smooth' });
+    }
+  }, [current]);
+
   return (
     <nav
+      ref={bar}
       aria-label='Sections'
       className='sticky top-0 z-10 -mx-4 mt-6 mb-4 flex gap-1 overflow-x-auto border-b border-hairline bg-surface px-4 sm:-mx-6 sm:px-6'
+      style={fade}
     >
-      {sections.map((section) => (
-        <button
-          key={section.id}
-          type='button'
-          onClick={() =>
-            document
-              .getElementById(section.id)
-              ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-          }
-          className='-mb-px border-b-2 border-transparent px-3 py-2.5 text-sm font-bold whitespace-nowrap text-muted transition-colors hover:border-grape hover:text-grape'
-        >
-          {section.label}
-        </button>
-      ))}
+      {sections.map((section) => {
+        const on = section.id === current;
+        return (
+          <button
+            key={section.id}
+            type='button'
+            data-section={section.id}
+            aria-current={on ? 'location' : undefined}
+            onClick={() =>
+              document
+                .getElementById(section.id)
+                ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            }
+            className={`-mb-px border-b-2 px-3 py-2.5 text-sm font-bold whitespace-nowrap transition-colors hover:border-grape hover:text-grape ${
+              on ? 'border-grape text-grape' : 'border-transparent text-muted'
+            }`}
+          >
+            {section.label}
+          </button>
+        );
+      })}
     </nav>
   );
 }

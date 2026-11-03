@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { inUse, isNewSigner } from '../lib/activity';
 import { stxCompact } from '../lib/amounts';
 import { translator, type Locale, type MessageKey } from '../lib/i18n';
@@ -11,6 +11,7 @@ import {
 } from '../lib/pool-facts';
 import {
   FILTER_IDS,
+  isHighFee,
   matches as poolMatches,
   type FilterId,
 } from '../lib/pool-filters';
@@ -28,7 +29,7 @@ import Badge, { feePercent, noticeLabel } from './Badge';
 import Identicon from './Identicon';
 import PoolName from './PoolName';
 import StakeModal from './StakeModal';
-import { InfoTip } from './ui';
+import { InfoTip, useEdgeFade } from './ui';
 
 type SortKey = 'staked' | 'next' | 'fee' | 'share' | 'name';
 
@@ -72,7 +73,13 @@ interface Row {
   nowRaw: string | null | undefined;
   now: bigint | null;
   next: bigint | null;
+  /**
+   * The vote share of the signer key, not of this contract: pox-5 weighs the
+   * key, so every contract on one key carries the same figure.
+   */
   shareBips: number | null;
+  /** How many contracts share that key — the note under a repeated share. */
+  keyContracts: number;
   group: string | null;
   isNew: boolean;
 }
@@ -101,6 +108,8 @@ export default function PoolList({
   );
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<SortKey>('staked');
+  const chips = useRef<HTMLDivElement>(null);
+  const chipFade = useEdgeFade(chips);
 
   const nodes = useMemo(() => nodesBySignerKey(signers), [signers]);
   const nodeOf = useMemo(() => {
@@ -121,6 +130,7 @@ export default function PoolList({
           now: big(totals.ustx[signer.contractId]),
           next: totals.next ? big(totals.next.ustx[signer.contractId]) : null,
           shareBips: node ? votingPowerBips(node, totals.ustx) : null,
+          keyContracts: node?.contracts.length ?? 1,
           group:
             groupsForContract(signer.contractId, signer.signerKey)[0]?.name ??
             null,
@@ -177,7 +187,12 @@ export default function PoolList({
       next: totals.next?.cycle ?? totals.cycle + 1,
     });
 
-  const header = (key: SortKey, label: string, align: 'left' | 'right') => (
+  const header = (
+    key: SortKey,
+    label: string,
+    align: 'left' | 'right',
+    help?: string,
+  ) => (
     <th
       scope='col'
       aria-sort={sort === key ? 'descending' : undefined}
@@ -193,6 +208,12 @@ export default function PoolList({
         {label}
         {sort === key && <span aria-hidden='true'> ▾</span>}
       </button>
+      {help && (
+        <>
+          {' '}
+          <InfoTip text={help} />
+        </>
+      )}
     </th>
   );
 
@@ -214,7 +235,11 @@ export default function PoolList({
           placeholder={t('pools.searchPlaceholder')}
           className='w-full rounded-full bg-card px-4 py-2 text-sm shadow-lift placeholder:text-faint focus:ring-2 focus:ring-grape focus:outline-none sm:w-60'
         />
-        <div className='-mx-4 flex w-[calc(100%+2rem)] gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:w-auto sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0'>
+        <div
+          ref={chips}
+          style={chipFade}
+          className='-mx-4 flex w-[calc(100%+2rem)] gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:w-auto sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0'
+        >
           {CHIP_FILTERS.map((id) => {
             const on = active.has(id);
             const label: MessageKey = `filter.${id}.label`;
@@ -285,6 +310,8 @@ export default function PoolList({
         </label>
       </div>
 
+      <Legend locale={locale} />
+
       {shown.length === 0 && (
         <p className='rounded-2xl bg-card p-5 text-muted shadow-lift'>
           {t('app.noMatch')}
@@ -319,7 +346,12 @@ export default function PoolList({
                   </th>
                   {header('staked', sortLabel('staked'), 'right')}
                   {header('next', sortLabel('next'), 'right')}
-                  {header('share', t('pools.col.share'), 'right')}
+                  {header(
+                    'share',
+                    t('pools.col.share'),
+                    'right',
+                    t('pools.shareHelp'),
+                  )}
                   <th scope='col' className='px-2 py-2.5'>
                     <span className='sr-only'>{t('pools.col.stake')}</span>
                   </th>
@@ -403,14 +435,16 @@ function NameBlock({
  */
 function FeeCell({ signer, locale }: { signer: Signer; locale: Locale }) {
   const t = translator(locale);
+  // A word, not a dash: in a fee column a dash reads as "no fee", which is
+  // the one thing this cell cannot say. The full sentence is the hover.
   if (signer.feeBips === null) {
     return (
-      <span title={t('pools.feeElsewhere')} className='font-bold text-muted'>
-        —<span className='sr-only'> {t('pools.feeElsewhere')}</span>
+      <span title={t('pools.feeElsewhere')} className='text-xs text-muted'>
+        {t('pools.feeElsewhereShort')}
       </span>
     );
   }
-  const high = signer.feeBips >= 9500;
+  const high = isHighFee(signer);
   return (
     <span className='block'>
       <span className={`font-bold ${high ? 'text-rose' : ''}`}>
@@ -427,7 +461,9 @@ function FeeCell({ signer, locale }: { signer: Signer; locale: Locale }) {
           {signer.feeChangeNotice && (
             <span title={t('pools.noticeHelp')}>
               <span aria-hidden='true'>◷ </span>
-              {noticeLabel(signer.feeChangeNotice, locale)}
+              {t('pools.noticeShort', {
+                notice: noticeLabel(signer.feeChangeNotice, locale),
+              })}
             </span>
           )}
         </span>
@@ -534,7 +570,6 @@ function TableRow({
   const { signer } = row;
   const href = signerHref(signer.contractId);
   const typeName = contractTypeName(signer, locale);
-  const unknown = t('pools.unknownAmount');
   return (
     <tr className='border-b border-hairline last:border-b-0 hover:bg-card-raised'>
       <td className='max-w-60 px-2 py-2 pl-3'>
@@ -567,30 +602,44 @@ function TableRow({
         <Amount raw={row.nowRaw} locale={locale} />
       </td>
       <td className='px-2 py-2 text-right whitespace-nowrap tabular-nums'>
-        {stxCompact(row.next, locale) ?? <span title={unknown}>—</span>}
+        {stxCompact(row.next, locale) ?? (
+          <Missing reason='unknown' locale={locale} />
+        )}
         <Change row={row} locale={locale} />
       </td>
       <td className='px-2 py-2 text-right whitespace-nowrap tabular-nums'>
         {row.shareBips === null ? (
-          <span title={unknown}>—</span>
+          <Missing reason='unknown' locale={locale} />
         ) : (
-          <span className='inline-flex items-center gap-2'>
-            {(row.shareBips / 100).toFixed(2)}%
-            <span
-              aria-hidden='true'
-              className='h-1.5 w-10 overflow-hidden rounded-full bg-trough'
-            >
+          <>
+            <span className='inline-flex items-center gap-2'>
+              {(row.shareBips / 100).toFixed(2)}%
               <span
-                className='block h-full rounded-full bg-grape'
-                style={{ width: `${(row.shareBips / maxShare) * 100}%` }}
-              />
+                aria-hidden='true'
+                className='h-1.5 w-10 overflow-hidden rounded-full bg-trough'
+              >
+                <span
+                  className='block h-full rounded-full bg-grape'
+                  style={{ width: `${(row.shareBips / maxShare) * 100}%` }}
+                />
+              </span>
             </span>
-          </span>
+            {row.keyContracts > 1 && (
+              <span className='block text-xs text-muted'>
+                {t.plural('pools.shareSharedKey', row.keyContracts)}
+              </span>
+            )}
+          </>
         )}
       </td>
       <td className='px-2 py-2 pr-3 text-right'>
         {stakesHere(signer) ? (
-          <StakeModal signer={signer} locale={locale} compact />
+          <StakeModal
+            signer={signer}
+            locale={locale}
+            compact
+            variant={isHighFee(signer) ? 'secondary' : 'primary'}
+          />
         ) : (
           <a
             href={href}
@@ -612,14 +661,68 @@ function Amount({
   raw: string | null | undefined;
   locale: Locale;
 }) {
-  const t = translator(locale);
-  if (raw === undefined) {
-    return <span title={t('pools.notReadYet')}>—</span>;
-  }
-  if (raw === null) {
-    return <span title={t('pools.unknownAmount')}>—</span>;
-  }
+  if (raw === undefined) return <Missing reason='notRead' locale={locale} />;
+  if (raw === null) return <Missing reason='unknown' locale={locale} />;
   return <>{stxCompact(raw, locale)}</>;
+}
+
+/**
+ * A figure that is not there, said in a word. A dash had one hover title per
+ * meaning, and a phone has no hover, so all the meanings looked the same.
+ */
+function Missing({
+  reason,
+  locale,
+}: {
+  reason: 'unknown' | 'notRead';
+  locale: Locale;
+}) {
+  const t = translator(locale);
+  return (
+    <span
+      title={t(
+        reason === 'unknown' ? 'pools.unknownAmount' : 'pools.notReadYet',
+      )}
+      className='text-xs font-normal text-muted'
+    >
+      {t(reason === 'unknown' ? 'pools.amountUnknown' : 'pools.amountNotRead')}
+    </span>
+  );
+}
+
+/**
+ * What the marks in the list mean, above the list rather than under forty
+ * rows of it. The italic in particular is invisible as a signal until
+ * somebody says it is one.
+ */
+function Legend({ locale }: { locale: Locale }) {
+  const t = translator(locale);
+  return (
+    <p className='mb-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted'>
+      <span>
+        <span aria-hidden='true' className='text-grape'>
+          ✓{' '}
+        </span>
+        {t('pools.legend.checked')}
+      </span>
+      <span>
+        <span className='italic'>{t('pools.legend.italicSample')}</span>{' '}
+        {t('pools.legend.italic')}
+      </span>
+      <span>
+        <span aria-hidden='true' className='text-mint'>
+          ⛉{' '}
+        </span>
+        {t('pools.legend.cap')}
+      </span>
+      <span>
+        <span aria-hidden='true' className='text-mint'>
+          ◷{' '}
+        </span>
+        {t('pools.legend.notice')}
+      </span>
+    </p>
+  );
 }
 
 function PhoneRow({ row, locale }: { row: Row; locale: Locale }) {
@@ -662,7 +765,8 @@ function PhoneRow({ row, locale }: { row: Row; locale: Locale }) {
           {row.next === null
             ? ''
             : t('pools.phone.next', {
-                amount: stxCompact(row.next, locale) ?? '—',
+                amount:
+                  stxCompact(row.next, locale) ?? t('pools.amountUnknown'),
               })}
         </span>
       </a>

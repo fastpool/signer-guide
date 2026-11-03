@@ -4,6 +4,7 @@ import { explorerUrl } from '../lib/explorer';
 import { bitcoinPayout } from '../lib/features';
 import { translator, type Locale } from '../lib/i18n';
 import { joinMode, poolWarnings, stakesHere } from '../lib/pool-facts';
+import { isHighFee } from '../lib/pool-filters';
 import { contractTypeName, localizeProfile } from '../lib/profile-i18n';
 import { profileFor } from '../lib/profiles';
 import { contractHref, groupHref, signerHref, statusHref } from '../lib/route';
@@ -89,7 +90,8 @@ export default function SignerPage({
       <Breadcrumbs
         items={[
           { label: t('nav.pools'), href: '#/' },
-          ...(group ? [{ label: group.name, href: groupHref(group.id) }] : []),
+          // Not the group: its page lives under "Who holds the vote", and a
+          // trail through it would say otherwise. "Run by" links it instead.
           { label: <PoolName signer={signer} locale={locale} /> },
         ]}
       />
@@ -117,7 +119,11 @@ export default function SignerPage({
         </div>
         <div className='flex w-full flex-wrap items-center gap-2 sm:ml-auto sm:w-auto'>
           {stakesHere(signer) ? (
-            <StakeModal signer={signer} locale={locale} />
+            <StakeModal
+              signer={signer}
+              locale={locale}
+              variant={warnings.includes('highFee') ? 'secondary' : 'primary'}
+            />
           ) : (
             <span className='text-xs text-muted'>
               {t(
@@ -166,10 +172,11 @@ export default function SignerPage({
 
       <SectionNav
         sections={[
+          // The order a phone stacks them in: the left column, then the right.
           { id: 'members', label: t('pool.section.members') },
+          { id: 'key', label: t('pool.section.key') },
           { id: 'rewards', label: t('pool.section.rewards') },
           { id: 'signing', label: t('pool.section.signing') },
-          { id: 'key', label: t('pool.section.key') },
           { id: 'contract', label: t('pool.section.contract') },
         ]}
       />
@@ -259,12 +266,12 @@ function KeyFacts({
     {
       label: t('pool.fact.fee'),
       value: (
-        <span
-          className={
-            signer.feeBips !== null && signer.feeBips >= 9500 ? 'text-rose' : ''
-          }
-        >
-          {feePercent(signer.feeBips) ?? '—'}
+        <span className={isHighFee(signer) ? 'text-rose' : ''}>
+          {feePercent(signer.feeBips) ?? (
+            <span className='text-base font-semibold text-muted'>
+              {t('pools.feeElsewhereShort')}
+            </span>
+          )}
         </span>
       ),
       note:
@@ -283,7 +290,9 @@ function KeyFacts({
             {t('pools.cap', { percent: signer.maxFeeBips / 100 })}
           </Badge>
         ) : signer.feeBips === null ? (
-          '—'
+          <span className='text-base font-semibold text-muted'>
+            {t('pool.fact.capElsewhere')}
+          </span>
         ) : (
           <Badge tone='bad' size='sm'>
             {t('pool.fact.capNone')}

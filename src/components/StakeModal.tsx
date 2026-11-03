@@ -246,11 +246,18 @@ export default function StakeModal({
   signer,
   locale,
   compact = false,
+  variant = 'primary',
 }: {
   signer: Signer;
   locale: Locale;
   /** The short "Stake" that fits a table row, rather than "Stake with wallet". */
   compact?: boolean;
+  /**
+   * `secondary` is an outline instead of a fill, for a pool the page warns
+   * against (a fee that keeps the reward). Still a way to stake — the choice
+   * is the reader's — but not the button the eye lands on first.
+   */
+  variant?: 'primary' | 'secondary';
 }) {
   const t = translator(locale);
   const titleId = useId();
@@ -975,9 +982,11 @@ export default function StakeModal({
       <button
         type='button'
         onClick={() => setOpen(true)}
-        className={`rounded-full bg-grape font-semibold whitespace-nowrap text-on-grape transition-colors hover:bg-grape/90 ${
-          compact ? 'px-3 py-1.5 text-xs' : 'px-4 py-2 text-sm'
-        }`}
+        className={`rounded-full font-semibold whitespace-nowrap transition-colors ${
+          variant === 'primary'
+            ? 'bg-grape text-on-grape hover:bg-grape/90'
+            : 'text-grape ring-1 ring-grape ring-inset hover:bg-grape-soft'
+        } ${compact ? 'px-3 py-1.5 text-xs' : 'px-4 py-2 text-sm'}`}
       >
         {compact ? t('stake.openShort') : t('stake.open')}
       </button>
