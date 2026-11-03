@@ -113,7 +113,17 @@ import { fetchAmountDelegated } from './locked.js';
 import { indexSigner, readPositions } from './members.js';
 import { describeNode, sleep, SPACING_MS } from './node.js';
 import { fetchCurrentCycle } from './pox5.js';
-import { loadStakerIndex } from './pox5-events.js';
+import {
+  fetchUnconfirmedTail,
+  readEventLog,
+  type LogEntry,
+} from './pox5-events.js';
+import {
+  applyChange,
+  membershipChange,
+  membersOf,
+  type MembershipState,
+} from './pox5-membership.js';
 import { groupName, matchGroups } from './signer-members.js';
 
 const DATA = path.join(
@@ -244,6 +254,62 @@ export function amountOrKept(
   if (read !== null) return { ustx: read.toString(), kept: false };
   if (typeof known === 'string') return { ustx: known, kept: true };
   return { ustx: null, kept: false };
+}
+
+/** The membership map the prints describe, replayed in the order given. */
+export function replayEntries(
+  entries: readonly Pick<LogEntry, 'topic' | 'data'>[],
+): MembershipState {
+  const state: MembershipState = new Map();
+  for (const entry of entries) {
+    const change = membershipChange(entry);
+    if (change) applyChange(state, change);
+  }
+  return state;
+}
+
+/**
+ * One cycle's members from the replayed prints, or null when they do not add
+ * up to what the chain says, contract by contract.
+ *
+ * This check is why no per-staker call is needed. Each contract's total is
+ * already read from the chain for the cycle (`get-amount-delegated-for-signer`,
+ * or kept from when the cycle settled), and pox-5 keeps that total and the
+ * per-staker rows in the same function call. A replay that matches every
+ * contract's total has the same rows the chain has. One that does not is
+ * missing a print, or the cycle is mid-change, and the walk settles it as
+ * before.
+ *
+ * Contract by contract, not by the signer's total. A staker who moves between
+ * two contracts of one signer leaves the signer's total where it was, and
+ * matching only that once left a closed cycle listing a member under the
+ * contract they had left.
+ */
+export function membersFromEvents(
+  state: MembershipState,
+  contractIds: readonly string[],
+  cycle: number,
+  ustx: Record<string, string | null>,
+): CycleMember[] | null {
+  const members: CycleMember[] = [];
+  for (const contractId of contractIds) {
+    const onChain = ustx[contractId];
+    if (typeof onChain !== 'string') return null;
+    const found = membersOf(state, [contractId], cycle);
+    const sum = found.reduce((total, m) => total + m.ustx, 0n);
+    if (sum !== BigInt(onChain)) return null;
+    for (const m of found) {
+      members.push({ staker: m.staker, ustx: m.ustx.toString(), contractId });
+    }
+  }
+  // The walk's order: largest first, then by address.
+  members.sort((a, b) => {
+    const left = BigInt(a.ustx);
+    const right = BigInt(b.ustx);
+    if (left === right) return a.staker.localeCompare(b.staker);
+    return right > left ? 1 : -1;
+  });
+  return members;
 }
 
 /**
@@ -462,6 +528,32 @@ function writeJson(file: string, value: unknown): void {
   fs.writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
 }
 
+/**
+ * Write one cycle's members, or remove the file for a cycle nobody was in.
+ * Returns whether anything on disk changed.
+ */
+function writeMembers(
+  slug: string,
+  signerKey: SignerNode['signerKey'],
+  cycle: number,
+  members: CycleMember[],
+): boolean {
+  const file = membersPath(slug, cycle);
+  if (members.length === 0) {
+    if (!fs.existsSync(file)) return false;
+    fs.rmSync(file);
+    return true;
+  }
+  const contents: SignerCycleMembers = { signerKey, cycle, members };
+  const text = `${JSON.stringify(contents, null, 2)}\n`;
+  if (fs.existsSync(file) && fs.readFileSync(file, 'utf8') === text) {
+    return false;
+  }
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, text);
+  return true;
+}
+
 // ---------------------------------------------------------------------------
 // The parts that ask
 // ---------------------------------------------------------------------------
@@ -484,6 +576,12 @@ interface GroupResult {
   carriedForward: number;
   /** Amounts taken from totals.json rather than asked for again. */
   fromTotals: number;
+  /** Cycles whose members came from the event copy, with no staker calls. */
+  fromEvents: number;
+  /** Of those, cycles whose member list changed on disk. */
+  rewritten: number;
+  /** Cycles the event copy could not settle, left to the walk. */
+  disagreed: number;
   /** True when a walk was skipped for want of budget. */
   budgetBit: boolean;
 }
@@ -498,12 +596,14 @@ async function updateGroup(
   now: number,
   /** This run's totals.json, when `--amounts-from-totals` says to use it. */
   totals: LockedTotals | null = null,
+  /** The membership map replayed from the event copy, when there is one. */
+  replayed: MembershipState | null = null,
 ): Promise<GroupResult> {
   const slug = signerSlug(node);
   const name = groupName(node);
   const contractIds = node.contracts.map((contract) => contract.contractId);
   const existing = readSummary(slug);
-  const eventsAvailable = loadStakerIndex() !== null;
+  const eventsAvailable = replayed !== null;
   const onFile = new Map<number, SignerCycleSummary>(
     (existing?.cycles ?? []).map((cycle) => [cycle.cycle, cycle]),
   );
@@ -515,6 +615,9 @@ async function updateGroup(
     walked: 0,
     carriedForward: 0,
     fromTotals: 0,
+    fromEvents: 0,
+    rewritten: 0,
+    disagreed: 0,
     budgetBit: false,
   };
   const cycles: SignerCycleSummary[] = [];
@@ -579,6 +682,7 @@ async function updateGroup(
       walkedAt: before?.walkedAt ?? null,
       walkedUstx: before?.walkedUstx ?? null,
       ...(before?.eventsWalked ? { eventsWalked: true } : {}),
+      ...(before?.membersFrom ? { membersFrom: before.membersFrom } : {}),
       fileFinal,
       cycleFinal,
     };
@@ -588,6 +692,34 @@ async function updateGroup(
      * ago may still never have been walked, and skipping it with them would
      * leave it without a member list for ever.
      */
+    /*
+     * The members from the event copy first. When they add up, contract by
+     * contract, they are the chain's rows, and they cost nothing, so every
+     * cycle is settled this way every run, closed ones included. That is how
+     * a list walked short, or filed under the wrong contract, gets put right
+     * without anybody noticing it first.
+     */
+    const fromEvents = replayed
+      ? membersFromEvents(replayed, contractIds, cycle, ustx)
+      : null;
+    if (fromEvents && total !== null) {
+      const changed = writeMembers(slug, node.signerKey, cycle, fromEvents);
+      summary.memberCount = fromEvents.length;
+      summary.membersAddUp = true;
+      summary.eventsWalked = true;
+      summary.membersFrom = 'events';
+      summary.walkedUstx = total.toString();
+      // When the list was made, which only moves when the list does.
+      if (changed || !summary.walkedAt) {
+        summary.walkedAt = new Date(now).toISOString();
+      }
+      result.fromEvents += 1;
+      if (changed) result.rewritten += 1;
+      cycles.push(summary);
+      continue;
+    }
+    if (replayed) result.disagreed += 1;
+
     if (membersWorthWalking(before, total, fileFinal, now, eventsAvailable)) {
       const walked = await walkCycle(node, slug, cycle, total, spend);
       if (walked === 'skipped') result.budgetBit = true;
@@ -600,6 +732,7 @@ async function updateGroup(
         summary.walkedAt = new Date(now).toISOString();
         summary.walkedUstx = total === null ? null : total.toString();
         if (walked.fromEvents) summary.eventsWalked = true;
+        summary.membersFrom = 'walk';
         result.walked += 1;
       }
     }
@@ -753,9 +886,28 @@ async function main() {
     console.log('  totals.json would not read, so the amounts come from the chain');
   }
 
+  const log = readEventLog();
+  let replayed: MembershipState | null = null;
+  if (log) {
+    const tail = await fetchUnconfirmedTail(log);
+    replayed = replayEntries([...log.entries, ...(tail ?? [])]);
+    console.log(
+      `  members from the pox-5 event copy: ${log.entries.length} finalised` +
+        ` print(s) to block ${log.state.blockHeight}` +
+        (tail === null
+          ? ', without the unfinalised ones (no SECONDLAYER_API_KEY, or no answer)'
+          : `, and ${tail.length} not yet final`),
+    );
+  } else {
+    console.log('  no pox-5 event copy, so every member list is walked');
+  }
+
   const now = Date.now();
   const spend: Spend = { left: options.budget, spent: 0 };
   let fromTotals = 0;
+  let fromEvents = 0;
+  let rewritten = 0;
+  let disagreed = 0;
   let walked = 0;
   let short = 0;
   let carriedForward = 0;
@@ -768,8 +920,12 @@ async function main() {
       spend,
       now,
       totals,
+      replayed,
     );
     fromTotals += result.fromTotals;
+    fromEvents += result.fromEvents;
+    rewritten += result.rewritten;
+    disagreed += result.disagreed;
     walked += result.walked;
     carriedForward += result.carriedForward;
     if (result.budgetBit) short += 1;
@@ -789,6 +945,12 @@ async function main() {
   );
   if (fromTotals) {
     console.log(`  ${fromTotals} amount(s) taken from totals.json`);
+  }
+  if (replayed) {
+    console.log(
+      `  ${fromEvents} cycle(s) of members from the event copy` +
+        ` (${rewritten} changed), ${disagreed} left to the walk`,
+    );
   }
   if (carriedForward) {
     // Said out loud, because carrying an amount forward is invisible in the

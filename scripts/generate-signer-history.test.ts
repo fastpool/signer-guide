@@ -5,8 +5,10 @@ import {
   amountsSettled,
   byStaleness,
   dayHasPassed,
+  membersFromEvents,
   membersWorthWalking,
   parseArgs,
+  replayEntries,
   REWALK_AFTER_MS,
   strictSum,
 } from './generate-signer-history.js';
@@ -40,6 +42,69 @@ const cycle = (over: Partial<SignerCycleSummary> = {}): SignerCycleSummary => ({
   fileFinal: true,
   cycleFinal: true,
   ...over,
+});
+
+describe('membersFromEvents', () => {
+  // A staker who moved between two contracts of one signer, and one who did
+  // not. The kind of case a signer-wide total cannot see.
+  const state = replayEntries([
+    {
+      topic: 'stake',
+      data: {
+        staker: 'SP1',
+        signer: A,
+        'amount-ustx': '60',
+        'first-reward-cycle': '141',
+        'unlock-cycle': '150',
+      },
+    },
+    {
+      topic: 'stake',
+      data: {
+        staker: 'SP2',
+        signer: A,
+        'amount-ustx': '40',
+        'first-reward-cycle': '141',
+        'unlock-cycle': '150',
+      },
+    },
+    {
+      topic: 'stake-update',
+      data: {
+        staker: 'SP2',
+        signer: B,
+        'old-signer': A,
+        'amount-ustx': '40',
+        'unlock-cycle': '150',
+        'num-cycles': '6',
+        'prev-unlock-height': '150',
+      },
+    },
+  ]);
+
+  it('lists the members when every contract adds up, largest first', () => {
+    expect(membersFromEvents(state, [A, B], 143, { [A]: '100', [B]: '0' })).toEqual([
+      { staker: 'SP1', ustx: '60', contractId: A },
+      { staker: 'SP2', ustx: '40', contractId: A },
+    ]);
+    expect(membersFromEvents(state, [A, B], 144, { [A]: '60', [B]: '40' })).toEqual([
+      { staker: 'SP1', ustx: '60', contractId: A },
+      { staker: 'SP2', ustx: '40', contractId: B },
+    ]);
+  });
+
+  it('declines when one contract disagrees, even if the signer’s total does not', () => {
+    // 100 either way for the signer, but the chain puts SP2 under A.
+    expect(membersFromEvents(state, [A, B], 144, { [A]: '100', [B]: '0' })).toBe(null);
+  });
+
+  it('declines when an amount was not read', () => {
+    expect(membersFromEvents(state, [A, B], 144, { [A]: '60', [B]: null })).toBe(null);
+  });
+
+  it('gives an empty list for a cycle nobody is in, when the chain agrees', () => {
+    expect(membersFromEvents(state, [A, B], 150, { [A]: '0', [B]: '0' })).toEqual([]);
+  });
 });
 
 describe('amountFromTotals', () => {

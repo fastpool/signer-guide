@@ -20,8 +20,8 @@ pnpm install
 pnpm generate:signers   # refresh src/data/signers.json from mainnet
 pnpm generate:totals    # refresh src/data/totals.json — what each pool holds,
                         # this cycle and the next
-pnpm generate:events    # refresh src/data/pox5-stakers.json — who has ever staked
-                        # with each signer (needs SL_API_KEY)
+pnpm generate:events    # refresh cache/pox5-events/ — every pox-5 print that moved
+                        # a staker (needs SECONDLAYER_API_KEY)
 pnpm generate:history   # refresh src/data/signers/ — cycles and members per signer
 pnpm dev
 
@@ -842,6 +842,7 @@ Every generator takes its endpoint from the environment, in `scripts/node.ts`:
 | ------------------------------ | --------------------- | ---------------------------------------------------- |
 | `STACKS_API_URL`               | `https://api.hiro.so` | the node to read                                     |
 | `HIRO_API_KEY`                 | _(none)_              | sent as `x-api-key` when set, omitted when not       |
+| `SECONDLAYER_API_KEY`          | _(none)_              | secondlayer.tools key for the pox-5 event copy       |
 | `VITE_SIGNER_UPDATES_FORM_URL` | _(none)_              | optional POST endpoint used by the email signup form |
 
 ```bash
@@ -868,7 +869,58 @@ repository secret and the hourly runs get quicker and stop competing with every
 other anonymous caller sharing the runner's IP; leave it unset and they take the
 slow road. Nothing else changes, and the data comes out byte-identical either
 way.
-| `SL_API_KEY`                   | _(none)_              | secondlayer.tools key for `generate:events`          |
+
+A key that stops working is treated as none. Hiro refused the secret from 26
+October 2026 and every hourly run failed with "would not answer" for a week,
+while anonymous requests went through. Now the first 401, 402 or 403 prints
+the status, drops the key for the rest of the run and carries on at the
+anonymous pace.
+
+**Contract sources are read once.** A deployed contract cannot change, so
+`generate:signers` keeps every source it reads in `cache/contract-sources/`,
+named by its sha256, and takes it from there whenever `signers.json` already
+says which text a contract runs. A cached file that no longer hashes to its name
+is ignored and asked for again. Sixty-odd source downloads a run became none.
+
+**History reuses the totals.** On `--amounts-from-totals`, which the workflow
+passes only when `generate:totals` succeeded in the same run, the current and
+next cycle's amounts come from `totals.json` instead of the same 126 calls made
+again.
+
+**Member lists come from a local copy of pox-5's prints.** pox-5 keeps one
+row per staker per cycle saying which signer they are with, and the chain only
+answers about it one staker at a time: a walk of every member was up to 2,000
+calls a run. But every write to that map comes with a print that says what it
+wrote, so `pnpm generate:events` keeps a copy of those prints in
+`cache/pox5-events/` (append-only, from a saved cursor, a page or two a run)
+and `generate:history` replays it with the rules in
+`scripts/pox5-membership.ts`.
+
+A replayed list is used only when it adds up, **contract by contract**, to what
+the chain says each contract holds in that cycle. Those totals are read anyway,
+and pox-5 writes them in the same call as the per-staker rows, so a list that
+matches every one has the chain's rows. A cycle that does not match (a print
+the copy has not got yet, or one the rules do not know) is walked as before,
+asking the chain about everyone Hiro's index or the copy has ever seen with
+that signer. In practice that is no per-staker calls at all.
+
+Only finalised prints go in the copy. The few minutes the index has not
+finalised yet are fetched by the history step for that run only, so the cycle
+being filled matches the chain without a reorg ever reaching the file. Both
+need the `SECONDLAYER_API_KEY` secret, optional like the Hiro one. Without it
+the copy is used as committed, and whatever it cannot settle is walked.
+
+Replaying every cycle every run is what put right the lists the walk had got
+wrong: cycles walked from Hiro's present-tense index, short by everyone who
+had left since, and a member filed under the contract they had moved away
+from, which a signer-wide total cannot show.
+
+`subgraphs/pox5-signer-members.ts` goes further: a secondlayer subgraph that
+keeps pox-5's whole staker-per-cycle map as a table, so a signer's members in
+a cycle are one request against secondlayer rather than a local replay. It
+carries the same rules, copied in by `pnpm subgraph:sync`. It is not deployed,
+and nothing depends on it: the local copy does the same job without a hosted
+service.
 
 `.env` is gitignored, for `node --env-file=.env`.
 
@@ -896,42 +948,6 @@ printed at the end — read its code, then add it to `src/lib/profiles.ts`.
 pools that file lists, and `pnpm generate:history` updates `src/data/signers/`
 for exactly the signers they make up — reading only what can still have moved,
 per [Making it affordable](#making-it-affordable). The hourly workflow gives
-A key that stops working is treated as none. Hiro refused the secret from 26
-October 2026 and every hourly run failed with "would not answer" for a week,
-while anonymous requests went through. Now the first 401, 402 or 403 prints
-the status, drops the key for the rest of the run and carries on at the
-anonymous pace.
-
-**Contract sources are read once.** A deployed contract cannot change, so
-`generate:signers` keeps every source it reads in `cache/contract-sources/`,
-named by its sha256, and takes it from there whenever `signers.json` already
-says which text a contract runs. A cached file that no longer hashes to its name
-is ignored and asked for again. Sixty-odd source downloads a run became none.
-
-**History reuses the totals.** On `--amounts-from-totals`, which the workflow
-passes only when `generate:totals` succeeded in the same run, the current and
-next cycle's amounts come from `totals.json` instead of the same 126 calls made
-again.
-
-**Whom a member walk asks about** comes from two lists, merged: Hiro's index of
-each signer's stakers, and `src/data/pox5-stakers.json`. That file is everyone
-[secondlayer.tools](https://www.secondlayer.tools)' pox-5 event index has seen
-stake with each contract, kept by `pnpm generate:events` from a saved cursor.
-Hiro's index only lists who is with a signer now, so a past cycle walked from it
-alone misses everyone who has left since. fastpool-max500's cycle 145 was six
-members and 342k STX short that way. Either way the chain decides who was a
-member and for how much. The events only add names to ask about. The
-`SL_API_KEY` secret is optional like the Hiro one: without it the file stays as
-committed.
-
-`subgraphs/pox5-signer-members.ts` goes further: a secondlayer subgraph that
-keeps pox-5's whole staker-per-cycle map as a table, so a signer's members in
-a cycle are one request rather than a walk. Its rules are in
-`scripts/pox5-membership.ts`. Replayed over every pox-5 event on 3 November
-2026, they matched the chain for every signer's total in cycles 146 and 147,
-and for all 143 closed-cycle member lists the chain had confirmed. It is not
-deployed or wired in yet.
-
 that last one a `--budget`, so a run it cannot finish picks up where it left
 off rather than overrunning.
 
