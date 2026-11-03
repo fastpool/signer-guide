@@ -1,6 +1,7 @@
 AntiFeatures:
   NonFreeNet:
-    en-US: Reads the chain through a public Stacks node and reaches wallets over a
+    en-US:
+      Reads the chain through a public Stacks node and reaches wallets over a
       WalletConnect relay. Neither is free software, both are replaceable, and the
       app collects nothing itself.
 Categories:

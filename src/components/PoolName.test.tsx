@@ -8,7 +8,10 @@ import PoolName from './PoolName';
  * second is most of them, which is exactly why it may not look like the first.
  */
 
-const confirmed = { displayName: 'Senseinode', displayNameSource: 'manual' as const };
+const confirmed = {
+  displayName: 'Senseinode',
+  displayNameSource: 'manual' as const,
+};
 const guessed = { displayName: 'Pox5', displayNameSource: 'contract' as const };
 
 describe('PoolName', () => {
@@ -22,7 +25,9 @@ describe('PoolName', () => {
   });
 
   it('sets a name read off the contract in italic, with no tick', () => {
-    const html = renderToStaticMarkup(<PoolName signer={guessed} locale='en' />);
+    const html = renderToStaticMarkup(
+      <PoolName signer={guessed} locale='en' />,
+    );
     expect(html).toContain('Pox5');
     expect(html).toContain('italic');
     expect(html).not.toContain('✓');

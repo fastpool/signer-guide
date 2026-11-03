@@ -51,9 +51,7 @@ export function installFetch(options: NetworkOptions = {}): jest.Mock {
     }
 
     if (url.includes('stx-only-history.json')) {
-      return options.history === undefined
-        ? notFound()
-        : json(options.history);
+      return options.history === undefined ? notFound() : json(options.history);
     }
 
     if (

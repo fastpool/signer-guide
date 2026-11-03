@@ -7,11 +7,7 @@ import {
   isSignerData,
   isStxOnlyCalculations,
 } from './snapshot-shape';
-import type {
-  LockedTotals,
-  SignerData,
-  StxOnlyCalculations,
-} from './types';
+import type { LockedTotals, SignerData, StxOnlyCalculations } from './types';
 
 /**
  * Where the pool data comes from once the app is installed.

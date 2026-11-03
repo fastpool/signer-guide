@@ -15,8 +15,10 @@ import {
  * so the member list was never walked again and still names the old contract.
  */
 
-const POX5_MGR = 'SP20XZGWBWSMRE94WDJ6YJ1EKPJ55RGRGK4JDJHNK.signer-manager-pox5';
-const SENSEI = 'SP20XZGWBWSMRE94WDJ6YJ1EKPJ55RGRGK4JDJHNK.signer-manager-senseinode';
+const POX5_MGR =
+  'SP20XZGWBWSMRE94WDJ6YJ1EKPJ55RGRGK4JDJHNK.signer-manager-pox5';
+const SENSEI =
+  'SP20XZGWBWSMRE94WDJ6YJ1EKPJ55RGRGK4JDJHNK.signer-manager-senseinode';
 const STAKER = 'SM1TNJ9YHZ5RC1YY6Y8W5NN9DMZ2BJM1BWV8TH6D3';
 
 const replay = (events: MembershipEvent[]): MembershipState => {

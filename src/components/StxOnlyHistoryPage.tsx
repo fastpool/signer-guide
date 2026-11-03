@@ -19,11 +19,7 @@ import {
  * than from adding the two lines, which would lose the sat each of them
  * rounded away.
  */
-export default function StxOnlyHistoryPage({
-  locale,
-}: {
-  locale: Locale;
-}) {
+export default function StxOnlyHistoryPage({ locale }: { locale: Locale }) {
   const t = translator(locale);
   const history = useStxOnlyHistory();
   const cycles =

@@ -114,10 +114,12 @@ ${SCREENSHOTS.map((name) => `  - ../screenshots/raw/${name}.png`).join('\n')}
 # A path, not the notes themselves — zsp opens this file. Emitting the text
 # inline made it try to open the changelog *as a filename*, which fails with
 # "file name too long" and nothing more helpful than that.
-release_notes: ${quoted(path.relative(
-  path.join(root, 'store/zapstore'),
-  path.join(root, 'store/play/en-US/changelogs/default.txt'),
-))}
+release_notes: ${quoted(
+  path.relative(
+    path.join(root, 'store/zapstore'),
+    path.join(root, 'store/play/en-US/changelogs/default.txt'),
+  ),
+)}
 
 # Who publishes. Zapstore takes the signature on the APK as the app's identity
 # and this key as the publisher's; both have to be the same on every release

@@ -11,11 +11,11 @@ because "we collect nothing" is a claim worth being able to check.
 
 ## What stays on your phone
 
-| What                         | Where                        | Why                                     |
-| ---------------------------- | ---------------------------- | --------------------------------------- |
-| The Stacks address you last looked at | the app's own storage | so it is still there when you reopen the app |
-| The last copy of the pool data | the app's own storage       | so the app works with no signal          |
-| Whether you have seen the welcome screen | the app's own storage | so it is shown once                  |
+| What                                     | Where                 | Why                                          |
+| ---------------------------------------- | --------------------- | -------------------------------------------- |
+| The Stacks address you last looked at    | the app's own storage | so it is still there when you reopen the app |
+| The last copy of the pool data           | the app's own storage | so the app works with no signal              |
+| Whether you have seen the welcome screen | the app's own storage | so it is shown once                          |
 
 All three are removed when you uninstall the app. The address is also removed
 the moment you press **Forget**. None of it leaves the phone.
@@ -36,7 +36,7 @@ web request carries: your IP address, at GitHub's end, under
 and what its balance is. **This request contains the Stacks address you are
 looking at**, because there is no way to ask about an address without naming
 it. That address is already public — it is on a public blockchain — but the
-fact that *this phone* asked about *that address at this moment* is visible to
+fact that _this phone_ asked about _that address at this moment_ is visible to
 Hiro, under [Hiro's privacy policy](https://www.hiro.so/privacy). If you would
 rather not, point the app at your own node with
 `EXPO_PUBLIC_STACKS_API_URL`, or run the [web guide](https://signer-guide.fastpool.org)

@@ -1,6 +1,11 @@
 import * as fs from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { RULES, SUBGRAPH, rulesBlock, syncedSubgraph } from './sync-subgraph.js';
+import {
+  RULES,
+  SUBGRAPH,
+  rulesBlock,
+  syncedSubgraph,
+} from './sync-subgraph.js';
 
 /*
  * The subgraph carries a copy of the membership rules, because the CLI

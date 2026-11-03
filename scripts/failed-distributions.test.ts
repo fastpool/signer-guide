@@ -110,10 +110,11 @@ describe('buildRecoveryPlan', () => {
 
 describe('summarise', () => {
   it('totals per pool, heaviest first', () => {
-    expect(summarise([SECOND, REJECTED_2620, { ...SECOND, requestId: 2635 }]))
-      .toEqual([
-        { pool: FASTPOOL, count: 1, sats: 173_912n },
-        { pool: SECOND.pool, count: 2, sats: 2_758n },
-      ]);
+    expect(
+      summarise([SECOND, REJECTED_2620, { ...SECOND, requestId: 2635 }]),
+    ).toEqual([
+      { pool: FASTPOOL, count: 1, sats: 173_912n },
+      { pool: SECOND.pool, count: 2, sats: 2_758n },
+    ]);
   });
 });

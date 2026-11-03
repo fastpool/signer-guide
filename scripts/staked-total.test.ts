@@ -93,33 +93,29 @@ async function fetchStakedUstx(cycle: number): Promise<bigint | null> {
 }
 
 describe('the total staked against pox-5', () => {
-  it(
-    'is what the line under the heading adds up',
-    async (ctx) => {
-      const missing = unread(listed);
-      if (missing.length > 0) {
-        ctx.skip(
-          `the refresh could not read ${missing.length} pool(s): ${missing.join(', ')}`,
-        );
-        return;
-      }
+  it('is what the line under the heading adds up', async (ctx) => {
+    const missing = unread(listed);
+    if (missing.length > 0) {
+      ctx.skip(
+        `the refresh could not read ${missing.length} pool(s): ${missing.join(', ')}`,
+      );
+      return;
+    }
 
-      const staked = await fetchStakedUstx(totals.cycle);
-      if (staked === null) {
-        ctx.skip(
-          `${API_URL} would not say what is staked for cycle ${totals.cycle}`,
-        );
-        return;
-      }
+    const staked = await fetchStakedUstx(totals.cycle);
+    if (staked === null) {
+      ctx.skip(
+        `${API_URL} would not say what is staked for cycle ${totals.cycle}`,
+      );
+      return;
+    }
 
-      // "Between them they are looking after …" — the pools it says that of
-      // are these, so the two figures are the same figure or the sentence is
-      // wrong. Strings, so a mismatch reads as two uSTX counts rather than as
-      // two BigInts printed without their digits lining up.
-      expect(sum(listed).toString()).toBe(staked.toString());
-    },
-    30_000,
-  );
+    // "Between them they are looking after …" — the pools it says that of
+    // are these, so the two figures are the same figure or the sentence is
+    // wrong. Strings, so a mismatch reads as two uSTX counts rather than as
+    // two BigInts printed without their digits lining up.
+    expect(sum(listed).toString()).toBe(staked.toString());
+  }, 30_000);
 
   it('leaves nothing out of the guide that pox-5 counts in', () => {
     // The page lists every pool that runs a contract type still in use, and a

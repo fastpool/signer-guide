@@ -68,9 +68,7 @@ export default function SignerGroupPage({
         ]}
       />
 
-      <h1 className='mt-6 text-4xl font-extrabold md:text-5xl'>
-        {group.name}
-      </h1>
+      <h1 className='mt-6 text-4xl font-extrabold md:text-5xl'>{group.name}</h1>
       <p className='mt-4 text-lg text-muted'>{group.summary}</p>
 
       <p className='mt-3 text-sm font-semibold text-ink'>
@@ -164,7 +162,9 @@ export default function SignerGroupPage({
                           percent:
                             answeredRate(conduct) === null
                               ? '—'
-                              : ((answeredRate(conduct) as number) * 100).toFixed(1),
+                              : (
+                                  (answeredRate(conduct) as number) * 100
+                                ).toFixed(1),
                           cycle: conduct.cycle,
                         })}
                   </p>
@@ -230,8 +230,9 @@ export default function SignerGroupPage({
               .map((member) => (
                 <li key={member.contractId ?? member.signerKey}>
                   <span className='font-mono'>
-                    {(member.contractId ?? member.signerKey ?? '').split('.')[1] ??
-                      member.signerKey}
+                    {(member.contractId ?? member.signerKey ?? '').split(
+                      '.',
+                    )[1] ?? member.signerKey}
                   </span>{' '}
                   — {member.note}
                 </li>

@@ -19,17 +19,16 @@ import { SBTC_POOLS } from '../lib/sbtc-pools';
  * sBTC, a sentence each, and a link out to the page that has the detail. Any
  * fact that wants a second sentence belongs on one of those pages instead.
  */
-export default function HowToStakePage({
-  locale,
-}: {
-  locale: Locale;
-}) {
+export default function HowToStakePage({ locale }: { locale: Locale }) {
   const t = translator(locale);
 
   return (
     <Page>
       <Breadcrumbs
-        items={[{ label: t('nav.pools'), href: '#/' }, { label: t('nav.howTo') }]}
+        items={[
+          { label: t('nav.pools'), href: '#/' },
+          { label: t('nav.howTo') },
+        ]}
       />
 
       <h1 className='mt-6 text-3xl font-extrabold md:text-4xl'>

@@ -95,14 +95,19 @@ describe('the committed file', () => {
     // 4000 today. It was 3712 in cycle 140, so nothing here may hardcode it.
     expect(data.slots).toBeGreaterThan(0);
     const seated = data.nodes.filter((node) => node.seat !== null);
-    const slots = seated.reduce((sum, node) => sum + (node.seat?.weight ?? 0), 0);
+    const slots = seated.reduce(
+      (sum, node) => sum + (node.seat?.weight ?? 0),
+      0,
+    );
     expect(slots).toBe(data.slots);
   });
 
   it('keeps the two totals apart, and the seated one is the smaller', () => {
     // The guide divides by what pox-5 counts as stacked; the signer set
     // divides by what got a seat. Anyone stacked without a slot is the gap.
-    expect(BigInt(data.seatedUstx)).toBeLessThanOrEqual(BigInt(data.stackedUstx));
+    expect(BigInt(data.seatedUstx)).toBeLessThanOrEqual(
+      BigInt(data.stackedUstx),
+    );
     const seated = data.nodes.reduce(
       (sum, node) => sum + BigInt(node.seat?.stackedUstx ?? '0'),
       0n,

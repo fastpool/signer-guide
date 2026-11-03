@@ -64,9 +64,7 @@
   },
   "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-sbtc-signer": {
     "note": "Reviewed 2026-11-03 from source 08ad5625…: despite the name, stakers are paid in STX. pox-claim-rewards sends the claimed sBTC to a swap vault, finalize-swap records the STX it returns, and pay-stx-stakers pays that out by share; sBTC reaches stakers only on the emergency-recover path. Its earned-fees var is in uSTX, not sats, so the sats reading is left out rather than shown in the wrong unit.",
-    "rewardsIn": [
-      "stx"
-    ],
+    "rewardsIn": ["stx"],
     "earnedFeesSats": null
   },
   "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer": {

@@ -24,7 +24,9 @@ jest.mock('@stacks/bitcoin-staking', () =>
 const bare = (key: string) => key.toLowerCase().replace(/^0x/, '');
 const signers = BUNDLED.signers.signers;
 
-const row = (over: Partial<SignerCyclePerformance> = {}): SignerCyclePerformance => ({
+const row = (
+  over: Partial<SignerCyclePerformance> = {},
+): SignerCyclePerformance => ({
   cycle: 142,
   accepted: 33890,
   rejected: 776,
@@ -38,9 +40,7 @@ const row = (over: Partial<SignerCyclePerformance> = {}): SignerCyclePerformance
 });
 
 /** A pool with a key, no rotation, and something to say about it. */
-const plain = signers.find(
-  (s) => s.signerKey && !lastRotation(s.contractId),
-)!;
+const plain = signers.find((s) => s.signerKey && !lastRotation(s.contractId))!;
 
 beforeEach(() => {
   resetChain();
@@ -112,7 +112,13 @@ describe('a pool that rotated its key', () => {
         [bare(rotation.from!)]: {
           signerKey: bare(rotation.from!),
           cycles: [
-            row({ accepted: 0, rejected: 0, missed: 33976, responseMs: null, lastSeen: null }),
+            row({
+              accepted: 0,
+              rejected: 0,
+              missed: 33976,
+              responseMs: null,
+              lastSeen: null,
+            }),
           ],
         },
       },

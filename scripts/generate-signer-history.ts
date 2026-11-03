@@ -883,7 +883,9 @@ async function main() {
 
   const totals = options.amountsFromTotals ? readTotals() : null;
   if (options.amountsFromTotals && !totals) {
-    console.log('  totals.json would not read, so the amounts come from the chain');
+    console.log(
+      '  totals.json would not read, so the amounts come from the chain',
+    );
   }
 
   const log = readEventLog();

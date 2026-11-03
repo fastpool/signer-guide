@@ -42,7 +42,12 @@ describe('the first launch', () => {
     await screen.findByTestId('welcome-screen');
     expect(screen.getByTestId('welcome-rate-value')).toHaveTextContent(/%$/);
     // None of the machinery belongs between somebody and their first stake.
-    for (const word of ['pox-5', 'signer manager', 'calldata', 'post condition']) {
+    for (const word of [
+      'pox-5',
+      'signer manager',
+      'calldata',
+      'post condition',
+    ]) {
       expect(screen.queryByText(new RegExp(word, 'i'))).toBeNull();
     }
   });
@@ -67,13 +72,13 @@ describe('the first launch', () => {
 
 describe('starting to stake', () => {
   /** Connect the way the start screen now offers: through the wallet screen. */
-async function connectFromStart() {
-  fireEvent.press(screen.getByTestId('start-connect-wallet'));
-  fireEvent.press(await screen.findByTestId('connect-any'));
-  await screen.findByTestId('start-screen');
-}
+  async function connectFromStart() {
+    fireEvent.press(screen.getByTestId('start-connect-wallet'));
+    fireEvent.press(await screen.findByTestId('connect-any'));
+    await screen.findByTestId('start-screen');
+  }
 
-async function reachStart() {
+  async function reachStart() {
     renderApp();
     fireEvent.press(await screen.findByTestId('welcome-start'));
     return screen.findByTestId('start-screen');
@@ -169,7 +174,9 @@ async function reachStart() {
     await connectFromStart();
     fireEvent.changeText(await screen.findByTestId('start-amount'), '250');
 
-    await waitFor(() => expect(screen.getByTestId('start-submit')).not.toBeDisabled());
+    await waitFor(() =>
+      expect(screen.getByTestId('start-submit')).not.toBeDisabled(),
+    );
     fireEvent.press(screen.getByTestId('start-submit'));
 
     await waitFor(() => expect(harness.calls).toHaveLength(1));
@@ -179,9 +186,9 @@ async function reachStart() {
 
     const args = call.functionArgs.map(hexToCV);
     // The amount typed, to the microSTX.
-    expect(args.some((cv) => cv.type === 'uint' && cv.value === 250_000_000n)).toBe(
-      true,
-    );
+    expect(
+      args.some((cv) => cv.type === 'uint' && cv.value === 250_000_000n),
+    ).toBe(true);
     // The shared default, not a number this screen chose for itself.
     expect(
       args.some(
@@ -199,11 +206,15 @@ async function reachStart() {
     await screen.findByTestId('start-screen');
     await connectFromStart();
     fireEvent.changeText(await screen.findByTestId('start-amount'), '250');
-    await waitFor(() => expect(screen.getByTestId('start-submit')).not.toBeDisabled());
+    await waitFor(() =>
+      expect(screen.getByTestId('start-submit')).not.toBeDisabled(),
+    );
     fireEvent.press(screen.getByTestId('start-submit'));
 
     expect(await screen.findByTestId('sent-screen')).toBeOnTheScreen();
-    expect(screen.getByTestId('sent-status')).toHaveTextContent('waiting for the chain');
+    expect(screen.getByTestId('sent-status')).toHaveTextContent(
+      'waiting for the chain',
+    );
   });
 
   it('sends somebody who already stakes to the form that can change it', async () => {
@@ -228,6 +239,8 @@ describe('the long way round', () => {
 
     expect(await screen.findByTestId('start-staking')).toBeOnTheScreen();
     fireEvent.press(screen.getByTestId('choose-yourself'));
-    expect(await screen.findByTestId('choose-contract-screen')).toBeOnTheScreen();
+    expect(
+      await screen.findByTestId('choose-contract-screen'),
+    ).toBeOnTheScreen();
   });
 });

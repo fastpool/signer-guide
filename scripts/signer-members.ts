@@ -59,10 +59,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import {
-  nodesBySignerKey,
-  type SignerNode,
-} from '../src/lib/signer-nodes.js';
+import { nodesBySignerKey, type SignerNode } from '../src/lib/signer-nodes.js';
 import type { Signer, SignerData } from '../src/lib/types.js';
 import { formatStx } from './format.js';
 import { fetchAmountDelegated } from './locked.js';

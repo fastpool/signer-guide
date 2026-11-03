@@ -130,16 +130,20 @@ describe('changing a stake', () => {
     // Ends at cycle 149, current is 142, so seven cycles are left and the most
     // it can add is 96 - 7.
     staking({ firstRewardCycle: 138, numCycles: 12 });
-    await expect(
-      buildStakeCall({ ...base, extendCycles: 90 }),
-    ).rejects.toThrow(/between/);
+    await expect(buildStakeCall({ ...base, extendCycles: 90 })).rejects.toThrow(
+      /between/,
+    );
   });
 
   it('takes the least extension the contract accepts when asked for none', async () => {
     // A position with nothing left cannot be updated at all, so an update that
     // only moves pool still has to add the one cycle pox-5 insists on.
     staking({ firstRewardCycle: 131, numCycles: 12 });
-    const call = await buildStakeCall({ ...base, amountUstx: 0n, extendCycles: 0 });
+    const call = await buildStakeCall({
+      ...base,
+      amountUstx: 0n,
+      extendCycles: 0,
+    });
     expect(call.functionName).toBe('stake-update');
   });
 
@@ -153,14 +157,20 @@ describe('changing a stake', () => {
 describe('unstaking', () => {
   it('asks pox-5 to end the position and bounds no amount', async () => {
     staking();
-    const call = await buildUnstakeCall({ staker: STAKER, signerContractId: SIGNER });
+    const call = await buildUnstakeCall({
+      staker: STAKER,
+      signerContractId: SIGNER,
+    });
     expect(call.functionName).toBe('unstake');
     expect(call.postConditions).toHaveLength(1);
   });
 
   it('bounds returned sBTC only when there is some to return', async () => {
     staking({ custodiedSbtcSats: 5_000n });
-    const call = await buildUnstakeCall({ staker: STAKER, signerContractId: SIGNER });
+    const call = await buildUnstakeCall({
+      staker: STAKER,
+      signerContractId: SIGNER,
+    });
     expect(call.postConditions).toHaveLength(2);
   });
 

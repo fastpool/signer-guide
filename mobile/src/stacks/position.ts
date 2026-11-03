@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
-import { fetchCycleState, fetchStakedPosition, type StakedPosition } from '@guide/lib/staking';
-import { fetchAccountBalance, STACKS_API_URL, type AccountBalance } from './api';
+import {
+  fetchCycleState,
+  fetchStakedPosition,
+  type StakedPosition,
+} from '@guide/lib/staking';
+import {
+  fetchAccountBalance,
+  STACKS_API_URL,
+  type AccountBalance,
+} from './api';
 
 /**
  * Everything the first screen needs about one address, read from the chain.
@@ -45,7 +53,7 @@ export function useChainView(address: string | null): ChainView {
     setLoading(true);
     setError(null);
 
-    const settle = <T,>(promise: Promise<T>, onValue: (value: T) => void) =>
+    const settle = <T>(promise: Promise<T>, onValue: (value: T) => void) =>
       promise.then(
         (value) => {
           if (live) onValue(value);

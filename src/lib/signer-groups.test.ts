@@ -33,7 +33,11 @@ const totals = realTotals as LockedTotals;
 
 const KEY_A = '0x02aaaa';
 const signer = (contractId: string, signerKey?: string): Signer =>
-  ({ contractId, displayName: contractId, signerKey: signerKey ?? null }) as Signer;
+  ({
+    contractId,
+    displayName: contractId,
+    signerKey: signerKey ?? null,
+  }) as Signer;
 
 const group = (members: SignerGroup['members']): SignerGroup => ({
   id: 'test',
@@ -98,9 +102,9 @@ describe('what a group weighs', () => {
   it('is its share of the whole cycle, not of itself', () => {
     const ustx = { 'SP1.one': '250', 'SP2.other': '750' };
     expect(groupUstx(group([{ signerKey: KEY_A }]), fleet, ustx)).toBe(250n);
-    expect(groupVotingPowerBips(group([{ signerKey: KEY_A }]), fleet, ustx)).toBe(
-      2_500,
-    );
+    expect(
+      groupVotingPowerBips(group([{ signerKey: KEY_A }]), fleet, ustx),
+    ).toBe(2_500);
   });
 
   it('is unknown, not zero, when nothing in it could be read', () => {
@@ -130,7 +134,9 @@ describe('the committed groups', () => {
     for (const entry of allGroups()) {
       for (const member of entry.members) {
         if (member.contractId) {
-          expect(contracts.has(member.contractId), member.contractId).toBe(true);
+          expect(contracts.has(member.contractId), member.contractId).toBe(
+            true,
+          );
         }
         if (member.signerKey) {
           expect(keys.has(member.signerKey), member.signerKey).toBe(true);
@@ -182,10 +188,9 @@ describe('the committed groups', () => {
     const node = nodeForContract(signers, shared);
     expect(node).not.toBeNull();
 
-    expect(groupsForContract(shared, node!.signerKey).map((g) => g.id)).toEqual([
-      'xverse',
-      'stacking-dao',
-    ]);
+    expect(groupsForContract(shared, node!.signerKey).map((g) => g.id)).toEqual(
+      ['xverse', 'stacking-dao'],
+    );
     expect(groupsForNode(node!).map((g) => g.id)).toEqual([
       'xverse',
       'stacking-dao',
@@ -194,8 +199,9 @@ describe('the committed groups', () => {
     // And the node's other contract is Xverse's alone.
     const own = node!.contracts.find((c) => c.contractId !== shared);
     expect(own).toBeDefined();
-    expect(groupsForContract(own!.contractId, node!.signerKey).map((g) => g.id))
-      .toEqual(['xverse']);
+    expect(
+      groupsForContract(own!.contractId, node!.signerKey).map((g) => g.id),
+    ).toEqual(['xverse']);
   });
 
   it('never claim more of a cycle than there is', () => {

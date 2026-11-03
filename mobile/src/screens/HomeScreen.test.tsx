@@ -85,7 +85,10 @@ describe('with nobody connected', () => {
     staking();
     renderApp();
     fireEvent.press(await screen.findByTestId('home-connect'));
-    fireEvent.changeText(await screen.findByTestId('watch-input'), MOCK_ADDRESS);
+    fireEvent.changeText(
+      await screen.findByTestId('watch-input'),
+      MOCK_ADDRESS,
+    );
     fireEvent.press(screen.getByTestId('watch-submit'));
 
     // Back on the home screen, showing that address's position — and saying
@@ -100,7 +103,10 @@ describe('with nobody connected', () => {
   it('will not watch something that is not a Stacks address', async () => {
     renderApp();
     fireEvent.press(await screen.findByTestId('home-connect'));
-    fireEvent.changeText(await screen.findByTestId('watch-input'), 'not-an-address');
+    fireEvent.changeText(
+      await screen.findByTestId('watch-input'),
+      'not-an-address',
+    );
     expect(screen.getByTestId('watch-submit')).toBeDisabled();
   });
 });
@@ -112,7 +118,9 @@ describe('with a wallet connected', () => {
     await connectWallet(screen, fireEvent);
 
     expect(await screen.findByTestId('position-card')).toBeOnTheScreen();
-    expect(screen.getByTestId('position-amount')).toHaveTextContent('100,000 STX');
+    expect(screen.getByTestId('position-amount')).toHaveTextContent(
+      '100,000 STX',
+    );
     // Whose stake it is, in the card rather than in one of its own.
     expect(screen.getByTestId('position-address')).toBeOnTheScreen();
     // A hundred lots of 1,000 STX, so a hundred times the published rate.

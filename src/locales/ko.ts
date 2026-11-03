@@ -212,7 +212,7 @@ export const ko: LocaleBundle = {
     'app.stxOnlyHistory.atHeight': '번 높이 {height}',
     'app.stxOnlyHistory.rateUnknown': '알 수 없음',
     'app.stxOnlyHistory.note':
-      '보상 사이클 합계는 두 번의 지급액을 더한 값이 아니라 pox-5가 해당 사이클에 적립한 값에서 가져옵니다. 각 지급액은 개별적으로 1사토시 단위로 내림되기 때문입니다. 두 지급 사이에 갱신이 실행되지 않으면 전반 지급액은 \'알 수 없음\'으로 표시됩니다. 두 번을 구분할 수 있는 시점은 그때뿐입니다.',
+      "보상 사이클 합계는 두 번의 지급액을 더한 값이 아니라 pox-5가 해당 사이클에 적립한 값에서 가져옵니다. 각 지급액은 개별적으로 1사토시 단위로 내림되기 때문입니다. 두 지급 사이에 갱신이 실행되지 않으면 전반 지급액은 '알 수 없음'으로 표시됩니다. 두 번을 구분할 수 있는 시점은 그때뿐입니다.",
     'bonds.open': '본드 현황',
     'app.bonds.back': '← 전체 풀',
     'app.bonds.title': '본드에 들어 있는 비트코인',
@@ -261,7 +261,8 @@ export const ko: LocaleBundle = {
     'app.stxOnlyFaq.q.threeRates': '이 페이지에 비율이 왜 세 개인가요?',
     'app.stxOnlyFaq.a.threeRates':
       '하나는 확정된 사실이고 나머지 둘은 아닙니다. 직전 지급 실적은 pox-5가 이미 적립을 마친 확정치입니다. 이번 분배 사이클 진행분 환산은 지금까지 쌓인 금액을 사이클 전체 길이로 늘린 값이라, 사이클 후반에는 쓸 만하지만 지급 직후에는 번 블록 몇 개가 일주일을 대신하므로 편차가 큽니다. 여기 공개하는 비율은 이 둘을 사이클 진행도에 따라 가중 평균한 값이어서, 실제로 지급된 금액에서 출발해 근거가 쌓이는 만큼 이번 사이클 쪽으로 옮겨 갑니다.',
-    'app.stxOnlyFaq.q.blend': '그러면 공개 비율은 왜 둘 중 어느 값과도 다른가요?',
+    'app.stxOnlyFaq.q.blend':
+      '그러면 공개 비율은 왜 둘 중 어느 값과도 다른가요?',
     'app.stxOnlyFaq.a.blend':
       '둘을 사이클 진행도만큼 섞은 값이기 때문입니다. 사이클 초반에는 직전 지급 실적에 가깝고, 사이클이 끝날 무렵에는 거의 이번 사이클 자체 수치가 됩니다.',
     'app.stxOnlyFaq.q.sats': 'sats는 어디에서 오나요?',
@@ -434,7 +435,8 @@ export const ko: LocaleBundle = {
     'groups.heading': '의결 지분은 누가 쥐고 있나',
     'groups.intro':
       '서명자 노드는 키 하나입니다. 그룹은 한 주체가 뒤에 있는 노드의 집합이며, 서명자 집합을 실제로 움직일 수 있는 쪽이 누구인지는 이 수치가 정합니다. 체인은 그것을 보여 주지 않습니다. 지분이 큰 순서입니다.',
-    'groups.counts': '노드 {nodes}개 · 컨트랙트 {contracts}개 · {staked} 스테이킹',
+    'groups.counts':
+      '노드 {nodes}개 · 컨트랙트 {contracts}개 · {staked} 스테이킹',
     'groups.asOf': '지분은 {cycle} 사이클 기준입니다.',
     'groups.ungrouped': '그룹 없음',
     'groups.ungroupedNote':
@@ -464,7 +466,8 @@ export const ko: LocaleBundle = {
       '이 컨트랙트만 해당합니다. 같은 노드가 보유한 나머지는 이 그룹에 포함되지 않습니다.',
     'group.wholeNode': '이 키에 등록된 모든 컨트랙트',
     'group.unknownAmount': '알 수 없음',
-    'group.nodeAnswered': '{cycle} 사이클에서 요청받은 블록의 {percent}%에 응답했습니다.',
+    'group.nodeAnswered':
+      '{cycle} 사이클에서 요청받은 블록의 {percent}%에 응답했습니다.',
     'group.nodeSilent': '{cycle} 사이클에서 단 한 건도 응답하지 않았습니다.',
     'group.alsoIn': '{names}에도 함께 집계됨',
     'group.overlapNote':
@@ -480,13 +483,15 @@ export const ko: LocaleBundle = {
       '이 사이클의 좌석을 실제로 가진 것은 교체되기 전의 키이므로 그 키의 기록입니다. 새 키는 다음 집합이 정해질 때까지 아무것도 보유하지 않습니다.',
     'conduct.cycleOpen': '{cycle} 사이클, 진행 중',
     'conduct.cycleClosed': '{cycle} 사이클',
-    'conduct.answeredNote': '제안 {proposals}건 중 {answered}건에 응답했습니다 — {label}.',
+    'conduct.answeredNote':
+      '제안 {proposals}건 중 {answered}건에 응답했습니다 — {label}.',
     'conduct.neverAnswered': '응답 없음',
     'conduct.neverAnsweredNote':
       '{cycle} 사이클에서 블록 {proposals}건을 요청받았지만 한 건도 응답하지 않았습니다. 이 키로부터 확인된 신호가 전혀 없습니다.',
     'conduct.response': '평균 응답 시간',
     'conduct.seconds': '{seconds}초',
-    'conduct.responseMiddle': '{cycle} 사이클 서명자 집합의 중앙값은 {seconds}초입니다.',
+    'conduct.responseMiddle':
+      '{cycle} 사이클 서명자 집합의 중앙값은 {seconds}초입니다.',
     'conduct.agreed': '응답 중 수락 비율',
     'conduct.agreedNote':
       '나머지는 읽고 거부한 것이며, 그것이 서명자의 역할입니다. 이 값이 낮으면 확인해 볼 만하지만, 아예 응답하지 않은 것과는 다릅니다.',
@@ -495,7 +500,8 @@ export const ko: LocaleBundle = {
     'conduct.hideHistory': '기록 접기',
     'conduct.loading': '이 키의 기록을 읽는 중…',
     'conduct.noHistory': '이 키에 대한 사이클 기록이 아직 없습니다.',
-    'conduct.failed': '불러오지 못했습니다. 파일 하나일 뿐이며 이 페이지의 나머지는 영향을 받지 않습니다.',
+    'conduct.failed':
+      '불러오지 못했습니다. 파일 하나일 뿐이며 이 페이지의 나머지는 영향을 받지 않습니다.',
     'conduct.soFar': '진행 중',
     'conduct.th.cycle': '사이클',
     'conduct.th.answered': '응답률',
@@ -839,7 +845,8 @@ export const ko: LocaleBundle = {
     'home.stat.payoutDays.one': '약 {count}일 후',
     'home.stat.payoutDays.other': '약 {count}일 후',
     'home.stat.payoutDue': '지급 예정',
-    'home.stat.payoutOverdue': '마지막 갱신 때의 예상치이며, 그 날짜가 지났습니다.',
+    'home.stat.payoutOverdue':
+      '마지막 갱신 때의 예상치이며, 그 날짜가 지났습니다.',
     'home.stat.payoutBlocks': '{total}블록 중 {done} ·',
     'home.stat.history': '지급 내역 →',
     'home.footer.fees':
@@ -868,7 +875,8 @@ export const ko: LocaleBundle = {
     'pools.col.stake': '스테이킹',
     'pools.unnamed': '이름 없는 풀',
     'pools.unnamedIn': '{group} · 이름 없음',
-    'pools.feeElsewhere': '이 컨트랙트에 수수료가 없습니다. 다른 곳에서 부과될 수 있습니다',
+    'pools.feeElsewhere':
+      '이 컨트랙트에 수수료가 없습니다. 다른 곳에서 부과될 수 있습니다',
     'pools.cap': '상한 {percent}%',
     'pools.capHelp':
       '컨트랙트가 강제하는 상한입니다. 풀이 어떻게 정하든 수수료는 이 값을 넘을 수 없습니다.',
@@ -878,7 +886,8 @@ export const ko: LocaleBundle = {
     'pools.change.notYet': '아직 없음',
     'pools.change.same': '변동 없음',
     'pools.unknownAmount': '마지막 갱신에서 이 금액을 읽지 못했습니다',
-    'pools.notReadYet': '마지막 갱신 이후에 등록되었습니다. 다음 갱신에서 읽습니다',
+    'pools.notReadYet':
+      '마지막 갱신 이후에 등록되었습니다. 다음 갱신에서 읽습니다',
     'pools.unreviewed': '검토되지 않음',
     'pools.details': '자세히',
     'pools.phone.fee': '수수료 {fee}',
@@ -894,7 +903,8 @@ export const ko: LocaleBundle = {
       'Stacking DAO의 Native Pool을 통해 들어온 스테이킹만 받습니다. Native Pool에는 누구나 참여할 수 있습니다.',
 
     'currency.btc': 'BTC',
-    'currency.btc.help': '컨트랙트가 지정한 비트코인 주소로 보상을 보낼 수 있습니다.',
+    'currency.btc.help':
+      '컨트랙트가 지정한 비트코인 주소로 보상을 보낼 수 있습니다.',
     'currency.sbtc': 'sBTC',
     'currency.sbtc.help': '보상은 Stacks의 sBTC로 지급됩니다.',
     'currency.stx': 'STX',
@@ -913,7 +923,8 @@ export const ko: LocaleBundle = {
 
     // ---- 풀 페이지
     'pool.checkStake': '내 스테이킹 확인',
-    'pool.stakeElsewhere': '스테이킹은 여기가 아니라 Native Pool 앱에서 합니다.',
+    'pool.stakeElsewhere':
+      '스테이킹은 여기가 아니라 Native Pool 앱에서 합니다.',
     'pool.warning.highFee.title': '수수료가 보상을 거의 전부 가져갑니다.',
     'pool.warning.highFee.body':
       '현재 수수료는 {fee}입니다. 이 풀의 스테이커는 거의 아무것도 받지 못합니다.',
@@ -977,7 +988,8 @@ export const ko: LocaleBundle = {
     'pool.rewards.caption': '지금 이 풀 안팎에 있는 sBTC입니다.',
     'pool.rewards.none':
       '이 컨트랙트는 보유 금액을 공개하지 않아서, pox-5가 아직 지급하지 않은 금액만 읽을 수 있습니다.',
-    'pool.key.caption': '이 풀을 위해 서명하는 키와, 이 키로 등록된 모든 컨트랙트입니다.',
+    'pool.key.caption':
+      '이 풀을 위해 서명하는 키와, 이 키로 등록된 모든 컨트랙트입니다.',
     'pool.key.staked': '사이클 {cycle}에 이 키에 {amount}.',
     'pool.contract.title': '컨트랙트가 하는 일',
     'pool.contract.caption': '소스 코드에서 읽었습니다.',

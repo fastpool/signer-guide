@@ -79,8 +79,9 @@ describe('readRate', () => {
   });
 
   it('refuses a rate that is not a plain count', () => {
-    expect(readRate({ ...CALCULATIONS, rateSatsPer1000Stx: '4.08' }).satsPer1000Stx)
-      .toBeNull();
+    expect(
+      readRate({ ...CALCULATIONS, rateSatsPer1000Stx: '4.08' }).satsPer1000Stx,
+    ).toBeNull();
   });
 });
 

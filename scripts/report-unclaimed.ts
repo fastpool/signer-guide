@@ -122,7 +122,8 @@ async function main() {
             found.rosterCycles.length
               ? `cycle(s) ${found.rosterCycles.join(', ')}`
               : 'no cycle at all'
-          }` + (found.walked ? ", and pox-5's transactions" : ''),
+          }` +
+          (found.walked ? ", and pox-5's transactions" : ''),
       );
       if (!found.rosterCycles.length && !found.walked) {
         console.warn(
@@ -205,13 +206,16 @@ async function main() {
   for (const pool of report.pools) {
     const owed = pool.unattributedSats + pool.pendingSats;
     if (owed === 0n) continue;
-    const settled = pool.pendingSats > 0n ? ` (${sats(pool.pendingSats)} settled)` : '';
+    const settled =
+      pool.pendingSats > 0n ? ` (${sats(pool.pendingSats)} settled)` : '';
     console.log(`  ${sats(owed).padStart(18)}  ${pool.pool}${settled}`);
   }
   console.log(`  ${sats(t.owedToStakersSats).padStart(18)}  TOTAL`);
 
   console.log('\nNot owed to stakers, listed so it is not double-counted');
-  console.log(`  ${sats(t.inFlightSats).padStart(18)}  handed to sBTC withdrawals (in flight, or refused)`);
+  console.log(
+    `  ${sats(t.inFlightSats).padStart(18)}  handed to sBTC withdrawals (in flight, or refused)`,
+  );
   console.log(`  ${sats(t.feesSats).padStart(18)}  operator fees earned`);
 
   if (t.unreadable.length > 0) {

@@ -10,7 +10,11 @@ import { useRemoteJson, type Remote } from './remote-json';
 import { isStxOnlyHistory } from './stx-only-cycles';
 import type { StxOnlyHistory } from './types';
 
-export { byCycle, isStxOnlyHistory, type CycleDistributions } from './stx-only-cycles';
+export {
+  byCycle,
+  isStxOnlyHistory,
+  type CycleDistributions,
+} from './stx-only-cycles';
 
 export function useStxOnlyHistory(): Remote<StxOnlyHistory> {
   return useRemoteJson('stx-only-history.json', isStxOnlyHistory);

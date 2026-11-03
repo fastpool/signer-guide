@@ -13,16 +13,7 @@ import { lockLabel, shortAddress, stxExact } from '../format';
 import { useT } from '../i18n';
 import { useColors, useSettings } from '../settings';
 import { fonts, radius, space } from '../theme';
-import {
-  Button,
-  Card,
-  Divider,
-  Label,
-  Note,
-  Pill,
-  Row,
-  Text,
-} from '../ui';
+import { Button, Card, Divider, Label, Note, Pill, Row, Text } from '../ui';
 import Identicon from './Identicon';
 
 /**
@@ -81,7 +72,12 @@ export default function PositionCard({
         </Pill>
       </Row>
 
-      <Text variant='title' tone='stx' testID='position-amount' style={styles.amount}>
+      <Text
+        variant='title'
+        tone='stx'
+        testID='position-amount'
+        style={styles.amount}
+      >
         {stxExact(position.amountUstx, locale)}
       </Text>
 

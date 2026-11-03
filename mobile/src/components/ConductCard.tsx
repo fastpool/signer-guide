@@ -8,7 +8,10 @@ import {
   proposals,
   responseSeconds,
 } from '@guide/lib/performance';
-import type { SignerCyclePerformance, SignerPerformance } from '@guide/lib/types';
+import type {
+  SignerCyclePerformance,
+  SignerPerformance,
+} from '@guide/lib/types';
 import { useRemoteJson } from '../data/remote';
 import { groupDigits } from '../format';
 import { useT } from '../i18n';
@@ -144,7 +147,11 @@ export default function ConductCard({
         <Row gap={space.xl} wrap>
           <Field
             label={t('conduct.answered')}
-            value={rate === null ? t('conduct.unknown') : `${(rate * 100).toFixed(2)}%`}
+            value={
+              rate === null
+                ? t('conduct.unknown')
+                : `${(rate * 100).toFixed(2)}%`
+            }
             tone={rate !== null && rate < 0.9 ? 'bad' : 'stx'}
             testID='conduct-answered'
           />
@@ -160,7 +167,9 @@ export default function ConductCard({
           <Field
             label={t('conduct.agreed')}
             value={
-              agreed === null ? t('conduct.unknown') : `${(agreed * 100).toFixed(1)}%`
+              agreed === null
+                ? t('conduct.unknown')
+                : `${(agreed * 100).toFixed(1)}%`
             }
           />
         </Row>

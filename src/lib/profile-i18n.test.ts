@@ -46,7 +46,10 @@ describe('contractTypeName', () => {
     // callers say when there is no name at all.
     expect(
       contractTypeName(
-        { groupSha256: 'a hash no profile has', implementationName: 'Standard' },
+        {
+          groupSha256: 'a hash no profile has',
+          implementationName: 'Standard',
+        },
         'en',
       ),
     ).toBe('Standard');

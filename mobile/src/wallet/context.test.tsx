@@ -3,7 +3,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Button, Text } from 'react-native';
 import { useWallet, WalletProvider } from './context';
 import { mockWallet } from './mock';
-import { WalletCancelled, type ContractCallRequest, type Wallet } from './types';
+import {
+  WalletCancelled,
+  type ContractCallRequest,
+  type Wallet,
+} from './types';
 
 /*
  * Who the app is looking at, and whether it can sign for them.
@@ -96,7 +100,9 @@ describe('connecting', () => {
   });
 
   it('treats a wallet’s own rejection wording as a cancellation too', async () => {
-    mount(() => mockWallet({ failWith: new Error('User rejected the request') }));
+    mount(() =>
+      mockWallet({ failWith: new Error('User rejected the request') }),
+    );
     await act(async () => {
       await api.connect('xverse');
     });
@@ -119,7 +125,9 @@ describe('watching', () => {
     await act(async () => {
       await api.watch(OTHER);
     });
-    await expect(api.callContract(CALL)).rejects.toThrow(/No wallet is connected/);
+    await expect(api.callContract(CALL)).rejects.toThrow(
+      /No wallet is connected/,
+    );
   });
 
   it('normalises what was typed, since an address is upper case', async () => {

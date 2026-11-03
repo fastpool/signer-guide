@@ -87,9 +87,30 @@ describe('how full the bar is drawn', () => {
 
 describe('where the locked bitcoin actually sits', () => {
   const rows = [
-    { staker: 'SP1', maxSats: '10', registeredSats: '6', amountUstx: '1', isL1Lock: false, signer: 'SP.x' },
-    { staker: 'SP2', maxSats: '10', registeredSats: '4', amountUstx: '1', isL1Lock: true, signer: 'SP.x' },
-    { staker: 'SP3', maxSats: '10', registeredSats: '0', amountUstx: null, isL1Lock: null, signer: null },
+    {
+      staker: 'SP1',
+      maxSats: '10',
+      registeredSats: '6',
+      amountUstx: '1',
+      isL1Lock: false,
+      signer: 'SP.x',
+    },
+    {
+      staker: 'SP2',
+      maxSats: '10',
+      registeredSats: '4',
+      amountUstx: '1',
+      isL1Lock: true,
+      signer: 'SP.x',
+    },
+    {
+      staker: 'SP3',
+      maxSats: '10',
+      registeredSats: '0',
+      amountUstx: null,
+      isL1Lock: null,
+      signer: null,
+    },
   ];
 
   it('adds each side up, ignoring those who locked nothing', () => {
@@ -128,8 +149,22 @@ describe('the cycles a bond covers', () => {
 describe('who turned up', () => {
   it('keeps the stakers who locked something apart from those who did not', () => {
     const stakers = [
-      { staker: 'SP1', maxSats: '10', registeredSats: '10', amountUstx: '1', isL1Lock: false, signer: 'SP.x' },
-      { staker: 'SP2', maxSats: '10', registeredSats: '0', amountUstx: null, isL1Lock: null, signer: null },
+      {
+        staker: 'SP1',
+        maxSats: '10',
+        registeredSats: '10',
+        amountUstx: '1',
+        isL1Lock: false,
+        signer: 'SP.x',
+      },
+      {
+        staker: 'SP2',
+        maxSats: '10',
+        registeredSats: '0',
+        amountUstx: null,
+        isL1Lock: null,
+        signer: null,
+      },
     ];
     const split = splitByRegistered(period({ stakers }));
     expect(split.locked.map((s) => s.staker)).toEqual(['SP1']);
@@ -147,7 +182,9 @@ describe('what the page will read', () => {
     // a cached build should read as "nothing on file" rather than throw on
     // the first render.
     const data = committed as unknown as BondsData;
-    expect(isBondsData({ ...data, next: { ...data.next, allowlistedSats: 1 } })).toBe(false);
+    expect(
+      isBondsData({ ...data, next: { ...data.next, allowlistedSats: 1 } }),
+    ).toBe(false);
     expect(isBondsData({ ...data, next: undefined })).toBe(false);
     expect(isBondsData({ ...data, generatedAt: 'whenever' })).toBe(false);
     expect(isBondsData(null)).toBe(false);

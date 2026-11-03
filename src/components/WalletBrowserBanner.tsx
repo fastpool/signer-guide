@@ -83,7 +83,9 @@ export function WalletBrowserBar({
       className='flex flex-wrap items-center justify-center gap-x-3 gap-y-2 bg-grape-soft px-4 py-2.5 text-sm'
       style={{ paddingTop: 'calc(0.625rem + env(safe-area-inset-top))' }}
     >
-      <span className='font-semibold text-grape'>{t('walletBanner.title')}</span>
+      <span className='font-semibold text-grape'>
+        {t('walletBanner.title')}
+      </span>
 
       {BROWSER_WALLETS.map((id) => {
         const link = walletBrowserUrl(id, here);

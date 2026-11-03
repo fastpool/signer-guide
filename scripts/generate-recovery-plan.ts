@@ -33,7 +33,8 @@ import {
 } from './failed-distributions.js';
 import { describeNode } from './node.js';
 
-const DEFAULT_OUT = 'deployments/recover-failed-distributions.mainnet-plan.yaml';
+const DEFAULT_OUT =
+  'deployments/recover-failed-distributions.mainnet-plan.yaml';
 
 function flag(name: string): string | undefined {
   const index = process.argv.indexOf(`--${name}`);

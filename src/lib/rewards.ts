@@ -25,7 +25,11 @@
  * an endpoint was busy.
  */
 
-import { Cl, fetchCallReadOnlyFunction, ClarityType } from '@stacks/transactions';
+import {
+  Cl,
+  fetchCallReadOnlyFunction,
+  ClarityType,
+} from '@stacks/transactions';
 
 const POX5 = 'SP000000000000000000002Q6VF78.pox-5';
 

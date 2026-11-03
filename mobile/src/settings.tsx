@@ -72,8 +72,10 @@ export function SettingsProvider({
     ])
       .then(([storedAppearance, storedLocale]) => {
         if (cancelled) return;
-        if (isAppearance(storedAppearance)) setStoredAppearance(storedAppearance);
-        if (storedLocale && isLocale(storedLocale)) setStoredLocale(storedLocale);
+        if (isAppearance(storedAppearance))
+          setStoredAppearance(storedAppearance);
+        if (storedLocale && isLocale(storedLocale))
+          setStoredLocale(storedLocale);
       })
       // A store that will not answer costs the preference, not the app.
       .catch(() => {})
@@ -98,7 +100,11 @@ export function SettingsProvider({
   }, []);
 
   const scheme: Scheme =
-    appearance === 'system' ? (systemScheme === 'light' ? 'light' : 'dark') : appearance;
+    appearance === 'system'
+      ? systemScheme === 'light'
+        ? 'light'
+        : 'dark'
+      : appearance;
 
   const value = useMemo<Settings>(
     () => ({
@@ -114,7 +120,9 @@ export function SettingsProvider({
   );
 
   return (
-    <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>
+    <SettingsContext.Provider value={value}>
+      {children}
+    </SettingsContext.Provider>
   );
 }
 

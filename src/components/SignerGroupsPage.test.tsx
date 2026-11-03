@@ -30,12 +30,7 @@ beforeEach(() => {
 
 const html = () =>
   renderToStaticMarkup(
-    <SignerGroupsPage
-      signers={all}
-      totals={locked}
-      locale='en'
-     
-    />,
+    <SignerGroupsPage signers={all} totals={locked} locale='en' />,
   );
 
 describe('the group index', () => {

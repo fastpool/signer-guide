@@ -78,7 +78,6 @@ export default function SignerConductSection({
         </>
       }
     >
-
       {rotation && (
         <p className='mb-3 rounded-xl bg-grape-soft/40 p-3 text-sm text-ink'>
           {t('conduct.rotated', {
@@ -194,9 +193,7 @@ function Cycle({
   return (
     <div>
       <p className='text-3xl font-extrabold text-ink'>
-        {rate === null
-          ? t('conduct.unknown')
-          : `${(rate * 100).toFixed(2)}%`}
+        {rate === null ? t('conduct.unknown') : `${(rate * 100).toFixed(2)}%`}
       </p>
       <p className='mt-1 text-sm text-muted'>
         {t('conduct.answeredNote', {

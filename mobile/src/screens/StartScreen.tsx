@@ -61,7 +61,6 @@ import type { ScreenProps } from '../navigation-types';
  * the full form.
  */
 
-
 export default function StartScreen({ navigation }: ScreenProps<'Start'>) {
   const { snapshot } = useSnapshot();
   const { locale } = useSettings();
@@ -106,7 +105,9 @@ export default function StartScreen({ navigation }: ScreenProps<'Start'>) {
             title={t('start.changeStake')}
             testID='start-change'
             onPress={() =>
-              navigation.replace('Stake', { contractId: chain.position!.signer })
+              navigation.replace('Stake', {
+                contractId: chain.position!.signer,
+              })
             }
           />
         </Card>
@@ -121,7 +122,9 @@ export default function StartScreen({ navigation }: ScreenProps<'Start'>) {
     if (amountUstx === null) return t('stake.problem.notAnAmount');
     if (amountUstx <= 0n) return t('stake.problem.enterAmount');
     if (spendable !== null && amountUstx > spendable) {
-      return t('stake.problem.tooMuch', { amount: stxExact(spendable, locale) });
+      return t('stake.problem.tooMuch', {
+        amount: stxExact(spendable, locale),
+      });
     }
     return null;
   })();
@@ -249,7 +252,9 @@ export default function StartScreen({ navigation }: ScreenProps<'Start'>) {
               placeholderTextColor={colors.faint}
               style={[styles.baselineInput, { color: colors.stx }]}
             />
-            <Text style={[styles.baselineUnit, { color: colors.faint }]}>STX</Text>
+            <Text style={[styles.baselineUnit, { color: colors.faint }]}>
+              STX
+            </Text>
           </View>
           <Text variant='small' tone='faint'>
             {chain.loading && spendable === null
@@ -260,7 +265,9 @@ export default function StartScreen({ navigation }: ScreenProps<'Start'>) {
           </Text>
 
           {earnings ? (
-            <View style={[styles.projection, { backgroundColor: colors.amberSoft }]}>
+            <View
+              style={[styles.projection, { backgroundColor: colors.amberSoft }]}
+            >
               <Text style={[styles.projectionLabel, { color: colors.accent }]}>
                 {t('start.projectionLabel').toUpperCase()}
               </Text>
@@ -365,7 +372,6 @@ export default function StartScreen({ navigation }: ScreenProps<'Start'>) {
           </Text>
         </Card>
       ) : null}
-
     </Screen>
   );
 }
@@ -401,6 +407,10 @@ const styles = StyleSheet.create({
   },
   baselineUnit: { fontSize: 17, fontFamily: fonts.bold, paddingBottom: 8 },
   projection: { borderRadius: 16, padding: 12, paddingHorizontal: 14, gap: 4 },
-  projectionLabel: { fontSize: 9.5, fontFamily: fonts.bold, letterSpacing: 0.7 },
+  projectionLabel: {
+    fontSize: 9.5,
+    fontFamily: fonts.bold,
+    letterSpacing: 0.7,
+  },
   projectionValue: { fontSize: 15, fontFamily: fonts.bold, lineHeight: 21 },
 });

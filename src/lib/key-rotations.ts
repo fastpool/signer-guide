@@ -37,7 +37,9 @@ export function lastRotation(contractId: string): KeyRotation | null {
  * claims it, and the reason is that the pool moved on. Matched on `from`
  * rather than `to` for that reason — the interesting key is the abandoned one.
  */
-export function replacedKey(signerKey: string | null | undefined): KeyRotation | null {
+export function replacedKey(
+  signerKey: string | null | undefined,
+): KeyRotation | null {
   if (!signerKey) return null;
   const wanted = signerKey.toLowerCase();
   const found = ROTATIONS.filter(

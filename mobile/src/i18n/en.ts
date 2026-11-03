@@ -88,9 +88,11 @@ const messages = {
   'position.moreCycles': '{count} more, about {duration}',
   'position.rewardsGoTo': 'Rewards go to',
   'position.sbtc': 'This wallet, in sBTC',
-  'position.sbtcHint': 'No Bitcoin address on file, so they arrive as sBTC on Stacks.',
+  'position.sbtcHint':
+    'No Bitcoin address on file, so they arrive as sBTC on Stacks.',
   'position.btcTo': '{address}, in BTC',
-  'position.btcHint': 'Withdrawn to Bitcoin, with up to {fee} of each payout going on the transaction fee.',
+  'position.btcHint':
+    'Withdrawn to Bitcoin, with up to {fee} of each payout going on the transaction fee.',
   'position.payoutUnknown': 'The pool would not say where it sends them.',
   'position.change': 'Add, extend or move',
 
@@ -109,7 +111,8 @@ const messages = {
     'WalletConnect is the last resort here, and it is honest about why. Leather does not support it — the integration is an open request on its own tracker. Xverse gets as far as its lock screen and no further has been confirmed. So what is offered is the pairing link itself, which works in whatever wallet you actually have.',
   'wallet.connectHeading': 'Connect a wallet',
   'wallet.connecting': 'Waiting for your wallet',
-  'wallet.linkCopied': 'Connection link copied. Paste it into your wallet — any wallet that takes a WalletConnect link will do.',
+  'wallet.linkCopied':
+    'Connection link copied. Paste it into your wallet — any wallet that takes a WalletConnect link will do.',
   'wallet.stopWaiting': 'Stop waiting',
   'wallet.browserHeading': 'Open the guide in your wallet',
   'wallet.browserBody':
@@ -196,7 +199,8 @@ const messages = {
   'start.reasonFallback':
     'Chosen by rule, because the pool this app usually offers is not taking stakes right now: a contract that has been read, open to anyone, and the lowest fee of the {count} that qualify.',
   'start.reasonNoFee': 'charges no fee',
-  'start.reasonLowestFee': 'caps its fee at 5% and has to announce a rise a month ahead, charging {percent}% today',
+  'start.reasonLowestFee':
+    'caps its fee at 5% and has to announce a rise a month ahead, charging {percent}% today',
   'start.projectionLabel': 'At today’s rate',
   'start.setForYou': 'Set for you',
   'start.noFee': 'no fee',
@@ -250,7 +254,8 @@ const messages = {
   'stake.problem.maxFeeFloor':
     'The sBTC signers will not send a payout with a fee under 1,000 sats.',
   'stake.endingPill': 'Ending it — unstake',
-  'stake.noMinClaim': 'This contract takes no floor on a payout — it uses its own.',
+  'stake.noMinClaim':
+    'This contract takes no floor on a payout — it uses its own.',
   'stake.sbtcNote':
     'Rewards arrive as sBTC in this same wallet. No Bitcoin address is written on chain, so there is nothing to mistype and nothing to keep current.',
   'stake.projection': 'At today’s rate, this would earn',
@@ -272,7 +277,8 @@ const messages = {
   'stake.problem.connect': 'Connect a wallet before staking.',
   'stake.problem.watching':
     'This address is being watched, not connected. Connect a wallet to stake.',
-  'stake.problem.notAnAmount': 'That is not an amount of STX. Six decimals at most.',
+  'stake.problem.notAnAmount':
+    'That is not an amount of STX. Six decimals at most.',
   'stake.problem.enterAmount': 'Enter how much to stake.',
   'stake.problem.tooMuch': 'More than the {amount} that is free to lock.',
   'stake.problem.cycles': 'A lock is between 1 and {max} cycles.',
@@ -369,9 +375,11 @@ const messages = {
   'conduct.none':
     'Nothing on file for this key. A signer that has never held a seat has never been asked to answer anything.',
   'conduct.loading': 'Reading this signer’s record…',
-  'conduct.failed': 'That would not load. It is one file; the rest of this screen is unaffected.',
+  'conduct.failed':
+    'That would not load. It is one file; the rest of this screen is unaffected.',
   'conduct.answered': 'Answered',
-  'conduct.answeredNote': 'It answered {answered} of {proposals} proposals — {label}.',
+  'conduct.answeredNote':
+    'It answered {answered} of {proposals} proposals — {label}.',
   'conduct.cycleOpen': 'cycle {cycle}, still running',
   'conduct.cycleClosed': 'cycle {cycle}',
   'conduct.neverAnswered': 'Never answered',
@@ -432,7 +440,8 @@ const messages = {
   'groups.wholeNode': 'Every contract on this key',
   'groups.contractOnly':
     'This contract only — the rest of what this node holds is not part of the group.',
-  'groups.nodeAnswered': 'Answered {percent}% of the blocks it was asked about in cycle {cycle}.',
+  'groups.nodeAnswered':
+    'Answered {percent}% of the blocks it was asked about in cycle {cycle}.',
   'groups.nodeSilent': 'Has not answered a single block in cycle {cycle}.',
   'groups.alsoIn': 'Also counted in {names}',
   'groups.source': 'What this is based on',
@@ -489,7 +498,8 @@ const messages = {
   'data.walletsMock': 'A test wallet is switched on in this build',
   'data.walletsReal': 'WalletConnect, to Leather, Xverse and OKX',
   'data.walletsNone': 'No wallet route is configured',
-  'data.walletsMockHint': 'Nothing is signed. This build cannot move anybody’s STX.',
+  'data.walletsMockHint':
+    'Nothing is signed. This build cannot move anybody’s STX.',
   'data.walletsRealHint':
     'Your wallet builds, signs and broadcasts. This app never sees a key.',
   'data.openWeb': 'Open the guide on the web',
@@ -497,7 +507,8 @@ const messages = {
     'Made by Fast Pool, which runs some of the pools listed here. They are described by the same detectors and ranked by the same size as everyone else’s — that is what all of this being public is for.',
 
   // -------------------------------------------------------------- features --
-  'feature.bitcoinYes': 'Pays rewards to a Bitcoin address, instead of as sBTC on Stacks',
+  'feature.bitcoinYes':
+    'Pays rewards to a Bitcoin address, instead of as sBTC on Stacks',
   'feature.bitcoinViaPool':
     'Records a Bitcoin address but pays as sBTC — bitcoin, if it comes, is sent by the pool',
   'feature.bitcoinNo': 'Pays as sBTC on Stacks — it cannot pay out to Bitcoin',

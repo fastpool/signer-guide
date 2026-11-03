@@ -75,13 +75,19 @@ describe('defaultPool', () => {
     const tied = closed.signers.signers
       .filter(isJoinable)
       .filter((s) => s.feeBips === fallback.signer.feeBips);
-    const amounts = tied.map((s) => stakedUstx(BUNDLED.totals, s.contractId) ?? 0n);
+    const amounts = tied.map(
+      (s) => stakedUstx(BUNDLED.totals, s.contractId) ?? 0n,
+    );
     const largest = amounts.reduce((a, b) => (b > a ? b : a), 0n);
-    expect(stakedUstx(BUNDLED.totals, fallback.signer.contractId)).toBe(largest);
+    expect(stakedUstx(BUNDLED.totals, fallback.signer.contractId)).toBe(
+      largest,
+    );
   });
 
   it('is the same answer every time it is asked', () => {
-    expect(defaultPool(BUNDLED)?.signer.contractId).toBe(chosen!.signer.contractId);
+    expect(defaultPool(BUNDLED)?.signer.contractId).toBe(
+      chosen!.signer.contractId,
+    );
   });
 
   it('counts the pools that passed the same filters, so the offer is not a claim of uniqueness', () => {
@@ -127,7 +133,11 @@ describe('the reason shown on screen', () => {
   });
 
   it('is translated', () => {
-    for (const key of ['start.reason', 'start.reasonNoFee', 'start.reasonLowestFee'] as const) {
+    for (const key of [
+      'start.reason',
+      'start.reasonNoFee',
+      'start.reasonLowestFee',
+    ] as const) {
       expect(ko.messages[key]).toBeTruthy();
       expect(ko.messages[key]).not.toBe(en.messages[key]);
     }

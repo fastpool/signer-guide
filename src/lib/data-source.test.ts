@@ -193,12 +193,21 @@ describe('reading the branch', () => {
   it('refuses a published file this build cannot read', async () => {
     // Better to keep showing the saved copy than to render something whose
     // shape we are guessing at.
-    respond({ generatedAt: LATER }, BUNDLED.totals, BUNDLED.stxOnlyCalculations);
+    respond(
+      { generatedAt: LATER },
+      BUNDLED.totals,
+      BUNDLED.stxOnlyCalculations,
+    );
     await expect(fetchSnapshot()).rejects.toThrow(/shape/);
   });
 
   it('fails rather than treating an error page as data', async () => {
-    respond(BUNDLED.signers, BUNDLED.totals, BUNDLED.stxOnlyCalculations, false);
+    respond(
+      BUNDLED.signers,
+      BUNDLED.totals,
+      BUNDLED.stxOnlyCalculations,
+      false,
+    );
     await expect(fetchSnapshot()).rejects.toThrow(/failed/);
   });
 });

@@ -44,19 +44,32 @@ const target = path.resolve(
 );
 
 execFileSync('magick', [
-  '-size', `${CANVAS}x${CANVAS}`, 'xc:none',
+  '-size',
+  `${CANVAS}x${CANVAS}`,
+  'xc:none',
 
-  '-fill', '#ffffff', '-stroke', 'none',
+  '-fill',
+  '#ffffff',
+  '-stroke',
+  'none',
   '-draw',
   `roundrectangle ${Math.round(tileLeft)},${Math.round(tileLeft)} ` +
     `${Math.round(tileRight)},${Math.round(tileRight)} ` +
     `${Math.round(tileRadius)},${Math.round(tileRadius)}`,
 
-  '-fill', GRAPE,
-  '-draw', `circle ${at(12.5)},${at(16)} ${at(12.5)},${at(16) - r}`,
+  '-fill',
+  GRAPE,
+  '-draw',
+  `circle ${at(12.5)},${at(16)} ${at(12.5)},${at(16) - r}`,
 
-  '-fill', 'none', '-stroke', GRAPE, '-strokewidth', String(stroke),
-  '-draw', `circle ${at(20.5)},${at(16)} ${at(20.5)},${at(16) - r}`,
+  '-fill',
+  'none',
+  '-stroke',
+  GRAPE,
+  '-strokewidth',
+  String(stroke),
+  '-draw',
+  `circle ${at(20.5)},${at(16)} ${at(20.5)},${at(16) - r}`,
 
   target,
 ]);

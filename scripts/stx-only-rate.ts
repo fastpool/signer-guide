@@ -122,7 +122,10 @@ export function publishedRate(opts: {
   if (opts.projectedRateSatsPer1000Stx === null) {
     return opts.lastPayoutRateSatsPer1000Stx;
   }
-  if (opts.lastPayoutRateSatsPer1000Stx === null || opts.blocksIntoCycle === null) {
+  if (
+    opts.lastPayoutRateSatsPer1000Stx === null ||
+    opts.blocksIntoCycle === null
+  ) {
     return opts.projectedRateSatsPer1000Stx;
   }
 
@@ -157,7 +160,10 @@ export function recordDistribution(
 
   const known = distributions.find((d) => d.burnHeight === entry.burnHeight);
   if (known) {
-    if (known.rateSatsPer1000Stx !== null || entry.rateSatsPer1000Stx === null) {
+    if (
+      known.rateSatsPer1000Stx !== null ||
+      entry.rateSatsPer1000Stx === null
+    ) {
       return [...distributions];
     }
     return distributions.map((d) =>

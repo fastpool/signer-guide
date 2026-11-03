@@ -99,9 +99,7 @@ const EVENT_PAGE = 100;
  * number on the page instead of an absent one.
  */
 export type Answer<T> =
-  | { kind: 'value'; value: T }
-  | { kind: 'none' }
-  | { kind: 'unread' };
+  { kind: 'value'; value: T } | { kind: 'none' } | { kind: 'unread' };
 
 /** One staker on a bond's allowlist, and the most sats they may lock. */
 export interface AllowlistEntry {
@@ -443,16 +441,16 @@ export async function findSetupBondTxid(
  * half an allowlist is worse than none — it would read as a smaller ceiling
  * rather than as a missing one.
  */
-export async function fetchPrintEvents(
-  txid: string,
-): Promise<string[] | null> {
+export async function fetchPrintEvents(txid: string): Promise<string[] | null> {
   const hexes: string[] = [];
 
   for (let offset = 0; ; offset += EVENT_PAGE) {
     const body = await fetchJson<{
       event_count?: number;
       events?: { contract_log?: { value?: { hex?: string } } }[];
-    }>(`/extended/v1/tx/${txid}?event_limit=${EVENT_PAGE}&event_offset=${offset}`);
+    }>(
+      `/extended/v1/tx/${txid}?event_limit=${EVENT_PAGE}&event_offset=${offset}`,
+    );
     if (!body?.events) return null;
 
     for (const event of body.events) {

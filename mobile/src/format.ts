@@ -99,7 +99,8 @@ export function lockLabel(
 
 export function utcLabel(iso: string, locale: Locale): string {
   const at = new Date(iso);
-  if (Number.isNaN(at.getTime())) return locale === 'ko' ? '알 수 없음' : 'unknown';
+  if (Number.isNaN(at.getTime()))
+    return locale === 'ko' ? '알 수 없음' : 'unknown';
   const day = at.toLocaleDateString(locale === 'ko' ? 'ko-KR' : 'en-GB', {
     day: 'numeric',
     month: 'short',

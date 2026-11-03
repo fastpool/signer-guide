@@ -27,7 +27,11 @@ import { execFileSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { KeyRotation, KeyRotations, SignerData } from '../src/lib/types.js';
+import type {
+  KeyRotation,
+  KeyRotations,
+  SignerData,
+} from '../src/lib/types.js';
 import { mergeRotations, rotationsBetween } from './key-rotations.js';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -35,7 +39,11 @@ const TRACKED = 'src/data/signers.json';
 const OUTPUT = path.join(ROOT, 'src', 'data', 'key-rotations.json');
 
 const git = (args: string[]): string =>
-  execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', maxBuffer: 1 << 28 });
+  execFileSync('git', args, {
+    cwd: ROOT,
+    encoding: 'utf8',
+    maxBuffer: 1 << 28,
+  });
 
 /** Every commit that touched the pool list, oldest first. */
 function commits(limit: number | null): { sha: string; at: string }[] {
@@ -101,7 +109,9 @@ function main(): void {
     `${JSON.stringify({ generatedAt: new Date().toISOString(), rotations }, null, 2)}\n`,
   );
 
-  console.log(`Found ${found.length}; ${added} new; ${rotations.length} on file.`);
+  console.log(
+    `Found ${found.length}; ${added} new; ${rotations.length} on file.`,
+  );
   for (const rotation of rotations) {
     console.log(
       `  ${rotation.observedAt.slice(0, 16)}  cycle ${rotation.cycle}` +

@@ -6,10 +6,7 @@
  * its own and no `import.meta` to read one from. Everything about how a name
  * is resolved lives in the other file; this one only answers "which node".
  */
-import {
-  resolveBnsName as resolve,
-  type BnsResolution,
-} from './bns-resolve';
+import { resolveBnsName as resolve, type BnsResolution } from './bns-resolve';
 
 export { BNS_V2_CONTRACT, isBnsName } from './bns-resolve';
 export type { BnsResolution };

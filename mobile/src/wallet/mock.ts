@@ -35,8 +35,7 @@ export const MOCK_BTC_ADDRESS =
  * and `e` — and the right length and alphabet for every place one is printed,
  * copied or linked.
  */
-export const MOCK_TXID =
-  '0xdeadbeef' + 'de'.repeat(28);
+export const MOCK_TXID = '0xdeadbeef' + 'de'.repeat(28);
 
 export function mockWalletEnabled(): boolean {
   return process.env.EXPO_PUBLIC_MOCK_WALLET === '1';
@@ -66,7 +65,9 @@ export function mockWallet(options: MockWalletOptions = {}): Wallet {
       };
     },
 
-    async callContract(request: ContractCallRequest): Promise<{ txid: string }> {
+    async callContract(
+      request: ContractCallRequest,
+    ): Promise<{ txid: string }> {
       options.calls?.push(request);
       if (options.failWith) throw options.failWith;
       return { txid: options.txid ?? MOCK_TXID };

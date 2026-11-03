@@ -159,8 +159,7 @@ const messages = {
   'app.bonds.loading': 'Reading the bonds…',
   'app.bonds.none':
     'Nothing on file for the bonds yet. They appear here once the hourly refresh has read them.',
-  'app.bonds.failed':
-    'The bonds could not be fetched. Try again in a moment.',
+  'app.bonds.failed': 'The bonds could not be fetched. Try again in a moment.',
   'app.bonds.current': 'The bond period now',
   'app.bonds.next': 'The next bond period',
   'app.bonds.period': 'Bond {index} · cycles {first} to {last}',
@@ -368,8 +367,7 @@ const messages = {
   'groups.heading': 'Who holds the vote',
   'groups.intro':
     'A signer node is one key. A group is a set of them with one entity behind it — which is the number that decides who could move the signer set, and the number the chain never shows you. Largest first.',
-  'groups.counts':
-    '{nodes} nodes · {contracts} contracts · {staked} staked',
+  'groups.counts': '{nodes} nodes · {contracts} contracts · {staked} staked',
   'groups.asOf': 'Shares are of cycle {cycle}.',
   'groups.ungrouped': 'Not grouped',
   'groups.ungroupedNote':
@@ -399,7 +397,8 @@ const messages = {
     'This contract only — the rest of what this node holds is not part of the group.',
   'group.wholeNode': 'Every contract on this key',
   'group.unknownAmount': 'not known',
-  'group.nodeAnswered': 'Answered {percent}% of the blocks it was asked about in cycle {cycle}.',
+  'group.nodeAnswered':
+    'Answered {percent}% of the blocks it was asked about in cycle {cycle}.',
   'group.nodeSilent': 'Has not answered a single block in cycle {cycle}.',
   'group.alsoIn': 'Also counted in {names}',
   'group.overlapNote':
@@ -415,13 +414,15 @@ const messages = {
     'This is the key that was rotated away from, because it is the one that held the seat for this cycle. The new key holds nothing until the next set is computed.',
   'conduct.cycleOpen': 'cycle {cycle}, still running',
   'conduct.cycleClosed': 'cycle {cycle}',
-  'conduct.answeredNote': 'It answered {answered} of {proposals} proposals — {label}.',
+  'conduct.answeredNote':
+    'It answered {answered} of {proposals} proposals — {label}.',
   'conduct.neverAnswered': 'Never answered',
   'conduct.neverAnsweredNote':
     'It has been asked about {proposals} blocks in cycle {cycle} and has not responded to one of them. Nothing has ever been heard from this key.',
   'conduct.response': 'Typical time to answer',
   'conduct.seconds': '{seconds} s',
-  'conduct.responseMiddle': 'The middle of the signer set is {seconds} s in cycle {cycle}.',
+  'conduct.responseMiddle':
+    'The middle of the signer set is {seconds} s in cycle {cycle}.',
   'conduct.agreed': 'Of those, accepted',
   'conduct.agreedNote':
     'The rest it read and refused, which is what a signer is for. A low figure here is worth asking about; it is not the same as a signer that was not there.',
@@ -430,7 +431,8 @@ const messages = {
   'conduct.hideHistory': 'Hide the history',
   'conduct.loading': 'Reading this key’s record…',
   'conduct.noHistory': 'No cycles on file for this key yet.',
-  'conduct.failed': 'That would not load. It is one file; the rest of this page is unaffected.',
+  'conduct.failed':
+    'That would not load. It is one file; the rest of this page is unaffected.',
   'conduct.soFar': 'so far',
   'conduct.th.cycle': 'Cycle',
   'conduct.th.answered': 'Answered',
@@ -826,7 +828,8 @@ const messages = {
   'pools.change.notYet': 'not yet',
   'pools.change.same': 'no change',
   'pools.unknownAmount': 'The last refresh could not read this amount',
-  'pools.notReadYet': 'Registered after the last refresh; the next one will read it',
+  'pools.notReadYet':
+    'Registered after the last refresh; the next one will read it',
   'pools.unreviewed': 'Not reviewed',
   'pools.details': 'Details',
   'pools.phone.fee': '{fee} fee',

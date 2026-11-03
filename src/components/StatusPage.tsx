@@ -76,7 +76,9 @@ export default function StatusPage({
   useEffect(() => {
     // Once for the page rather than once per row: it is the same answer for
     // everybody, and the rows that want it are the expensive ones already.
-    void readFirstPox5Cycle().then(setFirstCycle).catch(() => {});
+    void readFirstPox5Cycle()
+      .then(setFirstCycle)
+      .catch(() => {});
   }, []);
 
   const asked: AddressEntry[] = useMemo(
@@ -146,7 +148,10 @@ export default function StatusPage({
   return (
     <Page>
       <Breadcrumbs
-        items={[{ label: t('nav.pools'), href: '#/' }, { label: t('nav.status') }]}
+        items={[
+          { label: t('nav.pools'), href: '#/' },
+          { label: t('nav.status') },
+        ]}
       />
 
       <h1 className='mt-6 text-4xl font-extrabold md:text-5xl'>

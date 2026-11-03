@@ -216,9 +216,7 @@ describe('the page as a reader sees it', () => {
 
   it('puts the biggest pool first', () => {
     const html = renderToStaticMarkup(<App />);
-    expect(html.indexOf('8.2M STX')).toBeLessThan(
-      html.indexOf('253 STX'),
-    );
+    expect(html.indexOf('8.2M STX')).toBeLessThan(html.indexOf('253 STX'));
   });
 
   it('draws an icon of the code beside each contract and each pool', () => {
@@ -253,9 +251,8 @@ describe('the page as a reader sees it', () => {
     const templates = buildTemplates((signers as SignerData).signers);
     const unhashed =
       LIVE.filter((s) => s.identiconHash === null).length +
-      templates.filter(
-        (t) => !t.profile.archived && t.identiconHash === null,
-      ).length;
+      templates.filter((t) => !t.profile.archived && t.identiconHash === null)
+        .length;
     // The label, not the words: the placeholder carries them twice, once as
     // `aria-label` and once as `title`, and counting the text counts double.
     const placeholders =

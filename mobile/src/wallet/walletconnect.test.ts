@@ -1,4 +1,9 @@
-import { accountFromSession, foregroundUrl, pairingUrl, WALLET_LINKS } from './walletconnect';
+import {
+  accountFromSession,
+  foregroundUrl,
+  pairingUrl,
+  WALLET_LINKS,
+} from './walletconnect';
 import { WalletUnusable } from './types';
 
 /*
@@ -50,14 +55,21 @@ describe('foregroundUrl', () => {
   });
 
   it('names a route for every wallet it offers', () => {
-    expect(Object.keys(WALLET_LINKS)).toEqual(['xverse', 'leather', 'okx', 'any']);
+    expect(Object.keys(WALLET_LINKS)).toEqual([
+      'xverse',
+      'leather',
+      'okx',
+      'any',
+    ]);
   });
 });
 
 describe('accountFromSession', () => {
   const session = {
     namespaces: {
-      stacks: { accounts: ['stacks:1:SP1N8F8BBBC60XF6HJBNJHKPRGJ7WZBRGNDJX4YDR'] },
+      stacks: {
+        accounts: ['stacks:1:SP1N8F8BBBC60XF6HJBNJHKPRGJ7WZBRGNDJX4YDR'],
+      },
     },
   };
 
@@ -101,13 +113,19 @@ describe('accountFromSession', () => {
     const account = accountFromSession({
       namespaces: {
         ...session.namespaces,
-        bip122: { accounts: ['bip122:000:bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq'] },
+        bip122: {
+          accounts: ['bip122:000:bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq'],
+        },
       },
     });
-    expect(account.btcAddress).toBe('bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq');
+    expect(account.btcAddress).toBe(
+      'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
+    );
   });
 
   it('refuses a session with no Stacks address rather than half a one', () => {
-    expect(() => accountFromSession({ namespaces: {} })).toThrow(WalletUnusable);
+    expect(() => accountFromSession({ namespaces: {} })).toThrow(
+      WalletUnusable,
+    );
   });
 });

@@ -48,7 +48,8 @@ export type HarnessOptions = MockWalletOptions & {
 export function renderApp(options: HarnessOptions = {}): Harness {
   const { locale = 'en', appearance = 'dark', ...walletOptions } = options;
   const calls: ContractCallRequest[] = [];
-  const factory = (_walletId: WalletId) => mockWallet({ ...walletOptions, calls });
+  const factory = (_walletId: WalletId) =>
+    mockWallet({ ...walletOptions, calls });
 
   const result = render(
     <SafeAreaProvider initialMetrics={SAFE_AREA}>

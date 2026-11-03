@@ -31,13 +31,13 @@ pnpm film:lesson --was-cycle 142 --now-cycle 143 --was 52687 --now 54900 --held 
 
 ## What is in here
 
-| file | what it is |
-| --- | --- |
-| `lesson_beats.py` | the storyboard, in seconds. Read by the picture and the sound, so neither can drift from the other |
-| `seahorse3d.py` | Fast Pool's mark as a solid object. Every scene choice is an argument — pose, angle, material, floor, size, engine, frames |
-| `make-lesson-card.mjs` | the still: the seahorse, the two figures, the explanation |
-| `seahorse-explainer.py` | the film: five beats, from the seat to the drop |
-| `lesson_score.py` | the music — a small orchestra, written here rather than licensed |
+| file                    | what it is                                                                                                                 |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `lesson_beats.py`       | the storyboard, in seconds. Read by the picture and the sound, so neither can drift from the other                         |
+| `seahorse3d.py`         | Fast Pool's mark as a solid object. Every scene choice is an argument — pose, angle, material, floor, size, engine, frames |
+| `make-lesson-card.mjs`  | the still: the seahorse, the two figures, the explanation                                                                  |
+| `seahorse-explainer.py` | the film: five beats, from the seat to the drop                                                                            |
+| `lesson_score.py`       | the music — a small orchestra, written here rather than licensed                                                           |
 
 ## What it needs
 

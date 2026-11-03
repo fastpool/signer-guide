@@ -71,10 +71,16 @@ export default function ChooseContractScreen({
                   {profile.name}
                 </Text>
                 <Text variant='small' tone='faint'>
-                  {t(count === 1 ? 'contracts.poolCountOne' : 'contracts.poolCount', {
-                    count,
-                  })}{' '}
-                  · {t('contracts.staked', { amount: stxShort(staked, locale) })}
+                  {t(
+                    count === 1
+                      ? 'contracts.poolCountOne'
+                      : 'contracts.poolCount',
+                    {
+                      count,
+                    },
+                  )}{' '}
+                  ·{' '}
+                  {t('contracts.staked', { amount: stxShort(staked, locale) })}
                 </Text>
               </View>
             </Row>

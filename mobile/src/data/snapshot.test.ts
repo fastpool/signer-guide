@@ -16,7 +16,10 @@ import {
  * ones that stop a bad copy being shown as if it were good.
  */
 
-function at(generatedAt: string, origin: Snapshot['origin'] = 'cache'): Snapshot {
+function at(
+  generatedAt: string,
+  origin: Snapshot['origin'] = 'cache',
+): Snapshot {
   return {
     ...BUNDLED,
     signers: { ...BUNDLED.signers, generatedAt },
@@ -74,17 +77,21 @@ describe('the saved copy', () => {
 
 describe('which copy stands', () => {
   it('prefers a saved copy newer than the build', () => {
-    expect(isAtLeastAsFresh(at('2027-01-01T00:00:00.000Z'), BUNDLED)).toBe(true);
+    expect(isAtLeastAsFresh(at('2027-01-01T00:00:00.000Z'), BUNDLED)).toBe(
+      true,
+    );
   });
 
   it('discards one older than the build it is running against', () => {
-    expect(isAtLeastAsFresh(at('2020-01-01T00:00:00.000Z'), BUNDLED)).toBe(false);
+    expect(isAtLeastAsFresh(at('2020-01-01T00:00:00.000Z'), BUNDLED)).toBe(
+      false,
+    );
   });
 
   it('keeps an equally-timestamped one, because the totals move on their own', () => {
-    expect(
-      isAtLeastAsFresh(at(BUNDLED.signers.generatedAt), BUNDLED),
-    ).toBe(true);
+    expect(isAtLeastAsFresh(at(BUNDLED.signers.generatedAt), BUNDLED)).toBe(
+      true,
+    );
   });
 });
 

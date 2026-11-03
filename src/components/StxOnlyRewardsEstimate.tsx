@@ -204,11 +204,15 @@ export default function StxOnlyRewardsEstimate({
     });
   }, [estimate]);
 
-  const cycleBlocks = calculations.distributionBlocks || FALLBACK_DISTRIBUTION_BLOCKS;
+  const cycleBlocks =
+    calculations.distributionBlocks || FALLBACK_DISTRIBUTION_BLOCKS;
   const progressPercent =
     estimate === null
       ? 0
-      : Math.max(0, Math.min(100, (estimate.blocksIntoCycle / cycleBlocks) * 100));
+      : Math.max(
+          0,
+          Math.min(100, (estimate.blocksIntoCycle / cycleBlocks) * 100),
+        );
 
   const asOfText = useMemo(() => {
     if (asOf) return asOf;
@@ -241,23 +245,26 @@ export default function StxOnlyRewardsEstimate({
     const base = new Date(calculations.generatedAt).getTime();
     if (Number.isNaN(base) || !estimate) return null;
     return formatUtc(
-      payoutDueAt({ now: base, blocksLeft: estimate.blocksLeftInCycle }).toISOString(),
+      payoutDueAt({
+        now: base,
+        blocksLeft: estimate.blocksLeftInCycle,
+      }).toISOString(),
       locale,
     );
   }, [calculations.generatedAt, estimate, locale]);
 
   return (
     <section
-      className={
-        showFull
-          ? 'mt-10 rounded-3xl bg-card p-6 shadow-lift'
-          : ''
-      }
+      className={showFull ? 'mt-10 rounded-3xl bg-card p-6 shadow-lift' : ''}
     >
       {showFull && (
         <>
-          <h2 className='text-2xl font-bold'>{t('app.stxOnlyEstimate.title')}</h2>
-          <p className='mt-1 text-sm text-muted'>{t('app.stxOnlyEstimate.intro')}</p>
+          <h2 className='text-2xl font-bold'>
+            {t('app.stxOnlyEstimate.title')}
+          </h2>
+          <p className='mt-1 text-sm text-muted'>
+            {t('app.stxOnlyEstimate.intro')}
+          </p>
         </>
       )}
 
@@ -273,25 +280,32 @@ export default function StxOnlyRewardsEstimate({
             <>
               <p className='mt-1 text-3xl font-extrabold tracking-tight text-ink md:text-4xl'>
                 {t('app.stxOnlyEstimate.rateValue', {
-                  sats: estimate.rateSatsPer1000Stx.toLocaleString(t.bundle.intlLocale),
+                  sats: estimate.rateSatsPer1000Stx.toLocaleString(
+                    t.bundle.intlLocale,
+                  ),
                 })}
               </p>
               <p className='mt-1 text-xs text-muted'>
-                {apy === null
-                  ? t('app.stxOnlyEstimate.apyUnavailable')
-                  : (
-                      <>
-                        {t('app.stxOnlyEstimate.apy')}:&nbsp;
-                        {t('app.stxOnlyEstimate.apyValue', {
-                          apy: `${apy.toFixed(2)}%`,
-                        })}
-                      </>
-                    )}
+                {apy === null ? (
+                  t('app.stxOnlyEstimate.apyUnavailable')
+                ) : (
+                  <>
+                    {t('app.stxOnlyEstimate.apy')}:&nbsp;
+                    {t('app.stxOnlyEstimate.apyValue', {
+                      apy: `${apy.toFixed(2)}%`,
+                    })}
+                  </>
+                )}
               </p>
               <p className='mt-1 text-xs text-muted'>
                 {t('app.stxOnlyEstimate.untilPayoutAsOf', {
-                  duration: durationUntilPayout(estimate.blocksLeftInCycle, locale),
-                  blocks: estimate.blocksLeftInCycle.toLocaleString(t.bundle.intlLocale),
+                  duration: durationUntilPayout(
+                    estimate.blocksLeftInCycle,
+                    locale,
+                  ),
+                  blocks: estimate.blocksLeftInCycle.toLocaleString(
+                    t.bundle.intlLocale,
+                  ),
                   at: asOfText,
                 })}
               </p>
@@ -305,7 +319,9 @@ export default function StxOnlyRewardsEstimate({
                       <br />
                       <strong className='text-ink'>
                         {t('app.stxOnlyEstimate.rateValue', {
-                          sats: estimate.rateSatsPer1000Stx.toLocaleString(t.bundle.intlLocale),
+                          sats: estimate.rateSatsPer1000Stx.toLocaleString(
+                            t.bundle.intlLocale,
+                          ),
                         })}
                       </strong>
                     </>
@@ -333,8 +349,10 @@ export default function StxOnlyRewardsEstimate({
                     {t('app.stxOnlyEstimate.untilNextRewards')}
                   </p>
                   <p className='text-xs font-semibold text-muted'>
-                    {estimate.blocksIntoCycle.toLocaleString(t.bundle.intlLocale)}/
-                    {cycleBlocks.toLocaleString(t.bundle.intlLocale)}
+                    {estimate.blocksIntoCycle.toLocaleString(
+                      t.bundle.intlLocale,
+                    )}
+                    /{cycleBlocks.toLocaleString(t.bundle.intlLocale)}
                   </p>
                 </div>
                 <div className='mt-2 h-2 w-full overflow-hidden rounded-full bg-grape-soft'>
@@ -349,15 +367,24 @@ export default function StxOnlyRewardsEstimate({
                 </div>
                 <p className='mt-2 text-xs text-muted'>
                   {t('app.stxOnlyEstimate.untilNextDate', {
-                    duration: durationUntilPayout(estimate.blocksLeftInCycle, locale),
+                    duration: durationUntilPayout(
+                      estimate.blocksLeftInCycle,
+                      locale,
+                    ),
                     at: nextRewardsAt ?? t('app.stxOnlyEstimate.asOfUnknown'),
                   })}
                 </p>
                 <p className='mt-1 text-xs text-muted'>
                   {t('app.stxOnlyEstimate.untilNextHeights', {
-                    blocks: estimate.blocksLeftInCycle.toLocaleString(t.bundle.intlLocale),
-                    current: estimate.currentBurnHeight.toLocaleString(t.bundle.intlLocale),
-                    next: estimate.nextRewardBurnHeight.toLocaleString(t.bundle.intlLocale),
+                    blocks: estimate.blocksLeftInCycle.toLocaleString(
+                      t.bundle.intlLocale,
+                    ),
+                    current: estimate.currentBurnHeight.toLocaleString(
+                      t.bundle.intlLocale,
+                    ),
+                    next: estimate.nextRewardBurnHeight.toLocaleString(
+                      t.bundle.intlLocale,
+                    ),
                     asOf: asOfText,
                   })}
                 </p>
@@ -391,10 +418,9 @@ export default function StxOnlyRewardsEstimate({
                       estimate.lastPayoutRateSatsPer1000Stx === null
                         ? t('app.stxOnlyEstimate.gridUnknown')
                         : t('app.stxOnlyEstimate.satsShort', {
-                            sats:
-                              estimate.lastPayoutRateSatsPer1000Stx.toLocaleString(
-                                t.bundle.intlLocale,
-                              ),
+                            sats: estimate.lastPayoutRateSatsPer1000Stx.toLocaleString(
+                              t.bundle.intlLocale,
+                            ),
                           })
                     }
                   />
@@ -435,13 +461,17 @@ export default function StxOnlyRewardsEstimate({
             </dd>
           </div>
           <div className='flex flex-wrap items-baseline justify-between gap-3'>
-            <dt className='text-muted'>{t('app.stxOnlyEstimate.foundationShare')}</dt>
+            <dt className='text-muted'>
+              {t('app.stxOnlyEstimate.foundationShare')}
+            </dt>
             <dd className='font-semibold text-ink'>
               {formatSbtc(estimate.foundationShareSats, locale)}
             </dd>
           </div>
           <div className='flex flex-wrap items-baseline justify-between gap-3'>
-            <dt className='text-muted'>{t('app.stxOnlyEstimate.stxOnlySoFar')}</dt>
+            <dt className='text-muted'>
+              {t('app.stxOnlyEstimate.stxOnlySoFar')}
+            </dt>
             <dd className='font-semibold text-ink'>
               {formatSbtc(estimate.stxOnlySoFarSats, locale)}
             </dd>
@@ -464,7 +494,9 @@ export default function StxOnlyRewardsEstimate({
             </dd>
           </div>
           <div className='flex flex-wrap items-baseline justify-between gap-3'>
-            <dt className='text-muted'>{t('app.stxOnlyEstimate.stxOnlyStaked')}</dt>
+            <dt className='text-muted'>
+              {t('app.stxOnlyEstimate.stxOnlyStaked')}
+            </dt>
             <dd className='font-semibold text-ink'>
               {exactStxLabel(estimate.stxOnlyStakedUstx, locale)}
             </dd>
@@ -483,7 +515,7 @@ export default function StxOnlyRewardsEstimate({
               </dd>
             </div>
           )}
-           {estimate.lastPayoutRateSatsPer1000Stx !== null && (
+          {estimate.lastPayoutRateSatsPer1000Stx !== null && (
             <div className='flex flex-wrap items-baseline justify-between gap-3'>
               <dt className='text-muted'>
                 {lastPayoutAt === null
@@ -499,8 +531,8 @@ export default function StxOnlyRewardsEstimate({
               </dd>
             </div>
           )}
-          <div aria-hidden='true' className='border-t border-grape-soft' />          
-          
+          <div aria-hidden='true' className='border-t border-grape-soft' />
+
           <div className='flex flex-wrap items-baseline justify-between gap-3'>
             <dt className='text-muted'>
               {t('app.stxOnlyEstimate.rate')}{' '}
@@ -520,7 +552,9 @@ export default function StxOnlyRewardsEstimate({
             </dt>
             <dd className='font-semibold text-ink'>
               {t('app.stxOnlyEstimate.rateValue', {
-                sats: estimate.rateSatsPer1000Stx.toLocaleString(t.bundle.intlLocale),
+                sats: estimate.rateSatsPer1000Stx.toLocaleString(
+                  t.bundle.intlLocale,
+                ),
               })}
             </dd>
           </div>
@@ -540,11 +574,12 @@ export default function StxOnlyRewardsEstimate({
               {estimate.stxPriceSats === null
                 ? t('app.stxOnlyEstimate.priceUnavailable')
                 : t('app.stxOnlyEstimate.priceValue', {
-                    sats: estimate.stxPriceSats.toLocaleString(t.bundle.intlLocale),
+                    sats: estimate.stxPriceSats.toLocaleString(
+                      t.bundle.intlLocale,
+                    ),
                   })}
             </dd>
           </div>
-         
         </dl>
       )}
 
@@ -611,7 +646,9 @@ export default function StxOnlyRewardsEstimate({
             </div>
           </section>
 
-          <p className='mt-3 text-xs text-muted'>{t('app.stxOnlyEstimate.note')}</p>
+          <p className='mt-3 text-xs text-muted'>
+            {t('app.stxOnlyEstimate.note')}
+          </p>
           <p className='mt-1 text-xs text-muted'>
             {t('app.stxOnlyEstimate.generatedAt', {
               at:

@@ -106,7 +106,10 @@ describe('totals', () => {
     const t = totals(
       report([
         pool({ unattributedSats: 5_105_825n }),
-        pool({ pool: 'SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs', kind: 'unreadable' }),
+        pool({
+          pool: 'SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs',
+          kind: 'unreadable',
+        }),
       ]),
     );
     expect(t.owedToStakersSats).toBeNull();
@@ -120,7 +123,10 @@ describe('totals', () => {
     // The bond managers are read fine and genuinely hold nothing for anybody.
     // That is an answer, so the totals stand.
     const t = totals(
-      report([pool({ unattributedSats: 7_079n }), pool({ kind: 'keeps-none' })]),
+      report([
+        pool({ unattributedSats: 7_079n }),
+        pool({ kind: 'keeps-none' }),
+      ]),
     );
     expect(t.owedToStakersSats).toBe(7_079n);
     expect(t.unreadable).toEqual([]);

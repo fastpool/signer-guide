@@ -1,6 +1,14 @@
-import { PostConditionMode, hexToCV, postConditionToHex } from '@stacks/transactions';
+import {
+  PostConditionMode,
+  hexToCV,
+  postConditionToHex,
+} from '@stacks/transactions';
 import { stakePostConditions } from '@guide/lib/staking';
-import { contractCallFrom, PLACEHOLDER_PUBLIC_KEY, unsignedFor } from './contract-call';
+import {
+  contractCallFrom,
+  PLACEHOLDER_PUBLIC_KEY,
+  unsignedFor,
+} from './contract-call';
 
 const STAKER = 'SP1N8F8BBBC60XF6HJBNJHKPRGJ7WZBRGNDJX4YDR';
 
@@ -35,7 +43,9 @@ describe('contractCallFrom', () => {
 
   it('hands the arguments over hex-encoded, in the package’s order', async () => {
     const call = contractCallFrom(await buildOne(), []);
-    expect(call.functionArgs.every((arg) => /^0x[0-9a-f]+$/i.test(arg))).toBe(true);
+    expect(call.functionArgs.every((arg) => /^0x[0-9a-f]+$/i.test(arg))).toBe(
+      true,
+    );
     // Round-tripping proves nothing was mangled on the way out: the amount
     // typed into the form is still in there, to the microSTX.
     const decoded = call.functionArgs.map(hexToCV);

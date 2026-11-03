@@ -118,7 +118,9 @@ describe('filters', () => {
   it('reads a fee it could not find as neither low nor high', () => {
     // Twenty pools keep no fee in their own contract. Silence is not 99.99%.
     expect(matches(base, new Set(['highFee']))).toBe(false);
-    expect(matches({ ...base, feeBips: 9500 }, new Set(['highFee']))).toBe(true);
+    expect(matches({ ...base, feeBips: 9500 }, new Set(['highFee']))).toBe(
+      true,
+    );
     expect(matches({ ...base, feeBips: 9499 }, new Set(['highFee']))).toBe(
       false,
     );
@@ -139,7 +141,9 @@ describe('the in-use filter', () => {
   const committed = totals as LockedTotals;
 
   it('hides the pools every cycle on file says are empty', () => {
-    const kept = signers.filter((s) => matches(s, new Set(['inUse']), committed));
+    const kept = signers.filter((s) =>
+      matches(s, new Set(['inUse']), committed),
+    );
 
     expect(kept.length).toBeGreaterThan(0);
     expect(kept.length).toBeLessThan(signers.length);

@@ -58,7 +58,8 @@ export const ko: MobileBundle = {
     'home.more.groupsHint': '서명자 키 뒤에 있는 주체들, 지분이 큰 순서로',
     'home.more.data': '이 숫자들의 출처',
     'home.more.dataUpdated': '{when} 갱신',
-    'home.more.dataStale': '저장된 사본을 표시 중 — 브랜치가 응답하지 않았습니다',
+    'home.more.dataStale':
+      '저장된 사본을 표시 중 — 브랜치가 응답하지 않았습니다',
 
     // --------------------------------------------------------------- rate --
     'rate.label': '현재 수익',
@@ -89,10 +90,13 @@ export const ko: MobileBundle = {
     'position.moreCycles': '{count}개 남음, 약 {duration}',
     'position.rewardsGoTo': '보상 수령 방식',
     'position.sbtc': '이 지갑으로, sBTC',
-    'position.sbtcHint': '등록된 비트코인 주소가 없어 Stacks의 sBTC로 지급됩니다.',
+    'position.sbtcHint':
+      '등록된 비트코인 주소가 없어 Stacks의 sBTC로 지급됩니다.',
     'position.btcTo': '{address}로, BTC',
-    'position.btcHint': '비트코인으로 출금되며, 매 지급마다 최대 {fee}이(가) 트랜잭션 수수료로 쓰입니다.',
-    'position.payoutUnknown': '풀이 보상을 어디로 보내는지 알려주지 않았습니다.',
+    'position.btcHint':
+      '비트코인으로 출금되며, 매 지급마다 최대 {fee}이(가) 트랜잭션 수수료로 쓰입니다.',
+    'position.payoutUnknown':
+      '풀이 보상을 어디로 보내는지 알려주지 않았습니다.',
     'position.change': '추가·연장·이동',
 
     // ------------------------------------------------------------- wallet --
@@ -103,14 +107,16 @@ export const ko: MobileBundle = {
     'wallet.watching': '조회 중',
     'wallet.readOnly':
       '조회 전용입니다. 직접 입력한 주소이므로 이 주소로는 아무것도 서명할 수 없습니다.',
-    'wallet.canSign': '{wallet}(으)로 연결되어 있습니다. 서명은 그 앱에서 이루어집니다.',
+    'wallet.canSign':
+      '{wallet}(으)로 연결되어 있습니다. 서명은 그 앱에서 이루어집니다.',
     'wallet.copyLink': '연결 링크 복사',
     'wallet.testWallet': '테스트 지갑',
     'wallet.connectBody':
       'WalletConnect는 마지막 수단이며, 그 이유를 숨기지 않습니다. Leather는 지원하지 않습니다 — 자체 이슈 트래커에 아직 미완료 요청으로 올라와 있습니다. Xverse는 잠금 화면까지만 확인되었습니다. 그래서 여기서는 페어링 링크 자체를 제공하며, 실제로 사용하는 지갑이 무엇이든 그 링크를 쓸 수 있습니다.',
     'wallet.connectHeading': '지갑 연결',
     'wallet.connecting': '지갑의 응답을 기다리는 중',
-    'wallet.linkCopied': '연결 링크를 복사했습니다. 사용하는 지갑에 붙여넣으세요 — WalletConnect 링크를 받는 지갑이면 무엇이든 됩니다.',
+    'wallet.linkCopied':
+      '연결 링크를 복사했습니다. 사용하는 지갑에 붙여넣으세요 — WalletConnect 링크를 받는 지갑이면 무엇이든 됩니다.',
     'wallet.stopWaiting': '기다리지 않기',
     'wallet.browserHeading': '지갑 안에서 가이드 열기',
     'wallet.browserBody':
@@ -141,8 +147,7 @@ export const ko: MobileBundle = {
     'prefs.appearance.hint':
       '시스템은 휴대폰 설정을 따릅니다. 지금 햇빛 아래인지는 휴대폰이 이미 알고 있습니다.',
     'prefs.language': '언어',
-    'prefs.language.hint':
-      '번역이 있는 경우 컨트랙트 설명도 함께 번역됩니다.',
+    'prefs.language.hint': '번역이 있는 경우 컨트랙트 설명도 함께 번역됩니다.',
     'prefs.wallet': '지갑',
     'prefs.wallet.nothing': '상태',
     'prefs.wallet.none': '연결된 지갑 없음',
@@ -197,7 +202,8 @@ export const ko: MobileBundle = {
     'start.reasonFallback':
       '이 앱이 보통 제안하는 풀이 지금 스테이킹을 받지 않아 규칙으로 선택했습니다. 검토된 컨트랙트, 누구나 참여 가능, 그리고 조건을 만족하는 {count}개 중 가장 낮은 수수료입니다.',
     'start.reasonNoFee': '수수료를 받지 않습니다',
-    'start.reasonLowestFee': '수수료 상한이 5%이고 인상 시 한 달 전에 공지해야 하며, 현재는 {percent}%입니다',
+    'start.reasonLowestFee':
+      '수수료 상한이 5%이고 인상 시 한 달 전에 공지해야 하며, 현재는 {percent}%입니다',
     'start.projectionLabel': '현재 수익률 기준',
     'start.setForYou': '미리 정해진 항목',
     'start.noFee': '수수료 없음',
@@ -304,7 +310,8 @@ export const ko: MobileBundle = {
       'Stacks 블록은 몇 분이 걸립니다. 이 화면을 벗어나도 트랜잭션은 그대로 진행됩니다.',
     'sent.noteFailed':
       '잠긴 금액은 없습니다. 수수료는 소모되었으며, 거부 사유는 익스플로러에서 확인할 수 있습니다.',
-    'sent.noteConfirmed': '보상은 포지션이 포함되는 다음 사이클부터 시작됩니다.',
+    'sent.noteConfirmed':
+      '보상은 포지션이 포함되는 다음 사이클부터 시작됩니다.',
     'sent.transaction': '트랜잭션',
     'sent.copyId': 'ID 복사',
     'sent.explorer': '익스플로러 열기',
@@ -372,9 +379,11 @@ export const ko: MobileBundle = {
     'conduct.none':
       '이 키에 대한 기록이 없습니다. 좌석을 가진 적이 없는 서명자는 응답을 요청받은 적도 없습니다.',
     'conduct.loading': '이 서명자의 기록을 읽는 중…',
-    'conduct.failed': '불러오지 못했습니다. 파일 하나일 뿐이며 이 화면의 나머지는 영향을 받지 않습니다.',
+    'conduct.failed':
+      '불러오지 못했습니다. 파일 하나일 뿐이며 이 화면의 나머지는 영향을 받지 않습니다.',
     'conduct.answered': '응답률',
-    'conduct.answeredNote': '제안 {proposals}건 중 {answered}건에 응답했습니다 — {label}.',
+    'conduct.answeredNote':
+      '제안 {proposals}건 중 {answered}건에 응답했습니다 — {label}.',
     'conduct.cycleOpen': '{cycle} 사이클, 진행 중',
     'conduct.cycleClosed': '{cycle} 사이클',
     'conduct.neverAnswered': '응답 없음',
@@ -394,7 +403,8 @@ export const ko: MobileBundle = {
       '{when}({cycle} 사이클)에 서명자 키를 교체했습니다. 교체 전의 키가 다음 집합이 정해질 때까지 좌석을 유지합니다.',
 
     'pools.title': '모든 풀',
-    'pools.subtitle': 'pox-5의 서명자 컨트랙트 {count}개, 스테이킹 규모순입니다.',
+    'pools.subtitle':
+      'pox-5의 서명자 컨트랙트 {count}개, 스테이킹 규모순입니다.',
     'pools.search': '이름 또는 컨트랙트로 검색',
     'pools.noMatch': '“{query}”와 일치하는 항목이 없습니다.',
     'pools.stakedPill': '{amount} 스테이킹',
@@ -413,7 +423,8 @@ export const ko: MobileBundle = {
     'groups.intro':
       '서명자 노드는 키 하나입니다. 그룹은 한 주체가 뒤에 있는 노드의 집합이며, 서명자 집합을 실제로 움직일 수 있는 쪽이 누구인지는 이 수치가 정합니다. 체인은 그것을 보여 주지 않습니다.',
     'groups.asOf': '지분은 {cycle} 사이클 기준입니다.',
-    'groups.counts': '노드 {nodes}개 · 컨트랙트 {contracts}개 · {staked} 스테이킹',
+    'groups.counts':
+      '노드 {nodes}개 · 컨트랙트 {contracts}개 · {staked} 스테이킹',
     'groups.unknown': '알 수 없음',
     'groups.missing': '해당 그룹이 없습니다. 이름이 바뀌었을 수 있습니다.',
     'groups.kind.operator': '노드를 직접 운영',
@@ -434,7 +445,8 @@ export const ko: MobileBundle = {
     'groups.wholeNode': '이 키에 등록된 모든 컨트랙트',
     'groups.contractOnly':
       '이 컨트랙트만 해당합니다. 같은 노드가 보유한 나머지는 이 그룹에 포함되지 않습니다.',
-    'groups.nodeAnswered': '{cycle} 사이클에서 요청받은 블록의 {percent}%에 응답했습니다.',
+    'groups.nodeAnswered':
+      '{cycle} 사이클에서 요청받은 블록의 {percent}%에 응답했습니다.',
     'groups.nodeSilent': '{cycle} 사이클에서 단 한 건도 응답하지 않았습니다.',
     'groups.alsoIn': '{names}에도 함께 집계됨',
     'groups.source': '근거',
@@ -457,7 +469,8 @@ export const ko: MobileBundle = {
     'history.read': '{when} 기준. 모든 수치는 1,000 STX당입니다.',
     'history.every': '기록된 모든 지급',
     'history.loading': '기록을 가져오는 중',
-    'history.missing': '아직 기록이 없습니다 — 갱신이 아직 기록하지 않았습니다.',
+    'history.missing':
+      '아직 기록이 없습니다 — 갱신이 아직 기록하지 않았습니다.',
     'history.failed': '기록을 가져오지 못했습니다.',
     'history.cycle': '{cycle} 사이클',
     'history.stillPaying': '지급 진행 중',

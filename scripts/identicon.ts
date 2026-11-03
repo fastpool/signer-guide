@@ -87,7 +87,8 @@ export function identiconsBySource(
 ): Map<string, string> {
   const known = new Map<string, string>();
   for (const signer of signers) {
-    if (signer.identiconHash) known.set(signer.sourceSha256, signer.identiconHash);
+    if (signer.identiconHash)
+      known.set(signer.sourceSha256, signer.identiconHash);
   }
   return known;
 }

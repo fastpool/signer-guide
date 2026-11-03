@@ -47,12 +47,14 @@ const BONDS: BondsData = {
     allowlistComplete: true,
     stakers: [
       {
-        staker: 'SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.stbtc-staker-bond-1-v2',
+        staker:
+          'SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.stbtc-staker-bond-1-v2',
         maxSats: '15000000000',
         registeredSats: '15000000000',
         amountUstx: '2326777500000',
         isL1Lock: false,
-        signer: 'SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-1-v2',
+        signer:
+          'SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-1-v2',
       },
       {
         staker: 'SP349Q3BGARPT0V1T4H938PY9WK787PHPRFS3YAG',
@@ -63,7 +65,8 @@ const BONDS: BondsData = {
         signer: 'SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs',
       },
       {
-        staker: 'SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.sbtc-bond-staker-v1-1',
+        staker:
+          'SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.sbtc-bond-staker-v1-1',
         maxSats: '2500000000',
         registeredSats: '0',
         amountUstx: null,
@@ -93,9 +96,7 @@ const { default: BondsPage } = await import('./BondsPage');
 
 describe('the bonds as a reader sees them', () => {
   const html = () =>
-    renderToStaticMarkup(
-      <BondsPage signers={SIGNERS} locale='en' />,
-    );
+    renderToStaticMarkup(<BondsPage signers={SIGNERS} locale='en' />);
 
   it('names both periods and the cycles they cover', () => {
     const page = html();

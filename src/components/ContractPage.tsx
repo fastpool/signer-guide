@@ -269,7 +269,9 @@ export default function ContractPage({
                       ? 'contract.bitcoinEvidence'
                       : 'contract.bitcoinViaPool',
                     {
-                      code: <Code>{template.evidence.bitcoinRewards ?? ''}</Code>,
+                      code: (
+                        <Code>{template.evidence.bitcoinRewards ?? ''}</Code>
+                      ),
                     },
                   )}
             </dd>

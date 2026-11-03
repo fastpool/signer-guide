@@ -53,7 +53,8 @@ import { API_URL, SPACING_MS } from './node.js';
 import { callReadOnly, readDataVar, sleep } from './read-only.js';
 
 /** Where every withdrawal request lives, whoever asked for it. */
-export const SBTC_REGISTRY = 'SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-registry';
+export const SBTC_REGISTRY =
+  'SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-registry';
 
 /** One rejected payout, and everything needed to write the call that undoes it. */
 export type FailedDistribution = {

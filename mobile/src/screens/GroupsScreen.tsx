@@ -126,7 +126,11 @@ export default function GroupsScreen({ navigation }: ScreenProps<'Groups'>) {
             {t('groups.ungrouped')}
           </Text>
           <View style={{ marginLeft: 'auto' }}>
-            <Text variant='heading' tone='muted' testID='groups-ungrouped-share'>
+            <Text
+              variant='heading'
+              tone='muted'
+              testID='groups-ungrouped-share'
+            >
               {percent(rest.bips)}
             </Text>
           </View>

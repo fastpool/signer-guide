@@ -17,7 +17,12 @@ import { DEFAULT_LOCK_CYCLES, DEFAULT_REWARDS } from '../data/stake-defaults';
 import { poolName, signerFor } from '../data/signers';
 import { useSnapshot } from '../data/snapshot';
 import { useChainView } from '../stacks/position';
-import { buildStakeCall, buildUnstakeCall, StakeRefused, type PayoutChoice } from '../stacks/build-stake';
+import {
+  buildStakeCall,
+  buildUnstakeCall,
+  StakeRefused,
+  type PayoutChoice,
+} from '../stacks/build-stake';
 import { useWallet } from '../wallet/context';
 import { isBtcAddress, isCancellation } from '../wallet/types';
 import { satsLabel } from '@guide/lib/amounts';
@@ -64,7 +69,10 @@ import type { ScreenProps } from '../navigation-types';
  */
 const LOCK_PRESETS = [1, 12, 26, 52, MAX_LOCK_CYCLES];
 
-export default function StakeScreen({ route, navigation }: ScreenProps<'Stake'>) {
+export default function StakeScreen({
+  route,
+  navigation,
+}: ScreenProps<'Stake'>) {
   const { contractId } = route.params;
   const { snapshot } = useSnapshot();
   const { locale } = useSettings();
@@ -130,7 +138,10 @@ export default function StakeScreen({ route, navigation }: ScreenProps<'Stake'>)
       : null;
   const minExtend =
     position && chain.cycle
-      ? extendCyclesForUpdate({ position, currentCycle: chain.cycle.rewardCycleId })
+      ? extendCyclesForUpdate({
+          position,
+          currentCycle: chain.cycle.rewardCycleId,
+        })
       : 0;
 
   const projected = useMemo(() => {
@@ -148,9 +159,12 @@ export default function StakeScreen({ route, navigation }: ScreenProps<'Stake'>)
     if (amount.trim() !== '' && amountUstx === null) {
       return t('stake.problem.notAnAmount');
     }
-    if (!staking && (amountUstx ?? 0n) <= 0n) return t('stake.problem.enterAmount');
+    if (!staking && (amountUstx ?? 0n) <= 0n)
+      return t('stake.problem.enterAmount');
     if (spendable !== null && (amountUstx ?? 0n) > spendable) {
-      return t('stake.problem.tooMuch', { amount: stxExact(spendable, locale) });
+      return t('stake.problem.tooMuch', {
+        amount: stxExact(spendable, locale),
+      });
     }
     if (!staking && (cycles < 1 || cycles > MAX_LOCK_CYCLES)) {
       return t('stake.problem.cycles', { max: MAX_LOCK_CYCLES });
@@ -300,15 +314,17 @@ export default function StakeScreen({ route, navigation }: ScreenProps<'Stake'>)
                 : t('stake.changeWith')
               : t('stake.stakeWith')}
           </Label>
-          <Text variant='title' accessibilityRole='header' testID='stake-pool-name'>
+          <Text
+            variant='title'
+            accessibilityRole='header'
+            testID='stake-pool-name'
+          >
             {name}
           </Text>
         </View>
       </Row>
 
-      {movingPool ? (
-        <Note tone='warn'>{t('stake.moving')}</Note>
-      ) : null}
+      {movingPool ? <Note tone='warn'>{t('stake.moving')}</Note> : null}
 
       <Card>
         <AmountField
@@ -344,11 +360,19 @@ export default function StakeScreen({ route, navigation }: ScreenProps<'Stake'>)
                     style={[
                       styles.choice,
                       (extend ?? minExtend) === n
-                        ? { backgroundColor: colors.stx, color: colors.onAccent }
-                        : { backgroundColor: colors.cardRaised, color: colors.muted },
+                        ? {
+                            backgroundColor: colors.stx,
+                            color: colors.onAccent,
+                          }
+                        : {
+                            backgroundColor: colors.cardRaised,
+                            color: colors.muted,
+                          },
                     ]}
                   >
-                    {n === 0 ? t('stake.extendNone') : t('stake.extendBy', { count: n })}
+                    {n === 0
+                      ? t('stake.extendNone')
+                      : t('stake.extendBy', { count: n })}
                   </Text>
                 ))}
             </Row>
@@ -378,7 +402,10 @@ export default function StakeScreen({ route, navigation }: ScreenProps<'Stake'>)
                     styles.choice,
                     cycles === n
                       ? { backgroundColor: colors.stx, color: colors.onAccent }
-                      : { backgroundColor: colors.cardRaised, color: colors.muted },
+                      : {
+                          backgroundColor: colors.cardRaised,
+                          color: colors.muted,
+                        },
                   ]}
                 >
                   {index === 0 || cycles === n
@@ -591,19 +618,31 @@ const styles = StyleSheet.create({
   },
 });
 
-function currentBtcAddress(position: { payout?: { route: { kind: string; address?: string } } | null } | null) {
+function currentBtcAddress(
+  position: {
+    payout?: { route: { kind: string; address?: string } } | null;
+  } | null,
+) {
   const route = position?.payout?.route;
   return route && route.kind === 'bitcoin' ? (route.address ?? null) : null;
 }
 
-function currentMaxFee(position: { payout?: { route: { kind: string; maxFeeSats?: bigint } } | null } | null) {
+function currentMaxFee(
+  position: {
+    payout?: { route: { kind: string; maxFeeSats?: bigint } } | null;
+  } | null,
+) {
   const route = position?.payout?.route;
   return route && route.kind === 'bitcoin' && route.maxFeeSats !== undefined
     ? String(route.maxFeeSats)
     : null;
 }
 
-function currentMinClaim(position: { payout?: { route: { kind: string; minClaimSats?: bigint | null } } | null } | null) {
+function currentMinClaim(
+  position: {
+    payout?: { route: { kind: string; minClaimSats?: bigint | null } } | null;
+  } | null,
+) {
   const route = position?.payout?.route;
   return route && route.kind === 'bitcoin' && route.minClaimSats
     ? String(route.minClaimSats)

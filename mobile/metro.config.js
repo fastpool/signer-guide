@@ -33,11 +33,17 @@ config.watchFolders = [sharedRoot];
  */
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   const relative = moduleName.startsWith('.') || path.isAbsolute(moduleName);
-  const fromShared = context.originModulePath?.startsWith(sharedRoot + path.sep);
+  const fromShared = context.originModulePath?.startsWith(
+    sharedRoot + path.sep,
+  );
 
   if (fromShared && !relative) {
     return context.resolveRequest(
-      { ...context, nodeModulesPaths: [projectModules], disableHierarchicalLookup: true },
+      {
+        ...context,
+        nodeModulesPaths: [projectModules],
+        disableHierarchicalLookup: true,
+      },
       moduleName,
       platform,
     );

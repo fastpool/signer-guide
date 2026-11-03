@@ -74,7 +74,10 @@ function generatedAt(snapshot: Snapshot): number {
  * Equal timestamps still count: the files are refreshed on different
  * schedules, so an equally-timestamped snapshot may carry fresher totals.
  */
-export function isAtLeastAsFresh(candidate: Snapshot, current: Snapshot): boolean {
+export function isAtLeastAsFresh(
+  candidate: Snapshot,
+  current: Snapshot,
+): boolean {
   return generatedAt(candidate) >= generatedAt(current);
 }
 

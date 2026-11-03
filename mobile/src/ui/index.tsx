@@ -38,14 +38,7 @@ import {
  */
 
 type TextTone =
-  | 'default'
-  | 'muted'
-  | 'faint'
-  | 'accent'
-  | 'stx'
-  | 'good'
-  | 'bad'
-  | 'warn';
+  'default' | 'muted' | 'faint' | 'accent' | 'stx' | 'good' | 'bad' | 'warn';
 type TextVariant = keyof typeof type;
 
 function tone(colors: Palette, name: TextTone): string {
@@ -96,7 +89,13 @@ export function Text({
 }
 
 /** A caption above a figure — always small, always quiet, always upper. */
-export function Label({ children, testID }: { children: ReactNode; testID?: string }) {
+export function Label({
+  children,
+  testID,
+}: {
+  children: ReactNode;
+  testID?: string;
+}) {
   return (
     <Text variant='tiny' tone='faint' testID={testID} style={styles.label}>
       {String(children).toUpperCase()}
@@ -129,13 +128,21 @@ export function Screen({
 
   if (!scroll) {
     return (
-      <SafeAreaView style={[styles.screen, ground]} edges={['top']} testID={testID}>
+      <SafeAreaView
+        style={[styles.screen, ground]}
+        edges={['top']}
+        testID={testID}
+      >
         <KeyboardAvoiding>{children}</KeyboardAvoiding>
       </SafeAreaView>
     );
   }
   return (
-    <SafeAreaView style={[styles.screen, ground]} edges={['top']} testID={testID}>
+    <SafeAreaView
+      style={[styles.screen, ground]}
+      edges={['top']}
+      testID={testID}
+    >
       <KeyboardAvoiding>
         <ScrollView
           style={{ flex: 1 }}
@@ -192,11 +199,7 @@ export function Card({
   return (
     <View
       testID={testID}
-      style={[
-        styles.card,
-        cardSurface(colors, raised),
-        style,
-      ]}
+      style={[styles.card, cardSurface(colors, raised), style]}
     >
       {children}
     </View>
@@ -357,7 +360,10 @@ export function Pill({
   return (
     <View
       testID={testID}
-      style={[styles.pill, { backgroundColor: fills[name] ?? colors.cardRaised }]}
+      style={[
+        styles.pill,
+        { backgroundColor: fills[name] ?? colors.cardRaised },
+      ]}
     >
       <Text variant='tiny' tone={name}>
         {children}
@@ -507,7 +513,10 @@ export function ListRow({
       onPress={onPress}
       style={({ pressed }) => [
         styles.listRow,
-        !first && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border },
+        !first && {
+          borderTopWidth: StyleSheet.hairlineWidth,
+          borderTopColor: colors.border,
+        },
         pressed && { opacity: 0.6 },
       ]}
     >
@@ -554,7 +563,13 @@ export function StickyFooter({ children }: { children: ReactNode }) {
   );
 }
 
-export function Loading({ label, testID }: { label?: string; testID?: string }) {
+export function Loading({
+  label,
+  testID,
+}: {
+  label?: string;
+  testID?: string;
+}) {
   const colors = useColors();
   return (
     <View style={styles.loading} testID={testID}>

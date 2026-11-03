@@ -25,7 +25,10 @@ export const BROWSER_WALLETS: WalletId[] = [...SHARED_BROWSER_WALLETS];
  * Null for a wallet with no browser to open, which is not a failure — it is a
  * wallet this route does not apply to, and the caller should not offer it.
  */
-export function walletBrowserUrl(walletId: WalletId, url: string): string | null {
+export function walletBrowserUrl(
+  walletId: WalletId,
+  url: string,
+): string | null {
   return sharedWalletBrowserUrl(walletId, url);
 }
 

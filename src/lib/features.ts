@@ -335,7 +335,6 @@ function detectFeeExemption(source: string): FeeExemption | null {
 
 /** Juice Pool's STX contract: an OG staker pays nothing at all. */
 function detectAllOrNothing(clean: string): FeeExemption | null {
-
   for (const branch of clean.matchAll(
     /\(if\s+\(([a-z0-9-]+)\s+([a-z0-9-]+)\)\s+u0\s+([\s\S]{0,160}?)\)\s*\)/g,
   )) {
@@ -405,7 +404,8 @@ function detectCoveredAmount(clean: string): FeeExemption | null {
   const map = lookup[1];
 
   const written = new RegExp(`\\(map-(?:set|delete)\\s+${map}\\b`);
-  const adminOnly = /\((?:try!\s+\()?(?:assert-admin|authorize-admin|is-admin)\b/;
+  const adminOnly =
+    /\((?:try!\s+\()?(?:assert-admin|authorize-admin|is-admin)\b/;
   const operatorChooses = publicFunctionNames(clean).some((name) => {
     const body = extractPublicFunction(clean, name) ?? '';
     return written.test(body) && adminOnly.test(body);

@@ -43,7 +43,9 @@ describe('choosing where to stake', () => {
 
     fireEvent.press(await screen.findByTestId('choose-yourself'));
 
-    expect(await screen.findByTestId('choose-contract-screen')).toBeOnTheScreen();
+    expect(
+      await screen.findByTestId('choose-contract-screen'),
+    ).toBeOnTheScreen();
     // The contract most pools run is first, because it is the code a reader is
     // likeliest to have already met.
     expect(screen.getByTestId(`template-${STANDARD}`)).toBeOnTheScreen();
@@ -110,7 +112,9 @@ describe('staking for the first time', () => {
 
     fireEvent.changeText(screen.getByTestId('stake-amount'), '100');
     await waitFor(() =>
-      expect(screen.getByTestId('stake-problem')).toHaveTextContent(/free to lock/),
+      expect(screen.getByTestId('stake-problem')).toHaveTextContent(
+        /free to lock/,
+      ),
     );
   });
 
@@ -140,7 +144,9 @@ describe('staking for the first time', () => {
     // Rewards are sBTC by default now, so nothing has to be turned off.
     fireEvent.press(screen.getByTestId('cycles-12'));
 
-    await waitFor(() => expect(screen.getByTestId('stake-submit')).not.toBeDisabled());
+    await waitFor(() =>
+      expect(screen.getByTestId('stake-submit')).not.toBeDisabled(),
+    );
     fireEvent.press(screen.getByTestId('stake-submit'));
 
     await waitFor(() => expect(harness.calls).toHaveLength(1));
@@ -151,9 +157,9 @@ describe('staking for the first time', () => {
     expect(call.postConditions).toHaveLength(1);
 
     const args = call.functionArgs.map(hexToCV);
-    expect(args.some((cv) => cv.type === 'uint' && cv.value === 1_234_500_000n)).toBe(
-      true,
-    );
+    expect(
+      args.some((cv) => cv.type === 'uint' && cv.value === 1_234_500_000n),
+    ).toBe(true);
   });
 
   it('follows the transaction rather than calling a broadcast a stake', async () => {
@@ -167,7 +173,9 @@ describe('staking for the first time', () => {
     await screen.findByTestId('stake-screen');
 
     fireEvent.changeText(screen.getByTestId('stake-amount'), '100');
-    await waitFor(() => expect(screen.getByTestId('stake-submit')).not.toBeDisabled());
+    await waitFor(() =>
+      expect(screen.getByTestId('stake-submit')).not.toBeDisabled(),
+    );
     fireEvent.press(screen.getByTestId('stake-submit'));
 
     expect(await screen.findByTestId('sent-screen')).toBeOnTheScreen();
@@ -219,7 +227,9 @@ describe('staking for the first time', () => {
     fireEvent.changeText(screen.getByTestId('min-claim'), '1000');
 
     await waitFor(() =>
-      expect(screen.getByTestId('stake-problem')).toHaveTextContent(/3,546 sats/),
+      expect(screen.getByTestId('stake-problem')).toHaveTextContent(
+        /3,546 sats/,
+      ),
     );
   });
 });
@@ -245,7 +255,9 @@ describe('changing a stake that already exists', () => {
     await screen.findByTestId('stake-screen');
 
     fireEvent.changeText(screen.getByTestId('stake-amount'), '500');
-    await waitFor(() => expect(screen.getByTestId('stake-submit')).not.toBeDisabled());
+    await waitFor(() =>
+      expect(screen.getByTestId('stake-submit')).not.toBeDisabled(),
+    );
     fireEvent.press(screen.getByTestId('stake-submit'));
 
     await waitFor(() => expect(harness.calls).toHaveLength(1));
@@ -284,13 +296,17 @@ describe('changing a stake that already exists', () => {
 
 describe('a wallet that refuses', () => {
   it('leaves the form where it was rather than claiming a stake', async () => {
-    const harness = renderApp({ failWith: new Error('User rejected the request') });
+    const harness = renderApp({
+      failWith: new Error('User rejected the request'),
+    });
     fireEvent.press(await screen.findByTestId('home-connect'));
     fireEvent.press(await screen.findByTestId('connect-any'));
 
     // A rejection is a decision, not a fault, so nothing is shown as an error
     // — and the wallet screen stays put rather than closing on nothing.
-    await waitFor(() => expect(screen.queryByTestId('wallet-error')).toBeNull());
+    await waitFor(() =>
+      expect(screen.queryByTestId('wallet-error')).toBeNull(),
+    );
     expect(screen.getByTestId('connect-any')).toBeOnTheScreen();
     expect(harness.calls).toHaveLength(0);
   });

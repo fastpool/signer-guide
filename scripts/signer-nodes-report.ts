@@ -290,7 +290,9 @@ export async function fetchVersions(
   limit: number,
 ): Promise<Map<string, SignerVersion>> {
   const found = new Map<string, SignerVersion>();
-  const payload = (await callSlotwatch('getLatestStateMachines', { limit })) as {
+  const payload = (await callSlotwatch('getLatestStateMachines', {
+    limit,
+  })) as {
     stateMachines?: {
       signerPublicKey?: string;
       activeSignerProtocolVersion?: number;
@@ -540,7 +542,9 @@ async function main() {
   }
 
   console.log(`Reading signer nodes for cycle ${cycle} from ${describeNode()}`);
-  console.log(`and behaviour over the last ${options.blocks} blocks from slotwatch.dev …\n`);
+  console.log(
+    `and behaviour over the last ${options.blocks} blocks from slotwatch.dev …\n`,
+  );
 
   const [weights, versions, behaviour] = await Promise.all([
     fetchWeights(cycle),
@@ -598,15 +602,21 @@ async function main() {
     (row) => row.behaviour && row.behaviour.participationRate === 0,
   ).length;
 
-  console.log(`\n${rows.length} nodes, ${books.totalSlots} slots between them.`);
+  console.log(
+    `\n${rows.length} nodes, ${books.totalSlots} slots between them.`,
+  );
   if (books.ustxPerSlot !== null) {
     console.log(
-      `A slot costs ${(Number(books.ustxPerSlot) / 1e6).toLocaleString('en-GB', {
-        maximumFractionDigits: 0,
-      })} STX this cycle. Under half of one and a signer is not seated at all.`,
+      `A slot costs ${(Number(books.ustxPerSlot) / 1e6).toLocaleString(
+        'en-GB',
+        {
+          maximumFractionDigits: 0,
+        },
+      )} STX this cycle. Under half of one and a signer is not seated at all.`,
     );
   }
-  if (unnamed) console.log(`${unnamed} of them hold weight this guide cannot name.`);
+  if (unnamed)
+    console.log(`${unnamed} of them hold weight this guide cannot name.`);
   console.log(`${behind} are behind the active signer protocol version.`);
   console.log(`${quiet} signed nothing in the window.`);
 
@@ -625,7 +635,9 @@ async function main() {
         ' — the guide divides by the first, the signer set by the second.',
     );
     for (const pool of books.stackedWithoutSeat) {
-      console.log(`  stacked, no seat this cycle:  ${pool.name} (${stx(pool.ustx)})`);
+      console.log(
+        `  stacked, no seat this cycle:  ${pool.name} (${stx(pool.ustx)})`,
+      );
     }
     for (const seat of books.seatsWithoutPool) {
       console.log(

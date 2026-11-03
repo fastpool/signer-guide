@@ -223,7 +223,8 @@ function takesPath(flag: string, argv: string[], at: number): string {
  * same day everywhere a report is read, which a local midnight would not be.
  */
 export function parseSince(value: string | undefined): number {
-  const iso = value && /^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T00:00:00Z` : value;
+  const iso =
+    value && /^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T00:00:00Z` : value;
   const ms = iso ? Date.parse(iso) : NaN;
   if (!Number.isFinite(ms)) {
     throw new Error('--since takes a date, like 2026-09-29');
@@ -260,8 +261,7 @@ export function parseArgs(argv: string[]): Options {
     else if (arg === '--ending-in') options.endingIn = Number(argv[(i += 1)]);
     else if (arg === '--activity-days') {
       options.activityDays = Number(argv[(i += 1)]);
-    }
-    else if (arg === '--since') options.since = parseSince(argv[(i += 1)]);
+    } else if (arg === '--since') options.since = parseSince(argv[(i += 1)]);
     else if (arg === '--no-activity') options.activity = false;
     else if (arg === '--activity-only') options.activityOnly = true;
     else if (arg === '--nfts') options.nfts = true;
@@ -269,8 +269,7 @@ export function parseArgs(argv: string[]): Options {
     else if (arg === '--cache') options.cache = takesPath(arg, argv, (i += 1));
     else if (arg === '--from-cache') {
       options.fromCache = takesPath(arg, argv, (i += 1));
-    }
-    else if (arg.startsWith('--')) throw new Error(`Unknown option: ${arg}`);
+    } else if (arg.startsWith('--')) throw new Error(`Unknown option: ${arg}`);
     else options.addresses.push(arg);
   }
 
@@ -281,7 +280,9 @@ export function parseArgs(argv: string[]): Options {
     throw new Error('--activity-days takes a number of days');
   }
   if (options.activityOnly && !options.activity) {
-    throw new Error('--activity-only and --no-activity leave nothing to report');
+    throw new Error(
+      '--activity-only and --no-activity leave nothing to report',
+    );
   }
   // A capture of transactions alone would read back as a list of addresses
   // whose balances could not be read — every one of them flagged unread.
@@ -293,7 +294,9 @@ export function parseArgs(argv: string[]): Options {
     );
   }
   if (options.activityOnly && options.html !== null) {
-    throw new Error('--html is a page about balances too; drop --activity-only');
+    throw new Error(
+      '--html is a page about balances too; drop --activity-only',
+    );
   }
   if (options.activityOnly && options.token !== null) {
     throw new Error('--activity-only reports no balances, so no --token');
@@ -679,7 +682,8 @@ const TRANSFERS_SHOWN = 3;
 export function describeTx(
   tx: ActivityTx,
   address: string,
-  context: Pick<Context, 'listed' | 'tokenMeta'> & Partial<Pick<Context, 'safe'>>,
+  context: Pick<Context, 'listed' | 'tokenMeta'> &
+    Partial<Pick<Context, 'safe'>>,
 ): string {
   let what: string | null;
   if (tx.type === 'contract_call' && tx.call) {
@@ -827,9 +831,10 @@ export function activityAttention(
 
   for (const tx of recent.slice(0, ACTIVITY_SHOWN)) {
     reasons.push({
-      tag: outsideSafe(tx) || (status === 'unmarked' && movesOut(tx, address))
-        ? 'outflow'
-        : 'signed',
+      tag:
+        outsideSafe(tx) || (status === 'unmarked' && movesOut(tx, address))
+          ? 'outflow'
+          : 'signed',
       detail:
         `${isoDay(tx.time)} ${describeTx(tx, address, context)}` +
         (tx.sender === address ? '' : ` — signed by ${tx.sender}`),
@@ -1131,7 +1136,7 @@ export function cachePathProblem(
   if (fs.existsSync(target) && fs.statSync(target).isDirectory()) {
     return (
       `${target} is a directory — ${flag} takes the path of the file to ` +
-      'write, and picking a name inside a directory is not a script\'s call'
+      "write, and picking a name inside a directory is not a script's call"
     );
   }
 
@@ -1175,9 +1180,7 @@ export function toCache(
       label: h.label,
       stxTotal: h.stxTotal === null ? null : h.stxTotal.toString(),
       stxLocked: h.stxLocked === null ? null : h.stxLocked.toString(),
-      stake: h.stake
-        ? { ...h.stake, ustx: h.stake.ustx.toString() }
-        : null,
+      stake: h.stake ? { ...h.stake, ustx: h.stake.ustx.toString() } : null,
       stakeRead: h.stake !== undefined,
       fungible: Object.fromEntries(
         Object.entries(h.fungible).map(([asset, amount]) => [
@@ -1736,7 +1739,9 @@ function printAtRisk(
 ) {
   console.log('STILL ON POSSIBLY COMPROMISED ADDRESSES\n');
   if (risks.length === 0) {
-    console.log('  Nothing — every address before the safe section is empty.\n');
+    console.log(
+      '  Nothing — every address before the safe section is empty.\n',
+    );
     return;
   }
   const sbtcDecimals = tokenMeta.get(SBTC_ASSET)?.decimals ?? SBTC_DECIMALS;
@@ -1922,7 +1927,7 @@ function printReport(
   if (sbtcColumn) {
     console.log(
       'sBTC is what each address holds itself. sBTC locked against a pox-5' +
-        ' bond is custodied by pox-5 and is in nobody\'s balance, so it is not' +
+        " bond is custodied by pox-5 and is in nobody's balance, so it is not" +
         ' in this column.' +
         (sbtc.unread
           ? ` ${sbtc.unread} address(es) would not read, so the total is at` +
@@ -1942,7 +1947,10 @@ export function toJson(
   cycle: number,
   tokenMeta: Map<string, TokenMeta>,
   captured: { at: string; node: string } | null,
-  context: Pick<Context, 'safe' | 'now'> = { safe: null, now: Date.now() / 1000 },
+  context: Pick<Context, 'safe' | 'now'> = {
+    safe: null,
+    now: Date.now() / 1000,
+  },
   window: { since: number; label: string } = {
     since: context.now - 30 * DAY,
     label: 'in the last 30 day(s)',
@@ -2034,8 +2042,7 @@ export function toJson(
       ),
       nfts: row.holdings.nfts,
       activity: row.holdings.activity && {
-        confirmed:
-          row.holdings.activity.confirmed?.map(txToCache) ?? null,
+        confirmed: row.holdings.activity.confirmed?.map(txToCache) ?? null,
         pending: row.holdings.activity.pending?.map(txToCache) ?? null,
       },
       attention: row.reasons,
@@ -2366,18 +2373,10 @@ async function main() {
       return right > left ? 1 : -1;
     });
 
-  const report = toJson(
-    rows,
-    meta,
-    cycle,
-    tokenMeta,
-    captured,
-    context,
-    {
-      since: windowStart(thresholds, context.now),
-      label: windowLabel(thresholds),
-    },
-  );
+  const report = toJson(rows, meta, cycle, tokenMeta, captured, context, {
+    since: windowStart(thresholds, context.now),
+    label: windowLabel(thresholds),
+  });
   if (options.html !== null) {
     try {
       fs.writeFileSync(options.html, renderHtml(report));
