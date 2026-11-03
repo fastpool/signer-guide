@@ -34,6 +34,12 @@
     "callApi": "nativePool",
     "openToAnyone": true
   },
+  "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2": {
+    "note": "Stacking DAO's second Native Pool signer: the same deployer as native-pool-signer-manager, and like it, it only accepts staking that comes through native-pool-v2. Anyone who joins Native Pool can be in it, so it is treated the way the first one is.",
+    "displayName": "Native Pool V2 (Stacking Dao)",
+    "callApi": "nativePool",
+    "openToAnyone": true
+  },
   "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-blockdaemon-v1": {
     "note": "Deliberately not renamed. slotwatch.dev names this signer key 'Blockdaemon*' — same operator the contract id already says, and the asterisk is a marker of theirs whose meaning is not documented anywhere we can find. Dropping it would be inventing a name, keeping it would be copying another site's footnote, and 'Blockdaemon' alone loses the V1 that tells this apart from the rest of the -v1 family under this principal. Nothing to add, so nothing is claimed. The same signer key is also registered by SP21D6BW36TSGWAZS8K4JAJVTNXWKQN9G3TH5MG6A.signer-manager-bd-contract; see the entry there."
   },

@@ -67,6 +67,10 @@
         "note": "Stacking DAO's own node, not a delegation."
       },
       {
+        "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2",
+        "note": "Stacking DAO's second Native Pool signer, deployed from the same address."
+      },
+      {
         "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-xverse-v1",
         "note": "On a key Xverse also signs its own pools with."
       },

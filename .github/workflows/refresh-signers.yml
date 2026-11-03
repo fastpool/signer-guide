@@ -272,14 +272,29 @@ jobs:
             history=false
           fi
 
+          # The signers' conduct, the same way: every run restamps
+          # `generatedAt`, and only a changed count is news. These were
+          # written by every run and committed by none, which is how the
+          # pool pages came to say "nothing on file" about signers holding
+          # a seat — performance.json was still the one from 4 September.
+          git add -A src/data/performance.json src/data/performance/
+          if git diff --cached --unified=0 -- src/data/performance.json \
+              src/data/performance/ \
+              | grep -E '^[-+][^-+]' \
+              | grep -qvE '^[-+][[:space:]]*"generatedAt"'; then
+            history=true
+          fi
+
           if [ "$SIGNERS_CHANGED" != 'true' ] && [ "$amounts" != 'true' ] \
               && [ "$history" != 'true' ]; then
             echo 'Same pools, same fees, same amounts, same members — nothing to commit.'
             # Only timestamps moved. Put them back so the tree is clean. No
             # untracked file can be in here: a new one would have added a line
             # that is not a timestamp, and `history` would be true.
-            git reset -q -- src/data/signers/
-            git checkout -- src/data/signers.json src/data/signers/
+            git reset -q -- src/data/signers/ src/data/performance.json \
+              src/data/performance/
+            git checkout -- src/data/signers.json src/data/signers/ \
+              src/data/performance.json src/data/performance/
             echo 'commit=false' >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -324,7 +339,8 @@ jobs:
           git add src/data/signers.json src/data/totals.json \
             src/data/stx-only-calculations.json \
             src/data/stx-only-history.json \
-            src/data/bonds.json
+            src/data/bonds.json src/data/signer-nodes.json
+          git add -A src/data/performance.json src/data/performance/
           # A contract read for the first time leaves its source here, so the
           # next run does not ask for it again. Only ever new files: a
           # deployed contract cannot change.

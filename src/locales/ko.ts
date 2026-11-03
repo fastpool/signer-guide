@@ -65,6 +65,13 @@ export const ko: LocaleBundle = {
       detail:
         '이 서명자는 Native Pool 컨트랙트를 통해 참여한 경우에만 스테이킹을 허용하므로, 서명자 컨트랙트에 직접 스테이킹하지 않고 Native Pool 쪽에서 가입합니다. 보상은 Stacks의 sBTC로 지급됩니다. 이 컨트랙트 자체에는 수수료 로직이 없습니다.',
     },
+    'native-pool-v2': {
+      name: '네이티브 풀 V2',
+      summary:
+        'pox-5에 직접 스테이킹하는 대신 Stacking DAO의 native-pool-v2를 통해 참여합니다. 보상은 sBTC로 지급되며, DAO가 상한이나 사전 고지 없이 언제든 바꿀 수 있는 수수료가 먼저 차감됩니다.',
+      detail:
+        'native-pool-v2를 통해 위임한 스테이커만 받으므로, 이 컨트랙트가 아니라 Native Pool 쪽에서 가입합니다. 청구되는 모든 보상에는 먼저 이 컨트랙트의 수수료가 부과되며, 수수료는 Stacking DAO 프로토콜이 지정한 수령인에게 보내집니다. DAO는 이 수수료를 언제든 100% 미만의 어떤 값으로도 바꿀 수 있습니다. 컨트랙트에는 상한도 사전 고지 기간도 없습니다.\n\n나머지 보상은 native-pool-v2에서 고른 방식에 따라 두 가지 중 하나로 받습니다. 직접 모드에서는 직접 청구하고 sBTC가 바로 지갑으로 들어옵니다. 스트리밍 모드에서는 키퍼가 대신 청구해 native-reward-streamer-v2에 적립하므로, 이 모드에서는 스트리머 컨트랙트와 키퍼도 신뢰해야 합니다.',
+    },
     'capped-fee': {
       name: '수수료 상한',
       summary:

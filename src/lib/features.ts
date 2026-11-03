@@ -343,12 +343,15 @@ function detectFeeExemption(source: string): FeeExemption | null {
 function detectFeeReading(source: string): SourceFeatures['feeReading'] {
   // `get-active-fee-bips` in max500: the rate in force once a queued change
   // has matured, which is not always what the `fees-bips` var still says.
-  const getter = /\(define-read-only \((get-(?:active-)?fees?-bips)\s*\)/.exec(
+  // `get-fee-bps` in native-pool-signer-manager-v2: the same thing spelt
+  // without the i, which is how its fee went unread and the page called it
+  // "not set in this contract" while it was charging 5%.
+  const getter = /\(define-read-only \((get-(?:active-)?fees?-bi?ps)\s*\)/.exec(
     source,
   );
   if (getter) return { kind: 'read-only', name: getter[1] };
 
-  const variable = /\(define-data-var\s+([a-z0-9-]*fees?-bips)\s+uint/i.exec(
+  const variable = /\(define-data-var\s+([a-z0-9-]*fees?-bi?ps)\s+uint/i.exec(
     source,
   );
   if (variable) return { kind: 'data-var', name: variable[1] };
