@@ -85,6 +85,10 @@
  *   --budget N   most per-staker calls this run may make (default: no cap)
  *   --only Q     just the signers this query names, as signer-members.ts takes it
  *   --from N     earliest cycle to cover (default: 141, pox-5's first)
+ *   --amounts-from-totals
+ *                take the current and next cycle's amounts from totals.json,
+ *                which `generate:totals` has just read. Only for a run that
+ *                has just refreshed it: see `amountFromTotals`.
  *
  * Reads STACKS_API_URL and HIRO_API_KEY — see scripts/node.ts.
  */
@@ -99,6 +103,7 @@ import {
 } from '../src/lib/signer-nodes.js';
 import type {
   CycleMember,
+  LockedTotals,
   SignerCycleMembers,
   SignerCycleSummary,
   SignerData,
@@ -108,6 +113,7 @@ import { fetchAmountDelegated } from './locked.js';
 import { indexSigner, readPositions } from './members.js';
 import { describeNode, sleep, SPACING_MS } from './node.js';
 import { fetchCurrentCycle } from './pox5.js';
+import { loadStakerIndex } from './pox5-events.js';
 import { groupName, matchGroups } from './signer-members.js';
 
 const DATA = path.join(
@@ -117,6 +123,7 @@ const DATA = path.join(
   'data',
 );
 const SIGNERS = path.join(DATA, 'signers.json');
+const TOTALS = path.join(DATA, 'totals.json');
 const OUTPUT = path.join(DATA, 'signers');
 
 /** pox-5 went live part-way through 140; nothing was locked with it until 141. */
@@ -140,6 +147,8 @@ export interface Options {
   budget: number;
   only: string[];
   from: number;
+  /** Take the live cycles' amounts from totals.json instead of the chain. */
+  amountsFromTotals: boolean;
 }
 
 export function parseArgs(argv: string[]): Options {
@@ -147,6 +156,7 @@ export function parseArgs(argv: string[]): Options {
     budget: Number.POSITIVE_INFINITY,
     only: [],
     from: FIRST_POX5_CYCLE,
+    amountsFromTotals: false,
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -154,6 +164,7 @@ export function parseArgs(argv: string[]): Options {
     if (arg === '--budget') options.budget = Number(argv[(i += 1)]);
     else if (arg === '--only') options.only.push(argv[(i += 1)]);
     else if (arg === '--from') options.from = Number(argv[(i += 1)]);
+    else if (arg === '--amounts-from-totals') options.amountsFromTotals = true;
     else throw new Error(`Unknown option: ${arg}`);
   }
 
@@ -162,6 +173,37 @@ export function parseArgs(argv: string[]): Options {
     throw new Error('--from takes a cycle number');
   }
   return options;
+}
+
+/**
+ * What totals.json says one contract held in one cycle. Null when it does not
+ * cover that cycle or that contract, or could not read it.
+ *
+ * `generate:totals` makes exactly the calls this script would make for the
+ * live cycles, `get-amount-delegated-for-signer` for every contract in the
+ * current cycle and the next, a minute earlier in the same run. Asking again
+ * cost 126 calls a run to be told the same thing. It also keeps a failed read
+ * at its last value, just as `amountOrKept` does here, so the two agree on
+ * what a failure looks like as well.
+ *
+ * Only on `--amounts-from-totals`, which the workflow passes only when the
+ * totals step succeeded in the same run. A totals.json left over from an
+ * earlier run is hours old, and history should not file that as now.
+ */
+export function amountFromTotals(
+  totals: LockedTotals | null,
+  contractId: string,
+  cycle: number,
+): string | null {
+  if (!totals) return null;
+  const table =
+    totals.cycle === cycle
+      ? totals.ustx
+      : totals.next?.cycle === cycle
+        ? totals.next.ustx
+        : null;
+  const value = table?.[contractId];
+  return typeof value === 'string' ? value : null;
 }
 
 /**
@@ -218,9 +260,25 @@ export function membersWorthWalking(
   /** `fileFinal` — whether this record is done with, not whether the cycle is. */
   fileFinal: boolean,
   now: number,
+  /** Whether the pox-5 event index is on hand for this run. */
+  eventsAvailable = false,
 ): boolean {
   // Never walked. Zero members is a fact and is recorded as 0; null is not.
   if (!onFile || onFile.memberCount === null) return true;
+
+  /*
+   * A list that does not add up, and has never been walked with the event
+   * index, gets one walk with it whatever the day gate or `walks` says.
+   *
+   * Hiro's index of stakers is present tense, so a past cycle walked from it
+   * is short by everyone who has moved on since. Retrying the same index
+   * cannot fix that, which is how fastpool-max500's cycles 144 to 147 used up
+   * their walks and stayed short. The event index remembers them. This fires
+   * once per cycle: the walk sets `eventsWalked`.
+   */
+  if (eventsAvailable && !onFile.membersAddUp && !onFile.eventsWalked) {
+    return true;
+  }
 
   /*
    * One last walk before the record is frozen, whatever the clock says.
@@ -368,6 +426,15 @@ export function byStaleness(
 // Files
 // ---------------------------------------------------------------------------
 
+function readTotals(): LockedTotals | null {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(TOTALS, 'utf8')) as LockedTotals;
+    return typeof parsed?.cycle === 'number' && parsed.ustx ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
 function summaryPath(slug: string): string {
   return path.join(OUTPUT, `${slug}.json`);
 }
@@ -415,6 +482,8 @@ interface GroupResult {
   walked: number;
   /** Amounts the node would not re-read, left at what they were. */
   carriedForward: number;
+  /** Amounts taken from totals.json rather than asked for again. */
+  fromTotals: number;
   /** True when a walk was skipped for want of budget. */
   budgetBit: boolean;
 }
@@ -427,11 +496,14 @@ async function updateGroup(
   /** One timestamp for the whole run, so a walk's stamp does not depend on
    *  how long the signers before it took. */
   now: number,
+  /** This run's totals.json, when `--amounts-from-totals` says to use it. */
+  totals: LockedTotals | null = null,
 ): Promise<GroupResult> {
   const slug = signerSlug(node);
   const name = groupName(node);
   const contractIds = node.contracts.map((contract) => contract.contractId);
   const existing = readSummary(slug);
+  const eventsAvailable = loadStakerIndex() !== null;
   const onFile = new Map<number, SignerCycleSummary>(
     (existing?.cycles ?? []).map((cycle) => [cycle.cycle, cycle]),
   );
@@ -442,6 +514,7 @@ async function updateGroup(
     amountsRead: 0,
     walked: 0,
     carriedForward: 0,
+    fromTotals: 0,
     budgetBit: false,
   };
   const cycles: SignerCycleSummary[] = [];
@@ -481,6 +554,12 @@ async function updateGroup(
           ustx[contractId] = known;
           continue;
         }
+        const fromTotals = amountFromTotals(totals, contractId, cycle);
+        if (fromTotals !== null) {
+          ustx[contractId] = fromTotals;
+          result.fromTotals += 1;
+          continue;
+        }
         const read = await fetchAmountDelegated(contractId, cycle);
         const { ustx: amount, kept } = amountOrKept(read, known);
         ustx[contractId] = amount;
@@ -499,6 +578,7 @@ async function updateGroup(
       walks: before?.walks ?? 0,
       walkedAt: before?.walkedAt ?? null,
       walkedUstx: before?.walkedUstx ?? null,
+      ...(before?.eventsWalked ? { eventsWalked: true } : {}),
       fileFinal,
       cycleFinal,
     };
@@ -508,7 +588,7 @@ async function updateGroup(
      * ago may still never have been walked, and skipping it with them would
      * leave it without a member list for ever.
      */
-    if (membersWorthWalking(before, total, fileFinal, now)) {
+    if (membersWorthWalking(before, total, fileFinal, now, eventsAvailable)) {
       const walked = await walkCycle(node, slug, cycle, total, spend);
       if (walked === 'skipped') result.budgetBit = true;
       else {
@@ -519,6 +599,7 @@ async function updateGroup(
         // photograph of, and when it was taken.
         summary.walkedAt = new Date(now).toISOString();
         summary.walkedUstx = total === null ? null : total.toString();
+        if (walked.fromEvents) summary.eventsWalked = true;
         result.walked += 1;
       }
     }
@@ -559,7 +640,10 @@ async function walkCycle(
   cycle: number,
   total: bigint | null,
   spend: Spend,
-): Promise<'skipped' | { memberCount: number; membersAddUp: boolean }> {
+): Promise<
+  | 'skipped'
+  | { memberCount: number; membersAddUp: boolean; fromEvents: boolean }
+> {
   const contractIds = node.contracts.map((contract) => contract.contractId);
 
   // The cheap half first: it is what says what the expensive half costs.
@@ -585,7 +669,7 @@ async function walkCycle(
 
   const staked = members.reduce((sum, m) => sum + BigInt(m.ustx), 0n);
   // Both sides come from pox-5, so they agree unless somebody staking here is
-  // missing from Hiro's index or the walk was cut short. Either way the list
+  // missing from both indexes or the walk was cut short. Either way the list
   // is short, and the page has to be able to say so.
   const membersAddUp =
     index.complete &&
@@ -607,7 +691,11 @@ async function walkCycle(
     writeJson(file, contents);
   }
 
-  return { memberCount: members.length, membersAddUp };
+  return {
+    memberCount: members.length,
+    membersAddUp,
+    fromEvents: index.fromEvents,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -660,14 +748,28 @@ async function main() {
       `${options.budget === Number.POSITIVE_INFINITY ? '' : `, budget ${options.budget} staker read(s)`} ...`,
   );
 
+  const totals = options.amountsFromTotals ? readTotals() : null;
+  if (options.amountsFromTotals && !totals) {
+    console.log('  totals.json would not read, so the amounts come from the chain');
+  }
+
   const now = Date.now();
   const spend: Spend = { left: options.budget, spent: 0 };
+  let fromTotals = 0;
   let walked = 0;
   let short = 0;
   let carriedForward = 0;
 
   for (const node of ordered) {
-    const result = await updateGroup(node, currentCycle, options, spend, now);
+    const result = await updateGroup(
+      node,
+      currentCycle,
+      options,
+      spend,
+      now,
+      totals,
+    );
+    fromTotals += result.fromTotals;
     walked += result.walked;
     carriedForward += result.carriedForward;
     if (result.budgetBit) short += 1;
@@ -685,6 +787,9 @@ async function main() {
       ` — ${walked} cycle(s) of members walked,` +
       ` ${spend.spent.toLocaleString('en-GB')} staker read(s) spent`,
   );
+  if (fromTotals) {
+    console.log(`  ${fromTotals} amount(s) taken from totals.json`);
+  }
   if (carriedForward) {
     // Said out loud, because carrying an amount forward is invisible in the
     // file — it looks exactly like an amount that did not move. A node that is

@@ -62,11 +62,12 @@ export const API_URL = normaliseApiUrl(
   process.env.STACKS_API_URL ?? 'https://api.hiro.so',
 );
 
-const API_KEY = process.env.HIRO_API_KEY ?? '';
+let API_KEY = process.env.HIRO_API_KEY ?? '';
+
+const OWN_NODE = !/(^|\.)hiro\.so/.test(new URL(API_URL).hostname);
 
 /** True when we are not asking a public Hiro endpoint on our own recognisance. */
-const IDENTIFIED =
-  API_KEY !== '' || !/(^|\.)hiro\.so/.test(new URL(API_URL).hostname);
+let IDENTIFIED = API_KEY !== '' || OWN_NODE;
 
 /**
  * Gap between requests.
@@ -75,7 +76,7 @@ const IDENTIFIED =
  * every pool twice over — so it waits. With a key, or against a node of your
  * own, there is nothing to wait for and a full refresh takes seconds.
  */
-export const SPACING_MS = IDENTIFIED ? 50 : 300;
+export let SPACING_MS = IDENTIFIED ? 50 : 300;
 
 /**
  * Waits before a retry, growing: a limit that bites needs more than a blink.
@@ -99,6 +100,51 @@ export function nodeHeaders(
   extra: Record<string, string> = {},
 ): Record<string, string> {
   return API_KEY ? { ...extra, 'x-api-key': API_KEY } : extra;
+}
+
+/**
+ * `fetch`, with the key, and without it once the key has been refused.
+ *
+ * Between 26 October and 2 November 2026 every scheduled refresh failed in
+ * half a second with "api.hiro.so would not answer" while api.hiro.so was
+ * answering everyone else. Asked anonymously, the same requests worked: it was
+ * the key. Two things went wrong at once. A refused key is a 401 or 403, which
+ * every caller here treats as "could not be read" without saying what it was
+ * told; and a key that has stopped working is strictly worse than none, since
+ * anonymous requests are slow but they do get answered.
+ *
+ * So the first 401, 402 or 403 asked with a key says so once, by status, drops the
+ * key for the rest of the run, slows the pacing to the anonymous rate, and asks
+ * again. The run is slower and the log says why, instead of the run failing and
+ * the log blaming the chain.
+ */
+export async function nodeFetch(
+  url: string,
+  init: RequestInit & { headers?: Record<string, string> } = {},
+): Promise<Response> {
+  const extra = init.headers ?? {};
+  const response = await fetch(url, { ...init, headers: nodeHeaders(extra) });
+  if (API_KEY && KEY_REFUSED.has(response.status)) {
+    keyRefused(response.status);
+    return fetch(url, { ...init, headers: nodeHeaders(extra) });
+  }
+  return response;
+}
+
+/** 402 too: a key whose plan has run out is as refused as a revoked one. */
+const KEY_REFUSED = new Set([401, 402, 403]);
+
+/** Stop sending a key the node has refused, and say so once. */
+export function keyRefused(status: number): void {
+  if (!API_KEY) return;
+  console.warn(
+    `\n! ${API_URL} refused HIRO_API_KEY (HTTP ${status}).` +
+      ' Carrying on without it, at the anonymous pace.' +
+      ' Rotate the key or delete the secret.\n',
+  );
+  API_KEY = '';
+  IDENTIFIED = OWN_NODE;
+  SPACING_MS = IDENTIFIED ? 50 : 300;
 }
 
 /** "https://api.hiro.so (anonymous)" — worth printing before a slow run. */

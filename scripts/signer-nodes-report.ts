@@ -83,7 +83,7 @@ import totalsData from '../src/data/totals.json' with { type: 'json' };
 import { allGroups, groupContracts } from '../src/lib/signer-groups.js';
 import { nodesBySignerKey } from '../src/lib/signer-nodes.js';
 import type { LockedTotals, SignerData } from '../src/lib/types.js';
-import { API_URL, describeNode, nodeHeaders } from './node.js';
+import { API_URL, describeNode, nodeFetch } from './node.js';
 import { fetchCurrentCycle } from './pox5.js';
 
 const SLOTWATCH_MCP = 'https://api.slotwatch.dev/mcp';
@@ -252,9 +252,8 @@ export async function fetchWeights(
 ): Promise<Map<string, SignerWeight>> {
   const found = new Map<string, SignerWeight>();
   try {
-    const response = await fetch(
+    const response = await nodeFetch(
       `${API_URL}/extended/v2/pox/cycles/${cycle}/signers?limit=200`,
-      { headers: nodeHeaders() },
     );
     if (!response.ok) return found;
 

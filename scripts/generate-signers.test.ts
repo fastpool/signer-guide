@@ -1,5 +1,14 @@
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { summariseEarned, wouldEmptyTheList } from './generate-signers.js';
+import { claritySourceSha256 } from '../src/lib/canonical.js';
+import {
+  cacheSource,
+  readCachedSource,
+  summariseEarned,
+  wouldEmptyTheList,
+} from './generate-signers.js';
 
 /*
  * Two rules meet here, and the second exists to pay for the first.
@@ -128,5 +137,35 @@ describe('refusing to empty the guide', () => {
     expect(wouldEmptyTheList(50, 51)).toBe(false);
     expect(wouldEmptyTheList(1, 51)).toBe(false);
     expect(wouldEmptyTheList(52, 51)).toBe(false);
+  });
+});
+
+/*
+ * A deployed contract's source cannot change, so it is asked for once and
+ * kept under its own hash. The one thing worth guarding is a file that no
+ * longer hashes to its name: that has to be asked for again, never trusted.
+ */
+describe('the contract source cache', () => {
+  const SOURCE = '(define-read-only (fee) u500)\n';
+  const dir = () => fs.mkdtempSync(path.join(os.tmpdir(), 'sources-'));
+
+  it('gives back what it was given, by hash', async () => {
+    const d = dir();
+    await cacheSource(SOURCE, d);
+    const sha = await claritySourceSha256(SOURCE);
+    expect(await readCachedSource(sha, d)).toBe(SOURCE);
+  });
+
+  it('ignores a file that does not hash to its name', async () => {
+    const d = dir();
+    const sha = await claritySourceSha256(SOURCE);
+    fs.writeFileSync(path.join(d, `${sha}.clar`), SOURCE.replace('\n', '\r\n'));
+    expect(await readCachedSource(sha, d)).toBe(null);
+  });
+
+  it('has nothing for a hash it never saw, or one that is not a hash', async () => {
+    const d = dir();
+    expect(await readCachedSource('0'.repeat(64), d)).toBe(null);
+    expect(await readCachedSource('../../etc/passwd', d)).toBe(null);
   });
 });

@@ -20,6 +20,13 @@
  *    this cycle, which signer are they with and for how much. This is what
  *    membership actually means.
  *
+ *  - `src/data/pox5-stakers.json` — everyone secondlayer's pox-5 event index
+ *    has ever seen stake with a contract, kept by `scripts/pox5-events.ts`.
+ *    It doesn't forget, so it covers the people Hiro's index has dropped:
+ *    fastpool-max500's cycle 145 was six members and 342k STX short without
+ *    it. Merged into Hiro's list rather than replacing it, so a stale or
+ *    missing file costs nothing that worked before.
+ *
  * The index says who to ask about and the chain says what is true. Neither
  * failure is allowed to look like an answer: a page the index would not hand
  * over is reported as a short walk rather than as a smaller pool, and a staker
@@ -36,6 +43,7 @@ import {
   tuplePrincipal,
   tupleUint,
 } from './pox5.js';
+import { stakersFromEvents } from './pox5-events.js';
 
 export interface IndexedStaker {
   staker: string;
@@ -197,6 +205,8 @@ export interface SignerIndex {
   complete: boolean;
   /** What the indexes claim between them; null when one would not say. */
   indexedTotal: number | null;
+  /** Whether the pox-5 event index was on hand and merged in. */
+  fromEvents: boolean;
 }
 
 /**
@@ -211,7 +221,11 @@ export interface SignerIndex {
  * what says how expensive the other half will be, which is exactly what a
  * caller working to a budget has to know before it commits.
  */
-export async function indexSigner(contractIds: string[]): Promise<SignerIndex> {
+export async function indexSigner(
+  contractIds: string[],
+  /** Stakers from the pox-5 event index; null when there is no index. */
+  eventStakers: Set<string> | null = stakersFromEvents(contractIds),
+): Promise<SignerIndex> {
   const stakers = new Map<string, Set<string>>();
   let complete = true;
   let indexedTotal: number | null = 0;
@@ -232,7 +246,13 @@ export async function indexSigner(contractIds: string[]): Promise<SignerIndex> {
     await sleep(SPACING_MS);
   }
 
-  return { stakers, complete, indexedTotal };
+  // No types for these: the events say a staker was there, not how they
+  // staked, and the types are Hiro's word on that.
+  for (const staker of eventStakers ?? []) {
+    if (!stakers.has(staker)) stakers.set(staker, new Set());
+  }
+
+  return { stakers, complete, indexedTotal, fromEvents: eventStakers !== null };
 }
 
 /**

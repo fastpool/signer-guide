@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  amountFromTotals,
   amountOrKept,
   amountsSettled,
   byStaleness,
@@ -41,7 +42,34 @@ const cycle = (over: Partial<SignerCycleSummary> = {}): SignerCycleSummary => ({
   ...over,
 });
 
+describe('amountFromTotals', () => {
+  const totals = {
+    cycle: 146,
+    ustx: { [A]: '100', [B]: null },
+    next: { cycle: 147, ustx: { [A]: '120' } },
+  };
+
+  it('answers for the current cycle and the next', () => {
+    expect(amountFromTotals(totals, A, 146)).toBe('100');
+    expect(amountFromTotals(totals, A, 147)).toBe('120');
+  });
+
+  it('leaves anything it does not cover to the chain', () => {
+    // A cycle that rolled over between the two steps, a pool totals could not
+    // read, a contract it has never heard of, or no file at all.
+    expect(amountFromTotals(totals, A, 148)).toBe(null);
+    expect(amountFromTotals(totals, B, 146)).toBe(null);
+    expect(amountFromTotals(totals, 'SP1.new', 146)).toBe(null);
+    expect(amountFromTotals(null, A, 146)).toBe(null);
+  });
+});
+
 describe('parseArgs', () => {
+  it('asks the chain for the amounts unless told otherwise', () => {
+    expect(parseArgs([]).amountsFromTotals).toBe(false);
+    expect(parseArgs(['--amounts-from-totals']).amountsFromTotals).toBe(true);
+  });
+
   it('has no budget until it is given one', () => {
     expect(parseArgs([]).budget).toBe(Number.POSITIVE_INFINITY);
     expect(parseArgs(['--budget', '500']).budget).toBe(500);
@@ -102,6 +130,31 @@ describe('membersWorthWalking', () => {
     expect(
       membersWorthWalking(cycle({ memberCount: null }), 100n, true, NOW),
     ).toBe(true);
+  });
+
+  it('gives a short list one walk with the event index, whatever walks says', () => {
+    // Hiro's index forgets anyone who has moved on, so retrying it cannot
+    // fix a past cycle that is short. The event index can, once.
+    const short = cycle({
+      membersAddUp: false,
+      walks: 99,
+      walkedAt: AN_HOUR_AGO,
+    });
+    expect(membersWorthWalking(short, 100n, true, NOW, true)).toBe(true);
+    expect(membersWorthWalking(short, 100n, true, NOW, false)).toBe(false);
+    expect(
+      membersWorthWalking({ ...short, eventsWalked: true }, 100n, true, NOW, true),
+    ).toBe(false);
+    // A list that adds up does not need it.
+    expect(
+      membersWorthWalking(
+        cycle({ walkedAt: AN_HOUR_AGO }),
+        100n,
+        true,
+        NOW,
+        true,
+      ),
+    ).toBe(false);
   });
 
   it('does not re-walk a cycle nobody staked in', () => {
