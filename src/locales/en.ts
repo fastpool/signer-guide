@@ -134,7 +134,7 @@ const messages = {
   'app.stxOnlyEstimate.openFull': 'View full calculation',
   'app.stxOnlyEstimate.openHistory': 'What every distribution has paid',
   'app.stxOnlyHistory.back': '← Back to the rewards estimate',
-  'app.stxOnlyHistory.title': 'What every distribution has paid',
+  'app.stxOnlyHistory.title': 'Every cycle, and what it paid',
   'app.stxOnlyHistory.intro':
     'Rewards are computed at the end of every distribution cycle, and a reward cycle holds two of them — so each reward cycle is paid in two goes. These are the rates as paid, not estimates — each one is what pox-5 credited per 1000 STX staked.',
   'app.stxOnlyHistory.loading': 'Reading the payout history…',
@@ -822,6 +822,32 @@ const messages = {
   'pools.unnamedIn': 'unnamed · {group}',
   'pools.feeElsewhere': 'Not held in this contract — it may be taken elsewhere',
   'pools.feeElsewhereShort': 'set elsewhere',
+  'cycles.loading': 'Reading the cycles…',
+  'cycles.pageIntro':
+    'Every pox-5 cycle: what was staked, by how many signers and pools, what it paid and what that was as a yield — then each payout on its own.',
+  'cycles.title': 'The network, cycle by cycle',
+  'cycles.intro':
+    'Worked out from what every contract held in each cycle and what each payout paid per 1000 STX. Nothing here is an estimate except a cycle still being paid.',
+  'cycles.chart': 'STX-only rewards per cycle, in sBTC',
+  'cycles.rewardsHelp':
+    "What the cycle paid STX-only stakers: their stake times pox-5's rewards per STX for the cycle. A bond signer's bond share is paid on top and is not counted.",
+  'cycles.col.cycle': 'Cycle',
+  'cycles.col.staked': 'Staked',
+  'cycles.col.signers': 'Signers',
+  'cycles.col.pools': 'Pools',
+  'cycles.col.rate': 'Per 1000 STX',
+  'cycles.col.apy': 'APY',
+  'cycles.col.rewards': 'STX-only rewards',
+  'cycles.signersHelp':
+    'Signer keys with any STX staked behind them in the cycle.',
+  'cycles.poolsHelp':
+    "Contracts with any STX staked in the cycle. Stacking DAO's contracts count as one pool, since it is one place to stake.",
+  'cycles.apyHelp':
+    "Each payout's rate against the STX price when it was paid, compounded over fifty payouts a year — the same method as the rate on the home page — and averaged over the cycle's payouts. Before any pool's fee.",
+  'cycles.notPaid': 'not paid yet',
+  'cycles.soFar': 'so far',
+  'cycles.payoutsTitle': 'Each payout',
+  'timing.allCycles': 'Every cycle →',
   'pools.nextInline': '{cycle}: {amount} ·',
   'pools.nextInlineHelp':
     'Staked for cycle {cycle} so far, and the change from this cycle',
@@ -919,7 +945,7 @@ const messages = {
   'contracts.notice': 'Fee changes announced',
 
   'stake.openShort': 'Stake',
-  'app.stxOnlyHistory.crumb': 'Payout history',
+  'app.stxOnlyHistory.crumb': 'Cycles',
 
   'conduct.caption': 'Whether this key answers the blocks miners propose.',
   'conduct.staleTitle': 'No signing report since {at}.',

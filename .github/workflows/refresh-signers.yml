@@ -9,6 +9,9 @@
 #     a figure nobody can recover afterwards.
 #   src/data/bonds.json — what the current and next bond period hold, and who
 #     was invited to them
+#   src/data/network-history.json — the whole network, one line per cycle:
+#     staked, signers, pools, what each payout paid and at what price. Built
+#     from the files above, so it reads no chain
 #   cache/pox5-events/ — a copy of every pox-5 print that changes who is with
 #     which signer, from secondlayer's pox-5 index. The member lists are
 #     rebuilt from it each run instead of asked for one staker at a time
@@ -235,6 +238,13 @@ jobs:
           AMOUNTS_FROM_TOTALS: ${{ steps.totals.outcome == 'success' && '--amounts-from-totals' || '' }}
         run: pnpm generate:history --budget 2000 $AMOUNTS_FROM_TOTALS
 
+      - name: Build the network overview, cycle by cycle
+        # From the signers' histories and the payout history written above, so
+        # it costs nothing and has to run after both. Left as it was when
+        # nothing but the time would change.
+        continue-on-error: true
+        run: pnpm generate:network-history
+
       - name: Decide whether there is anything worth committing
         id: commit
         env:
@@ -246,6 +256,7 @@ jobs:
           if git diff --quiet -- src/data/totals.json \
               src/data/stx-only-calculations.json \
               src/data/stx-only-history.json \
+              src/data/network-history.json \
               src/data/signer-nodes.json \
               src/data/bonds.json \
               cache/pox5-events/; then
@@ -339,6 +350,7 @@ jobs:
           git add src/data/signers.json src/data/totals.json \
             src/data/stx-only-calculations.json \
             src/data/stx-only-history.json \
+            src/data/network-history.json \
             src/data/bonds.json src/data/signer-nodes.json
           git add -A src/data/performance.json src/data/performance/
           # A contract read for the first time leaves its source here, so the

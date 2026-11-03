@@ -1,0 +1,158 @@
+{
+  "generatedAt": "2026-11-03T16:58:57.093Z",
+  "cycles": [
+    {
+      "cycle": 147,
+      "stakedUstx": "499261315208592",
+      "bondUstx": "8784101100000",
+      "signers": 36,
+      "pools": 31,
+      "rewardsPerUstx": null,
+      "stxOnlyRewardsSats": null,
+      "payouts": []
+    },
+    {
+      "cycle": 146,
+      "stakedUstx": "493402397305177",
+      "bondUstx": "8784101100000",
+      "signers": 36,
+      "pools": 31,
+      "rewardsPerUstx": "734472027352",
+      "stxOnlyRewardsSats": "355938582",
+      "payouts": [
+        {
+          "burnHeight": 973699,
+          "firstOfCycle": true,
+          "rateSatsPer1000Stx": "734",
+          "stxPriceSats": "369",
+          "btcPriceUsd": 81274
+        }
+      ]
+    },
+    {
+      "cycle": 145,
+      "stakedUstx": "493445956980927",
+      "bondUstx": "8784101100000",
+      "signers": 35,
+      "pools": 29,
+      "rewardsPerUstx": "1617724895229",
+      "stxOnlyRewardsSats": "784049550",
+      "payouts": [
+        {
+          "burnHeight": 971599,
+          "firstOfCycle": true,
+          "rateSatsPer1000Stx": "787",
+          "stxPriceSats": "520",
+          "btcPriceUsd": 81604
+        },
+        {
+          "burnHeight": 972649,
+          "firstOfCycle": false,
+          "rateSatsPer1000Stx": "830",
+          "stxPriceSats": "434",
+          "btcPriceUsd": 84082
+        }
+      ]
+    },
+    {
+      "cycle": 144,
+      "stakedUstx": "448329575893867",
+      "bondUstx": "2326777500000",
+      "signers": 32,
+      "pools": 27,
+      "rewardsPerUstx": "1440258939597",
+      "stxOnlyRewardsSats": "642359517",
+      "payouts": [
+        {
+          "burnHeight": 969499,
+          "firstOfCycle": true,
+          "rateSatsPer1000Stx": "646",
+          "stxPriceSats": "445",
+          "btcPriceUsd": 83576
+        },
+        {
+          "burnHeight": 970549,
+          "firstOfCycle": false,
+          "rateSatsPer1000Stx": "793",
+          "stxPriceSats": "467",
+          "btcPriceUsd": 81686
+        }
+      ]
+    },
+    {
+      "cycle": 143,
+      "stakedUstx": "443576025261065",
+      "bondUstx": "2326777500000",
+      "signers": 32,
+      "pools": 25,
+      "rewardsPerUstx": "903631748280",
+      "stxOnlyRewardsSats": "398726829",
+      "payouts": [
+        {
+          "burnHeight": 967399,
+          "firstOfCycle": true,
+          "rateSatsPer1000Stx": "420",
+          "stxPriceSats": "319",
+          "btcPriceUsd": 76147
+        },
+        {
+          "burnHeight": 968449,
+          "firstOfCycle": false,
+          "rateSatsPer1000Stx": "483",
+          "stxPriceSats": "364",
+          "btcPriceUsd": 84382
+        }
+      ]
+    },
+    {
+      "cycle": 142,
+      "stakedUstx": "423543816427780",
+      "bondUstx": "0",
+      "signers": 29,
+      "pools": 22,
+      "rewardsPerUstx": "909456324512",
+      "stxOnlyRewardsSats": "385194602",
+      "payouts": [
+        {
+          "burnHeight": 965299,
+          "firstOfCycle": true,
+          "rateSatsPer1000Stx": "437",
+          "stxPriceSats": "338",
+          "btcPriceUsd": 77297
+        },
+        {
+          "burnHeight": 966349,
+          "firstOfCycle": false,
+          "rateSatsPer1000Stx": "471",
+          "stxPriceSats": "350",
+          "btcPriceUsd": 78283
+        }
+      ]
+    },
+    {
+      "cycle": 141,
+      "stakedUstx": "392447554847960",
+      "bondUstx": "0",
+      "signers": 24,
+      "pools": 19,
+      "rewardsPerUstx": "758607677183",
+      "stxOnlyRewardsSats": "297713727",
+      "payouts": [
+        {
+          "burnHeight": 963199,
+          "firstOfCycle": true,
+          "rateSatsPer1000Stx": "350",
+          "stxPriceSats": "185",
+          "btcPriceUsd": 64686
+        },
+        {
+          "burnHeight": 964249,
+          "firstOfCycle": false,
+          "rateSatsPer1000Stx": "407",
+          "stxPriceSats": "341",
+          "btcPriceUsd": 79018
+        }
+      ]
+    }
+  ]
+}

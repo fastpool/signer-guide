@@ -6,6 +6,7 @@ import {
 } from '../lib/cycle-timing';
 import { translator, type Locale, type Translator } from '../lib/i18n';
 import { pricesFrom } from '../lib/prices';
+import { stxOnlyHistoryHref } from '../lib/route';
 import type { StxOnlyCalculations } from '../lib/types';
 
 /**
@@ -134,6 +135,12 @@ function Timing({ timing, t }: { timing: CycleTiming; t: Translator }) {
             date: day(timing.cycleStartedAt),
           })}
         </span>
+        <a
+          href={stxOnlyHistoryHref()}
+          className='font-bold whitespace-nowrap text-grape'
+        >
+          {t('timing.allCycles')}
+        </a>
         <span>
           {t('timing.next', {
             cycle: timing.cycle + 1,
