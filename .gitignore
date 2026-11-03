@@ -8,3 +8,6 @@ dist
 # build artefacts
 *.tsbuildinfo
 __pycache__/
+
+# `secondlayer subgraphs test` recordings: chain data, megabytes, re-recordable
+cassettes/

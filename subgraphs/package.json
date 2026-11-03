@@ -1,0 +1,9 @@
+{
+  "name": "signer-guide-subgraphs",
+  "private": true,
+  "type": "module",
+  "description": "secondlayer subgraphs for the signer guide. Installed on its own so the guide's build and CI never pull these in.",
+  "dependencies": {
+    "@secondlayer/subgraphs": "8.0.1"
+  }
+}

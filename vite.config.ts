@@ -9,6 +9,6 @@ export default defineConfig({
     // The phone app is a separate project with its own runner (`mobile`, jest
     // under `jest-expo`). Without this, vitest picks its test files up by
     // their names alone and fails on the first `react-native` import.
-    exclude: ['node_modules/**', 'dist/**', 'mobile/**'],
+    exclude: ['**/node_modules/**', 'dist/**', 'mobile/**'],
   },
 });
