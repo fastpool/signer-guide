@@ -476,9 +476,7 @@ describe('decodeUserData', () => {
       maxFeeSats: 3000n,
       minClaimSats: 9000n,
     });
-    const decoded = await decodeUserData(
-      cvToHex(Cl.some(Cl.buffer(calldata))),
-    );
+    const decoded = await decodeUserData(cvToHex(Cl.some(Cl.buffer(calldata))));
     expect(decoded.route).toEqual({
       kind: 'bitcoin',
       address: P2WPKH,

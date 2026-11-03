@@ -6,7 +6,12 @@ import { localizeProfile } from '@guide/lib/profile-i18n';
 import { lastRotation } from '@guide/lib/key-rotations';
 import { groupsForContract } from '@guide/lib/signer-groups';
 import { templateFor } from '@guide/lib/templates';
-import { poolName, signerFor, stakedUstx, templatesFrom } from '../data/signers';
+import {
+  poolName,
+  signerFor,
+  stakedUstx,
+  templatesFrom,
+} from '../data/signers';
 import { useSnapshot } from '../data/snapshot';
 import { useWallet } from '../wallet/context';
 import { shortAddress, stxShort } from '../format';
@@ -115,7 +120,9 @@ export default function PoolScreen({ route, navigation }: ScreenProps<'Pool'>) {
             <Field
               label={t('pool.nextCycle', { cycle: snapshot.totals.next.cycle })}
               value={stxShort(
-                typeof next === 'string' && /^\d+$/.test(next) ? BigInt(next) : null,
+                typeof next === 'string' && /^\d+$/.test(next)
+                  ? BigInt(next)
+                  : null,
                 locale,
               )}
               tone='muted'
@@ -186,10 +193,10 @@ export default function PoolScreen({ route, navigation }: ScreenProps<'Pool'>) {
       {rotation ? (
         <Card testID='pool-rotated'>
           <Note>
-          {t('conduct.rotated', {
-            when: rotation.observedAt.slice(0, 10),
-            cycle: rotation.cycle ?? '—',
-          })}
+            {t('conduct.rotated', {
+              when: rotation.observedAt.slice(0, 10),
+              cycle: rotation.cycle ?? '—',
+            })}
           </Note>
         </Card>
       ) : null}
@@ -203,7 +210,9 @@ export default function PoolScreen({ route, navigation }: ScreenProps<'Pool'>) {
                 first={index === 0}
                 title={group.name}
                 hint={t(`groups.kind.${group.kind}`)}
-                onPress={() => navigation.navigate('Group', { groupId: group.id })}
+                onPress={() =>
+                  navigation.navigate('Group', { groupId: group.id })
+                }
                 testID={`pool-group-${group.id}`}
               />
             ))}
@@ -233,10 +242,14 @@ export default function PoolScreen({ route, navigation }: ScreenProps<'Pool'>) {
           <Divider />
           <Row gap={space.sm} wrap>
             <Pill tone={signer.registered ? 'good' : 'warn'}>
-              {signer.registered ? t('pool.registered') : t('pool.notRegisteredPill')}
+              {signer.registered
+                ? t('pool.registered')
+                : t('pool.notRegisteredPill')}
             </Pill>
             {signer.firstSeenCycle ? (
-              <Pill>{t('pool.firstSeen', { cycle: signer.firstSeenCycle })}</Pill>
+              <Pill>
+                {t('pool.firstSeen', { cycle: signer.firstSeenCycle })}
+              </Pill>
             ) : null}
             <Pill>{t('pool.match', { match: signer.match ?? 'none' })}</Pill>
           </Row>
@@ -244,7 +257,9 @@ export default function PoolScreen({ route, navigation }: ScreenProps<'Pool'>) {
             <Field
               label={t('pool.undistributed')}
               value={satsLabel(
-                signer.undistributedSats ? BigInt(signer.undistributedSats) : null,
+                signer.undistributedSats
+                  ? BigInt(signer.undistributedSats)
+                  : null,
                 locale,
               )}
             />
@@ -258,7 +273,9 @@ export default function PoolScreen({ route, navigation }: ScreenProps<'Pool'>) {
               )}
               hint={
                 signer.unclaimedFromCycle
-                  ? t('pool.unclaimedAsOf', { cycle: signer.unclaimedFromCycle })
+                  ? t('pool.unclaimedAsOf', {
+                      cycle: signer.unclaimedFromCycle,
+                    })
                   : undefined
               }
             />

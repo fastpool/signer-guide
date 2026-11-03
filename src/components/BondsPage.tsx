@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { Page } from './ui';
 import { btcLabel, stxLabel } from '../lib/amounts';
 import {
   filledPercent,
@@ -10,7 +12,6 @@ import { explorerUrl } from '../lib/explorer';
 import { formatLastUpdate, translator, type Locale } from '../lib/i18n';
 import { shortPrincipal } from '../lib/strings';
 import type { BondPeriod, BondStaker, Signer } from '../lib/types';
-import LocaleSwitch from './LocaleSwitch';
 import PoolName from './PoolName';
 
 /**
@@ -40,28 +41,16 @@ import PoolName from './PoolName';
 export default function BondsPage({
   signers,
   locale,
-  onLocaleChange,
 }: {
   signers: Signer[];
   locale: Locale;
-  onLocaleChange: (locale: Locale) => void;
 }) {
   const t = translator(locale);
   const bonds = useBonds();
 
   return (
-    <main className='mx-auto max-w-3xl px-5 py-12 md:py-20'>
-      <div className='flex flex-wrap items-center justify-between gap-3'>
-        <a
-          href='#/'
-          className='text-sm font-semibold text-grape underline underline-offset-2'
-        >
-          {t('app.bonds.back')}
-        </a>
-        <LocaleSwitch locale={locale} onChange={onLocaleChange} />
-      </div>
-
-      <h1 className='mt-6 text-3xl font-extrabold md:text-4xl'>
+    <Page>
+      <h1 className='text-3xl font-extrabold md:text-4xl'>
         {t('app.bonds.title')}
       </h1>
       {bonds.state === 'ready' && (
@@ -120,7 +109,7 @@ export default function BondsPage({
           </p>
         </>
       )}
-    </main>
+    </Page>
   );
 }
 
@@ -289,21 +278,66 @@ function PeriodCard({
               <p className='mt-1 text-sm text-muted'>
                 {t('app.bonds.whoIntro')}
               </p>
-              <ul className='mt-3 space-y-3'>
-                {period.stakers.map((staker) => (
-                  <StakerRow
-                    key={staker.staker}
-                    staker={staker}
-                    signers={signers}
-                    locale={locale}
-                  />
-                ))}
-              </ul>
+              <InvitedList
+                stakers={period.stakers}
+                signers={signers}
+                locale={locale}
+              />
             </>
           )}
         </>
       )}
     </section>
+  );
+}
+
+/**
+ * The invited stakers, those who have locked something first.
+ *
+ * Most invitations to the next bond have nothing locked against them yet,
+ * and listing all of them between the stakers who have locked bitcoin made
+ * the ones that matter hard to find. They are folded into one line, opened
+ * on request — they are still a fact worth having, just not the first one.
+ */
+function InvitedList({
+  stakers,
+  signers,
+  locale,
+}: {
+  stakers: BondStaker[];
+  signers: Signer[];
+  locale: Locale;
+}) {
+  const t = translator(locale);
+  const [showAll, setShowAll] = useState(false);
+  const locked = stakers.filter((s) => BigInt(s.registeredSats) > 0n);
+  const waiting = stakers.filter((s) => BigInt(s.registeredSats) === 0n);
+  const shown = showAll || locked.length === 0 ? stakers : locked;
+  return (
+    <>
+      <ul className='mt-3 space-y-3'>
+        {shown.map((staker) => (
+          <StakerRow
+            key={staker.staker}
+            staker={staker}
+            signers={signers}
+            locale={locale}
+          />
+        ))}
+      </ul>
+      {!showAll && locked.length > 0 && waiting.length > 0 && (
+        <p className='mt-3 text-sm text-muted'>
+          {t.plural('bonds.unlocked', waiting.length)}{' '}
+          <button
+            type='button'
+            onClick={() => setShowAll(true)}
+            className='font-semibold text-grape underline underline-offset-2'
+          >
+            {t('bonds.showUnlocked')}
+          </button>
+        </p>
+      )}
+    </>
   );
 }
 

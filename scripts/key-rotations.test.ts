@@ -42,7 +42,9 @@ describe('what changed between two runs', () => {
   it('does not read a pool the guide is meeting as a rotation', () => {
     // A contract that was not in the last run has not changed its key; it has
     // appeared. Every new signer would otherwise arrive with a rotation.
-    expect(rotationsBetween([], [signer('SP1.pool', '0x02bd')], AT)).toEqual([]);
+    expect(rotationsBetween([], [signer('SP1.pool', '0x02bd')], AT)).toEqual(
+      [],
+    );
   });
 
   it('does not read an unanswered contract as a rotation', () => {

@@ -23,9 +23,15 @@
     "source": "All three contracts are deployed by SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE, one address, on chain.",
     "url": "https://www.xverse.app",
     "members": [
-      { "signerKey": "0x021acd08580abb387c45d44cc742fffe0f61c17db534331495a246f315a0d9404f" },
-      { "signerKey": "0x0285f4c617c4065e429d1666dcfd885c52e223acfc042aa2c2855adc93034e6975" },
-      { "signerKey": "0x02f37e08d25d8a660caf66b9cb3a09b1ce055cbb5f57186d92af43268d722408da" }
+      {
+        "signerKey": "0x021acd08580abb387c45d44cc742fffe0f61c17db534331495a246f315a0d9404f"
+      },
+      {
+        "signerKey": "0x0285f4c617c4065e429d1666dcfd885c52e223acfc042aa2c2855adc93034e6975"
+      },
+      {
+        "signerKey": "0x02f37e08d25d8a660caf66b9cb3a09b1ce055cbb5f57186d92af43268d722408da"
+      }
     ]
   },
   "stx-lab": {
@@ -65,6 +71,10 @@
       {
         "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager",
         "note": "Stacking DAO's own node, not a delegation."
+      },
+      {
+        "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2",
+        "note": "Stacking DAO's second Native Pool signer, deployed from the same address."
       },
       {
         "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-xverse-v1",

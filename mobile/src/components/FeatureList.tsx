@@ -43,7 +43,9 @@ export default function FeatureList({
       />
       <Line
         good={template.openToAnyone}
-        text={template.openToAnyone ? t('feature.openYes') : t('feature.openNo')}
+        text={
+          template.openToAnyone ? t('feature.openYes') : t('feature.openNo')
+        }
       />
       {template.maxFeeBips === null ? (
         <Line good={null} text={t('feature.feeUncapped')} />
@@ -55,8 +57,12 @@ export default function FeatureList({
           })}
         />
       )}
-      {template.feeChangeNotice ? <Line good text={t('feature.feeNotice')} /> : null}
-      {template.feeExemption ? <Line good text={t('feature.feeExemption')} /> : null}
+      {template.feeChangeNotice ? (
+        <Line good text={t('feature.feeNotice')} />
+      ) : null}
+      {template.feeExemption ? (
+        <Line good text={t('feature.feeExemption')} />
+      ) : null}
     </View>
   );
 }
@@ -65,10 +71,17 @@ function Line({ good, text }: { good: boolean | null; text: string }) {
   if (!text) return null;
   return (
     <Row gap={space.sm} style={{ alignItems: 'flex-start' }}>
-      <Text variant='small' tone={good === null ? 'warn' : good ? 'good' : 'muted'}>
+      <Text
+        variant='small'
+        tone={good === null ? 'warn' : good ? 'good' : 'muted'}
+      >
         {good === null ? '!' : good ? '✓' : '·'}
       </Text>
-      <Text variant='small' tone='muted' style={{ flexShrink: 1, lineHeight: 19 }}>
+      <Text
+        variant='small'
+        tone='muted'
+        style={{ flexShrink: 1, lineHeight: 19 }}
+      >
         {text}
       </Text>
     </Row>

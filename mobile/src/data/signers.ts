@@ -14,13 +14,19 @@ import type { Snapshot } from './snapshot';
  * top of the page.
  */
 
-export function stakedUstx(totals: LockedTotals, contractId: string): bigint | null {
+export function stakedUstx(
+  totals: LockedTotals,
+  contractId: string,
+): bigint | null {
   const amount = totals.ustx?.[contractId];
   if (typeof amount !== 'string' || !/^\d+$/.test(amount)) return null;
   return BigInt(amount);
 }
 
-export function signerFor(snapshot: Snapshot, contractId: string): Signer | null {
+export function signerFor(
+  snapshot: Snapshot,
+  contractId: string,
+): Signer | null {
   return (
     snapshot.signers.signers.find((s) => s.contractId === contractId) ?? null
   );
@@ -34,11 +40,15 @@ export function signerFor(snapshot: Snapshot, contractId: string): Signer | null
  * the best it could of the contract's own name. The second is a guess, and the
  * screens that show it mark it as one rather than printing it like a fact.
  */
-export function poolName(signer: Signer | null, contractId: string): {
+export function poolName(
+  signer: Signer | null,
+  contractId: string,
+): {
   name: string;
   guessed: boolean;
 } {
-  if (!signer) return { name: signerNameFromContractId(contractId), guessed: true };
+  if (!signer)
+    return { name: signerNameFromContractId(contractId), guessed: true };
   return {
     name: signer.displayName,
     guessed: signer.displayNameSource !== 'manual',

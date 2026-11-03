@@ -25,12 +25,7 @@ beforeEach(() => {
 
 const render = (principals: string[]) =>
   renderToStaticMarkup(
-    <StatusPage
-      principals={principals}
-      signers={ALL}
-      locale='en'
-      onLocaleChange={() => {}}
-    />,
+    <StatusPage principals={principals} signers={ALL} locale='en' />,
   );
 
 describe('the merged address page', () => {

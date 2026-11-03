@@ -83,11 +83,15 @@ describe('membersFromEvents', () => {
   ]);
 
   it('lists the members when every contract adds up, largest first', () => {
-    expect(membersFromEvents(state, [A, B], 143, { [A]: '100', [B]: '0' })).toEqual([
+    expect(
+      membersFromEvents(state, [A, B], 143, { [A]: '100', [B]: '0' }),
+    ).toEqual([
       { staker: 'SP1', ustx: '60', contractId: A },
       { staker: 'SP2', ustx: '40', contractId: A },
     ]);
-    expect(membersFromEvents(state, [A, B], 144, { [A]: '60', [B]: '40' })).toEqual([
+    expect(
+      membersFromEvents(state, [A, B], 144, { [A]: '60', [B]: '40' }),
+    ).toEqual([
       { staker: 'SP1', ustx: '60', contractId: A },
       { staker: 'SP2', ustx: '40', contractId: B },
     ]);
@@ -95,15 +99,21 @@ describe('membersFromEvents', () => {
 
   it('declines when one contract disagrees, even if the signer’s total does not', () => {
     // 100 either way for the signer, but the chain puts SP2 under A.
-    expect(membersFromEvents(state, [A, B], 144, { [A]: '100', [B]: '0' })).toBe(null);
+    expect(
+      membersFromEvents(state, [A, B], 144, { [A]: '100', [B]: '0' }),
+    ).toBe(null);
   });
 
   it('declines when an amount was not read', () => {
-    expect(membersFromEvents(state, [A, B], 144, { [A]: '60', [B]: null })).toBe(null);
+    expect(
+      membersFromEvents(state, [A, B], 144, { [A]: '60', [B]: null }),
+    ).toBe(null);
   });
 
   it('gives an empty list for a cycle nobody is in, when the chain agrees', () => {
-    expect(membersFromEvents(state, [A, B], 150, { [A]: '0', [B]: '0' })).toEqual([]);
+    expect(
+      membersFromEvents(state, [A, B], 150, { [A]: '0', [B]: '0' }),
+    ).toEqual([]);
   });
 });
 
@@ -208,7 +218,13 @@ describe('membersWorthWalking', () => {
     expect(membersWorthWalking(short, 100n, true, NOW, true)).toBe(true);
     expect(membersWorthWalking(short, 100n, true, NOW, false)).toBe(false);
     expect(
-      membersWorthWalking({ ...short, eventsWalked: true }, 100n, true, NOW, true),
+      membersWorthWalking(
+        { ...short, eventsWalked: true },
+        100n,
+        true,
+        NOW,
+        true,
+      ),
     ).toBe(false);
     // A list that adds up does not need it.
     expect(
@@ -342,7 +358,12 @@ describe('membersWorthWalking', () => {
       ),
     ).toBe(false);
     expect(
-      membersWorthWalking({ ...frozen, walkedAt: AN_HOUR_AGO }, null, true, NOW),
+      membersWorthWalking(
+        { ...frozen, walkedAt: AN_HOUR_AGO },
+        null,
+        true,
+        NOW,
+      ),
     ).toBe(false);
   });
 

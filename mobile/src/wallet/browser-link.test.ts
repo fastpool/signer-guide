@@ -28,7 +28,10 @@ describe('walletBrowserUrl', () => {
   });
 
   it('escapes the page, which carries characters a query string would eat', () => {
-    const link = walletBrowserUrl('leather', 'https://example.org/#/pool/SP1.a?b=c');
+    const link = walletBrowserUrl(
+      'leather',
+      'https://example.org/#/pool/SP1.a?b=c',
+    );
     expect(link).not.toContain('#');
     expect(link).not.toContain('?b=');
     expect(decodeURIComponent(link!.split('url=')[1])).toBe(
@@ -77,7 +80,10 @@ describe('guideUrlFor', () => {
   });
 
   it('survives being put inside a wallet link', () => {
-    const page = guideUrlFor({ kind: 'pool', contractId: 'SP1.signer-manager' });
+    const page = guideUrlFor({
+      kind: 'pool',
+      contractId: 'SP1.signer-manager',
+    });
     const link = walletBrowserUrl('leather', page)!;
     expect(decodeURIComponent(link.split('url=')[1])).toBe(page);
   });

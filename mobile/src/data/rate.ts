@@ -45,7 +45,10 @@ function asBigint(value: string | null | undefined): bigint | null {
   return BigInt(value);
 }
 
-export function readRate(calculations: StxOnlyCalculations, now = Date.now()): Rate {
+export function readRate(
+  calculations: StxOnlyCalculations,
+  now = Date.now(),
+): Rate {
   const satsPer1000Stx = asBigint(calculations.rateSatsPer1000Stx);
   const stxPriceSats = asBigint(calculations.stxPriceSats);
   const blocksLeft = calculations.blocksLeftInCycle;
@@ -58,7 +61,9 @@ export function readRate(calculations: StxOnlyCalculations, now = Date.now()): R
         ? apyPercent({ rateSatsPer1000Stx: satsPer1000Stx, stxPriceSats })
         : null,
     cycle: calculations.cycle,
-    lastPayoutSatsPer1000Stx: asBigint(calculations.lastPayoutRateSatsPer1000Stx),
+    lastPayoutSatsPer1000Stx: asBigint(
+      calculations.lastPayoutRateSatsPer1000Stx,
+    ),
     lastPayoutCycle: calculations.lastPayoutCycle ?? null,
     projectedSatsPer1000Stx: asBigint(calculations.projectedRateSatsPer1000Stx),
     progress: payoutProgress({

@@ -144,7 +144,9 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`Reading signer nodes for cycle ${cycle} from ${describeNode()} ...`);
+  console.log(
+    `Reading signer nodes for cycle ${cycle} from ${describeNode()} ...`,
+  );
 
   const [weights, versions, behaviour] = await Promise.all([
     fetchWeights(cycle),

@@ -78,11 +78,14 @@ describe('a pool whose key was rotated', () => {
     .find((r) => all.some((s) => s.contractId === r.contractId));
   const signer = rotation ? find(rotation.contractId) : undefined;
 
-  it.runIf(signer !== undefined)('explains the rotation rather than showing a hole', () => {
-    const html = render(signer!);
-    expect(html).toContain('changed its signer key on');
-    expect(html).toContain(rotation!.observedAt.slice(0, 10));
-  });
+  it.runIf(signer !== undefined)(
+    'explains the rotation rather than showing a hole',
+    () => {
+      const html = render(signer!);
+      expect(html).toContain('changed its signer key on');
+      expect(html).toContain(rotation!.observedAt.slice(0, 10));
+    },
+  );
 
   /*
    * Only while the rotation is fresh: once the next set is computed the new
@@ -97,12 +100,15 @@ describe('a pool whose key was rotated', () => {
     );
   });
 
-  it.runIf(stillOnOldKey !== undefined)('falls back to the key that actually held the seat', () => {
-    // The new key holds nothing until the next set is computed. Saying
-    // "nothing on file" would hide the fortnight a reader most needs.
-    const html = render(stillOnOldKey!);
-    expect(html).toContain('the key that was rotated away from');
-  });
+  it.runIf(stillOnOldKey !== undefined)(
+    'falls back to the key that actually held the seat',
+    () => {
+      // The new key holds nothing until the next set is computed. Saying
+      // "nothing on file" would hide the fortnight a reader most needs.
+      const html = render(stillOnOldKey!);
+      expect(html).toContain('the key that was rotated away from');
+    },
+  );
 });
 
 describe('a signer that never answered', () => {

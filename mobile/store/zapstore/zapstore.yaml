@@ -12,13 +12,13 @@
 # `--skip-metadata` matters: without it zsp fetches metadata from the Play
 # Store and the repository and overwrites what is written here.
 
-repository: "https://github.com/fastpool/signer-guide"
-release_source: "https://github.com/fastpool/signer-guide"
+repository: 'https://github.com/fastpool/signer-guide'
+release_source: 'https://github.com/fastpool/signer-guide'
 # One APK per release, built arm64-only — see ../../README.md.
 match: ".*\\.apk$"
 
-name: "Signer Guide"
-summary: "Bitcoin staking for STX: lock in your own wallet, earn sats every week."
+name: 'Signer Guide'
+summary: 'Bitcoin staking for STX: lock in your own wallet, earn sats every week.'
 description: |
   Bitcoin staking on Stacks, and your STX never leaves your wallet. It is locked where it already is, its weight goes behind a signer, and bitcoin comes back every week.
 
@@ -63,8 +63,8 @@ description: |
 
   Staking locks your STX for the period you choose, and you can end it earlier without penalty. Rewards depend on what the protocol earns and how much STX is staked against it; the rates shown are estimates from recent payouts, not promises. Nothing here is financial advice.
 
-license: "MIT"
-website: "https://signer-guide.fastpool.org"
+license: 'MIT'
+website: 'https://signer-guide.fastpool.org'
 tags: [bitcoin, stacks, stx, staking, sbtc, wallet, defi]
 
 icon: ../../assets/icon.png
@@ -81,7 +81,7 @@ images:
 # A path, not the notes themselves — zsp opens this file. Emitting the text
 # inline made it try to open the changelog *as a filename*, which fails with
 # "file name too long" and nothing more helpful than that.
-release_notes: "../play/en-US/changelogs/default.txt"
+release_notes: '../play/en-US/changelogs/default.txt'
 
 # Who publishes. Zapstore takes the signature on the APK as the app's identity
 # and this key as the publisher's; both have to be the same on every release

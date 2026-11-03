@@ -159,8 +159,7 @@ const messages = {
   'app.bonds.loading': 'Reading the bonds…',
   'app.bonds.none':
     'Nothing on file for the bonds yet. They appear here once the hourly refresh has read them.',
-  'app.bonds.failed':
-    'The bonds could not be fetched. Try again in a moment.',
+  'app.bonds.failed': 'The bonds could not be fetched. Try again in a moment.',
   'app.bonds.current': 'The bond period now',
   'app.bonds.next': 'The next bond period',
   'app.bonds.period': 'Bond {index} · cycles {first} to {last}',
@@ -368,8 +367,7 @@ const messages = {
   'groups.heading': 'Who holds the vote',
   'groups.intro':
     'A signer node is one key. A group is a set of them with one entity behind it — which is the number that decides who could move the signer set, and the number the chain never shows you. Largest first.',
-  'groups.counts':
-    '{nodes} nodes · {contracts} contracts · {staked} staked',
+  'groups.counts': '{nodes} nodes · {contracts} contracts · {staked} staked',
   'groups.asOf': 'Shares are of cycle {cycle}.',
   'groups.ungrouped': 'Not grouped',
   'groups.ungroupedNote':
@@ -399,7 +397,8 @@ const messages = {
     'This contract only — the rest of what this node holds is not part of the group.',
   'group.wholeNode': 'Every contract on this key',
   'group.unknownAmount': 'not known',
-  'group.nodeAnswered': 'Answered {percent}% of the blocks it was asked about in cycle {cycle}.',
+  'group.nodeAnswered':
+    'Answered {percent}% of the blocks it was asked about in cycle {cycle}.',
   'group.nodeSilent': 'Has not answered a single block in cycle {cycle}.',
   'group.alsoIn': 'Also counted in {names}',
   'group.overlapNote':
@@ -415,13 +414,15 @@ const messages = {
     'This is the key that was rotated away from, because it is the one that held the seat for this cycle. The new key holds nothing until the next set is computed.',
   'conduct.cycleOpen': 'cycle {cycle}, still running',
   'conduct.cycleClosed': 'cycle {cycle}',
-  'conduct.answeredNote': 'It answered {answered} of {proposals} proposals — {label}.',
+  'conduct.answeredNote':
+    'It answered {answered} of {proposals} proposals — {label}.',
   'conduct.neverAnswered': 'Never answered',
   'conduct.neverAnsweredNote':
     'It has been asked about {proposals} blocks in cycle {cycle} and has not responded to one of them. Nothing has ever been heard from this key.',
   'conduct.response': 'Typical time to answer',
   'conduct.seconds': '{seconds} s',
-  'conduct.responseMiddle': 'The middle of the signer set is {seconds} s in cycle {cycle}.',
+  'conduct.responseMiddle':
+    'The middle of the signer set is {seconds} s in cycle {cycle}.',
   'conduct.agreed': 'Of those, accepted',
   'conduct.agreedNote':
     'The rest it read and refused, which is what a signer is for. A low figure here is worth asking about; it is not the same as a signer that was not there.',
@@ -430,7 +431,8 @@ const messages = {
   'conduct.hideHistory': 'Hide the history',
   'conduct.loading': 'Reading this key’s record…',
   'conduct.noHistory': 'No cycles on file for this key yet.',
-  'conduct.failed': 'That would not load. It is one file; the rest of this page is unaffected.',
+  'conduct.failed':
+    'That would not load. It is one file; the rest of this page is unaffected.',
   'conduct.soFar': 'so far',
   'conduct.th.cycle': 'Cycle',
   'conduct.th.answered': 'Answered',
@@ -737,6 +739,224 @@ const messages = {
     'Your wallet did not return a public key. Reconnect and try again.',
   'stake.error.balanceLookup': 'Balance lookup failed ({status})',
   'stake.error.balanceRead': 'Could not read STX balance',
+
+  // ---- Site header, on every page.
+  'nav.label': 'Sections',
+  'nav.pools': 'Pools',
+  'nav.contracts': 'Contracts',
+  'nav.groups': 'Who holds the vote',
+  'nav.bonds': 'Bonds',
+  'nav.status': 'Check an address',
+  'nav.howTo': 'How staking works',
+  'nav.menu': 'Menu',
+  'nav.searchLabel': 'Check an address or BNS name',
+  'nav.searchPlaceholder': 'Address or BNS',
+
+  // ---- How old the data is.
+  'freshness.readAgo': 'Read from the chain {ago} ago',
+  'freshness.hourly': 'refreshed hourly',
+  'freshness.ago.minute.one': '{count} minute',
+  'freshness.ago.minute.other': '{count} minutes',
+  'freshness.ago.hour.one': '{count} hour',
+  'freshness.ago.hour.other': '{count} hours',
+  'freshness.ago.day.one': '{count} day',
+  'freshness.ago.day.other': '{count} days',
+  'freshness.staleTitle.minute.one': 'This data is {count} minute old.',
+  'freshness.staleTitle.minute.other': 'This data is {count} minutes old.',
+  'freshness.staleTitle.hour.one': 'This data is {count} hour old.',
+  'freshness.staleTitle.hour.other': 'This data is {count} hours old.',
+  'freshness.staleTitle.day.one': 'This data is {count} day old.',
+  'freshness.staleTitle.day.other': 'This data is {count} days old.',
+  'freshness.staleBody':
+    'It was read from the chain on {at} and the hourly refresh has not run since, so amounts, fees and estimates may have moved.',
+
+  // ---- The pool list's page.
+  'home.intro':
+    'Compare every pool by its fee, who can join and how rewards are paid. Open one to see who is in it.',
+  'home.stat.staked': 'Staked in cycle {cycle}',
+  'home.stat.nextFilling': 'Cycle {cycle} filling: {amount} so far',
+  'home.stat.nextLocked': 'Cycle {cycle} locked in: {amount}',
+  'home.stat.pools': 'Pools to choose from',
+  'home.stat.types.one': 'on {count} contract type ·',
+  'home.stat.types.other': 'on {count} contract types ·',
+  'home.stat.compare': 'compare them →',
+  'home.stat.rewards': 'STX-only rewards',
+  'home.stat.rewardsUnit': 'sats / 1k STX',
+  'home.stat.apy': '≈ {apy}% a year ·',
+  'home.stat.howWorkedOut': 'how →',
+  'home.stat.payout': 'Next payout',
+  'home.stat.payoutDays.one': 'in ~{count} day',
+  'home.stat.payoutDays.other': 'in ~{count} days',
+  'home.stat.payoutDue': 'due now',
+  'home.stat.payoutOverdue':
+    'The estimate is from the last refresh and its date has passed.',
+  'home.stat.payoutBlocks': '{done} of {total} blocks ·',
+  'home.stat.history': 'history →',
+  'home.footer.fees':
+    'The fee shown is the one in force right now, read from the pool’s own contract. Most pools can change it at any time. A few contracts set a ceiling in code (marked ⛉), and fewer still make a change wait before it applies (marked ◷), which gives you time to move. A pool with no fee in its own contract is not necessarily free: the fee may be taken elsewhere.',
+
+  'pools.searchLabel': 'Find a pool',
+  'pools.searchPlaceholder': 'Find a pool or operator',
+  'pools.count.one': '{count} pool',
+  'pools.count.other': '{count} pools',
+  'pools.hiddenEmpty.one':
+    '{count} hidden with nothing staked (new pools stay listed)',
+  'pools.hiddenEmpty.other':
+    '{count} hidden with nothing staked (new pools stay listed)',
+  'pools.showEmpty': 'show them',
+  'pools.hideEmpty': 'hide empty pools',
+  'pools.sortBy': 'Sort by',
+  'pools.sort.staked': 'Staked · {cycle}',
+  'pools.sort.next': 'Cycle {next} so far',
+  'pools.sort.fee': 'Lowest fee',
+  'pools.sort.share': "Key's vote share",
+  'pools.sort.name': 'Name',
+  'pools.col.pool': 'Pool',
+  'pools.col.type': 'Contract type',
+  'pools.col.fee': 'Fee',
+  'pools.col.join': 'Who can join',
+  'pools.col.rewards': 'Rewards',
+  'pools.col.share': "Key's vote share",
+  'pools.col.stake': 'Stake',
+  'pools.unnamed': 'unnamed pool',
+  'pools.unnamedIn': 'unnamed · {group}',
+  'pools.feeElsewhere': 'Not held in this contract — it may be taken elsewhere',
+  'pools.feeElsewhereShort': 'set elsewhere',
+  'pools.amountUnknown': 'unknown',
+  'pools.amountNotRead': 'not read yet',
+  'pools.noticeShort': '{notice} notice',
+  'pools.shareHelp':
+    "The share of the vote held by this pool's signer key. Contracts that share a key show the same figure, because the key is what signs.",
+  'pools.shareSharedKey.one': 'one contract on this key',
+  'pools.shareSharedKey.other': 'shared by {count} contracts',
+  'pools.legend.checked': 'name checked by hand',
+  'pools.legend.italicSample': 'Italic',
+  'pools.legend.italic': 'name read off the contract id, not checked',
+  'pools.legend.cap': 'fee cap set in the code',
+  'pools.legend.notice': 'notice before a fee rise',
+  'pools.cap': 'cap {percent}%',
+  'pools.capHelp':
+    'A ceiling the contract enforces: the fee can never be set above it, whatever the pool decides.',
+  'pools.noticeHelp':
+    'How long a fee rise has to wait before it applies, which gives you time to move.',
+  'pools.change.new': 'new',
+  'pools.change.notYet': 'not yet',
+  'pools.change.same': 'no change',
+  'pools.unknownAmount': 'The last refresh could not read this amount',
+  'pools.notReadYet':
+    'Registered after the last refresh; the next one will read it',
+  'pools.unreviewed': 'Not reviewed',
+  'pools.details': 'Details',
+  'pools.phone.fee': '{fee} fee',
+  'pools.phone.feeElsewhere': 'fee elsewhere',
+  'pools.phone.next': 'next {amount}',
+
+  'join.anyone.short': 'Anyone',
+  'join.anyone.help': 'The contract turns nobody away.',
+  'join.invite.short': 'Invite only',
+  'join.invite.help': 'The operator keeps a list of who may stake.',
+  'join.nativePool.short': 'Via Native Pool',
+  'join.nativePool.help':
+    'Only staking that comes through Stacking DAO’s Native Pool is accepted. Anyone can join there.',
+
+  'currency.btc': 'BTC',
+  'currency.btc.help':
+    'The contract can pay your rewards to a Bitcoin address you give it.',
+  'currency.sbtc': 'sBTC',
+  'currency.sbtc.help': 'Rewards arrive as sBTC on Stacks.',
+  'currency.stx': 'STX',
+  'currency.stx.help': 'Rewards arrive as STX.',
+
+  'contracts.staked': '{amount} staked',
+  'contracts.notice': 'Fee changes announced',
+
+  'stake.openShort': 'Stake',
+  'app.stxOnlyHistory.crumb': 'Payout history',
+
+  'conduct.caption': 'Whether this key answers the blocks miners propose.',
+  'conduct.staleTitle': 'No signing report since {at}.',
+  'conduct.staleBody':
+    'The last one covers cycle {cycle}, so it says nothing yet about this key in the cycles since.',
+
+  // ---- One pool's page.
+  'pool.checkStake': 'Check my stake',
+  'pool.stakeElsewhere': 'Staking happens in Native Pool’s app, not here.',
+  'pool.warning.highFee.title': 'The fee keeps almost all of the reward.',
+  'pool.warning.highFee.body':
+    'It is {fee} right now. A staker here receives next to nothing.',
+  'pool.warning.feeUnbounded.title': 'The fee can rise at any time.',
+  'pool.warning.feeUnbounded.body':
+    'The contract sets no ceiling and asks for no notice, so it can be raised to anything without warning. It is {fee} today.',
+  'pool.warning.unreviewed.title': 'Nobody here has reviewed this code.',
+  'pool.warning.unreviewed.body':
+    'The badges are read from the source automatically, but nobody has checked what else it does.',
+  'pool.section.members': 'Members',
+  'pool.section.rewards': 'Rewards',
+  'pool.section.signing': 'Signing',
+  'pool.section.key': 'Signer key',
+  'pool.section.contract': 'Contract',
+  'pool.fact.fee': 'Fee now',
+  'pool.fact.feeNote': 'of rewards, before you are paid',
+  'pool.fact.cap': 'Fee cap',
+  'pool.fact.capElsewhere': 'not visible here',
+  'pool.fact.capNone': 'None',
+  'pool.fact.notice': '{notice} notice before a rise',
+  'pool.fact.noNotice': 'no notice before a change',
+  'pool.fact.join': 'Who can join',
+  'pool.fact.rewards': 'Rewards',
+  'pool.fact.rewardsNote': 'what a reward arrives as',
+  'pool.fact.staked': 'Staked · cycle {cycle}',
+  'pool.fact.membersKey.one': '{count} member on this key',
+  'pool.fact.membersKey.other': '{count} members on this key',
+  'pool.fact.next': 'Cycle {cycle} so far',
+  'pool.fact.nextLocked': 'locked in',
+  'pool.fact.nextChange': '{change} · open to join',
+  'pool.fact.nextOpen': 'open to join',
+  'pool.fact.share': 'Vote share',
+  'pool.fact.shareKey.one': 'of the cycle, for this key',
+  'pool.fact.shareKey.other': 'for the key, across its {count} contracts',
+  'pool.fact.shareCycle': 'of cycle {cycle}',
+  'pool.fact.runBy': 'Run by',
+  'pool.fact.runByUnknown': 'Not known',
+  'pool.fact.type': 'Contract type: {name}',
+  'pool.members.title': 'Members by cycle',
+  'pool.members.caption': 'STX staked here in each reward cycle.',
+  'pool.members.how':
+    'The amounts come from pox-5. The member lists are rebuilt from pox-5’s own events and used only when they add up to the amount the chain reports.',
+  'pool.members.cycle': 'Cycle',
+  'pool.members.status': 'Status',
+  'pool.members.staked': 'Staked',
+  'pool.members.members': 'Members',
+  'pool.members.membersKey': 'On the key',
+  'pool.members.ended': 'ended',
+  'pool.members.ofKey': 'of {total} on the key',
+  'pool.members.open': 'Members',
+  'pool.members.earlier.one': 'Show {count} earlier cycle',
+  'pool.members.earlier.other': 'Show {count} earlier cycles',
+  'pool.members.firstSeen':
+    'First seen in cycle {cycle}. Earlier cycles are not listed.',
+  'pool.members.onKey.one': '{count} member across the key.',
+  'pool.members.onKey.other': '{count} members across the key.',
+  'pool.members.inThis.one': '{count} member in this contract.',
+  'pool.members.inThis.other': '{count} members in this contract.',
+  'pool.members.showKey': 'Show the whole key',
+  'pool.members.showThis': 'Only this contract',
+  'pool.members.none': 'Nobody in this contract in this cycle.',
+  'pool.rewards.caption': 'The sBTC in or around this pool right now.',
+  'pool.rewards.none':
+    'This contract does not publish what it holds, so only what pox-5 still owes it can be read.',
+  'pool.key.caption':
+    'The key that signs for this pool, and every contract registered against it.',
+  'pool.key.staked': '{amount} behind this key in cycle {cycle}.',
+  'pool.contract.title': 'What the contract does',
+  'pool.contract.caption': 'Read from its source code.',
+  'pool.contract.more': 'More about {name}',
+
+  // ---- Who holds the vote, and the bonds.
+  'groups.chartLabel': 'Share of the vote, by group',
+  'bonds.unlocked.one': '{count} more invited with nothing locked yet',
+  'bonds.unlocked.other': '{count} more invited with nothing locked yet',
+  'bonds.showUnlocked': 'show them',
 };
 
 export type Messages = typeof messages;

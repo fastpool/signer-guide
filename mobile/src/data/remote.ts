@@ -44,7 +44,9 @@ export function useRemoteJson<T>(
       })
       .then((value: unknown) => {
         if (!live) return;
-        setResult(isValid(value) ? { state: 'ready', value } : { state: 'failed' });
+        setResult(
+          isValid(value) ? { state: 'ready', value } : { state: 'failed' },
+        );
       })
       .catch((err: unknown) => {
         // An abort is this screen going away, not a failure to report.

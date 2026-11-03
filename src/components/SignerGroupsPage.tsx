@@ -1,3 +1,5 @@
+import Badge from './Badge';
+import { Page, PageHeading } from './ui';
 import { stxLabel } from '../lib/amounts';
 import { translator, type Locale } from '../lib/i18n';
 import { groupHref } from '../lib/route';
@@ -12,7 +14,6 @@ import {
   ungroupedVotingPowerBips,
 } from '../lib/signer-groups';
 import type { LockedTotals, Signer } from '../lib/types';
-import LocaleSwitch from './LocaleSwitch';
 
 /**
  * Every group at once, largest share of the vote first.
@@ -32,12 +33,10 @@ export default function SignerGroupsPage({
   signers,
   totals,
   locale,
-  onLocaleChange,
 }: {
   signers: Signer[];
   totals: LockedTotals;
   locale: Locale;
-  onLocaleChange: (locale: Locale) => void;
 }) {
   const t = translator(locale);
 
@@ -60,47 +59,58 @@ export default function SignerGroupsPage({
   };
 
   return (
-    <main className='mx-auto max-w-3xl px-5 py-12 md:py-20'>
-      <div className='flex flex-wrap items-center justify-between gap-3'>
-        <a
-          href='#/'
-          className='text-sm font-semibold text-grape underline underline-offset-2'
-        >
-          {t('groups.back')}
-        </a>
-        <LocaleSwitch locale={locale} onChange={onLocaleChange} />
-      </div>
-
-      <h1 className='mt-6 text-4xl font-extrabold md:text-5xl'>
-        {t('groups.heading')}
-      </h1>
-      <p className='mt-4 text-lg text-muted'>{t('groups.intro')}</p>
-      <p className='mt-2 text-sm text-muted'>
+    <Page>
+      <PageHeading title={t('groups.heading')} intro={t('groups.intro')} />
+      <p className='-mt-3 mb-5 text-sm text-muted'>
         {t('groups.asOf', {
           cycle: totals.cycle.toLocaleString(t.bundle.intlLocale),
         })}
       </p>
 
-      <ul className='mt-8 space-y-3'>
+      {/*
+        One bar per group on the same scale — the whole vote — so the page
+        answers "who could move the signer set" at a glance, before anybody
+        reads a summary. The summary and the counts stay underneath.
+      */}
+      <ul
+        aria-label={t('groups.chartLabel')}
+        className='overflow-hidden rounded-2xl bg-card shadow-lift'
+      >
         {rows.map(({ group, bips, staked, nodes, contracts }) => (
-          <li key={group.id}>
+          <li
+            key={group.id}
+            className='border-b border-hairline last:border-b-0'
+          >
             <a
               href={groupHref(group.id)}
-              className='flex flex-col rounded-3xl bg-card p-5 shadow-lift transition-colors hover:bg-grape-soft'
+              className='block p-4 transition-colors hover:bg-card-raised'
             >
-              <div className='flex flex-wrap items-baseline justify-between gap-3'>
-                <span className='text-lg font-bold text-ink'>{group.name}</span>
-                <span className='text-lg font-extrabold text-ink'>
+              <div className='flex flex-wrap items-baseline justify-between gap-x-3'>
+                <span className='flex flex-wrap items-baseline gap-x-2'>
+                  <span className='text-lg font-bold text-ink'>
+                    {group.name}
+                  </span>
+                  <Badge tone='fact' size='sm'>
+                    {t(`group.kind.${group.kind}`)}
+                  </Badge>
+                </span>
+                <span className='text-lg font-extrabold text-ink tabular-nums'>
                   {bips === null
                     ? t('group.unknownAmount')
                     : `${(bips / 100).toFixed(2)}%`}
                 </span>
               </div>
-              <span className='text-sm font-semibold text-grape'>
-                {t(`group.kind.${group.kind}`)}
-              </span>
-              <span className='mt-2 text-sm text-muted'>{group.summary}</span>
-              <span className='mt-2 text-xs text-muted'>
+              <div
+                aria-hidden='true'
+                className='mt-2 h-2.5 overflow-hidden rounded-full bg-trough'
+              >
+                <div
+                  className='h-full rounded-full bg-grape'
+                  style={{ width: `${bips === null ? 0 : bips / 100}%` }}
+                />
+              </div>
+              <p className='mt-2 text-sm text-muted'>{group.summary}</p>
+              <p className='mt-1 text-xs text-muted'>
                 {t('groups.counts', {
                   nodes: nodes.toLocaleString(t.bundle.intlLocale),
                   contracts: contracts.toLocaleString(t.bundle.intlLocale),
@@ -109,7 +119,7 @@ export default function SignerGroupsPage({
                       ? t('group.unknownAmount')
                       : stxLabel(staked.toString(), locale),
                 })}
-              </span>
+              </p>
             </a>
           </li>
         ))}
@@ -122,39 +132,44 @@ export default function SignerGroupsPage({
           because it is the size of a large group and belongs in the same
           column of percentages as the rest.
         */}
-        <li>
-          <div className='flex flex-col rounded-3xl border border-dashed border-muted/40 p-5'>
-            <div className='flex flex-wrap items-baseline justify-between gap-3'>
-              <span className='text-lg font-bold text-muted'>
-                {t('groups.ungrouped')}
-              </span>
-              <span className='text-lg font-extrabold text-muted'>
-                {rest.bips === null
-                  ? t('group.unknownAmount')
-                  : `${(rest.bips / 100).toFixed(2)}%`}
-              </span>
-            </div>
-            <span className='mt-2 text-sm text-muted'>
-              {t('groups.ungroupedNote')}
+        <li className='bg-card-raised/50 p-4'>
+          <div className='flex flex-wrap items-baseline justify-between gap-3'>
+            <span className='text-lg font-bold text-muted'>
+              {t('groups.ungrouped')}
             </span>
-            <span className='mt-2 text-xs text-muted'>
-              {t('groups.ungroupedCounts', {
-                contracts: rest.contracts.toLocaleString(t.bundle.intlLocale),
-                staked:
-                  rest.staked === null
-                    ? t('group.unknownAmount')
-                    : stxLabel(rest.staked.toString(), locale),
-              })}
+            <span className='text-lg font-extrabold text-muted tabular-nums'>
+              {rest.bips === null
+                ? t('group.unknownAmount')
+                : `${(rest.bips / 100).toFixed(2)}%`}
             </span>
           </div>
+          <div
+            aria-hidden='true'
+            className='mt-2 h-2.5 overflow-hidden rounded-full bg-trough'
+          >
+            <div
+              className='h-full rounded-full bg-faint'
+              style={{ width: `${rest.bips === null ? 0 : rest.bips / 100}%` }}
+            />
+          </div>
+          <p className='mt-2 text-sm text-muted'>{t('groups.ungroupedNote')}</p>
+          <p className='mt-1 text-xs text-muted'>
+            {t('groups.ungroupedCounts', {
+              contracts: rest.contracts.toLocaleString(t.bundle.intlLocale),
+              staked:
+                rest.staked === null
+                  ? t('group.unknownAmount')
+                  : stxLabel(rest.staked.toString(), locale),
+            })}
+          </p>
         </li>
       </ul>
 
-      <section className='mt-8 rounded-3xl bg-grape-soft/40 p-5'>
+      <section className='mt-6 rounded-2xl bg-grape-soft/40 p-4 sm:p-5'>
         <h2 className='text-lg font-bold'>{t('groups.sourceHeading')}</h2>
         <p className='mt-2 text-sm text-ink'>{t('group.sourceNote')}</p>
         <p className='mt-2 text-xs text-muted'>{t('group.overlapNote')}</p>
       </section>
-    </main>
+    </Page>
   );
 }

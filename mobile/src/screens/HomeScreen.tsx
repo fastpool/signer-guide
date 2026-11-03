@@ -238,7 +238,11 @@ export default function HomeScreen({ navigation }: ScreenProps<'Home'>) {
 }
 
 /** "SP1N8F…4YDR", or the same with a word saying it cannot sign. */
-function shortLabel(address: string, canSign: boolean, watching: string): string {
+function shortLabel(
+  address: string,
+  canSign: boolean,
+  watching: string,
+): string {
   const short = `${address.slice(0, 6)}…${address.slice(-4)}`;
   return canSign ? short : `${short} · ${watching}`;
 }

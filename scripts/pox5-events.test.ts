@@ -10,8 +10,10 @@ import {
   type Pox5Event,
 } from './pox5-events.js';
 
-const MAX500 = 'SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager';
-const OTHER = 'SP3TB3AJ0XMZ9S6CGY2CQ6R06H1Z6DJQ1SH15ZP2H.signer-manager-stillearly';
+const MAX500 =
+  'SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager';
+const OTHER =
+  'SP3TB3AJ0XMZ9S6CGY2CQ6R06H1Z6DJQ1SH15ZP2H.signer-manager-stillearly';
 
 const row = (over: Partial<Pox5Event>): Pox5Event => ({
   cursor: '1:0',
@@ -71,9 +73,9 @@ describe('toLogEntry', () => {
   it('keeps nothing of a print that moves nobody', () => {
     // Reward claims are most of pox-5's prints, and none of them change who
     // is with which signer.
-    expect(
-      toLogEntry(row({ topic: 'claim-staker-rewards-for-signer' })),
-    ).toBe(null);
+    expect(toLogEntry(row({ topic: 'claim-staker-rewards-for-signer' }))).toBe(
+      null,
+    );
   });
 });
 

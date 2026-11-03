@@ -78,7 +78,17 @@ describe('parseArgs', () => {
   });
 
   it('takes a cycle, a window, and somewhere to write', () => {
-    expect(parseArgs(['--cycle', '141', '--blocks', '200', '--json', '--out', 'n.json'])).toEqual({
+    expect(
+      parseArgs([
+        '--cycle',
+        '141',
+        '--blocks',
+        '200',
+        '--json',
+        '--out',
+        'n.json',
+      ]),
+    ).toEqual({
       cycle: 141,
       blocks: 200,
       json: true,

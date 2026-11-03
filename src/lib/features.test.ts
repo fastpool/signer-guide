@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   canonicalizeClaritySource,
@@ -312,8 +313,9 @@ describe('undistributedReading', () => {
   });
 
   it('reports nothing when the contract keeps no such total', () => {
-    expect(detectFeatures('(define-public (noop) (ok true))')
-      .undistributedReading).toBeNull();
+    expect(
+      detectFeatures('(define-public (noop) (ok true))').undistributedReading,
+    ).toBeNull();
   });
 });
 
@@ -338,8 +340,9 @@ describe('earnedFeesReading', () => {
 
   it('reports nothing when the contract takes no fee at all', () => {
     // native-pool-signer-manager takes its fee somewhere else entirely.
-    expect(detectFeatures('(define-public (noop) (ok true))')
-      .earnedFeesReading).toBeNull();
+    expect(
+      detectFeatures('(define-public (noop) (ok true))').earnedFeesReading,
+    ).toBeNull();
   });
 });
 
@@ -499,5 +502,45 @@ describe('feeExemption', () => {
   (if (is-favoured staker) u0 (var-get fee-bips)))
 `;
     expect(detectFeatures(src).feeExemption).toBeNull();
+  });
+});
+
+describe('the shapes found in review on 3 November 2026', () => {
+  const SOURCES = new URL('../../cache/contract-sources/', import.meta.url);
+  const read = (sha: string) =>
+    readFileSync(new URL(`${sha}.clar`, SOURCES), 'utf8');
+
+  it('reads a ceiling applied to the worked-out fee, not refused by a setter', () => {
+    // SP32XZ3N….signer-manager: the fee is a discount ladder per staker, and
+    // 5% is applied to the result with min-uint. No setter has a fee to refuse.
+    const features = detectFeatures(
+      read('112a7e67318600d5d29795e6b68bcbd36218c3bec843db87a25cff599ce5bc7b'),
+    );
+    expect(features.maxFeeBips).toBe(500);
+    expect(features.maxFeeEvidence).toMatch(/^\(min-uint MAX_FEE_BIPS .*\)$/);
+    // And the evidence is one balanced form, not the rest of the line.
+    const opens = features.maxFeeEvidence!.split('(').length;
+    expect(features.maxFeeEvidence!.split(')').length).toBe(opens);
+  });
+
+  it('reads a fee charged only beyond a fee-free amount as an exemption', () => {
+    // juice-pool-sbtc-signer: seats are handed out by staking itself, up to a
+    // cap, so the contract decides who is exempt — not the operator.
+    const features = detectFeatures(
+      read('08ad562554b8ba4807b768c3591d2a13ab9a7f72566274ac2ea18d66a9ebcd33'),
+    );
+    expect(features.feeExemption).toMatchObject({
+      test: 'get-og-ustx',
+      source: 'og-stakers',
+      operatorChooses: false,
+    });
+  });
+
+  it('still reads the operator choosing Juice Pool’s OG list', () => {
+    const features = detectFeatures(
+      read('c172f3bb339c9a1c04fb9cb976bf77f85622023f060949854f65f0771f1f2eb4'),
+    );
+    expect(features.feeExemption?.operatorChooses).toBe(true);
+    expect(features.maxFeeBips).toBe(2000);
   });
 });

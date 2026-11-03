@@ -105,9 +105,10 @@ export function WalletProvider({
   }, []);
 
   const remember = useCallback((address: string | null) => {
-    void (address === null
-      ? AsyncStorage.removeItem(ADDRESS_KEY)
-      : AsyncStorage.setItem(ADDRESS_KEY, address)
+    void (
+      address === null
+        ? AsyncStorage.removeItem(ADDRESS_KEY)
+        : AsyncStorage.setItem(ADDRESS_KEY, address)
     ).catch(() => {});
   }, []);
 
@@ -161,8 +162,12 @@ export function WalletProvider({
       void watch(address);
     };
 
-    void Linking.getInitialURL().then(open).catch(() => {});
-    const subscription = Linking.addEventListener('url', ({ url }) => open(url));
+    void Linking.getInitialURL()
+      .then(open)
+      .catch(() => {});
+    const subscription = Linking.addEventListener('url', ({ url }) =>
+      open(url),
+    );
     return () => {
       cancelled = true;
       subscription.remove();
@@ -228,7 +233,9 @@ export function WalletProvider({
     ],
   );
 
-  return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;
+  return (
+    <WalletContext.Provider value={value}>{children}</WalletContext.Provider>
+  );
 }
 
 export function useWallet(): WalletState {

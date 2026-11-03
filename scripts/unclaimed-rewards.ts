@@ -64,7 +64,8 @@ import {
 // One definition of where pox-5 lives, shared with locked.ts and the member
 // scripts; re-exported because the reward scripts import it from here.
 export { POX5 };
-export const SBTC_TOKEN = 'SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token';
+export const SBTC_TOKEN =
+  'SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token';
 
 /** STX-only staking is `none`; a bond period would be `(some index)`. */
 const STX_ONLY = Cl.none();
@@ -77,7 +78,9 @@ function uintOrNull(cv: ClarityValue | null): bigint | null {
 export async function rewardCycles(): Promise<number[] | null> {
   const first = uintOrNull(await readDataVar(POX5, 'first-pox-5-reward-cycle'));
   await sleep(SPACING_MS);
-  const current = uintOrNull(await callReadOnly(POX5, 'current-pox-reward-cycle'));
+  const current = uintOrNull(
+    await callReadOnly(POX5, 'current-pox-reward-cycle'),
+  );
   if (first === null || current === null) return null;
 
   const cycles: number[] = [];
@@ -612,7 +615,9 @@ export async function fetchMembershipContract(
   );
   if (relative) return `${pool.split('.')[0]}.${relative[1]}`;
   const absolute =
-    /\(contract-call\?\s+'([0-9A-Z]+\.[a-zA-Z0-9-]+)\s+is-delegating/.exec(source);
+    /\(contract-call\?\s+'([0-9A-Z]+\.[a-zA-Z0-9-]+)\s+is-delegating/.exec(
+      source,
+    );
   return absolute ? absolute[1] : null;
 }
 
@@ -620,7 +625,9 @@ export async function fetchMembershipContract(
 export function parseMembershipEvent(
   repr: string,
 ): { user: string; joined: boolean } | null {
-  const action = /\(action "(delegate|delegate-update|undelegate)"\)/.exec(repr);
+  const action = /\(action "(delegate|delegate-update|undelegate)"\)/.exec(
+    repr,
+  );
   const user = /\(user '([0-9A-Z]+)\)/.exec(repr)?.[1];
   if (!action || !user) return null;
   return { user, joined: action[1] !== 'undelegate' };

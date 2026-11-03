@@ -28,6 +28,10 @@ export interface SbtcPool {
 
 export const SBTC_POOLS: readonly SbtcPool[] = [
   { id: 'esbee', name: 'Esbee DAO', url: 'https://esbee-dao.org' },
-  { id: 'stacking-dao', name: 'Stacking DAO', url: 'https://www.stackingdao.com' },
+  {
+    id: 'stacking-dao',
+    name: 'Stacking DAO',
+    url: 'https://www.stackingdao.com',
+  },
   { id: 'xverse', name: 'Xverse', url: 'https://www.xverse.app' },
 ];

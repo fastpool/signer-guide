@@ -112,8 +112,9 @@ describe('which cycles a run reads', () => {
   });
 
   it('takes --all as an instruction to read the lot again', () => {
-    expect(cyclesToRead(90, [84, 85, 86, 87, 88, 89, 90], { all: true }))
-      .toHaveLength(90 - FIRST_SIGNER_CYCLE + 1);
+    expect(
+      cyclesToRead(90, [84, 85, 86, 87, 88, 89, 90], { all: true }),
+    ).toHaveLength(90 - FIRST_SIGNER_CYCLE + 1);
   });
 });
 

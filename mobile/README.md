@@ -20,12 +20,12 @@ what comes back, and that it can be undone. Then one screen with a wallet to
 pick and an amount to type. Four decisions are made for you, and all four are
 on that screen with a way to change each:
 
-| decision | default | why |
-| --- | --- | --- |
-| pool | Fast Pool Max500 | see below |
-| rewards | as sBTC, in the same wallet | a mistyped Bitcoin address is rewards nobody can recover, and it is not checkable until the first payout |
-| period | the whole of pox-5's maximum | a stake can be ended at the close of the cycle whatever period was chosen, so the longest is the one that asks the least afterwards |
-| amount | yours | the only field on the screen |
+| decision | default                      | why                                                                                                                                 |
+| -------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| pool     | Fast Pool Max500             | see below                                                                                                                           |
+| rewards  | as sBTC, in the same wallet  | a mistyped Bitcoin address is rewards nobody can recover, and it is not checkable until the first payout                            |
+| period   | the whole of pox-5's maximum | a stake can be ended at the close of the cycle whatever period was chosen, so the longest is the one that asks the least afterwards |
+| amount   | yours                        | the only field on the screen                                                                                                        |
 
 The last three live in `src/data/stake-defaults.ts`, not on the screen. Both
 staking screens read them, and they had drifted — the guided one said two weeks
@@ -56,17 +56,17 @@ screen. None of them belongs between somebody and their first stake.
 There are two answers to "whose stake is this", and they are not degrees of the
 same thing:
 
-| | can read a position | can sign |
-| --- | --- | --- |
-| **connected** — a live wallet session | yes | yes |
-| **watching** — an address somebody typed | yes | no |
+|                                          | can read a position | can sign |
+| ---------------------------------------- | ------------------- | -------- |
+| **connected** — a live wallet session    | yes                 | yes      |
+| **watching** — an address somebody typed | yes                 | no       |
 
 Watching is worth having on its own: it is how somebody checks a position from
 a phone that does not hold the keys, and on a phone with no wallet installed it
 is the only way in at all. Both live on one screen — `WalletScreen` — reached
 from the address inside the stake card and from preferences.
 
-The address is *in* the stake card rather than in a card of its own. It is the
+The address is _in_ the stake card rather than in a card of its own. It is the
 answer to a question nobody opened the app to ask, and which only matters when
 it is the wrong one, so it is small, quiet, and doubles as the way to change
 it. A watched address says so beside itself, and the app never offers to sign
@@ -139,10 +139,10 @@ ship a browser, and a page opened inside one reaches the wallet through the
 provider it injects — the same route the web guide already uses. The app hands
 the guide over.
 
-| | link | verified on a device |
-| --- | --- | --- |
-| Leather | `leather://browser?url=…` | opened its browser on the guide |
-| Xverse | `https://connect.xverse.app/browser?url=…` | opened Xverse — its lock screen, and past that is a PIN |
+|         | link                                       | verified on a device                                    |
+| ------- | ------------------------------------------ | ------------------------------------------------------- |
+| Leather | `leather://browser?url=…`                  | opened its browser on the guide                         |
+| Xverse  | `https://connect.xverse.app/browser?url=…` | opened Xverse — its lock screen, and past that is a PIN |
 
 Xverse's own `xverse://browser?url=` still works and its documentation calls it
 deprecated, so the verified app link is what is used.
@@ -238,7 +238,7 @@ typed against it, so a key added in one and forgotten in the other is a build
 error. Four tests hold the pair together: same keys both ways, nothing left
 untranslated, and every `{placeholder}` present in both.
 
-It is a *separate* catalogue from the web guide's `src/locales`, and that is a
+It is a _separate_ catalogue from the web guide's `src/locales`, and that is a
 deliberate cost. The guide ships its bundle to every reader on every page load,
 and two hundred strings only a phone renders would be paid for by everybody.
 What is shared is everything both apps say: amounts through
@@ -275,7 +275,7 @@ fold. So it is now a row of the same shape as the ones at the bottom: what it
 is, what to do about it, a chevron. Somebody with nothing staked is usually
 here to read.
 
-Below *that*, under a heading of its own, is the rest of the guide. That
+Below _that_, under a heading of its own, is the rest of the guide. That
 placement is the whole layout decision. A tab bar would have put "every pool"
 at equal weight with "your stake", and they are not of equal weight.
 
@@ -300,7 +300,7 @@ there it claims to be.
 
 ## Who holds the vote
 
-The pool list answers *where could my STX go*. `GroupsScreen` answers the
+The pool list answers _where could my STX go_. `GroupsScreen` answers the
 question underneath it, which the chain does not: three keys at six percent
 each read as three small signers until somebody writes down that they are one
 company, at which point they are a fifth of a veto.
@@ -413,11 +413,11 @@ The relay and the project id are **not** the problem — driving
 `@walletconnect/universal-provider` headlessly creates the pairing and
 publishes it. Everything below happens in the wallet, after that.
 
-| Wallet | What happens | Why |
-| --- | --- | --- |
-| **Xverse** | was an error naming *bitcoin*; now opens and asks to unlock | the proposal asked for `stacks:1` alone. Adding `bip122:0000…31e93` to `optionalNamespaces` changed it — which is why the guide's own `walletOptions()` keeps both namespaces |
-| **Leather** | "WalletConnect not supported" | no documented mobile transport of any kind. `docs.leather.io` does not resolve, and the Stacks wallet-support table lists only web methods |
-| **OKX** | "not available in your region" | OKX's own geographic restriction. Nothing in a proposal causes it or fixes it |
+| Wallet      | What happens                                                | Why                                                                                                                                                                           |
+| ----------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Xverse**  | was an error naming _bitcoin_; now opens and asks to unlock | the proposal asked for `stacks:1` alone. Adding `bip122:0000…31e93` to `optionalNamespaces` changed it — which is why the guide's own `walletOptions()` keeps both namespaces |
+| **Leather** | "WalletConnect not supported"                               | no documented mobile transport of any kind. `docs.leather.io` does not resolve, and the Stacks wallet-support table lists only web methods                                    |
+| **OKX**     | "not available in your region"                              | OKX's own geographic restriction. Nothing in a proposal causes it or fixes it                                                                                                 |
 
 Adding bip122 costs nothing: it is optional, a wallet approves what it can, and
 `accountFromSession` reads a Bitcoin address if one comes back and carries on
@@ -438,19 +438,19 @@ out of `../src` rather than copied. An app and a site disagreeing about what
 somebody earns is not a rounding difference, it is two answers to the same
 question.
 
-| Shared module           | What it decides                                     |
-| ----------------------- | --------------------------------------------------- |
-| `lib/staking.ts`        | post conditions, lock periods, payout calldata      |
-| `lib/rate-view.ts`      | the rate's period, its APY, what a position earns   |
-| `lib/templates.ts`      | which pools run the same code                       |
-| `lib/stx-amounts.ts`    | parsing and formatting an amount of STX             |
-| `lib/snapshot-shape.ts` | whether a published file is usable                  |
-| `lib/stx-only-cycles.ts`| grouping payouts into cycles                        |
-| `lib/identicon.ts`      | SIP-043's icon, from the same seed                  |
-| `lib/pool-filters.ts`   | what counts as a low, capped or ruinous fee         |
-| `lib/signer-groups.ts`  | who is behind which signer keys, and what that adds to |
-| `lib/performance.ts`    | what may be said about how a signer answered         |
-| `lib/key-rotations.ts`  | which contract changed its key, and when            |
+| Shared module            | What it decides                                        |
+| ------------------------ | ------------------------------------------------------ |
+| `lib/staking.ts`         | post conditions, lock periods, payout calldata         |
+| `lib/rate-view.ts`       | the rate's period, its APY, what a position earns      |
+| `lib/templates.ts`       | which pools run the same code                          |
+| `lib/stx-amounts.ts`     | parsing and formatting an amount of STX                |
+| `lib/snapshot-shape.ts`  | whether a published file is usable                     |
+| `lib/stx-only-cycles.ts` | grouping payouts into cycles                           |
+| `lib/identicon.ts`       | SIP-043's icon, from the same seed                     |
+| `lib/pool-filters.ts`    | what counts as a low, capped or ruinous fee            |
+| `lib/signer-groups.ts`   | who is behind which signer keys, and what that adds to |
+| `lib/performance.ts`     | what may be said about how a signer answered           |
+| `lib/key-rotations.ts`   | which contract changed its key, and when               |
 
 `metro.config.js` watches `../src` and resolves any bare import made from those
 files against this project's `node_modules`, so the bundle carries one copy of
@@ -496,17 +496,17 @@ a live staker with 15,000,000 STX in Fast Pool's signer manager, and `03`
 builds a stake whose eligibility is checked by the read-only replay of every
 gate pox-5 applies. The one thing that does not happen is the signature.
 
-| Flow                        | What it holds to                                   |
-| --------------------------- | -------------------------------------------------- |
-| `00-onboarding`             | first launch to the staking screen in two taps      |
-| `01-rate`                   | the rate, its unit and its cycle are the first thing |
-| `02-watch-a-stake`          | a watched address shows its position and earnings   |
-| `03-choose-and-stake`       | contract → pool → form → signed → broadcast        |
-| `04-the-rest-of-the-guide`  | everything else is one tap away, and no closer      |
-| `05-change-a-stake`         | an existing stake is changed, not started again     |
-| `06-preferences`            | light/dark and a language switch that reaches past its own screen |
-| `07-wallet`                 | connecting and watching, up to where another app takes over |
-| `screenshots`               | not a test — it captures the store screenshots      |
+| Flow                       | What it holds to                                                  |
+| -------------------------- | ----------------------------------------------------------------- |
+| `00-onboarding`            | first launch to the staking screen in two taps                    |
+| `01-rate`                  | the rate, its unit and its cycle are the first thing              |
+| `02-watch-a-stake`         | a watched address shows its position and earnings                 |
+| `03-choose-and-stake`      | contract → pool → form → signed → broadcast                       |
+| `04-the-rest-of-the-guide` | everything else is one tap away, and no closer                    |
+| `05-change-a-stake`        | an existing stake is changed, not started again                   |
+| `06-preferences`           | light/dark and a language switch that reaches past its own screen |
+| `07-wallet`                | connecting and watching, up to where another app takes over       |
+| `screenshots`              | not a test — it captures the store screenshots                    |
 
 ## Shipping it
 
@@ -538,13 +538,13 @@ Zapstore.
 
 Everything has a working default; these are for pointing a build somewhere else.
 
-| Variable                             | Default                        |
-| ------------------------------------ | ------------------------------ |
-| `EXPO_PUBLIC_STACKS_API_URL`         | `https://api.hiro.so`          |
-| `EXPO_PUBLIC_DATA_BASE_URL`          | the guide's branch on GitHub   |
-| `EXPO_PUBLIC_WALLETCONNECT_PROJECT_ID` | the id in `app.json`         |
-| `EXPO_PUBLIC_MOCK_WALLET`            | off — `1` switches in the test wallet |
-| `EXPO_PUBLIC_MOCK_ADDRESS`           | an address with no stake       |
+| Variable                               | Default                               |
+| -------------------------------------- | ------------------------------------- |
+| `EXPO_PUBLIC_STACKS_API_URL`           | `https://api.hiro.so`                 |
+| `EXPO_PUBLIC_DATA_BASE_URL`            | the guide's branch on GitHub          |
+| `EXPO_PUBLIC_WALLETCONNECT_PROJECT_ID` | the id in `app.json`                  |
+| `EXPO_PUBLIC_MOCK_WALLET`              | off — `1` switches in the test wallet |
+| `EXPO_PUBLIC_MOCK_ADDRESS`             | an address with no stake              |
 
 ## A share link
 

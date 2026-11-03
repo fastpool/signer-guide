@@ -56,8 +56,18 @@ const styles = StyleSheet.create({
   cycleTotal: { fontSize: 17, fontFamily: fonts.extrabold },
   stillPaying: { fontSize: 13, fontFamily: fonts.bold },
   payoutLabel: { width: 118, fontSize: 11.5 },
-  payoutValue: { width: 62, fontSize: 12.5, fontFamily: fonts.bold, textAlign: 'right' },
-  barTrack: { flex: 1, height: 8, borderRadius: radius.pill, overflow: 'hidden' },
+  payoutValue: {
+    width: 62,
+    fontSize: 12.5,
+    fontFamily: fonts.bold,
+    textAlign: 'right',
+  },
+  barTrack: {
+    flex: 1,
+    height: 8,
+    borderRadius: radius.pill,
+    overflow: 'hidden',
+  },
   barFill: { height: 8, borderRadius: radius.pill },
 });
 
@@ -172,7 +182,11 @@ export default function HistoryScreen(_: ScreenProps<'History'>) {
                       </Text>
                       <Text
                         tone={cycle.complete ? 'accent' : 'faint'}
-                        style={cycle.complete ? styles.cycleTotal : styles.stillPaying}
+                        style={
+                          cycle.complete
+                            ? styles.cycleTotal
+                            : styles.stillPaying
+                        }
                         testID={`history-cycle-${cycle.cycle}-total`}
                       >
                         {cycle.complete
@@ -187,7 +201,11 @@ export default function HistoryScreen(_: ScreenProps<'History'>) {
                           : BigInt(payout.rateSatsPer1000Stx);
                       return (
                         <Row key={payout.burnHeight} gap={space.sm}>
-                          <Text style={styles.payoutLabel} tone='faint' numberOfLines={1}>
+                          <Text
+                            style={styles.payoutLabel}
+                            tone='faint'
+                            numberOfLines={1}
+                          >
                             {payout.firstOfCycle
                               ? t('history.firstHalf')
                               : t('history.secondHalf')}{' '}
@@ -197,7 +215,10 @@ export default function HistoryScreen(_: ScreenProps<'History'>) {
                             })}
                           </Text>
                           <View
-                            style={[styles.barTrack, { backgroundColor: colors.trough }]}
+                            style={[
+                              styles.barTrack,
+                              { backgroundColor: colors.trough },
+                            ]}
                           >
                             {paid === null ? null : (
                               <View

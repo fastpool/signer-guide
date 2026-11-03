@@ -56,7 +56,9 @@ export default function DataStatusScreen(_: ScreenProps<'DataStatus'>) {
             {snapshot.origin}
           </Pill>
         </Row>
-        <Text variant='body'>{t(`data.origin.${snapshot.origin}` as const)}</Text>
+        <Text variant='body'>
+          {t(`data.origin.${snapshot.origin}` as const)}
+        </Text>
         <Field
           label={t('data.generated')}
           value={utcLabel(snapshot.signers.generatedAt, locale)}
@@ -131,7 +133,9 @@ export default function DataStatusScreen(_: ScreenProps<'DataStatus'>) {
       <Button
         title={t('data.openWeb')}
         kind='quiet'
-        onPress={() => void Linking.openURL('https://signer-guide.fastpool.org')}
+        onPress={() =>
+          void Linking.openURL('https://signer-guide.fastpool.org')
+        }
       />
       <Note tone='faint'>{t('data.madeBy')}</Note>
     </Screen>

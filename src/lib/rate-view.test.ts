@@ -21,7 +21,8 @@ import {
 
 describe('distribution cycles a year', () => {
   it('is what the block times say it is', () => {
-    const minutesPerCycle = FALLBACK_DISTRIBUTION_BLOCKS * BITCOIN_BLOCK_MINUTES;
+    const minutesPerCycle =
+      FALLBACK_DISTRIBUTION_BLOCKS * BITCOIN_BLOCK_MINUTES;
     const cyclesPerYear = (365.25 * 24 * 60) / minutesPerCycle;
 
     // 50.1, which pox-5 itself rounds to 50 when it annualises its target
@@ -37,7 +38,10 @@ describe('distribution cycles a year', () => {
       stxPriceSats: 100n,
     });
     expect(apy).not.toBeNull();
-    expect(apy!).toBeCloseTo((Math.pow(1.01, DISTRIBUTION_CYCLES_PER_YEAR) - 1) * 100, 6);
+    expect(apy!).toBeCloseTo(
+      (Math.pow(1.01, DISTRIBUTION_CYCLES_PER_YEAR) - 1) * 100,
+      6,
+    );
   });
 });
 

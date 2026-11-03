@@ -182,6 +182,26 @@ function detectMaxFeeBips(source: string): {
     }
   }
 
+  /*
+   * The other shape: no setter refuses a high fee, because the fee is worked
+   * out per staker, and the ceiling is applied to the result instead —
+   *   (min-uint MAX_FEE_BIPS (compute-fee-bips settings cycles ustx extra floor))
+   * in SP32XZ3N….signer-manager, whose fee is a discount ladder. Only a
+   * constant named for a fee counts, so an unrelated `min-uint` is not read as
+   * a promise about the fee.
+   */
+  if (!best) {
+    for (const cap of stripComments(source).matchAll(
+      /\(min-uint\s+([A-Z0-9_]*FEE[A-Z0-9_]*)\s[^\n]*/g,
+    )) {
+      const limit = constants.get(cap[1]);
+      if (limit === undefined || limit >= BIPS_100_PERCENT) continue;
+      if (!best || limit < best.bips) {
+        best = { bips: limit, evidence: balanced(cap[0]) };
+      }
+    }
+  }
+
   return { bips: best?.bips ?? null, evidence: best?.evidence ?? null };
 }
 
@@ -271,6 +291,17 @@ function detectFeeChangeNotice(source: string): FeeChangeNotice | null {
   return null;
 }
 
+/** A fragment cut at the end of its first balanced form, for evidence. */
+function balanced(fragment: string): string {
+  let depth = 0;
+  for (let i = 0; i < fragment.length; i += 1) {
+    if (fragment[i] === '(') depth += 1;
+    if (fragment[i] === ')') depth -= 1;
+    if (depth === 0 && i > 0) return fragment.slice(0, i + 1).trim();
+  }
+  return fragment.trim();
+}
+
 /** Every top-level `define-public` in a contract, by name. */
 function publicFunctionNames(source: string): string[] {
   return [...source.matchAll(/\(define-public \(([a-z0-9!?-]+)/g)].map(
@@ -299,7 +330,11 @@ function publicFunctionNames(source: string): string[] {
  */
 function detectFeeExemption(source: string): FeeExemption | null {
   const clean = stripComments(source);
+  return detectAllOrNothing(clean) ?? detectCoveredAmount(clean);
+}
 
+/** Juice Pool's STX contract: an OG staker pays nothing at all. */
+function detectAllOrNothing(clean: string): FeeExemption | null {
   for (const branch of clean.matchAll(
     /\(if\s+\(([a-z0-9-]+)\s+([a-z0-9-]+)\)\s+u0\s+([\s\S]{0,160}?)\)\s*\)/g,
   )) {
@@ -330,6 +365,61 @@ function detectFeeExemption(source: string): FeeExemption | null {
 }
 
 /**
+ * Juice Pool's sBTC contract: the fee is charged only on the part of a stake
+ * beyond a fee-free amount —
+ *   (covered (get-og-ustx staker))
+ *   (taxed (if (> shares covered) (- shares covered) u0))
+ * with the amount kept per staker in a map. Not the all-or-nothing branch
+ * above, which is why it went unreported.
+ *
+ * Who decides is read the same way as above, with one difference: a map
+ * written only by staking itself (`validate-stake!`, whose caller is pox-5)
+ * or by a function anyone may call is the contract deciding, not the
+ * operator. The operator chooses only where a write sits behind an admin
+ * check.
+ */
+function detectCoveredAmount(clean: string): FeeExemption | null {
+  const partial =
+    /\(([a-z0-9-]+)\s+\(if\s+\(>\s+([a-z0-9-]+)\s+([a-z0-9-]+)\)\s+\(-\s+\2\s+\3\)\s+u0\s*\)\s*\)/.exec(
+      clean,
+    );
+  if (!partial) return null;
+  const [evidence, taxed, , covered] = partial;
+
+  // What is taxed has to feed a fee, or this is some other subtraction.
+  const after = clean.slice(partial.index, partial.index + 400);
+  if (!new RegExp(`\\b${taxed}\\b[\\s\\S]*bips`).test(after)) return null;
+
+  // The covered amount has to come from a getter over a map this contract
+  // keeps, so the page can say where the answer comes from.
+  const binding = new RegExp(
+    `\\(${covered}\\s+\\(([a-z0-9-]+)\\s+[a-z0-9-]+\\)\\)`,
+  ).exec(clean);
+  if (!binding) return null;
+  const test = binding[1];
+  const lookup = new RegExp(
+    `\\(define-read-only \\(${test}\\b[\\s\\S]{0,200}?\\(map-get\\?\\s+([a-z0-9-]+)`,
+  ).exec(clean);
+  if (!lookup) return null;
+  const map = lookup[1];
+
+  const written = new RegExp(`\\(map-(?:set|delete)\\s+${map}\\b`);
+  const adminOnly =
+    /\((?:try!\s+\()?(?:assert-admin|authorize-admin|is-admin)\b/;
+  const operatorChooses = publicFunctionNames(clean).some((name) => {
+    const body = extractPublicFunction(clean, name) ?? '';
+    return written.test(body) && adminOnly.test(body);
+  });
+
+  return {
+    test,
+    source: map,
+    operatorChooses,
+    evidence: evidence.replace(/\s+/g, ' ').trim(),
+  };
+}
+
+/**
  * Where to read the fee a pool charges today.
  *
  * A no-argument read-only getter wins when there is one — Juice Pool has
@@ -343,12 +433,15 @@ function detectFeeExemption(source: string): FeeExemption | null {
 function detectFeeReading(source: string): SourceFeatures['feeReading'] {
   // `get-active-fee-bips` in max500: the rate in force once a queued change
   // has matured, which is not always what the `fees-bips` var still says.
-  const getter = /\(define-read-only \((get-(?:active-)?fees?-bips)\s*\)/.exec(
+  // `get-fee-bps` in native-pool-signer-manager-v2: the same thing spelt
+  // without the i, which is how its fee went unread and the page called it
+  // "not set in this contract" while it was charging 5%.
+  const getter = /\(define-read-only \((get-(?:active-)?fees?-bi?ps)\s*\)/.exec(
     source,
   );
   if (getter) return { kind: 'read-only', name: getter[1] };
 
-  const variable = /\(define-data-var\s+([a-z0-9-]*fees?-bips)\s+uint/i.exec(
+  const variable = /\(define-data-var\s+([a-z0-9-]*fees?-bi?ps)\s+uint/i.exec(
     source,
   );
   if (variable) return { kind: 'data-var', name: variable[1] };

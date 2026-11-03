@@ -1,3 +1,4 @@
+import { Breadcrumbs, Page } from './ui';
 import { translator, type Locale } from '../lib/i18n';
 import { burnBlockUrl } from '../lib/explorer';
 import { stxOnlyRewardsHref } from '../lib/route';
@@ -6,7 +7,6 @@ import {
   useStxOnlyHistory,
   type CycleDistributions,
 } from '../lib/stx-only-history';
-import LocaleSwitch from './LocaleSwitch';
 
 /**
  * What every distribution has actually paid, newest first.
@@ -19,13 +19,7 @@ import LocaleSwitch from './LocaleSwitch';
  * than from adding the two lines, which would lose the sat each of them
  * rounded away.
  */
-export default function StxOnlyHistoryPage({
-  locale,
-  onLocaleChange,
-}: {
-  locale: Locale;
-  onLocaleChange: (locale: Locale) => void;
-}) {
+export default function StxOnlyHistoryPage({ locale }: { locale: Locale }) {
   const t = translator(locale);
   const history = useStxOnlyHistory();
   const cycles =
@@ -34,16 +28,17 @@ export default function StxOnlyHistoryPage({
   const largest = largestRate(cycles);
 
   return (
-    <main className='mx-auto max-w-3xl px-5 py-12 md:py-20'>
-      <div className='flex flex-wrap items-center justify-between gap-3'>
-        <a
-          href={stxOnlyRewardsHref()}
-          className='text-sm font-semibold text-grape underline underline-offset-2'
-        >
-          {t('app.stxOnlyHistory.back')}
-        </a>
-        <LocaleSwitch locale={locale} onChange={onLocaleChange} />
-      </div>
+    <Page>
+      <Breadcrumbs
+        items={[
+          { label: t('nav.pools'), href: '#/' },
+          {
+            label: t('app.stxOnlyEstimate.title'),
+            href: stxOnlyRewardsHref(),
+          },
+          { label: t('app.stxOnlyHistory.crumb') },
+        ]}
+      />
 
       <h1 className='mt-6 text-3xl font-extrabold md:text-4xl'>
         {t('app.stxOnlyHistory.title')}
@@ -84,7 +79,7 @@ export default function StxOnlyHistoryPage({
       )}
 
       <p className='mt-8 text-sm text-muted'>{t('app.stxOnlyHistory.note')}</p>
-    </main>
+    </Page>
   );
 }
 

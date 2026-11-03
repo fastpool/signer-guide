@@ -15,11 +15,11 @@ reporter.
 
 ## The three things that leave the device, and why none of them is collection
 
-| Request                              | Contains                    | Why it is not collection under Play's definition |
-| ------------------------------------ | --------------------------- | ------------------------------------------------ |
-| `raw.githubusercontent.com` — pool data | nothing about the user   | a static file fetch; we receive nothing          |
-| `api.hiro.so` — chain reads          | the Stacks address being viewed | the request goes to a public node, not to us, and it is the app functioning as asked. Declare **nothing collected**; the disclosure that belongs to it is in the privacy policy, which says plainly that Hiro sees the address |
-| WalletConnect relay                  | the transaction to be signed | only when a wallet is connected, only for as long as it takes, and only to reach the user's own wallet |
+| Request                                 | Contains                        | Why it is not collection under Play's definition                                                                                                                                                                               |
+| --------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `raw.githubusercontent.com` — pool data | nothing about the user          | a static file fetch; we receive nothing                                                                                                                                                                                        |
+| `api.hiro.so` — chain reads             | the Stacks address being viewed | the request goes to a public node, not to us, and it is the app functioning as asked. Declare **nothing collected**; the disclosure that belongs to it is in the privacy policy, which says plainly that Hiro sees the address |
+| WalletConnect relay                     | the transaction to be signed    | only when a wallet is connected, only for as long as it takes, and only to reach the user's own wallet                                                                                                                         |
 
 If Play's review asks about the Hiro request, the honest framing is the one
 above: the app has no server, receives nothing, and names the third party and

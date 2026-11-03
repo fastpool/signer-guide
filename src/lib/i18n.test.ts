@@ -76,6 +76,11 @@ describe('the language files', () => {
       'amount.btc',
       // A figure and its unit, with no sentence around it to translate.
       'app.stxOnlyEstimate.satsShort',
+      // What a reward arrives as, on its tag: ticker symbols, the same in
+      // every language.
+      'currency.btc',
+      'currency.sbtc',
+      'currency.stx',
     ]);
     const untranslated = Object.keys(BUNDLES.en.messages).filter((key) => {
       const messages = BUNDLES.ko.messages as Record<string, string>;

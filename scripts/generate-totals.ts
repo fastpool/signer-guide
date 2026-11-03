@@ -40,7 +40,8 @@ function readPreviousTotals(): LockedTotals | null {
   if (!fs.existsSync(OUTPUT)) return null;
   try {
     const parsed = JSON.parse(fs.readFileSync(OUTPUT, 'utf8')) as LockedTotals;
-    if (!parsed || typeof parsed.cycle !== 'number' || !parsed.ustx) return null;
+    if (!parsed || typeof parsed.cycle !== 'number' || !parsed.ustx)
+      return null;
     return parsed;
   } catch {
     return null;

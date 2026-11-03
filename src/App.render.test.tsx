@@ -81,10 +81,9 @@ beforeEach(() => {
 describe('the page as a reader sees it', () => {
   it('shows the amounts from the last refresh, asking the node for nothing', () => {
     const html = renderToStaticMarkup(<App />);
-    expect(html).toContain('8.2 million STX');
+    expect(html).toContain('8.2M STX');
     expect(html).toContain('253 STX');
-    expect(html).toContain('looking after');
-    expect(html).toContain('for cycle 142');
+    expect(html).toContain('Staked in cycle 142');
   });
 
   it('counts only the pools somebody could choose in the opening line', () => {
@@ -99,7 +98,9 @@ describe('the page as a reader sees it', () => {
     // Meaningful only while the two differ: the empty pool in the mocked
     // amounts is the one the count has to leave out.
     expect(choosable.length).toBeLessThan(LIVE.length);
-    expect(html).toContain(`${choosable.length} pools`);
+    expect(html).toMatch(
+      new RegExp(`Pools to choose from</div><div[^>]*>${choosable.length}<`),
+    );
 
     // And the contracts are the ones those pools run, not every type on file.
     const running = new Set(choosable.map((s) => s.profileId));
@@ -107,15 +108,16 @@ describe('the page as a reader sees it', () => {
       (template) =>
         !template.profile.archived && running.has(template.profile.id),
     );
-    expect(html).toContain(`${types.length} signer contracts`);
+    expect(html).toContain(
+      `on ${types.length} contract type${types.length === 1 ? '' : 's'}`,
+    );
   });
 
   it('shows what the cycle now filling holds as well', () => {
     // Two cycles, two numbers: somebody who has left is already out of the
     // second one, which is the whole reason it is worth printing.
     const html = renderToStaticMarkup(<App />);
-    expect(html).toContain('Cycle 143 is still filling');
-    expect(html).toContain('7.1 million STX');
+    expect(html).toContain('Cycle 143 filling: 7.1M STX so far');
   });
 
   it('offers every contract type that has pools running it', () => {
@@ -167,9 +169,13 @@ describe('the page as a reader sees it', () => {
     // reader chooses from is not the place for them.
     const html = renderToStaticMarkup(<App />);
     expect(html).not.toContain('Not Used');
-    // And the count says the list is not everything. Pools on an archived
-    // contract type are not in it, because they are not in the list either.
-    expect(html).toContain(`of ${LIVE.length} pools match`);
+    // And the count says the list is not everything, and how much is left
+    // out. Pools on an archived contract type are not in it, because they
+    // are not in the list either.
+    const totals = mockedTotals as LockedTotals;
+    const hidden = LIVE.filter((signer) => !inUse(signer, totals)).length;
+    expect(hidden).toBeGreaterThan(0);
+    expect(html).toContain(`${hidden} hidden with nothing staked`);
   });
 
   it('keeps a pool the guide has only just seen, and says it is new', () => {
@@ -184,7 +190,7 @@ describe('the page as a reader sees it', () => {
     // "We could not find out" and "there is nothing in it" are different
     // things to tell someone about a pool.
     const html = renderToStaticMarkup(<App />);
-    expect(html).toContain('amount not known');
+    expect(html).toContain('The last refresh could not read this amount');
     expect(html).not.toContain('nothing staked yet');
   });
 
@@ -192,7 +198,7 @@ describe('the page as a reader sees it', () => {
     // A null total means "could not read" for this refresh, not "hide pool".
     const html = renderToStaticMarkup(<App />);
     expect(html).toContain('signer-manager-hiro');
-    expect(html).toContain('amount not known');
+    expect(html).toContain('The last refresh could not read this amount');
   });
 
   it('shows no amount at all for a pool the last refresh predates', () => {
@@ -200,20 +206,17 @@ describe('the page as a reader sees it', () => {
     // rather than null. Claiming it is unknown would be a guess; the next
     // refresh, within the hour, has it.
     const html = renderToStaticMarkup(<App />);
-    const cards = html.split('rounded-3xl bg-card').length - 1;
-    const amounts =
-      html.split('staked here').length -
-      1 +
-      html.split('amount not known').length -
-      1;
-    expect(amounts).toBeLessThan(cards);
+    expect(html).toContain('Registered after the last refresh');
+    // And the two absences are told apart in the same table: a pool the
+    // refresh could not read, and one it has not read yet.
+    const table = html.slice(html.indexOf('<table'), html.indexOf('</table>'));
+    expect(table).toContain('Registered after the last refresh');
+    expect(table).toContain('The last refresh could not read this amount');
   });
 
   it('puts the biggest pool first', () => {
     const html = renderToStaticMarkup(<App />);
-    expect(html.indexOf('8.2 million STX')).toBeLessThan(
-      html.indexOf('253 STX'),
-    );
+    expect(html.indexOf('8.2M STX')).toBeLessThan(html.indexOf('253 STX'));
   });
 
   it('draws an icon of the code beside each contract and each pool', () => {
@@ -248,9 +251,8 @@ describe('the page as a reader sees it', () => {
     const templates = buildTemplates((signers as SignerData).signers);
     const unhashed =
       LIVE.filter((s) => s.identiconHash === null).length +
-      templates.filter(
-        (t) => !t.profile.archived && t.identiconHash === null,
-      ).length;
+      templates.filter((t) => !t.profile.archived && t.identiconHash === null)
+        .length;
     // The label, not the words: the placeholder carries them twice, once as
     // `aria-label` and once as `title`, and counting the text counts double.
     const placeholders =
@@ -453,11 +455,9 @@ describe('the page as a reader sees it', () => {
     // The fees and amounts have a shelf life, so how old they are belongs
     // where someone is still deciding — not only in the footer.
     const html = renderToStaticMarkup(<App />);
-    expect(html).toContain('Last update:');
-    expect(html).toMatch(/Last update: \d+ \w+ \d{4}, \d{2}:\d{2} UTC/);
-    expect(html.indexOf('Last update:')).toBeLessThan(
-      html.indexOf('All pools'),
-    );
+    const stamp = /\d+ \w+ \d{4}, \d{2}:\d{2} UTC/;
+    expect(html).toMatch(stamp);
+    expect(html.search(stamp)).toBeLessThan(html.indexOf('id="pool-search"'));
   });
 
   it('leaves no English behind for a Korean reader', () => {
@@ -468,9 +468,9 @@ describe('the page as a reader sees it', () => {
     const html = renderToStaticMarkup(<App />);
     expect(html).toContain('내 STX를 어디에 스테이킹할 수 있을까?');
     expect(html).toContain('821.6만 STX');
-    expect(html).toContain('금액 확인 불가');
-    expect(html).not.toContain('amount not known');
-    expect(html).not.toContain('staked here');
+    expect(html).toContain('마지막 갱신에서 이 금액을 읽지 못했습니다');
+    expect(html).not.toContain('could not read');
+    expect(html).not.toContain('hidden with nothing staked');
   });
 
   it('says who made it and that they run some of the pools listed', () => {

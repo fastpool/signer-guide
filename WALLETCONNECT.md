@@ -224,7 +224,7 @@ in the wallet.
 ### Xverse wanted a bip122 namespace
 
 The app proposed `stacks:1` alone — the tidier proposal, since it uses nothing
-else. Xverse rejected it with an error naming *bitcoin*.
+else. Xverse rejected it with an error naming _bitcoin_.
 
 Adding `bip122:000000000019d6689c085ae165831e93` to `optionalNamespaces`
 changes the behaviour: Xverse now opens and asks to unlock instead of
@@ -235,7 +235,7 @@ optional and a wallet approves what it can — and it is what
 neither file had established.
 
 **Not yet confirmed end to end**: unlocking Xverse needs a fingerprint, so
-whether it then approves a *Stacks* session is unmeasured.
+whether it then approves a _Stacks_ session is unmeasured.
 
 ### Leather mobile says WalletConnect is not supported
 
@@ -279,6 +279,6 @@ In the order they are worth trying:
    follows the txid. It gives up nothing this app knows — the guide's stake
    flow is the same flow — and it works today. It is Xverse-only.
 3. **Ask the wallets, again.** The question at the top of this document is
-   still open, and there is now a second: *does either wallet support a native
-   app connecting at all, and if so how?* Leather in particular has a mobile
+   still open, and there is now a second: _does either wallet support a native
+   app connecting at all, and if so how?_ Leather in particular has a mobile
    app and no documented way to reach it from another app.

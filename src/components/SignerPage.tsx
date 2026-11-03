@@ -1,10 +1,13 @@
 import { useState } from 'react';
-import { satsLabel, stxLabel } from '../lib/amounts';
+import { satsLabel, stxCompact, stxLabel } from '../lib/amounts';
 import { explorerUrl } from '../lib/explorer';
 import { bitcoinPayout } from '../lib/features';
-import { formatLastUpdate, translator, type Locale } from '../lib/i18n';
-import { contractTypeName } from '../lib/profile-i18n';
-import { contractHref, groupHref, signerHref } from '../lib/route';
+import { translator, type Locale } from '../lib/i18n';
+import { joinMode, poolWarnings, stakesHere } from '../lib/pool-facts';
+import { isHighFee } from '../lib/pool-filters';
+import { contractTypeName, localizeProfile } from '../lib/profile-i18n';
+import { profileFor } from '../lib/profiles';
+import { contractHref, groupHref, signerHref, statusHref } from '../lib/route';
 import { groupsForNode } from '../lib/signer-groups';
 import {
   cycleStanding,
@@ -20,26 +23,45 @@ import {
   type Remote,
 } from '../lib/signer-history';
 import { ellipsedAddr, shortPrincipal } from '../lib/strings';
-import type { LockedTotals, Signer, SignerHistory } from '../lib/types';
-import Badge, { feeLabel, noticeLabel } from './Badge';
-import SignerConductSection from './SignerConductSection';
+import type {
+  LockedTotals,
+  Signer,
+  SignerCycleSummary,
+  SignerHistory,
+} from '../lib/types';
+import Badge, { feeLabel, feePercent, noticeLabel } from './Badge';
 import Identicon from './Identicon';
-import LocaleSwitch from './LocaleSwitch';
+import { JoinTag, RewardTags } from './PoolList';
 import PoolName from './PoolName';
+import SignerConductSection from './SignerConductSection';
+import StakeModal from './StakeModal';
+import {
+  Alert,
+  Breadcrumbs,
+  Card,
+  FactGrid,
+  InfoTip,
+  Page,
+  SectionNav,
+  type Fact,
+} from './ui';
 
 /**
- * One deployed signer contract.
+ * One deployed signer contract: should I stake here, and who already has?
  *
- * The sibling of ContractPage, and the two are worth telling apart. That page
- * is about a piece of reviewed code, which a dozen pools may share; this one
- * is about one deployment of it — its key, its money, and the people in it.
+ * The page used to be one long column of boxes, each opening with a
+ * paragraph, so the fee was a badge near the top, the operator was three
+ * boxes down and how much was staked was at the bottom. Now it answers in the
+ * order a reader asks:
  *
- * Most of what is on it is about the signer rather than the contract, because
- * that is where the truth lives. A signer key can have several signer-manager
- * contracts registered against it, and the stake behind the key, its weight
- * and the slots it holds are all decided on those contracts together. So the
- * page a reader arrives at by naming one contract shows them the whole signer,
- * with the contract they came for marked among its siblings.
+ *   1. what to do — stake, or check a stake — beside the name
+ *   2. anything that could go wrong, in a box of its own, only when there is
+ *   3. the eight facts every pool is compared on, always in the same cells
+ *   4. then the detail: members, rewards, signing, the key, the code
+ *
+ * Most of the detail is about the signer rather than the contract, because a
+ * signer key can have several contracts registered against it and the stake,
+ * the weight and the slots are decided on all of them together.
  */
 export default function SignerPage({
   signer,
@@ -47,364 +69,321 @@ export default function SignerPage({
   slug,
   totals,
   locale,
-  onLocaleChange,
 }: {
   signer: Signer;
   /** The signer this contract belongs to, siblings included. */
   node: SignerNode;
   slug: string;
-  /**
-   * Every pool's amount for the cycle, which is what makes a weight out of an
-   * amount: the denominator is the whole cycle, not this signer's own stake.
-   */
+  /** Every pool's amount for the cycle: the denominator of a weight. */
   totals: LockedTotals;
   locale: Locale;
-  onLocaleChange: (locale: Locale) => void;
 }) {
   const t = translator(locale);
   const [address, name] = signer.contractId.split('.');
   const history = useSignerHistory(slug);
-  const btc = bitcoinPayout(signer);
-  const contractName = contractTypeName(signer, locale);
+  const groups = groupsForNode(node);
+  const group = groups[0] ?? null;
+  const warnings = poolWarnings(signer);
 
   return (
-    <main className='mx-auto max-w-3xl px-5 py-12 md:py-20'>
-      <div className='flex flex-wrap items-center justify-between gap-3'>
-        <a
-          href='#/'
-          className='text-sm font-semibold text-grape underline underline-offset-2'
-        >
-          {t('signerPage.back')}
-        </a>
-        <LocaleSwitch locale={locale} onChange={onLocaleChange} />
+    <Page wide>
+      <Breadcrumbs
+        items={[
+          { label: t('nav.pools'), href: '#/' },
+          // Not the group: its page lives under "Who holds the vote", and a
+          // trail through it would say otherwise. "Run by" links it instead.
+          { label: <PoolName signer={signer} locale={locale} /> },
+        ]}
+      />
+
+      <div className='flex flex-wrap items-center gap-x-4 gap-y-3'>
+        <div className='flex min-w-0 items-center gap-3'>
+          <Identicon
+            hash={signer.identiconHash}
+            locale={locale}
+            className='h-11 w-11 md:h-13 md:w-13'
+          />
+          <div className='min-w-0'>
+            <h1 className='text-2xl leading-tight font-extrabold md:text-3xl'>
+              <PoolName signer={signer} locale={locale} />
+            </h1>
+            <a
+              className='font-mono text-xs break-all text-muted underline decoration-hairline underline-offset-2 hover:text-grape'
+              href={explorerUrl(signer.contractId)}
+              target='_blank'
+              rel='noreferrer'
+            >
+              {ellipsedAddr(address)}.{name}
+            </a>
+          </div>
+        </div>
+        <div className='flex w-full flex-wrap items-center gap-2 sm:ml-auto sm:w-auto'>
+          {stakesHere(signer) ? (
+            <StakeModal
+              signer={signer}
+              locale={locale}
+              variant={warnings.includes('highFee') ? 'secondary' : 'primary'}
+            />
+          ) : (
+            <span className='text-xs text-muted'>
+              {t(
+                joinMode(signer) === 'nativePool'
+                  ? 'pool.stakeElsewhere'
+                  : 'signer.customCalls',
+              )}
+            </span>
+          )}
+          <a
+            href={statusHref()}
+            className='rounded-full px-4 py-2 text-sm font-semibold text-grape ring-1 ring-grape ring-inset hover:bg-grape-soft'
+          >
+            {t('pool.checkStake')}
+          </a>
+        </div>
       </div>
 
-      <h1 className='mt-6 flex items-center gap-3 text-4xl font-extrabold md:text-5xl'>
-        <Identicon
-          hash={signer.identiconHash}
-          locale={locale}
-          className='h-12 w-12 md:h-14 md:w-14'
-        />
-        <PoolName signer={signer} locale={locale} />
-      </h1>
-
-      <p className='mt-3 break-all font-mono text-xs text-muted'>
-        <a
-          className='underline'
-          href={explorerUrl(signer.contractId)}
-          target='_blank'
-          rel='noreferrer'
-        >
-          {ellipsedAddr(address)}.{name}
-        </a>
-      </p>
-
-      {signer.profileId && contractName && (
-        <p className='mt-3 text-sm font-semibold'>
-          {t.rich('signer.runsContract', {
-            link: (
-              <a
-                className='text-grape underline underline-offset-2'
-                href={contractHref(signer.profileId)}
-              >
-                {t('signer.contractLink', { name: contractName })}
-              </a>
-            ),
-          })}
-        </p>
+      {warnings.length > 0 && (
+        <div className='mt-4 space-y-2'>
+          {warnings.map((warning) => (
+            <Alert
+              key={warning}
+              tone={warning === 'highFee' ? 'bad' : 'warm'}
+              title={t(`pool.warning.${warning}.title`)}
+            >
+              {t(`pool.warning.${warning}.body`, {
+                fee: feePercent(signer.feeBips) ?? '',
+              })}
+            </Alert>
+          ))}
+        </div>
       )}
 
-      <div className='mt-4 flex flex-wrap gap-2'>
-        {signer.openToAnyone ? (
-          <Badge tone='good'>{t('badge.anyoneCanJoin')}</Badge>
-        ) : (
-          <Badge tone='warm'>{t('badge.inviteOnly')}</Badge>
-        )}
-        {/*
-          Three answers, not two: a contract that pays to Bitcoin, one that
-          only collects the address for the pool to pay from, and one that
-          takes no address at all. `bitcoinPayout` says which.
-        */}
-        {btc === 'contract' && (
-          <Badge tone='good'>{t('badge.bitcoinRewards')}</Badge>
-        )}
-        {btc === 'pool' && (
-          <Badge tone='warm'>{t('badge.bitcoinViaPool')}</Badge>
-        )}
-        <Badge tone='neutral'>
-          {t('badge.fee', { fee: feeLabel(signer.feeBips, locale) })}
-        </Badge>
-        {signer.maxFeeBips !== null && (
-          <Badge tone='good'>
-            {t('badge.feeCapped', { percent: signer.maxFeeBips / 100 })}
-          </Badge>
-        )}
-        {signer.feeChangeNotice && (
-          <Badge tone='good'>
-            {t('badge.feeNotice', {
-              notice: noticeLabel(signer.feeChangeNotice, locale),
-            })}
-          </Badge>
-        )}
+      <div className='mt-4'>
+        <KeyFacts
+          signer={signer}
+          node={node}
+          totals={totals}
+          history={history}
+          groupName={group?.name ?? null}
+          groupId={group?.id ?? null}
+          locale={locale}
+        />
       </div>
 
-      <SignerKeySection
-        signer={signer}
-        node={node}
-        totals={totals}
-        locale={locale}
+      <SectionNav
+        sections={[
+          // The order a phone stacks them in: the left column, then the right.
+          { id: 'members', label: t('pool.section.members') },
+          { id: 'key', label: t('pool.section.key') },
+          { id: 'rewards', label: t('pool.section.rewards') },
+          { id: 'signing', label: t('pool.section.signing') },
+          { id: 'contract', label: t('pool.section.contract') },
+        ]}
       />
 
-      {/*
-        Under the key and above the money. A reader who has just been told
-        this key carries a fifth of the signer set has one question next, and
-        it is whether the node behind it turns up.
-      */}
-      <SignerConductSection signer={signer} locale={locale} />
-
-      <RewardsSection signer={signer} locale={locale} />
-
-      <CycleSection
-        signer={signer}
-        node={node}
-        slug={slug}
-        history={history}
-        locale={locale}
-      />
-    </main>
+      <div className='grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]'>
+        <div className='min-w-0 space-y-4'>
+          <MembersCard
+            signer={signer}
+            node={node}
+            slug={slug}
+            history={history}
+            locale={locale}
+          />
+          <KeyCard
+            signer={signer}
+            node={node}
+            totals={totals}
+            locale={locale}
+          />
+        </div>
+        <div className='min-w-0 space-y-4'>
+          <RewardsCard signer={signer} locale={locale} />
+          <SignerConductSection
+            signer={signer}
+            currentCycle={totals.cycle}
+            locale={locale}
+          />
+          <ContractCard signer={signer} locale={locale} />
+        </div>
+      </div>
+    </Page>
   );
 }
 
+/** This contract's members in a cycle, when the history says so. */
+function cycleFor(
+  history: Remote<SignerHistory>,
+  cycle: number,
+): SignerCycleSummary | null {
+  if (history.state !== 'ready') return null;
+  return history.value.cycles.find((entry) => entry.cycle === cycle) ?? null;
+}
+
 /**
- * The key, what it weighs, and every contract registered against it.
+ * The eight cells, in the same order on every pool.
  *
- * The sibling list is why the section exists. Somebody looking at a pool
- * holding four hundred thousand STX is looking at a quarter of its signer if
- * three other contracts share the key, and nothing else on the page would tell
- * them so.
- *
- * The weight is the same argument taken one step further. A list of keys says
- * who the signers are and nothing about how much any of them counts for, so a
- * reader cannot tell the signer carrying a fifth of the network from one
- * carrying a thousandth. pox-5 decides that by the STX stacked behind the key,
- * which the guide already reads every hour — it just never divided one by the
- * other. What it is *not* is a measure of the signer's conduct, and the note
- * says so: signing behaviour, node version and uptime are not in this data,
- * and a number this prominent must not be mistaken for them.
+ * Fee, ceiling, who can join and what rewards arrive in are what a reader
+ * compares pools on; how much is staked now and next, the weight that buys,
+ * and who is behind it are what they check before trusting one.
  */
-function SignerKeySection({
+function KeyFacts({
   signer,
   node,
   totals,
+  history,
+  groupName,
+  groupId,
   locale,
 }: {
   signer: Signer;
   node: SignerNode;
   totals: LockedTotals;
+  history: Remote<SignerHistory>;
+  groupName: string | null;
+  groupId: string | null;
   locale: Locale;
 }) {
   const t = translator(locale);
-  const siblings = node.contracts;
+  const now = totals.ustx[signer.contractId];
+  const next = totals.next?.ustx[signer.contractId];
   const bips = votingPowerBips(node, totals.ustx);
-  const staked = nodeUstx(node, totals.ustx);
-  // Who is behind the node, where anybody has written it down. A key on its
-  // own says nothing about that, and a reader weighing one signer against
-  // another is really asking about the entity behind it.
-  const groups = groupsForNode(node);
+  const several = node.contracts.length > 1;
+  const nowCycle = cycleFor(history, totals.cycle);
+  const btc = bitcoinPayout(signer);
+  const typeName = contractTypeName(signer, locale);
 
-  return (
-    <section className='mt-10 rounded-3xl bg-card p-6 shadow-lift'>
-      <h2 className='text-lg font-bold'>{t('signerPage.key')}</h2>
-      <p className='mt-1 break-all font-mono text-xs text-muted'>
-        {signer.signerKey ?? t('signer.notAvailable')}
-      </p>
+  const change = (() => {
+    if (now == null || next == null) return null;
+    const a = BigInt(now);
+    const b = BigInt(next);
+    if (a === 0n) return null;
+    const percent = Number(((b - a) * 1000n) / a) / 10;
+    return `${percent >= 0 ? '+' : '−'}${Math.abs(Math.round(percent))}%`;
+  })();
 
-      <dl className='mt-4 border-y border-hairline py-3 text-sm'>
-        <div className='flex flex-wrap items-baseline justify-between gap-3'>
-          <dt className='text-muted'>{t('signerPage.votingPower')}</dt>
-          <dd className='text-lg font-bold text-ink'>
-            {bips === null
-              ? t('signer.notAvailable')
-              : t('signerPage.votingPowerValue', {
-                  percent: (bips / 100).toFixed(2),
-                  cycle: totals.cycle.toLocaleString(t.bundle.intlLocale),
-                })}
-          </dd>
-        </div>
-        {staked !== null && (
-          <div className='mt-1 flex flex-wrap items-baseline justify-between gap-3'>
-            <dt className='text-muted'>{t('signerPage.votingPowerStaked')}</dt>
-            <dd className='font-semibold text-ink'>
-              {stxLabel(staked.toString(), locale)}
-            </dd>
-          </div>
-        )}
-      </dl>
-      <p className='mt-2 text-xs text-muted'>
-        {bips === null
-          ? t('signerPage.votingPowerUnknown')
-          : t('signerPage.votingPowerNote')}
-      </p>
-
-      {groups.length > 0 && (
-        <div className='mt-4'>
-          <p className='text-sm font-semibold'>
-            {t.plural('signerPage.groups', groups.length)}
-          </p>
-          <ul className='mt-2 flex flex-wrap gap-2'>
-            {groups.map((group) => (
-              <li key={group.id}>
-                <a
-                  className='inline-block rounded-full bg-grape-soft px-3 py-1 text-sm font-semibold text-grape'
-                  href={groupHref(group.id)}
-                >
-                  {group.name}
-                </a>
-              </li>
-            ))}
-          </ul>
-          <p className='mt-2 text-xs text-muted'>{t('signerPage.groupsNote')}</p>
-        </div>
-      )}
-
-      {signer.signerKey === null ? (
-        <p className='mt-3 text-sm text-muted'>{t('signerPage.keyNone')}</p>
-      ) : (
-        <>
-          <p className='mt-3 text-sm font-semibold'>
-            {t.plural('signerPage.sharedBy', siblings.length)}
-          </p>
-          <ul className='mt-2 space-y-2 text-sm'>
-            {siblings.map((sibling) => {
-              const here = sibling.contractId === signer.contractId;
-              return (
-                <li
-                  key={sibling.contractId}
-                  className='flex flex-wrap items-baseline gap-x-2'
-                >
-                  {here ? (
-                    <span className='font-semibold'>
-                      <PoolName signer={sibling} locale={locale} />
-                    </span>
-                  ) : (
-                    <a
-                      className='font-semibold text-grape underline underline-offset-2'
-                      href={signerHref(sibling.contractId)}
-                    >
-                      <PoolName signer={sibling} locale={locale} />
-                    </a>
-                  )}
-                  <span className='break-all font-mono text-xs text-muted'>
-                    {sibling.contractId.split('.')[1]}
-                  </span>
-                  {here && (
-                    <span className='text-xs text-muted'>
-                      {t('signerPage.thisOne')}
-                    </span>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-          {siblings.length > 1 && (
-            <p className='mt-3 text-sm text-muted'>
-              {t('signerPage.sharedNote')}
-            </p>
+  const facts: Fact[] = [
+    {
+      label: t('pool.fact.fee'),
+      value: (
+        <span className={isHighFee(signer) ? 'text-rose' : ''}>
+          {feePercent(signer.feeBips) ?? (
+            <span className='text-base font-semibold text-muted'>
+              {t('pools.feeElsewhereShort')}
+            </span>
           )}
-        </>
-      )}
-    </section>
-  );
+        </span>
+      ),
+      note:
+        signer.feeBips === null
+          ? t('pools.feeElsewhere')
+          : signer.feeExemption
+            ? t('badge.feeExemption')
+            : t('pool.fact.feeNote'),
+    },
+    {
+      label: t('pool.fact.cap'),
+      help: t('pools.capHelp'),
+      value:
+        signer.maxFeeBips !== null ? (
+          <Badge tone='good' size='sm'>
+            {t('pools.cap', { percent: signer.maxFeeBips / 100 })}
+          </Badge>
+        ) : signer.feeBips === null ? (
+          <span className='text-base font-semibold text-muted'>
+            {t('pool.fact.capElsewhere')}
+          </span>
+        ) : (
+          <Badge tone='bad' size='sm'>
+            {t('pool.fact.capNone')}
+          </Badge>
+        ),
+      note: signer.feeChangeNotice
+        ? t('pool.fact.notice', {
+            notice: noticeLabel(signer.feeChangeNotice, locale),
+          })
+        : signer.feeBips === null
+          ? undefined
+          : t('pool.fact.noNotice'),
+    },
+    {
+      label: t('pool.fact.join'),
+      value: <JoinTag signer={signer} locale={locale} />,
+      note: t(`join.${joinMode(signer)}.help`),
+    },
+    {
+      label: t('pool.fact.rewards'),
+      value: <RewardTags signer={signer} locale={locale} />,
+      note:
+        btc === 'pool' ? t('badge.bitcoinViaPool') : t('pool.fact.rewardsNote'),
+    },
+    {
+      label: t('pool.fact.staked', { cycle: totals.cycle }),
+      value: stxCompact(now, locale) ?? '—',
+      note:
+        nowCycle?.memberCount != null
+          ? several
+            ? t.plural('pool.fact.membersKey', nowCycle.memberCount)
+            : t.plural('signerPage.memberCount', nowCycle.memberCount)
+          : undefined,
+    },
+    {
+      label: t('pool.fact.next', {
+        cycle: totals.next?.cycle ?? totals.cycle + 1,
+      }),
+      value: stxCompact(next, locale) ?? '—',
+      note: totals.next?.lockedIn
+        ? t('pool.fact.nextLocked')
+        : change
+          ? t('pool.fact.nextChange', { change })
+          : t('pool.fact.nextOpen'),
+    },
+    {
+      label: t('pool.fact.share'),
+      help: t('signerPage.votingPowerNote'),
+      value: bips === null ? '—' : `${(bips / 100).toFixed(2)}%`,
+      note: several
+        ? t.plural('pool.fact.shareKey', node.contracts.length)
+        : t('pool.fact.shareCycle', { cycle: totals.cycle }),
+    },
+    {
+      label: t('pool.fact.runBy'),
+      value:
+        groupId && groupName ? (
+          <a href={groupHref(groupId)} className='text-grape hover:underline'>
+            {groupName} →
+          </a>
+        ) : (
+          <span className='text-muted'>{t('pool.fact.runByUnknown')}</span>
+        ),
+      note:
+        signer.profileId && typeName ? (
+          <a href={contractHref(signer.profileId)} className='hover:text-grape'>
+            {t('pool.fact.type', { name: typeName })}
+          </a>
+        ) : (
+          <span className='font-semibold text-amber-warm'>
+            {t('pools.unreviewed')}
+          </span>
+        ),
+    },
+  ];
+
+  return <FactGrid facts={facts} />;
 }
+
+/** How many cycles to list before "show earlier". */
+const RECENT_CYCLES = 6;
 
 /**
- * The sBTC around this contract right now: what it owes its stakers, what it
- * has not collected, and what it has kept for itself.
+ * What the pool held in each cycle: a bar for the trend, a row for the
+ * figures, and the members of any one cycle opened in place.
  *
- * Three numbers that answer one question between them — is this pool actually
- * paying people? A pool can look fine on every other measure and still be
- * sitting on a cycle it never claimed, or holding rewards it never handed out,
- * and nothing else on this page would say so.
- *
- * The middle one is the load-bearing one, and it is the only one here that
- * does not come from the contract. pox-5 keeps what it owes each signer and
- * zeroes it when the signer claims, so `unclaimedFromPoxSats` means the same
- * thing for every implementation regardless of what each calls its wrapper.
+ * Only cycles from the one the pool was first seen in. Rows of "nothing
+ * staked yet" for cycles before the contract existed said nothing a reader
+ * needed, four times.
  */
-function RewardsSection({
-  signer,
-  locale,
-}: {
-  signer: Signer;
-  locale: Locale;
-}) {
-  const t = translator(locale);
-  // `?? null`, because a signers.json written before these were recorded has
-  // the field absent rather than null — see the note on the type.
-  const unclaimed = signer.unclaimedFromPoxSats ?? null;
-  const undistributed = signer.undistributedSats ?? null;
-  const earnedFees = signer.earnedFeesSats ?? null;
-  // Only what the contract actually publishes gets a row. Most of the
-  // invite-only managers keep no such total, and fourteen pages of "not known"
-  // would say less than leaving it out and saying why once.
-  const publishes = undistributed !== null || earnedFees !== null;
-
-  return (
-    <section className='mt-10 rounded-3xl bg-card p-6 shadow-lift'>
-      <h2 className='text-lg font-bold'>{t('signerPage.rewards')}</h2>
-      <p className='mt-1 text-sm text-muted'>{t('signerPage.rewardsIntro')}</p>
-
-      <dl className='mt-4 space-y-4 text-sm'>
-        <div>
-          <dt className='font-semibold'>{t('signerPage.unclaimed')}</dt>
-          <dd className='mt-0.5'>
-            <strong>{satsLabel(unclaimed, locale)}</strong>
-            <span className='ml-2 text-muted'>
-              {t(
-                unclaimed === null
-                  ? 'signerPage.claimUnknown'
-                  : BigInt(unclaimed) === 0n
-                    ? 'signerPage.claimCurrent'
-                    : 'signerPage.claimBehind',
-              )}
-            </span>
-          </dd>
-        </div>
-
-        {undistributed !== null && (
-          <div>
-            <dt className='font-semibold'>{t('signerPage.undistributed')}</dt>
-            <dd className='mt-0.5'>
-              <strong>{satsLabel(undistributed, locale)}</strong>
-              <p className='mt-1 text-muted'>
-                {t('signerPage.undistributedNote')}
-              </p>
-            </dd>
-          </div>
-        )}
-
-        {earnedFees !== null && (
-          <div>
-            <dt className='font-semibold'>{t('signerPage.earnedFees')}</dt>
-            <dd className='mt-0.5'>
-              <strong>{satsLabel(earnedFees, locale)}</strong>
-              <p className='mt-1 text-muted'>
-                {t('signerPage.earnedFeesNote')}
-              </p>
-            </dd>
-          </div>
-        )}
-      </dl>
-
-      {!publishes && (
-        <p className='mt-4 text-sm text-muted'>{t('signerPage.rewardsNone')}</p>
-      )}
-    </section>
-  );
-}
-
-/** The cycle table, and whichever cycle a reader has opened. */
-function CycleSection({
+function MembersCard({
   signer,
   node,
   slug,
@@ -419,158 +398,308 @@ function CycleSection({
 }) {
   const t = translator(locale);
   const [open, setOpen] = useState<number | null>(null);
+  const [earlier, setEarlier] = useState(false);
   const several = node.contracts.length > 1;
 
+  const caption = (
+    <>
+      {t('pool.members.caption')} <InfoTip text={t('pool.members.how')} />
+    </>
+  );
+
+  if (history.state !== 'ready') {
+    return (
+      <Card id='members' title={t('pool.members.title')} caption={caption}>
+        <p className='text-sm text-muted'>
+          {t(
+            history.state === 'loading'
+              ? 'signerPage.loading'
+              : history.state === 'missing'
+                ? 'signerPage.noHistory'
+                : 'signerPage.failed',
+          )}
+        </p>
+      </Card>
+    );
+  }
+
+  const first = signer.firstSeenCycle ?? -Infinity;
+  const cycles = history.value.cycles
+    .filter((cycle) => cycle.cycle >= first)
+    .sort((a, b) => b.cycle - a.cycle);
+  const hiddenBefore = history.value.cycles.length - cycles.length;
+  const listed = earlier ? cycles : cycles.slice(0, RECENT_CYCLES);
+  const mine = (cycle: SignerCycleSummary): bigint | null => {
+    const value = cycle.ustx[signer.contractId];
+    return value == null ? null : BigInt(value);
+  };
+  const chart = [...cycles.slice(0, 8)].reverse();
+  const max = chart.reduce((m, c) => {
+    const v = mine(c) ?? 0n;
+    return v > m ? v : m;
+  }, 0n);
+
   return (
-    <section className='mt-10'>
-      <h2 className='text-2xl font-bold'>{t('signerPage.cycles')}</h2>
-      <p className='mt-2 text-muted'>{t('signerPage.cyclesIntro')}</p>
-
-      {history.state === 'loading' && (
-        <p className='mt-4 text-muted'>{t('signerPage.loading')}</p>
-      )}
-      {history.state === 'missing' && (
-        <p className='mt-4 rounded-3xl bg-card p-6 text-muted shadow-lift'>
-          {t('signerPage.noHistory')}
-        </p>
-      )}
-      {history.state === 'failed' && (
-        <p className='mt-4 rounded-3xl bg-card p-6 text-muted shadow-lift'>
-          {t('signerPage.failed')}
-        </p>
-      )}
-
-      {history.state === 'ready' && (
-        <ul className='mt-4 space-y-3'>
-          {history.value.cycles.map((cycle) => {
-            const total = sumCycleUstx(cycle.ustx);
-            const mine = cycle.ustx[signer.contractId];
-            const showing = open === cycle.cycle;
-            const standing = cycleStanding(cycle, history.value.currentCycle);
-
-            return (
-              <li
-                key={cycle.cycle}
-                className='rounded-3xl bg-card p-5 shadow-lift'
-              >
-                <div className='flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2'>
-                  <span className='flex items-baseline gap-2 text-lg font-bold'>
-                    {t('signerPage.cycle', { cycle: cycle.cycle })}
-                    {/* From `cycleFinal`, never `fileFinal`: one is whether
-                        the cycle is shut, the other only whether the
-                        generator will look again. See cycleStanding. */}
-                    {standing === 'filling' && (
-                      <Badge tone='good'>{t('signerPage.filling')}</Badge>
-                    )}
-                    {standing === 'active' && (
-                      <Badge tone='neutral'>{t('signerPage.active')}</Badge>
-                    )}
+    <Card id='members' title={t('pool.members.title')} caption={caption}>
+      {chart.length > 1 && max > 0n && (
+        <div aria-hidden='true' className='mb-3'>
+          <div className='flex h-28 items-end gap-2 border-b border-hairline px-1'>
+            {chart.map((cycle) => {
+              const value = mine(cycle) ?? 0n;
+              const height = Number((value * 1000n) / max) / 10;
+              const filling =
+                cycleStanding(cycle, history.value.currentCycle) === 'filling';
+              return (
+                <div
+                  key={cycle.cycle}
+                  className='flex h-full flex-1 flex-col items-center justify-end gap-1'
+                >
+                  <span className='text-[0.7rem] font-bold text-muted tabular-nums'>
+                    {value === 0n
+                      ? '0'
+                      : stxCompact(value, locale)?.replace(' STX', '')}
                   </span>
-                  <span className='text-sm'>
-                    {/* This contract's own share first: it is the one the
-                        reader came for. The signer's total only earns a line
-                        when it is a different number. */}
-                    <strong>{stxLabel(mine ?? null, locale)}</strong>
-                    {several && total !== null && (
-                      <span className='ml-2 text-muted'>
-                        {t('signerPage.ofSigner', {
-                          total: stxLabel(total.toString(), locale),
-                        })}
-                      </span>
-                    )}
-                  </span>
-                </div>
-
-                <div className='mt-3 flex flex-wrap items-center justify-between gap-3 text-sm'>
-                  <span className='text-muted'>
-                    {cycle.memberCount === null
-                      ? t('signerPage.notCounted')
-                      : t.plural('signerPage.memberCount', cycle.memberCount)}
-                    {/* When the list was made, which is the whole of how much
-                        to read into it: a cycle still open is rebuilt at most
-                        once a day, so this can be most of a day behind the
-                        amounts above it. */}
-                    {cycle.memberCount !== null && cycle.walkedAt && (
-                      <span className='ml-1'>
-                        {t('signerPage.walkedAt', {
-                          at: formatLastUpdate(cycle.walkedAt, locale),
-                        })}
-                      </span>
-                    )}
-                  </span>
-                  {cycle.memberCount !== null && cycle.memberCount > 0 && (
-                    <button
-                      type='button'
-                      onClick={() => setOpen(showing ? null : cycle.cycle)}
-                      className='font-semibold text-grape underline underline-offset-2'
-                    >
-                      {showing
-                        ? t('signerPage.hideMembers')
-                        : t('signerPage.showMembers')}
-                    </button>
-                  )}
-                </div>
-
-                {!cycle.membersAddUp && cycle.memberCount !== null && (
-                  <p className='mt-2 text-sm text-amber-warm'>
-                    {t('signerPage.shortList')}
-                  </p>
-                )}
-
-                {/* Only where it can actually be behind. A closed cycle is
-                    walked once and then never changes, so saying its list
-                    might be a day old would be worrying somebody about
-                    nothing. */}
-                {showing && !cycle.cycleFinal && cycle.walkedAt && (
-                  <p className='mt-3 text-xs text-muted'>
-                    {t('signerPage.membersFresh')}
-                  </p>
-                )}
-
-                {showing && (
-                  <MemberList
-                    slug={slug}
-                    cycle={cycle.cycle}
-                    node={node}
-                    locale={locale}
+                  <span
+                    className={`block w-full max-w-12 rounded-t-md ${
+                      filling
+                        ? 'bg-[repeating-linear-gradient(135deg,var(--color-grape)_0_5px,var(--color-grape-soft)_5px_9px)]'
+                        : 'bg-grape'
+                    }`}
+                    style={{ height: `${Math.max(2, height * 0.8)}%` }}
                   />
-                )}
-              </li>
-            );
-          })}
-        </ul>
+                </div>
+              );
+            })}
+          </div>
+          <div className='flex gap-2 px-1 pt-1'>
+            {chart.map((cycle) => (
+              <span
+                key={cycle.cycle}
+                className='flex-1 text-center text-xs text-muted tabular-nums'
+              >
+                {cycle.cycle}
+              </span>
+            ))}
+          </div>
+        </div>
       )}
-    </section>
+
+      <div className='overflow-x-auto'>
+        <table className='w-full text-sm'>
+          <thead>
+            <tr className='border-b border-hairline text-left text-xs text-muted'>
+              <th className='py-2 pr-2 font-bold'>{t('pool.members.cycle')}</th>
+              <th className='py-2 pr-2 font-bold'>
+                {t('pool.members.status')}
+              </th>
+              <th className='py-2 pr-2 text-right font-bold'>
+                {t('pool.members.staked')}
+              </th>
+              <th className='py-2 pr-2 text-right font-bold'>
+                {several
+                  ? t('pool.members.membersKey')
+                  : t('pool.members.members')}
+              </th>
+              <th className='py-2' />
+            </tr>
+          </thead>
+          <tbody>
+            {listed.map((cycle) => {
+              const standing = cycleStanding(cycle, history.value.currentCycle);
+              const showing = open === cycle.cycle;
+              const total = sumCycleUstx(cycle.ustx);
+              const canOpen =
+                cycle.memberCount !== null && cycle.memberCount > 0;
+              return (
+                <CycleRows
+                  key={cycle.cycle}
+                  cycle={cycle}
+                  standing={standing}
+                  amount={stxCompact(mine(cycle), locale) ?? '—'}
+                  keyTotal={
+                    several && total !== null ? stxCompact(total, locale) : null
+                  }
+                  showing={showing}
+                  canOpen={canOpen}
+                  onToggle={() => setOpen(showing ? null : cycle.cycle)}
+                  slug={slug}
+                  node={node}
+                  signer={signer}
+                  locale={locale}
+                />
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <p className='mt-3 text-xs text-muted'>
+        {!earlier && cycles.length > listed.length ? (
+          <button
+            type='button'
+            onClick={() => setEarlier(true)}
+            className='font-semibold text-grape underline underline-offset-2'
+          >
+            {t.plural('pool.members.earlier', cycles.length - listed.length)}
+          </button>
+        ) : hiddenBefore > 0 && signer.firstSeenCycle != null ? (
+          t('pool.members.firstSeen', { cycle: signer.firstSeenCycle })
+        ) : null}
+      </p>
+    </Card>
+  );
+}
+
+function CycleRows({
+  cycle,
+  standing,
+  amount,
+  keyTotal,
+  showing,
+  canOpen,
+  onToggle,
+  slug,
+  node,
+  signer,
+  locale,
+}: {
+  cycle: SignerCycleSummary;
+  standing: ReturnType<typeof cycleStanding>;
+  amount: string;
+  keyTotal: string | null;
+  showing: boolean;
+  canOpen: boolean;
+  onToggle: () => void;
+  slug: string;
+  node: SignerNode;
+  signer: Signer;
+  locale: Locale;
+}) {
+  const t = translator(locale);
+  return (
+    <>
+      <tr
+        className={`border-b border-hairline ${showing ? 'bg-card-raised' : ''}`}
+      >
+        <td className='py-2 pr-2 font-bold tabular-nums'>{cycle.cycle}</td>
+        <td className='py-2 pr-2'>
+          {standing === 'filling' && (
+            <Badge tone='good' size='sm'>
+              {t('signerPage.filling')}
+            </Badge>
+          )}
+          {standing === 'active' && (
+            <Badge tone='neutral' size='sm'>
+              {t('signerPage.active')}
+            </Badge>
+          )}
+          {standing === 'done' && (
+            <Badge tone='fact' size='sm'>
+              {t('pool.members.ended')}
+            </Badge>
+          )}
+        </td>
+        <td className='py-2 pr-2 text-right whitespace-nowrap tabular-nums'>
+          <strong>{amount}</strong>
+          {keyTotal && (
+            <span
+              className='block text-xs text-muted'
+              title={t('signerPage.sharedNote')}
+            >
+              {t('pool.members.ofKey', { total: keyTotal })}
+            </span>
+          )}
+        </td>
+        <td className='py-2 pr-2 text-right tabular-nums'>
+          {cycle.memberCount ?? '—'}
+          {!cycle.membersAddUp && cycle.memberCount !== null && (
+            <span
+              className='ml-1 text-amber-warm'
+              title={t('signerPage.shortList')}
+            >
+              *
+            </span>
+          )}
+        </td>
+        <td className='py-2 text-right'>
+          {canOpen && (
+            <button
+              type='button'
+              aria-expanded={showing}
+              onClick={onToggle}
+              className='text-xs font-bold whitespace-nowrap text-grape'
+            >
+              <span className='hidden sm:inline'>
+                {showing
+                  ? t('signerPage.hideMembers')
+                  : t('pool.members.open')}{' '}
+              </span>
+              <span aria-hidden='true'>{showing ? '▴' : '▾'}</span>
+              <span className='sr-only sm:hidden'>
+                {showing ? t('signerPage.hideMembers') : t('pool.members.open')}
+              </span>
+            </button>
+          )}
+        </td>
+      </tr>
+      {showing && (
+        <tr className='bg-card-raised'>
+          <td colSpan={5} className='px-2 pb-3'>
+            {!cycle.cycleFinal && cycle.walkedAt && (
+              <p className='pt-1 text-xs text-muted'>
+                {t('signerPage.membersFresh')}
+              </p>
+            )}
+            <MemberList
+              slug={slug}
+              cycle={cycle.cycle}
+              node={node}
+              signer={signer}
+              locale={locale}
+            />
+          </td>
+        </tr>
+      )}
+    </>
   );
 }
 
 /** How many members to draw before asking whether the reader wants the rest. */
-const FIRST_PAGE = 50;
+const FIRST_PAGE = 10;
 
+/**
+ * One cycle's members, largest first.
+ *
+ * On a key with several contracts, the people in *this* contract first and
+ * the rest of the key a tap away: the page is about this pool, and the
+ * old page's "nothing staked yet · 3 members" was the key's three members
+ * printed beside this contract's empty total.
+ */
 function MemberList({
   slug,
   cycle,
   node,
+  signer,
   locale,
 }: {
   slug: string;
   cycle: number;
   node: SignerNode;
+  signer: Signer;
   locale: Locale;
 }) {
   const t = translator(locale);
   const [all, setAll] = useState(false);
+  const [wholeKey, setWholeKey] = useState(false);
   const members = useCycleMembers(slug, cycle);
-  // Which contract each member is with only earns a column when the signer
-  // has more than one for them to be with.
   const several = node.contracts.length > 1;
 
   if (members.state === 'loading') {
-    return <p className='mt-3 text-sm text-muted'>{t('signerPage.loading')}</p>;
+    return <p className='pt-2 text-sm text-muted'>{t('signerPage.loading')}</p>;
   }
   if (members.state !== 'ready') {
     return (
-      <p className='mt-3 text-sm text-muted'>
+      <p className='pt-2 text-sm text-muted'>
         {t(
           members.state === 'missing'
             ? 'signerPage.noMembers'
@@ -580,32 +709,38 @@ function MemberList({
     );
   }
 
-  const list = members.value.members;
+  const everyone = members.value.members;
+  const here = everyone.filter((m) => m.contractId === signer.contractId);
+  const list = several && !wholeKey ? here : everyone;
   const staked = list.reduce((sum, member) => sum + BigInt(member.ustx), 0n);
   const shown = all ? list : list.slice(0, FIRST_PAGE);
 
   return (
-    <div className='mt-4 border-t border-hairline pt-4'>
-      <div className='overflow-x-auto'>
-        <table className='w-full text-left text-sm'>
-          <thead>
-            <tr className='text-xs font-semibold text-muted uppercase'>
-              <th className='pb-2'>{t('signerPage.colStaker')}</th>
-              <th className='pb-2 text-right'>{t('signerPage.colAmount')}</th>
-              <th className='pb-2 text-right'>{t('signerPage.colShare')}</th>
-              {several && (
-                <th className='pb-2 text-right'>
-                  {t('signerPage.colContract')}
-                </th>
-              )}
-            </tr>
-          </thead>
+    <div className='pt-2'>
+      {several && (
+        <p className='mb-2 text-xs text-muted'>
+          {wholeKey
+            ? t.plural('pool.members.onKey', everyone.length)
+            : t.plural('pool.members.inThis', here.length)}{' '}
+          <button
+            type='button'
+            onClick={() => setWholeKey((value) => !value)}
+            className='font-semibold text-grape underline underline-offset-2'
+          >
+            {wholeKey ? t('pool.members.showThis') : t('pool.members.showKey')}
+          </button>
+        </p>
+      )}
+      {list.length === 0 ? (
+        <p className='text-sm text-muted'>{t('pool.members.none')}</p>
+      ) : (
+        <table className='w-full text-sm'>
           <tbody>
             {shown.map((member) => (
-              <tr key={member.staker} className='border-t border-hairline'>
-                <td className='py-2 pr-3 font-mono text-xs'>
+              <tr key={member.staker}>
+                <td className='py-1 pr-2 font-mono text-xs'>
                   <a
-                    className='underline'
+                    className='hover:text-grape hover:underline'
                     href={explorerUrl(member.staker)}
                     target='_blank'
                     rel='noreferrer'
@@ -613,14 +748,14 @@ function MemberList({
                     {shortPrincipal(member.staker)}
                   </a>
                 </td>
-                <td className='py-2 pr-3 text-right whitespace-nowrap'>
+                <td className='py-1 pr-2 text-right whitespace-nowrap tabular-nums'>
                   {stxLabel(member.ustx, locale)}
                 </td>
-                <td className='py-2 pr-3 text-right whitespace-nowrap text-muted'>
+                <td className='hidden py-1 pr-2 text-right whitespace-nowrap text-muted tabular-nums sm:table-cell'>
                   {(shareBips(member, staked) / 100).toFixed(2)}%
                 </td>
-                {several && (
-                  <td className='py-2 text-right font-mono text-xs text-muted'>
+                {several && wholeKey && (
+                  <td className='hidden py-1 text-right font-mono text-xs text-muted sm:table-cell'>
                     {member.contractId.split('.')[1]}
                   </td>
                 )}
@@ -628,17 +763,241 @@ function MemberList({
             ))}
           </tbody>
         </table>
-      </div>
-
+      )}
       {!all && list.length > shown.length && (
         <button
           type='button'
           onClick={() => setAll(true)}
-          className='mt-3 font-semibold text-grape underline underline-offset-2'
+          className='mt-2 text-xs font-bold text-grape'
         >
-          {t('signerPage.showAll', { count: list.length })}
+          {t('signerPage.showAll', { count: list.length })} →
         </button>
       )}
     </div>
+  );
+}
+
+/**
+ * The sBTC around this contract right now: what pox-5 still owes it, what it
+ * has collected and not paid out, and what it has kept for itself. Together
+ * they answer whether the pool is actually paying people.
+ */
+function RewardsCard({ signer, locale }: { signer: Signer; locale: Locale }) {
+  const t = translator(locale);
+  const unclaimed = signer.unclaimedFromPoxSats ?? null;
+  const undistributed = signer.undistributedSats ?? null;
+  const earnedFees = signer.earnedFeesSats ?? null;
+  const rows: { label: string; value: string; help: string }[] = [
+    {
+      label: t('signerPage.unclaimed'),
+      value: satsLabel(unclaimed, locale),
+      help: t(
+        unclaimed === null
+          ? 'signerPage.claimUnknown'
+          : BigInt(unclaimed) === 0n
+            ? 'signerPage.claimCurrent'
+            : 'signerPage.claimBehind',
+      ),
+    },
+  ];
+  if (undistributed !== null) {
+    rows.push({
+      label: t('signerPage.undistributed'),
+      value: satsLabel(undistributed, locale),
+      help: t('signerPage.undistributedNote'),
+    });
+  }
+  if (earnedFees !== null) {
+    rows.push({
+      label: t('signerPage.earnedFees'),
+      value: satsLabel(earnedFees, locale),
+      help: t('signerPage.earnedFeesNote'),
+    });
+  }
+  const behind = unclaimed !== null && BigInt(unclaimed) > 0n;
+
+  return (
+    <Card
+      id='rewards'
+      title={t('signerPage.rewards')}
+      caption={t('pool.rewards.caption')}
+    >
+      <dl className='space-y-2 text-sm'>
+        {rows.map((row) => (
+          <div
+            key={row.label}
+            className='flex items-baseline justify-between gap-3'
+          >
+            <dt className='flex items-center gap-1 text-muted'>
+              {row.label} <InfoTip text={row.help} />
+            </dt>
+            <dd className='font-bold whitespace-nowrap tabular-nums'>
+              {row.value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+      {behind && (
+        <p className='mt-2 text-xs text-amber-warm'>
+          {t('signerPage.claimBehind')}
+        </p>
+      )}
+      {undistributed === null && earnedFees === null && (
+        <p className='mt-3 text-xs text-muted'>{t('pool.rewards.none')}</p>
+      )}
+    </Card>
+  );
+}
+
+/** The key, what it weighs, who is behind it, and its other contracts. */
+function KeyCard({
+  signer,
+  node,
+  totals,
+  locale,
+}: {
+  signer: Signer;
+  node: SignerNode;
+  totals: LockedTotals;
+  locale: Locale;
+}) {
+  const t = translator(locale);
+  const siblings = node.contracts;
+  const staked = nodeUstx(node, totals.ustx);
+  const groups = groupsForNode(node);
+
+  return (
+    <Card id='key' title={t('signerPage.key')} caption={t('pool.key.caption')}>
+      <p className='font-mono text-xs break-all text-muted'>
+        {signer.signerKey ?? t('signer.notAvailable')}
+      </p>
+      {staked !== null && (
+        <p className='mt-2 text-sm'>
+          {t('pool.key.staked', {
+            amount: stxLabel(staked.toString(), locale),
+            cycle: totals.cycle,
+          })}
+        </p>
+      )}
+
+      {groups.length > 0 && (
+        <div className='mt-3'>
+          <p className='flex items-center gap-1 text-xs font-semibold text-muted'>
+            {t.plural('signerPage.groups', groups.length)}
+            <InfoTip text={t('signerPage.groupsNote')} />
+          </p>
+          <ul className='mt-1 flex flex-wrap gap-1.5'>
+            {groups.map((group) => (
+              <li key={group.id}>
+                <a
+                  className='inline-block rounded-full bg-grape-soft px-3 py-1 text-sm font-semibold text-grape'
+                  href={groupHref(group.id)}
+                >
+                  {group.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {signer.signerKey === null ? (
+        <p className='mt-3 text-sm text-muted'>{t('signerPage.keyNone')}</p>
+      ) : (
+        <div className='mt-3'>
+          <p className='flex items-center gap-1 text-xs font-semibold text-muted'>
+            {t.plural('signerPage.sharedBy', siblings.length)}
+            {siblings.length > 1 && (
+              <InfoTip text={t('signerPage.sharedNote')} />
+            )}
+          </p>
+          <ul className='mt-1 space-y-1 text-sm'>
+            {siblings.map((sibling) => {
+              const here = sibling.contractId === signer.contractId;
+              return (
+                <li
+                  key={sibling.contractId}
+                  className='flex flex-wrap items-baseline gap-x-2'
+                >
+                  {here ? (
+                    <span className='font-semibold'>
+                      <PoolName signer={sibling} locale={locale} />
+                    </span>
+                  ) : (
+                    <a
+                      className='font-semibold text-grape hover:underline'
+                      href={signerHref(sibling.contractId)}
+                    >
+                      <PoolName signer={sibling} locale={locale} />
+                    </a>
+                  )}
+                  <span className='font-mono text-xs break-all text-muted'>
+                    {sibling.contractId.split('.')[1]}
+                  </span>
+                  {here && (
+                    <span className='text-xs text-muted'>
+                      {t('signerPage.thisOne')}
+                    </span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+/** What the code does, in the contract type's own summary, and where to read it. */
+function ContractCard({ signer, locale }: { signer: Signer; locale: Locale }) {
+  const t = translator(locale);
+  const profile = profileFor(signer.groupSha256);
+  const localized = profile ? localizeProfile(profile, locale) : null;
+
+  return (
+    <Card
+      id='contract'
+      title={t('pool.contract.title')}
+      caption={t('pool.contract.caption')}
+    >
+      {localized && signer.profileId ? (
+        <>
+          <p className='text-sm'>{localized.summary}</p>
+          <a
+            href={contractHref(signer.profileId)}
+            className='mt-2 inline-block text-sm font-bold text-grape'
+          >
+            {t('pool.contract.more', { name: localized.name })} →
+          </a>
+        </>
+      ) : (
+        <p className='text-sm text-amber-warm'>{t('signer.notReviewed')}</p>
+      )}
+      <dl className='mt-3 space-y-2 border-t border-hairline pt-3 text-xs'>
+        <div>
+          <dt className='font-semibold text-muted'>{t('signer.contract')}</dt>
+          <dd className='font-mono break-all'>
+            <a
+              className='hover:text-grape hover:underline'
+              href={explorerUrl(signer.contractId)}
+              target='_blank'
+              rel='noreferrer'
+            >
+              {signer.contractId}
+            </a>
+          </dd>
+        </div>
+        <div>
+          <dt className='flex items-center gap-1 font-semibold text-muted'>
+            {t('signer.fingerprint')}
+            <InfoTip text={t('signer.fingerprintNote')} />
+          </dt>
+          <dd className='font-mono break-all text-muted'>
+            {signer.canonicalSha256}
+          </dd>
+        </div>
+      </dl>
+    </Card>
   );
 }

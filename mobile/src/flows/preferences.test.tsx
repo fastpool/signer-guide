@@ -32,8 +32,9 @@ beforeEach(async () => {
 
 describe('the catalogue', () => {
   it('says everything in both languages', () => {
-    const missing = (Object.keys(en.messages) as (keyof typeof en.messages)[])
-      .filter((key) => !ko.messages[key]);
+    const missing = (
+      Object.keys(en.messages) as (keyof typeof en.messages)[]
+    ).filter((key) => !ko.messages[key]);
     expect(missing).toEqual([]);
   });
 
@@ -63,7 +64,9 @@ describe('the catalogue', () => {
       // is never in front of anybody who reads Korean.
       'wallet.testWallet',
     ]);
-    const untranslated = (Object.keys(en.messages) as (keyof typeof en.messages)[])
+    const untranslated = (
+      Object.keys(en.messages) as (keyof typeof en.messages)[]
+    )
       .filter((key) => !sameOnPurpose.has(key))
       .filter((key) => ko.messages[key] === en.messages[key]);
     expect(untranslated).toEqual([]);
@@ -90,7 +93,9 @@ describe('the catalogue', () => {
   it('keeps every placeholder a message declares', () => {
     const placeholders = (value: string) =>
       (value.match(/\{[a-zA-Z0-9_]+\}/g) ?? []).sort();
-    for (const key of Object.keys(en.messages) as (keyof typeof en.messages)[]) {
+    for (const key of Object.keys(
+      en.messages,
+    ) as (keyof typeof en.messages)[]) {
       expect({ key, has: placeholders(ko.messages[key]) }).toEqual({
         key,
         has: placeholders(en.messages[key]),
@@ -119,8 +124,14 @@ describe('the preferences screen', () => {
      * among Xverse, Leather and OKX, which are names — so it shipped
      * untranslated. Names stay put; sentences moved to the catalogue.
      */
-    expect(ko.messages['wallet.copyLink']).not.toBe(en.messages['wallet.copyLink']);
-    expect(Object.values(WALLET_NAMES)).toEqual(['Xverse', 'Leather', 'OKX Wallet']);
+    expect(ko.messages['wallet.copyLink']).not.toBe(
+      en.messages['wallet.copyLink'],
+    );
+    expect(Object.values(WALLET_NAMES)).toEqual([
+      'Xverse',
+      'Leather',
+      'OKX Wallet',
+    ]);
   });
 
   it('offers both languages, each named in itself', async () => {

@@ -13,16 +13,28 @@
 import { execFileSync } from 'node:child_process';
 
 const run = (cmd, args) =>
-  execFileSync(cmd, args, { cwd: new URL('..', import.meta.url).pathname, encoding: 'utf8' });
+  execFileSync(cmd, args, {
+    cwd: new URL('..', import.meta.url).pathname,
+    encoding: 'utf8',
+  });
 
 const dirty = run('git', ['status', '--porcelain', '--', 'android']).trim();
 if (dirty) {
-  console.error('android/ has uncommitted changes; commit or stash them first:\n' + dirty);
+  console.error(
+    'android/ has uncommitted changes; commit or stash them first:\n' + dirty,
+  );
   process.exit(1);
 }
 
 console.log('Regenerating android/ from app.json…');
-run('npx', ['expo', 'prebuild', '--platform', 'android', '--no-install', '--clean']);
+run('npx', [
+  'expo',
+  'prebuild',
+  '--platform',
+  'android',
+  '--no-install',
+  '--clean',
+]);
 
 const drift = run('git', ['status', '--porcelain', '--', 'android']).trim();
 if (!drift) {

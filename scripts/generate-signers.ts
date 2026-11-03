@@ -239,7 +239,10 @@ export async function readCachedSource(
 }
 
 /** Keep a source for next time, under its own hash. */
-export async function cacheSource(source: string, dir = SOURCES): Promise<void> {
+export async function cacheSource(
+  source: string,
+  dir = SOURCES,
+): Promise<void> {
   const sha = await claritySourceSha256(source);
   const file = path.join(dir, `${sha}.clar`);
   if (fs.existsSync(file)) return;

@@ -12,11 +12,7 @@
  * changed under a build still sitting in somebody's cache: that should read as
  * "nothing on file" rather than white-screen the app on launch.
  */
-import type {
-  LockedTotals,
-  SignerData,
-  StxOnlyCalculations,
-} from './types';
+import type { LockedTotals, SignerData, StxOnlyCalculations } from './types';
 
 export function isSignerData(value: unknown): value is SignerData {
   if (typeof value !== 'object' || value === null) return false;

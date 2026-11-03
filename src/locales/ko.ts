@@ -65,6 +65,27 @@ export const ko: LocaleBundle = {
       detail:
         '이 서명자는 Native Pool 컨트랙트를 통해 참여한 경우에만 스테이킹을 허용하므로, 서명자 컨트랙트에 직접 스테이킹하지 않고 Native Pool 쪽에서 가입합니다. 보상은 Stacks의 sBTC로 지급됩니다. 이 컨트랙트 자체에는 수수료 로직이 없습니다.',
     },
+    'native-pool-v2': {
+      name: '네이티브 풀 V2',
+      summary:
+        'pox-5에 직접 스테이킹하는 대신 Stacking DAO의 native-pool-v2를 통해 참여합니다. 보상은 sBTC로 지급되며, DAO가 상한이나 사전 고지 없이 언제든 바꿀 수 있는 수수료가 먼저 차감됩니다.',
+      detail:
+        'native-pool-v2를 통해 위임한 스테이커만 받으므로, 이 컨트랙트가 아니라 Native Pool 쪽에서 가입합니다. 청구되는 모든 보상에는 먼저 이 컨트랙트의 수수료가 부과되며, 수수료는 Stacking DAO 프로토콜이 지정한 수령인에게 보내집니다. DAO는 이 수수료를 언제든 100% 미만의 어떤 값으로도 바꿀 수 있습니다. 컨트랙트에는 상한도 사전 고지 기간도 없습니다.\n\n나머지 보상은 native-pool-v2에서 고른 방식에 따라 두 가지 중 하나로 받습니다. 직접 모드에서는 직접 청구하고 sBTC가 바로 지갑으로 들어옵니다. 스트리밍 모드에서는 키퍼가 대신 청구해 native-reward-streamer-v2에 적립하므로, 이 모드에서는 스트리머 컨트랙트와 키퍼도 신뢰해야 합니다.',
+    },
+    'capped-fee-blocklist': {
+      name: '수수료 상한 (제재 목록 포함)',
+      summary:
+        '제재 목록과 수수료 할인이 추가된 수수료 상한 컨트랙트입니다. 목록에 없는 사람은 누구나 참여할 수 있고, 보상은 비트코인 또는 sBTC로 받으며, 수수료는 5%를 넘지 않습니다.',
+      detail:
+        '수수료 상한 컨트랙트에 규칙을 더한 것입니다. 본인이나 지정한 비트코인 주소가 풀의 제재 목록에 없다면 누구나 스테이킹할 수 있습니다. 이 목록은 배포 시 미국 OFAC 목록으로 채워졌습니다. 보상은 비트코인 주소로 가거나 Stacks의 sBTC로 지급되며, 언제나 본인에게만 갑니다.\n\n수수료는 5%를 넘을 수 없습니다. 컨트랙트가 계산 결과를 그 값으로 제한합니다. 더 낮을 수는 있습니다. 오래 머물거나 많이 스테이킹한 사람은 할인을 받고, 운영자 서버가 개별 스테이커에게 추가 할인을 줄 수 있으며, 어느 경우에도 운영자가 정한 하한보다 낮아지지는 않습니다. 하한이나 할인 설정을 올리면 두 보상 사이클 뒤에, 내리면 한 사이클 뒤에 적용됩니다.\n\n운영자는 지급에 앞서 목록을 확인할 수 있도록 먼저 처리할 시간을 갖습니다. 보상을 청구할 수 있게 된 뒤 약 3일 동안은 운영자만 보상을 받아올 수 있고, 약 일주일 동안은 운영자만 지급할 수 있습니다. 그 뒤에는 본인을 포함해 누구나 할 수 있습니다.\n\n스테이킹 전에 이해해야 할 것은 이 목록입니다. 풀의 자동화 키는 누구든 즉시 목록에 추가할 수 있고, 목록에서 빼는 것은 관리자만 할 수 있으며 하루를 기다려야 합니다. 보상이 정산될 때 목록에 올라 있으면 보상은 지급되지 않고 컨트랙트에 보관됩니다. 운영자는 나중에 이를 본인에게 풀어 주거나, 대기 기간이 지난 뒤 미리 승인한 주소로 다른 사람에게 보낼 수 있습니다. 모든 단계는 체인에 기록됩니다.',
+    },
+    'juice-pool-stx-payout': {
+      name: '주스 풀 (STX 지급)',
+      summary:
+        '누구나 참여할 수 있습니다. 풀이 sBTC 보상을 STX로 바꿔 STX로 지급하며, 수수료는 최대 5%이고 처음 210만 STX는 수수료가 없습니다.',
+      detail:
+        '초대나 최소 금액 없이 누구나 스테이킹할 수 있고, 운영자는 신규 스테이킹을 일시 중지할 수 있습니다. 컨트랙트 이름과 달리 보상은 sBTC로 오지 않습니다. 풀이 보상을 스왑 컨트랙트로 보내 STX로 바꾼 뒤, 각 스테이커에게 지분만큼 STX로 지급합니다. 각 단계는 누구나 실행할 수 있어서 지급이 운영자를 기다리지 않습니다. 스왑이 멈추면 되돌릴 수 있으며, 이때 스테이커는 일부는 STX, 일부는 sBTC로 받습니다.\n\n수수료는 4.5%이고 5%를 넘을 수 없습니다. 변경하려면 먼저 제안하고 최소 하루 뒤에 확정해야 합니다. 수수료는 스테이킹 금액 중 수수료 면제 자리를 넘는 부분에만 부과됩니다. 면제 자리는 210만 STX가 찰 때까지 선착순으로 자동 배정되며, 스테이킹을 유지하는 동안 계속 유지됩니다. 운영자는 이를 빼앗을 수 없고 총량을 늘릴 수만 있습니다.\n\n운영자는 스테이킹된 자금을 옮기거나 지급을 다른 곳으로 돌릴 수 없습니다. 운영자가 정하는 것은 스왑입니다. 슬리피지와 사용할 거래소를 정하고, 약 4주 전에 알린 뒤 다른 스왑 컨트랙트로 바꿀 수 있습니다. 받는 STX의 양은 그 컨트랙트와 설정에 달려 있으며, 이 페이지는 그 부분을 검토하지 않았습니다.',
+    },
     'capped-fee': {
       name: '수수료 상한',
       summary:
@@ -191,7 +212,7 @@ export const ko: LocaleBundle = {
     'app.stxOnlyHistory.atHeight': '번 높이 {height}',
     'app.stxOnlyHistory.rateUnknown': '알 수 없음',
     'app.stxOnlyHistory.note':
-      '보상 사이클 합계는 두 번의 지급액을 더한 값이 아니라 pox-5가 해당 사이클에 적립한 값에서 가져옵니다. 각 지급액은 개별적으로 1사토시 단위로 내림되기 때문입니다. 두 지급 사이에 갱신이 실행되지 않으면 전반 지급액은 \'알 수 없음\'으로 표시됩니다. 두 번을 구분할 수 있는 시점은 그때뿐입니다.',
+      "보상 사이클 합계는 두 번의 지급액을 더한 값이 아니라 pox-5가 해당 사이클에 적립한 값에서 가져옵니다. 각 지급액은 개별적으로 1사토시 단위로 내림되기 때문입니다. 두 지급 사이에 갱신이 실행되지 않으면 전반 지급액은 '알 수 없음'으로 표시됩니다. 두 번을 구분할 수 있는 시점은 그때뿐입니다.",
     'bonds.open': '본드 현황',
     'app.bonds.back': '← 전체 풀',
     'app.bonds.title': '본드에 들어 있는 비트코인',
@@ -240,7 +261,8 @@ export const ko: LocaleBundle = {
     'app.stxOnlyFaq.q.threeRates': '이 페이지에 비율이 왜 세 개인가요?',
     'app.stxOnlyFaq.a.threeRates':
       '하나는 확정된 사실이고 나머지 둘은 아닙니다. 직전 지급 실적은 pox-5가 이미 적립을 마친 확정치입니다. 이번 분배 사이클 진행분 환산은 지금까지 쌓인 금액을 사이클 전체 길이로 늘린 값이라, 사이클 후반에는 쓸 만하지만 지급 직후에는 번 블록 몇 개가 일주일을 대신하므로 편차가 큽니다. 여기 공개하는 비율은 이 둘을 사이클 진행도에 따라 가중 평균한 값이어서, 실제로 지급된 금액에서 출발해 근거가 쌓이는 만큼 이번 사이클 쪽으로 옮겨 갑니다.',
-    'app.stxOnlyFaq.q.blend': '그러면 공개 비율은 왜 둘 중 어느 값과도 다른가요?',
+    'app.stxOnlyFaq.q.blend':
+      '그러면 공개 비율은 왜 둘 중 어느 값과도 다른가요?',
     'app.stxOnlyFaq.a.blend':
       '둘을 사이클 진행도만큼 섞은 값이기 때문입니다. 사이클 초반에는 직전 지급 실적에 가깝고, 사이클이 끝날 무렵에는 거의 이번 사이클 자체 수치가 됩니다.',
     'app.stxOnlyFaq.q.sats': 'sats는 어디에서 오나요?',
@@ -413,7 +435,8 @@ export const ko: LocaleBundle = {
     'groups.heading': '의결 지분은 누가 쥐고 있나',
     'groups.intro':
       '서명자 노드는 키 하나입니다. 그룹은 한 주체가 뒤에 있는 노드의 집합이며, 서명자 집합을 실제로 움직일 수 있는 쪽이 누구인지는 이 수치가 정합니다. 체인은 그것을 보여 주지 않습니다. 지분이 큰 순서입니다.',
-    'groups.counts': '노드 {nodes}개 · 컨트랙트 {contracts}개 · {staked} 스테이킹',
+    'groups.counts':
+      '노드 {nodes}개 · 컨트랙트 {contracts}개 · {staked} 스테이킹',
     'groups.asOf': '지분은 {cycle} 사이클 기준입니다.',
     'groups.ungrouped': '그룹 없음',
     'groups.ungroupedNote':
@@ -443,7 +466,8 @@ export const ko: LocaleBundle = {
       '이 컨트랙트만 해당합니다. 같은 노드가 보유한 나머지는 이 그룹에 포함되지 않습니다.',
     'group.wholeNode': '이 키에 등록된 모든 컨트랙트',
     'group.unknownAmount': '알 수 없음',
-    'group.nodeAnswered': '{cycle} 사이클에서 요청받은 블록의 {percent}%에 응답했습니다.',
+    'group.nodeAnswered':
+      '{cycle} 사이클에서 요청받은 블록의 {percent}%에 응답했습니다.',
     'group.nodeSilent': '{cycle} 사이클에서 단 한 건도 응답하지 않았습니다.',
     'group.alsoIn': '{names}에도 함께 집계됨',
     'group.overlapNote':
@@ -459,13 +483,15 @@ export const ko: LocaleBundle = {
       '이 사이클의 좌석을 실제로 가진 것은 교체되기 전의 키이므로 그 키의 기록입니다. 새 키는 다음 집합이 정해질 때까지 아무것도 보유하지 않습니다.',
     'conduct.cycleOpen': '{cycle} 사이클, 진행 중',
     'conduct.cycleClosed': '{cycle} 사이클',
-    'conduct.answeredNote': '제안 {proposals}건 중 {answered}건에 응답했습니다 — {label}.',
+    'conduct.answeredNote':
+      '제안 {proposals}건 중 {answered}건에 응답했습니다 — {label}.',
     'conduct.neverAnswered': '응답 없음',
     'conduct.neverAnsweredNote':
       '{cycle} 사이클에서 블록 {proposals}건을 요청받았지만 한 건도 응답하지 않았습니다. 이 키로부터 확인된 신호가 전혀 없습니다.',
     'conduct.response': '평균 응답 시간',
     'conduct.seconds': '{seconds}초',
-    'conduct.responseMiddle': '{cycle} 사이클 서명자 집합의 중앙값은 {seconds}초입니다.',
+    'conduct.responseMiddle':
+      '{cycle} 사이클 서명자 집합의 중앙값은 {seconds}초입니다.',
     'conduct.agreed': '응답 중 수락 비율',
     'conduct.agreedNote':
       '나머지는 읽고 거부한 것이며, 그것이 서명자의 역할입니다. 이 값이 낮으면 확인해 볼 만하지만, 아예 응답하지 않은 것과는 다릅니다.',
@@ -474,7 +500,8 @@ export const ko: LocaleBundle = {
     'conduct.hideHistory': '기록 접기',
     'conduct.loading': '이 키의 기록을 읽는 중…',
     'conduct.noHistory': '이 키에 대한 사이클 기록이 아직 없습니다.',
-    'conduct.failed': '불러오지 못했습니다. 파일 하나일 뿐이며 이 페이지의 나머지는 영향을 받지 않습니다.',
+    'conduct.failed':
+      '불러오지 못했습니다. 파일 하나일 뿐이며 이 페이지의 나머지는 영향을 받지 않습니다.',
     'conduct.soFar': '진행 중',
     'conduct.th.cycle': '사이클',
     'conduct.th.answered': '응답률',
@@ -769,5 +796,224 @@ export const ko: LocaleBundle = {
       '지갑이 공개키를 반환하지 않았습니다. 다시 연결한 뒤 시도하세요.',
     'stake.error.balanceLookup': '잔액 조회에 실패했습니다 ({status})',
     'stake.error.balanceRead': 'STX 잔액을 읽지 못했습니다',
+
+    // ---- 사이트 헤더
+    'nav.label': '섹션',
+    'nav.pools': '풀',
+    'nav.contracts': '컨트랙트',
+    'nav.groups': '투표권 보유자',
+    'nav.bonds': '본드',
+    'nav.status': '주소 확인',
+    'nav.howTo': '스테이킹 방법',
+    'nav.menu': '메뉴',
+    'nav.searchLabel': '주소 또는 BNS 이름 확인',
+    'nav.searchPlaceholder': '주소 또는 BNS',
+
+    // ---- 데이터 신선도
+    'freshness.readAgo': '{ago} 전에 체인에서 읽음',
+    'freshness.hourly': '매시간 갱신',
+    'freshness.ago.minute.one': '{count}분',
+    'freshness.ago.minute.other': '{count}분',
+    'freshness.ago.hour.one': '{count}시간',
+    'freshness.ago.hour.other': '{count}시간',
+    'freshness.ago.day.one': '{count}일',
+    'freshness.ago.day.other': '{count}일',
+    'freshness.staleTitle.minute.one': '{count}분 전 데이터입니다.',
+    'freshness.staleTitle.minute.other': '{count}분 전 데이터입니다.',
+    'freshness.staleTitle.hour.one': '{count}시간 전 데이터입니다.',
+    'freshness.staleTitle.hour.other': '{count}시간 전 데이터입니다.',
+    'freshness.staleTitle.day.one': '{count}일 전 데이터입니다.',
+    'freshness.staleTitle.day.other': '{count}일 전 데이터입니다.',
+    'freshness.staleBody':
+      '{at}에 체인에서 읽은 뒤로 매시간 갱신이 실행되지 않았습니다. 금액, 수수료, 예상치가 달라졌을 수 있습니다.',
+
+    // ---- 풀 목록 페이지
+    'home.intro':
+      '모든 풀을 수수료, 참여 조건, 보상 지급 방식으로 비교해 보세요. 풀을 열면 누가 참여하고 있는지 볼 수 있습니다.',
+    'home.stat.staked': '사이클 {cycle} 스테이킹',
+    'home.stat.nextFilling': '사이클 {cycle} 모집 중: 지금까지 {amount}',
+    'home.stat.nextLocked': '사이클 {cycle} 확정: {amount}',
+    'home.stat.pools': '선택할 수 있는 풀',
+    'home.stat.types.one': '컨트랙트 유형 {count}개 ·',
+    'home.stat.types.other': '컨트랙트 유형 {count}개 ·',
+    'home.stat.compare': '비교하기 →',
+    'home.stat.rewards': 'STX 전용 보상',
+    'home.stat.rewardsUnit': 'sats / 1000 STX',
+    'home.stat.apy': '연 ≈ {apy}% ·',
+    'home.stat.howWorkedOut': '계산 방법 →',
+    'home.stat.payout': '다음 지급',
+    'home.stat.payoutDays.one': '약 {count}일 후',
+    'home.stat.payoutDays.other': '약 {count}일 후',
+    'home.stat.payoutDue': '지급 예정',
+    'home.stat.payoutOverdue':
+      '마지막 갱신 때의 예상치이며, 그 날짜가 지났습니다.',
+    'home.stat.payoutBlocks': '{total}블록 중 {done} ·',
+    'home.stat.history': '지급 내역 →',
+    'home.footer.fees':
+      '표시된 수수료는 풀 컨트랙트에서 읽은 현재 수수료입니다. 대부분의 풀은 언제든 수수료를 바꿀 수 있습니다. 일부 컨트랙트는 코드로 상한을 두고(⛉ 표시), 그보다 적은 수의 컨트랙트는 변경이 적용되기 전에 대기 기간을 둡니다(◷ 표시). 그동안 다른 풀로 옮길 수 있습니다. 컨트랙트 안에 수수료가 없다고 해서 무료라는 뜻은 아니며, 다른 곳에서 부과될 수 있습니다.',
+
+    'pools.searchLabel': '풀 찾기',
+    'pools.searchPlaceholder': '풀 또는 운영자 찾기',
+    'pools.count.one': '풀 {count}개',
+    'pools.count.other': '풀 {count}개',
+    'pools.hiddenEmpty.one': '스테이킹이 없는 {count}개 숨김 (새 풀은 표시됨)',
+    'pools.hiddenEmpty.other':
+      '스테이킹이 없는 {count}개 숨김 (새 풀은 표시됨)',
+    'pools.showEmpty': '보기',
+    'pools.hideEmpty': '빈 풀 숨기기',
+    'pools.sortBy': '정렬',
+    'pools.sort.staked': '스테이킹 · {cycle}',
+    'pools.sort.next': '사이클 {next} 현재까지',
+    'pools.sort.fee': '수수료 낮은 순',
+    'pools.sort.share': '키의 투표 비중',
+    'pools.sort.name': '이름',
+    'pools.col.pool': '풀',
+    'pools.col.type': '컨트랙트 유형',
+    'pools.col.fee': '수수료',
+    'pools.col.join': '참여 조건',
+    'pools.col.rewards': '보상',
+    'pools.col.share': '키의 투표 비중',
+    'pools.col.stake': '스테이킹',
+    'pools.unnamed': '이름 없는 풀',
+    'pools.unnamedIn': '이름 없음 · {group}',
+    'pools.feeElsewhere':
+      '이 컨트랙트에 수수료가 없습니다. 다른 곳에서 부과될 수 있습니다',
+    'pools.feeElsewhereShort': '별도 설정',
+    'pools.amountUnknown': '알 수 없음',
+    'pools.amountNotRead': '아직 읽지 않음',
+    'pools.noticeShort': '{notice} 고지',
+    'pools.shareHelp':
+      '이 풀의 서명자 키가 가진 투표 비중입니다. 키를 공유하는 컨트랙트는 서명하는 주체가 키이므로 같은 수치를 표시합니다.',
+    'pools.shareSharedKey.one': '이 키의 컨트랙트 1개',
+    'pools.shareSharedKey.other': '컨트랙트 {count}개가 공유',
+    'pools.legend.checked': '직접 확인한 이름',
+    'pools.legend.italicSample': '기울임꼴',
+    'pools.legend.italic': '컨트랙트 ID에서 읽은 이름, 확인되지 않음',
+    'pools.legend.cap': '코드에 정해진 수수료 상한',
+    'pools.legend.notice': '수수료 인상 전 고지',
+    'pools.cap': '상한 {percent}%',
+    'pools.capHelp':
+      '컨트랙트가 강제하는 상한입니다. 풀이 어떻게 정하든 수수료는 이 값을 넘을 수 없습니다.',
+    'pools.noticeHelp':
+      '수수료 인상이 적용되기까지 기다려야 하는 기간입니다. 그동안 다른 풀로 옮길 수 있습니다.',
+    'pools.change.new': '신규',
+    'pools.change.notYet': '아직 없음',
+    'pools.change.same': '변동 없음',
+    'pools.unknownAmount': '마지막 갱신에서 이 금액을 읽지 못했습니다',
+    'pools.notReadYet':
+      '마지막 갱신 이후에 등록되었습니다. 다음 갱신에서 읽습니다',
+    'pools.unreviewed': '검토되지 않음',
+    'pools.details': '자세히',
+    'pools.phone.fee': '수수료 {fee}',
+    'pools.phone.feeElsewhere': '수수료 별도',
+    'pools.phone.next': '다음 {amount}',
+
+    'join.anyone.short': '누구나',
+    'join.anyone.help': '컨트랙트가 아무도 거절하지 않습니다.',
+    'join.invite.short': '초대 전용',
+    'join.invite.help': '운영자가 스테이킹할 수 있는 사람의 목록을 관리합니다.',
+    'join.nativePool.short': 'Native Pool 경유',
+    'join.nativePool.help':
+      'Stacking DAO의 Native Pool을 통해 들어온 스테이킹만 받습니다. Native Pool에는 누구나 참여할 수 있습니다.',
+
+    'currency.btc': 'BTC',
+    'currency.btc.help':
+      '컨트랙트가 지정한 비트코인 주소로 보상을 보낼 수 있습니다.',
+    'currency.sbtc': 'sBTC',
+    'currency.sbtc.help': '보상은 Stacks의 sBTC로 지급됩니다.',
+    'currency.stx': 'STX',
+    'currency.stx.help': '보상은 STX로 지급됩니다.',
+
+    'contracts.staked': '{amount} 스테이킹',
+    'contracts.notice': '수수료 변경 사전 고지',
+
+    'stake.openShort': '스테이킹',
+    'app.stxOnlyHistory.crumb': '지급 내역',
+
+    'conduct.caption': '이 키가 채굴자가 제안한 블록에 응답하는지 여부입니다.',
+    'conduct.staleTitle': '{at} 이후 서명 보고서가 없습니다.',
+    'conduct.staleBody':
+      '마지막 보고서는 사이클 {cycle}까지이므로, 그 뒤 사이클에서 이 키가 어땠는지는 아직 알 수 없습니다.',
+
+    // ---- 풀 페이지
+    'pool.checkStake': '내 스테이킹 확인',
+    'pool.stakeElsewhere':
+      '스테이킹은 여기가 아니라 Native Pool 앱에서 합니다.',
+    'pool.warning.highFee.title': '수수료가 보상을 거의 전부 가져갑니다.',
+    'pool.warning.highFee.body':
+      '현재 수수료는 {fee}입니다. 이 풀의 스테이커는 거의 아무것도 받지 못합니다.',
+    'pool.warning.feeUnbounded.title': '수수료는 언제든 오를 수 있습니다.',
+    'pool.warning.feeUnbounded.body':
+      '컨트랙트에 상한도 사전 고지 기간도 없어서 예고 없이 얼마로든 올릴 수 있습니다. 현재 수수료는 {fee}입니다.',
+    'pool.warning.unreviewed.title': '아무도 이 코드를 검토하지 않았습니다.',
+    'pool.warning.unreviewed.body':
+      '배지는 소스에서 자동으로 읽은 것이며, 그 밖에 무엇을 하는지는 아무도 확인하지 않았습니다.',
+    'pool.section.members': '참여자',
+    'pool.section.rewards': '보상',
+    'pool.section.signing': '서명',
+    'pool.section.key': '서명자 키',
+    'pool.section.contract': '컨트랙트',
+    'pool.fact.fee': '현재 수수료',
+    'pool.fact.feeNote': '지급 전에 보상에서 차감',
+    'pool.fact.cap': '수수료 상한',
+    'pool.fact.capElsewhere': '여기서 확인 불가',
+    'pool.fact.capNone': '없음',
+    'pool.fact.notice': '인상 전 {notice} 고지',
+    'pool.fact.noNotice': '변경 전 고지 없음',
+    'pool.fact.join': '참여 조건',
+    'pool.fact.rewards': '보상',
+    'pool.fact.rewardsNote': '보상 지급 형태',
+    'pool.fact.staked': '스테이킹 · 사이클 {cycle}',
+    'pool.fact.membersKey.one': '이 키의 참여자 {count}명',
+    'pool.fact.membersKey.other': '이 키의 참여자 {count}명',
+    'pool.fact.next': '사이클 {cycle} 현재까지',
+    'pool.fact.nextLocked': '확정됨',
+    'pool.fact.nextChange': '{change} · 참여 가능',
+    'pool.fact.nextOpen': '참여 가능',
+    'pool.fact.share': '투표 비중',
+    'pool.fact.shareKey.one': '이 키의 사이클 비중',
+    'pool.fact.shareKey.other': '이 키의 컨트랙트 {count}개 합계',
+    'pool.fact.shareCycle': '사이클 {cycle} 기준',
+    'pool.fact.runBy': '운영',
+    'pool.fact.runByUnknown': '알 수 없음',
+    'pool.fact.type': '컨트랙트 유형: {name}',
+    'pool.members.title': '사이클별 참여자',
+    'pool.members.caption': '보상 사이클마다 이 풀에 스테이킹된 STX입니다.',
+    'pool.members.how':
+      '금액은 pox-5에서 읽습니다. 참여자 목록은 pox-5 이벤트로 다시 만들며, 체인이 보고하는 금액과 일치할 때만 사용합니다.',
+    'pool.members.cycle': '사이클',
+    'pool.members.status': '상태',
+    'pool.members.staked': '스테이킹',
+    'pool.members.members': '참여자',
+    'pool.members.membersKey': '키 전체',
+    'pool.members.ended': '종료',
+    'pool.members.ofKey': '키 전체 {total} 중',
+    'pool.members.open': '참여자',
+    'pool.members.earlier.one': '이전 사이클 {count}개 보기',
+    'pool.members.earlier.other': '이전 사이클 {count}개 보기',
+    'pool.members.firstSeen':
+      '사이클 {cycle}에 처음 확인되었습니다. 그 이전 사이클은 표시하지 않습니다.',
+    'pool.members.onKey.one': '키 전체 참여자 {count}명.',
+    'pool.members.onKey.other': '키 전체 참여자 {count}명.',
+    'pool.members.inThis.one': '이 컨트랙트 참여자 {count}명.',
+    'pool.members.inThis.other': '이 컨트랙트 참여자 {count}명.',
+    'pool.members.showKey': '키 전체 보기',
+    'pool.members.showThis': '이 컨트랙트만',
+    'pool.members.none': '이 사이클에 이 컨트랙트 참여자가 없습니다.',
+    'pool.rewards.caption': '지금 이 풀 안팎에 있는 sBTC입니다.',
+    'pool.rewards.none':
+      '이 컨트랙트는 보유 금액을 공개하지 않아서, pox-5가 아직 지급하지 않은 금액만 읽을 수 있습니다.',
+    'pool.key.caption':
+      '이 풀을 위해 서명하는 키와, 이 키로 등록된 모든 컨트랙트입니다.',
+    'pool.key.staked': '사이클 {cycle}에 이 키에 {amount}.',
+    'pool.contract.title': '컨트랙트가 하는 일',
+    'pool.contract.caption': '소스 코드에서 읽었습니다.',
+    'pool.contract.more': '{name} 자세히 보기',
+
+    // ---- 투표권 보유자, 본드
+    'groups.chartLabel': '그룹별 투표 비중',
+    'bonds.unlocked.one': '아직 아무것도 잠그지 않은 초대 {count}건 더',
+    'bonds.unlocked.other': '아직 아무것도 잠그지 않은 초대 {count}건 더',
+    'bonds.showUnlocked': '보기',
   },
 };

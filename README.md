@@ -301,12 +301,12 @@ tell a reader something untrue. When the fallback above has run, the cycle being
 shown is already the one filling, and no second line appears.
 
 An amount is only ever carried forward onto the cycle it was read for. A pool
-the node refused this hour keeps the last figure for *that same cycle* — which,
+the node refused this hour keeps the last figure for _that same cycle_ — which,
 at a rollover, is the one the previous run recorded as next — and otherwise
 reads as _amount not known_ rather than being given a neighbouring cycle's
 number.
 
-The cycle *before* the current one is kept too, and never read from the chain:
+The cycle _before_ the current one is kept too, and never read from the chain:
 a cycle that is over cannot change, so `previous` is whatever the last file had
 as its current cycle. At a rollover it simply moves across. That is what lets
 the list tell a pool nobody has used for two cycles from one that emptied
@@ -355,10 +355,10 @@ pnpm members fastpool-1 --json   # every member, for piping somewhere else
 
 Two sources, answering different questions:
 
-| source                                                 | says                                          |
-| ------------------------------------------------------ | --------------------------------------------- |
+| source                                                 | says                                           |
+| ------------------------------------------------------ | ---------------------------------------------- |
 | `/extended/v3/staking/signers/{signer}/stakers` (Hiro) | who stakes with this signer contract right now |
-| `pox-5.get-signer-cycle-membership` (the chain)        | who is with it this cycle, and for how much   |
+| `pox-5.get-signer-cycle-membership` (the chain)        | who is with it this cycle, and for how much    |
 
 The index says who to ask about; the chain says what is true. That ordering is
 the only one that can be checked, and the script checks it: the members'
@@ -405,12 +405,12 @@ For every leaver it asks pox-5 where they stand in the later cycle, and keeps
 four answers apart, because collapsing them is how a rate limit gets reported as
 an exodus:
 
-| answer                    | means                                                                |
-| ------------------------- | -------------------------------------------------------------------- |
-| with another signer       | they moved, and it is named                                          |
-| stopped                   | no pox-5 position, and nothing locked either                         |
-| locked, no position       | their stake starts in a later cycle — not a leaver at all            |
-| the node would not say    | unknown, and never filed under any of the above                      |
+| answer                 | means                                                     |
+| ---------------------- | --------------------------------------------------------- |
+| with another signer    | they moved, and it is named                               |
+| stopped                | no pox-5 position, and nothing locked either              |
+| locked, no position    | their stake starts in a later cycle — not a leaver at all |
+| the node would not say | unknown, and never filed under any of the above           |
 
 That third row is not a corner case. Stacking a few blocks after a cycle begins
 takes effect from the next one, so somebody who re-staked slightly late is
@@ -474,11 +474,11 @@ from the first.
 Three answers are kept apart, for the reason they are kept apart everywhere
 else here:
 
-| what it shows       | means                                                        |
-| ------------------- | ------------------------------------------------------------ |
-| a position          | staking, with whom, how much, until which cycle, rewards where |
-| not staking         | pox-5 has no position — and if STX is locked anyway, it says so |
-| could not read      | the node would not answer; **never** shown as not staking     |
+| what it shows  | means                                                           |
+| -------------- | --------------------------------------------------------------- |
+| a position     | staking, with whom, how much, until which cycle, rewards where  |
+| not staking    | pox-5 has no position — and if STX is locked anyway, it says so |
+| could not read | the node would not answer; **never** shown as not staking       |
 
 Reads are paced. One address costs up to four requests — `get-staker-info`, a
 payout getter or two, then the balance — so twenty fired at once is eighty
@@ -538,7 +538,7 @@ status, search, pick any token to see each address's balance of it, and a
 transfers table that by default hides moves to safe addresses and groups pool
 payouts into one row per transaction. NFTs are hidden there and in the text
 report until asked for (`--nfts`, or the toggle on the page).
-| `unread`      | this run could not find out                                         |
+| `unread` | this run could not find out |
 
 `unread` is a flag rather than a blank because an address nothing is known
 about must not read as an address with nothing wrong. `not pox-5` is the one
@@ -626,7 +626,7 @@ Three distinctions carry the whole feature, and they all live in
 
 **Rejecting is not failing.** A signer that reads a proposal and refuses it is
 doing exactly what it is there for; one that says nothing is not. So the
-headline is `answeredRate` — accepted *or* rejected, over everything it was
+headline is `answeredRate` — accepted _or_ rejected, over everything it was
 asked — and what it said is a second number underneath. Leading with acceptance
 would rank a node that rubber-stamps above one that checks.
 
@@ -649,7 +649,7 @@ run against a local node leaves these files alone rather than emptying them.
 ## Key rotations
 
 Nothing on chain announces one. `signers.json` holds the key a contract has
-*now*, and every refresh overwrites it — so a pool that swapped keys on a
+_now_, and every refresh overwrites it — so a pool that swapped keys on a
 Tuesday looked, on Wednesday, exactly like a pool that had always had the new
 one.
 
@@ -668,7 +668,7 @@ that backfilled `firstSeenCycle`, and for the same reason. Merging is by what
 happened rather than by when it was noticed, so the two writers cannot record
 one rotation twice.
 
-`observedAt` is when the guide *saw* it, not when it happened. The refresh runs
+`observedAt` is when the guide _saw_ it, not when it happened. The refresh runs
 hourly, so the truth is somewhere in the hour before; claiming a block height
 would be inventing precision the record does not have. And a contract that
 would not answer is never a rotation — `signerKey` is absent for a bad minute,
@@ -712,7 +712,7 @@ One group is named for its evidence rather than for an entity. `same-funder`
 holds two contracts, deployed a day apart in August 2026 by two addresses that
 had one transaction each beforehand, both from the same funder, and between them
 they carry more than a third of the vote under no name at all. The same funder
-also paid for a deployment that is *not* in the group, which the entry says so a
+also paid for a deployment that is _not_ in the group, which the entry says so a
 reader can weigh it. It is the thinnest claim in the file, and it is in the file
 because two anonymous nodes at a third of the signer set is exactly the thing a
 reader should be told about.
@@ -786,6 +786,7 @@ Four things make it cheap, and they are the whole design of
   August, between an unstake and a 99 STX increase forty-five minutes later,
   and the list it made added up to the amounts as they stood at 10:54. Both
   facts were true. The staleness is only visible in the two totals.
+
 - **The unit is the signer key, not the contract.** Walking the signer once
   rather than each of its contracts reads a staker who moved between two of them
   once, and gets the arithmetic right as a side effect.
@@ -822,10 +823,10 @@ apart rather than reporting one as the other.
 
 Each cycle in a summary carries two flags, and they are not the same claim:
 
-| flag         | means                                              | true when              |
-| ------------ | -------------------------------------------------- | ---------------------- |
-| `fileFinal`  | this record is done with; never read again         | `cycle < currentCycle` |
-| `cycleFinal` | the cycle itself is shut; nobody can join it        | `cycle <= currentCycle` |
+| flag         | means                                        | true when               |
+| ------------ | -------------------------------------------- | ----------------------- |
+| `fileFinal`  | this record is done with; never read again   | `cycle < currentCycle`  |
+| `cycleFinal` | the cycle itself is shut; nobody can join it | `cycle <= currentCycle` |
 
 They differ for exactly one cycle — the current one — and that is why there are
 two. Stacking for a cycle locks in before that cycle begins, so the cycle a
@@ -1237,7 +1238,7 @@ staked with whom has to be assembled, and no single list has all of it:
   roster for that cycle still has them. It costs nothing — the files are on
   disk.
 - **Hiro's staking index** (`/extended/v3/staking/signers/{contract}/stakers`)
-  — who is with each signer *now*, which is what catches somebody who staked an
+  — who is with each signer _now_, which is what catches somebody who staked an
   hour ago. Keyed by the signer contract, so it also has the wrapper joins that
   pox-5's transaction results never name: 165 stakers of Native Pool alone.
   One request per pool.
@@ -1298,7 +1299,7 @@ gate for pox-5 to admit anyone:
 
     (asserts! (contract-call? .native-pool-v1 is-delegating staker …) …)
 
-Everyone who has *ever* delegated is counted, not only those still delegating:
+Everyone who has _ever_ delegated is counted, not only those still delegating:
 leaving does not forfeit what a cycle already earned you.
 
 One thing worth knowing before offering to help: `claim-staker-rewards` takes
@@ -1407,7 +1408,7 @@ operator — a change in who pays the fees, not in who gets the sats. Every call
 carries a comment naming the request, the staker and the sats, because a plan
 nobody can read before running it is not a safeguard.
 
-An *accepted* withdrawal nobody has settled is a different thing and not in the
+An _accepted_ withdrawal nobody has settled is a different thing and not in the
 plan. Those distributions worked; only the unused fee budget is outstanding,
 recovered with `settle-accepted-withdrawal` then `claim-refund` — and that pair
 has an ordering caveat the reclaim does not, since it infers the refund from a
@@ -1424,7 +1425,7 @@ the page that says what they actually hold.
 
 ### Periods, not bonds
 
-pox-5 runs bonds on a schedule of *periods*. Period `i` opens at reward cycle
+pox-5 runs bonds on a schedule of _periods_. Period `i` opens at reward cycle
 `first-bond-period-cycle + i * BOND_GAP_CYCLES` and runs for
 `BOND_LENGTH_CYCLES` from there. On mainnet the gap is 2 and the term is 12, so
 a period opens every other cycle and six of them are running at any moment.
@@ -1449,11 +1450,11 @@ it, or never turn up.
 
 So the page keeps two numbers apart and names the gap between them:
 
-| | what it is |
-|---|---|
+|                   | what it is                                                                          |
+| ----------------- | ----------------------------------------------------------------------------------- |
 | **Locked so far** | pox-5's own `get-total-sbtc-staked-for-bond`. Settled, not an estimate of anything. |
-| **Ceiling** | every allowlisted staker's `max-sats` added up. What the bond *can* hold. |
-| **Still open** | the difference, named rather than left as a subtraction. |
+| **Ceiling**       | every allowlisted staker's `max-sats` added up. What the bond _can_ hold.           |
+| **Still open**    | the difference, named rather than left as a subtraction.                            |
 
 The headline figure is what is locked; the bar is drawn against the ceiling,
 which is the only thing that figure has to be measured against. A period with
@@ -1701,12 +1702,12 @@ and it is the right way for somebody who wants it. It is also six screens more
 than most people will get through the first time, so the app has a short way in
 that makes four of those decisions, says which four, and lets each be changed:
 
-| decision | default                         | why that one                                      |
-| -------- | ------------------------------- | ------------------------------------------------- |
-| pool     | Fast Pool Max500                | a preference, and the screen says so in those words |
-| rewards  | as sBTC, in the same wallet     | a mistyped Bitcoin address is rewards nobody gets back, and is not checkable until the first payout |
-| period   | the whole of pox-5's maximum    | a stake ends at the close of the cycle whatever period was chosen, so the longest asks the least afterwards |
-| amount   | theirs                          | the only field on the screen                      |
+| decision | default                      | why that one                                                                                                |
+| -------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| pool     | Fast Pool Max500             | a preference, and the screen says so in those words                                                         |
+| rewards  | as sBTC, in the same wallet  | a mistyped Bitcoin address is rewards nobody gets back, and is not checkable until the first payout         |
+| period   | the whole of pox-5's maximum | a stake ends at the close of the cycle whatever period was chosen, so the longest asks the least afterwards |
+| amount   | theirs                       | the only field on the screen                                                                                |
 
 Fast Pool wrote the app and runs some of the pools in it, and the pool it
 offers first is its own. That is stated on the screen as a preference rather

@@ -55,7 +55,10 @@ describe('poolName', () => {
 
   it('does not mark a name somebody put in and sourced', () => {
     expect(
-      poolName(fake({ displayName: 'Fast Pool', displayNameSource: 'manual' }), 'x.y'),
+      poolName(
+        fake({ displayName: 'Fast Pool', displayNameSource: 'manual' }),
+        'x.y',
+      ),
     ).toEqual({ name: 'Fast Pool', guessed: false });
   });
 
@@ -70,7 +73,10 @@ describe('poolName', () => {
 describe('stakedUstx', () => {
   it('reads a plain count', () => {
     expect(
-      stakedUstx(snapshot.totals, 'SP1N8F8BBBC60XF6HJBNJHKPRGJ7WZBRGNDJX4YDR.signer-manager'),
+      stakedUstx(
+        snapshot.totals,
+        'SP1N8F8BBBC60XF6HJBNJHKPRGJ7WZBRGNDJX4YDR.signer-manager',
+      ),
     ).toBe(82_681_580_000_000n);
   });
 
@@ -87,8 +93,9 @@ describe('stakedUstx', () => {
 
 describe('the pool list', () => {
   it('puts the biggest first', () => {
-    const amounts = allSigners(snapshot)
-      .map((s) => stakedUstx(snapshot.totals, s.contractId) ?? -1n);
+    const amounts = allSigners(snapshot).map(
+      (s) => stakedUstx(snapshot.totals, s.contractId) ?? -1n,
+    );
     const sorted = [...amounts].sort((a, b) => (b > a ? 1 : b < a ? -1 : 0));
     expect(amounts).toEqual(sorted);
   });

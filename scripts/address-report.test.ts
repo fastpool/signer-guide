@@ -443,7 +443,12 @@ describe('keeping what the API said', () => {
     // pox-5 answered "no position".
     holdings({ address: 'SP2', stake: null }),
     // pox-5 would not answer at all, which is a different fact.
-    holdings({ address: 'SP3', stake: undefined, stxTotal: null, stxLocked: null }),
+    holdings({
+      address: 'SP3',
+      stake: undefined,
+      stxTotal: null,
+      stxLocked: null,
+    }),
     holdings({ address: 'SP4', stake: staked }),
   ];
 
@@ -496,7 +501,6 @@ describe('keeping what the API said', () => {
     expect(() => fromCache({ capturedAt: 'now', cycle: 1 })).toThrow(/cache/i);
   });
 });
-
 
 describe('where a capture may be written', () => {
   /*
@@ -588,7 +592,10 @@ describe('who else is signing', () => {
     tokenMeta: new Map([[SBTC, sbtcMeta]]),
     safe: null as ReadonlySet<string> | null,
   };
-  const read = (confirmed: ActivityTx[] | null, pending: ActivityTx[] | null = []) =>
+  const read = (
+    confirmed: ActivityTx[] | null,
+    pending: ActivityTx[] | null = [],
+  ) =>
     activityAttention(
       holdings({ activity: { confirmed, pending } }),
       thresholds(),
@@ -606,7 +613,12 @@ describe('who else is signing', () => {
 
   it('ignores what other people sent in — airdrops say nothing about this key', () => {
     expect(
-      flags([tx({ sender: STRANGER, transfers: [move({ sender: STRANGER, recipient: ME })] })]),
+      flags([
+        tx({
+          sender: STRANGER,
+          transfers: [move({ sender: STRANGER, recipient: ME })],
+        }),
+      ]),
     ).toEqual([]);
   });
 
@@ -624,23 +636,38 @@ describe('who else is signing', () => {
     const [reason] = flags([
       tx({
         call: `${POOL}.transfer-many`,
-        transfers: [move({ kind: 'ft', asset: SBTC, amount: 42_487n, recipient: FRIEND })],
+        transfers: [
+          move({ kind: 'ft', asset: SBTC, amount: 42_487n, recipient: FRIEND }),
+        ],
       }),
     ]);
     expect(reason.tag).toBe('outflow');
-    expect(reason.detail).toMatch(/transfer-many: sent 0\.00042487 sBTC to .*\(reserve\)/);
+    expect(reason.detail).toMatch(
+      /transfer-many: sent 0\.00042487 sBTC to .*\(reserve\)/,
+    );
   });
 
   it('prints a token with no metadata in base units, and says so', () => {
     const [reason] = flags([
-      tx({ transfers: [move({ kind: 'ft', asset: 'SP1.x::alex', amount: 5n })] }),
+      tx({
+        transfers: [move({ kind: 'ft', asset: 'SP1.x::alex', amount: 5n })],
+      }),
     ]);
     expect(reason.detail).toMatch(/sent 5 alex \(base units\)/);
   });
 
   it('names an NFT by its collection and id', () => {
     const [reason] = flags([
-      tx({ transfers: [move({ kind: 'nft', asset: 'SP1.punks::punk', amount: 1n, item: 'u42' })] }),
+      tx({
+        transfers: [
+          move({
+            kind: 'nft',
+            asset: 'SP1.punks::punk',
+            amount: 1n,
+            item: 'u42',
+          }),
+        ],
+      }),
     ]);
     expect(reason.detail).toMatch(/sent punk u42 to SP3KE3/);
   });
@@ -651,25 +678,28 @@ describe('who else is signing', () => {
   });
 
   it('flags a pending transaction this address signed', () => {
-    const reasons = flags([], [tx({ status: 'pending' }), tx({ sender: STRANGER })]);
+    const reasons = flags(
+      [],
+      [tx({ status: 'pending' }), tx({ sender: STRANGER })],
+    );
     expect(reasons.map((r) => r.tag)).toEqual(['pending']);
   });
 
   it('flags a key that wakes up after months of nothing', () => {
-    expect(read([tx(), tx({ time: NOW - 200 * DAY })]).map((r) => r.tag)).toEqual([
-      'woke up',
-      'signed',
-    ]);
-    expect(flags([tx(), tx({ time: NOW - 10 * DAY })]).map((r) => r.tag)).toEqual([
-      'signed',
-      'signed',
-    ]);
+    expect(
+      read([tx(), tx({ time: NOW - 200 * DAY })]).map((r) => r.tag),
+    ).toEqual(['woke up', 'signed']);
+    expect(
+      flags([tx(), tx({ time: NOW - 10 * DAY })]).map((r) => r.tag),
+    ).toEqual(['signed', 'signed']);
   });
 
   it('flags the first signature an address ever made', () => {
     const reasons = read([tx()]);
     expect(reasons[0].tag).toBe('woke up');
-    expect(reasons[0].detail).toMatch(/first transaction this address ever signed/);
+    expect(reasons[0].detail).toMatch(
+      /first transaction this address ever signed/,
+    );
   });
 
   it('never lets an unread history look like a quiet one', () => {
@@ -679,16 +709,35 @@ describe('who else is signing', () => {
 
   it('reads every kind of transfer off the API, and a pending STX transfer too', () => {
     const confirmed = toActivityTx(
-      { tx_id: '0x1', sender_address: ME, tx_type: 'contract_call', tx_status: 'success' },
+      {
+        tx_id: '0x1',
+        sender_address: ME,
+        tx_type: 'contract_call',
+        tx_status: 'success',
+      },
       {
         stx_transfers: [{ amount: '7', sender: ME, recipient: STRANGER }],
-        ft_transfers: [{ amount: '42487', asset_identifier: SBTC, sender: ME, recipient: FRIEND }],
+        ft_transfers: [
+          {
+            amount: '42487',
+            asset_identifier: SBTC,
+            sender: ME,
+            recipient: FRIEND,
+          },
+        ],
         nft_transfers: [
-          { value: { repr: 'u1' }, asset_identifier: 'SP1.punks::punk', sender: '', recipient: ME },
+          {
+            value: { repr: 'u1' },
+            asset_identifier: 'SP1.punks::punk',
+            sender: '',
+            recipient: ME,
+          },
         ],
       },
     );
-    expect(confirmed.transfers.map((t) => [t.kind, t.amount, t.recipient])).toEqual([
+    expect(
+      confirmed.transfers.map((t) => [t.kind, t.amount, t.recipient]),
+    ).toEqual([
       ['stx', 7n, STRANGER],
       ['ft', 42_487n, FRIEND],
       ['nft', 1n, ME],
@@ -707,7 +756,9 @@ describe('who else is signing', () => {
     const h = holdings({
       activity: { confirmed: [tx({ transfers: [move()] })], pending: null },
     });
-    const json = JSON.parse(JSON.stringify(toCache([h], 141, new Map(), 'node')));
+    const json = JSON.parse(
+      JSON.stringify(toCache([h], 141, new Map(), 'node')),
+    );
     expect(fromCache(json).holdings[0].activity).toEqual(h.activity);
   });
 });
@@ -718,7 +769,9 @@ describe('asking for activity alone', () => {
     expect(() => parseArgs(['--activity-only', '--no-activity'])).toThrow();
     expect(() => parseArgs(['--activity-only', '--cache', 'x.json'])).toThrow();
     expect(() => parseArgs(['--activity-only', '--token', 'alex'])).toThrow();
-    expect(parseArgs(['--activity-only', '--from-cache', 'x.json']).fromCache).toBe('x.json');
+    expect(
+      parseArgs(['--activity-only', '--from-cache', 'x.json']).fromCache,
+    ).toBe('x.json');
   });
 });
 
@@ -742,7 +795,9 @@ describe('safe and possibly compromised keys', () => {
     ]);
     expect(parseSections(`${OLD}\n${NEW}`).marked).toBe(false);
     // Another heading ends the section.
-    const back = parseSections(`// --- safe ---\n${NEW}\n# --- old ---\n${OLD}`);
+    const back = parseSections(
+      `// --- safe ---\n${NEW}\n# --- old ---\n${OLD}`,
+    );
     expect(back.entries.map((e) => e.safe)).toEqual([true, false]);
   });
 
@@ -762,7 +817,14 @@ describe('safe and possibly compromised keys', () => {
     fee: 300n,
     call: null,
     transfers: [
-      { kind: 'stx', asset: 'STX', amount: 5n, item: null, sender: from, recipient: to },
+      {
+        kind: 'stx',
+        asset: 'STX',
+        amount: 5n,
+        item: null,
+        sender: from,
+        recipient: to,
+      },
     ],
   });
   const context = {
@@ -789,9 +851,9 @@ describe('safe and possibly compromised keys', () => {
 
   it('does not count a move to another old key as a rescue', () => {
     const OTHER_OLD = 'SP3AQDW78BWS2AZMBZWD7XWGH5HQS3HHVS2MC9NBD';
-    expect(tagsOf(OLD, [send(OLD, OTHER_OLD), send(OLD, NEW, NOW - 40 * 86_400)])).toEqual([
-      'outflow',
-    ]);
+    expect(
+      tagsOf(OLD, [send(OLD, OTHER_OLD), send(OLD, NEW, NOW - 40 * 86_400)]),
+    ).toEqual(['outflow']);
   });
 
   it('lets a safe key sign, and flags it only sending outside the safe set', () => {
@@ -803,14 +865,28 @@ describe('safe and possibly compromised keys', () => {
   it('lists what is still on the old keys, and nothing on the safe ones', () => {
     const risks = atRisk(
       [
-        holdings({ address: OLD, stxTotal: 10n, stxLocked: 4n, fungible: { [SBTC]: 3n, 'SP1.x::alex': 0n } }),
+        holdings({
+          address: OLD,
+          stxTotal: 10n,
+          stxLocked: 4n,
+          fungible: { [SBTC]: 3n, 'SP1.x::alex': 0n },
+        }),
         holdings({ address: NEW, stxTotal: 99n }),
-        holdings({ address: 'SP3NF0PJA5SZQCA29BAQDGFF40ZR03VQ4D5WW8AY4', stxTotal: 0n }),
+        holdings({
+          address: 'SP3NF0PJA5SZQCA29BAQDGFF40ZR03VQ4D5WW8AY4',
+          stxTotal: 0n,
+        }),
       ],
       new Set([NEW]),
     );
     expect(risks).toHaveLength(1);
-    expect(risks[0]).toMatchObject({ address: OLD, unlocked: 6n, locked: 4n, sbtc: 3n, tokens: {} });
+    expect(risks[0]).toMatchObject({
+      address: OLD,
+      unlocked: 6n,
+      locked: 4n,
+      sbtc: 3n,
+      tokens: {},
+    });
     expect(atRisk([holdings()], null)).toEqual([]);
   });
 });
@@ -819,15 +895,34 @@ describe('the page', () => {
   it('cannot be broken out of by a label', () => {
     const embedded = embedJson({ label: '</script><script>alert(1)</script>' });
     expect(embedded).not.toContain('</script>');
-    expect(JSON.parse(embedded)).toEqual({ label: '</script><script>alert(1)</script>' });
+    expect(JSON.parse(embedded)).toEqual({
+      label: '</script><script>alert(1)</script>',
+    });
   });
 
   it('carries the whole report, and fetches nothing', () => {
-    const row = { holdings: holdings({ label: 'a </script> label' }), reasons: [], poolName: null };
-    const report = toJson([row], null, 141, new Map(), null, { safe: null, now: 1 }, { since: 0, label: 'since 1970-01-01 00:00 UTC' });
+    const row = {
+      holdings: holdings({ label: 'a </script> label' }),
+      reasons: [],
+      poolName: null,
+    };
+    const report = toJson(
+      [row],
+      null,
+      141,
+      new Map(),
+      null,
+      { safe: null, now: 1 },
+      { since: 0, label: 'since 1970-01-01 00:00 UTC' },
+    );
     const html = renderHtml(report);
-    const json = /<script type="application\/json" id="report">(.*?)<\/script>/s.exec(html)?.[1];
-    expect(JSON.parse(json ?? 'null').addresses[0].label).toBe('a </script> label');
+    const json =
+      /<script type="application\/json" id="report">(.*?)<\/script>/s.exec(
+        html,
+      )?.[1];
+    expect(JSON.parse(json ?? 'null').addresses[0].label).toBe(
+      'a </script> label',
+    );
     expect(html).not.toMatch(/<(script|link)[^>]+(src|href)=/);
   });
 });
@@ -860,7 +955,11 @@ describe('a window from a date', () => {
       holdings({
         activity: {
           // The day before the date, inside 30 days: not flagged.
-          confirmed: [signedAt(SEP_29 + 3600), signedAt(SEP_29 - 3600), signedAt(SEP_29 - 20 * 86_400)],
+          confirmed: [
+            signedAt(SEP_29 + 3600),
+            signedAt(SEP_29 - 3600),
+            signedAt(SEP_29 - 20 * 86_400),
+          ],
           pending: [],
         },
       }),

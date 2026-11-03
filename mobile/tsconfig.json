@@ -3,24 +3,11 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@guide/*": [
-        "../src/*"
-      ]
+      "@guide/*": ["../src/*"]
     },
     "resolveJsonModule": true,
-    "types": [
-      "jest",
-      "node"
-    ]
+    "types": ["jest", "node"]
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx"
-  ],
-  "exclude": [
-    "node_modules",
-    "android",
-    "ios",
-    "e2e"
-  ]
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules", "android", "ios", "e2e"]
 }

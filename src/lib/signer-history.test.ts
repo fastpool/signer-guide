@@ -215,7 +215,9 @@ describe('the generated files, checked against each other', () => {
         // `membersAddUp` is true at walk time; live-cycle totals may move
         // before the next walk, so prefer the recorded walk total when present.
         const heldAtWalk =
-          typeof cycle.walkedUstx === 'string' ? BigInt(cycle.walkedUstx) : null;
+          typeof cycle.walkedUstx === 'string'
+            ? BigInt(cycle.walkedUstx)
+            : null;
         expect(staked, `${slug} cycle ${cycle.cycle}`).toBe(
           heldAtWalk ?? heldNow,
         );

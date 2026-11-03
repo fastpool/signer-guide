@@ -15,14 +15,14 @@ different signature, and Android will not upgrade one into the other. That is
 normal and expected across stores.
 
 The listing does not come from the merge request either. F-Droid reads
-`fastlane/metadata/android/<locale>/` out of *this* repository at the tagged
+`fastlane/metadata/android/<locale>/` out of _this_ repository at the tagged
 commit, which is why that tree is generated — `node scripts/make-fdroid-metadata.mjs`,
 from the same copy the Play listing uses — and committed.
 
 ## The four things that were not obvious
 
 **1. `android/` has to be committed.** `fdroidserver` checks that `subdir`
-exists and raises `Missing subdir` *before* it runs `init` or `prebuild`
+exists and raises `Missing subdir` _before_ it runs `init` or `prebuild`
 (`common.py`, `prepare_source`). So `expo prebuild` cannot generate the Gradle
 project during the build — it does not get the chance. The alternative, dropping
 `subdir` and driving `./gradlew` from a raw `build:` step, does not work either:

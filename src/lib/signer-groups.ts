@@ -118,7 +118,10 @@ export function groupContracts(
 }
 
 /** The nodes a group covers, each carrying only the contracts in the group. */
-export function groupNodes(group: SignerGroup, signers: Signer[]): SignerNode[] {
+export function groupNodes(
+  group: SignerGroup,
+  signers: Signer[],
+): SignerNode[] {
   return nodesBySignerKey(groupContracts(group, signers));
 }
 
@@ -130,7 +133,10 @@ export function groupNodes(group: SignerGroup, signers: Signer[]): SignerNode[] 
  * union — which for the Xverse 2 key is two groups, one for the node and one
  * for the stake in a single contract on it.
  */
-export function groupsForContract(contractId: string, signerKey?: string | null): SignerGroup[] {
+export function groupsForContract(
+  contractId: string,
+  signerKey?: string | null,
+): SignerGroup[] {
   return allGroups().filter((group) =>
     group.members.some(
       (member) =>
@@ -146,7 +152,10 @@ export function groupsForContract(contractId: string, signerKey?: string | null)
 export function groupsForNode(node: SignerNode): SignerGroup[] {
   const found = new Map<string, SignerGroup>();
   for (const contract of node.contracts) {
-    for (const group of groupsForContract(contract.contractId, node.signerKey)) {
+    for (const group of groupsForContract(
+      contract.contractId,
+      node.signerKey,
+    )) {
       found.set(group.id, group);
     }
   }

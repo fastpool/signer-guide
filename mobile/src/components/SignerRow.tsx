@@ -79,7 +79,9 @@ function SignerRow({
         {signer.registered ? null : (
           <Pill tone='warn'>{t('pools.notRegistered')}</Pill>
         )}
-        {signer.openToAnyone ? null : <Pill tone='warn'>{t('pools.notOpen')}</Pill>}
+        {signer.openToAnyone ? null : (
+          <Pill tone='warn'>{t('pools.notOpen')}</Pill>
+        )}
       </Row>
     </TouchCard>
   );

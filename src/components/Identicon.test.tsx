@@ -8,8 +8,7 @@ import Identicon from './Identicon';
  * that claim about yet. Neither may be mistaken for the other.
  */
 
-const HASH =
-  'd89fc8775ea2b1b5db173427cef51e3b7e164d33b7b4b11ff925e0ea78b2c20c';
+const HASH = 'd89fc8775ea2b1b5db173427cef51e3b7e164d33b7b4b11ff925e0ea78b2c20c';
 
 describe('Identicon', () => {
   it('draws the code when there is a hash for it', () => {

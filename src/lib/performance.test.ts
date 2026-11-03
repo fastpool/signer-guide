@@ -23,7 +23,9 @@ import {
 } from './performance-data';
 import type { SignerCyclePerformance } from './types';
 
-const row = (over: Partial<SignerCyclePerformance> = {}): SignerCyclePerformance => ({
+const row = (
+  over: Partial<SignerCyclePerformance> = {},
+): SignerCyclePerformance => ({
   cycle: 142,
   accepted: 90,
   rejected: 5,
@@ -54,7 +56,13 @@ describe('answering and agreeing', () => {
   });
 
   it('separates never answered from answered badly', () => {
-    const silent = row({ accepted: 0, rejected: 0, missed: 33976, lastSeen: null, responseMs: null });
+    const silent = row({
+      accepted: 0,
+      rejected: 0,
+      missed: 33976,
+      lastSeen: null,
+      responseMs: null,
+    });
     const poor = row({ accepted: 20, rejected: 10, missed: 70 });
 
     expect(neverAnswered(silent)).toBe(true);

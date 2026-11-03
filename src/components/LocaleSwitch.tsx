@@ -9,14 +9,14 @@ export default function LocaleSwitch({
   onChange: (locale: Locale) => void;
 }) {
   return (
-    <div className='inline-flex rounded-full bg-card p-1 shadow-lift'>
+    <div className='inline-flex shrink-0 rounded-full bg-card p-1 shadow-lift'>
       {LOCALES.map((choice) => (
         <button
           key={choice}
           type='button'
           onClick={() => onChange(choice)}
           aria-pressed={locale === choice}
-          className={`rounded-full px-3 py-1.5 text-sm font-semibold transition-colors ${
+          className={`rounded-full px-3 py-1.5 text-sm font-semibold whitespace-nowrap transition-colors ${
             locale === choice
               ? 'bg-grape text-on-grape'
               : 'text-muted hover:text-ink'

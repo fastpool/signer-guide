@@ -46,7 +46,10 @@ import type { ScreenProps } from '../navigation-types';
  *
  * A reader who does not accept the grouping can take the rows they do.
  */
-export default function GroupScreen({ route, navigation }: ScreenProps<'Group'>) {
+export default function GroupScreen({
+  route,
+  navigation,
+}: ScreenProps<'Group'>) {
   const { snapshot } = useSnapshot();
   const { locale } = useSettings();
   const t = useT();
@@ -91,7 +94,11 @@ export default function GroupScreen({ route, navigation }: ScreenProps<'Group'>)
         <Row gap={space.xl} wrap>
           <Field
             label={t('groups.votingPower', { cycle: snapshot.totals.cycle })}
-            value={bips === null ? t('groups.unknown') : `${(bips / 100).toFixed(2)}%`}
+            value={
+              bips === null
+                ? t('groups.unknown')
+                : `${(bips / 100).toFixed(2)}%`
+            }
             tone='stx'
             testID='group-share'
           />
@@ -100,10 +107,7 @@ export default function GroupScreen({ route, navigation }: ScreenProps<'Group'>)
             value={stxShort(staked, locale)}
             testID='group-staked'
           />
-          <Field
-            label={t('groups.nodeCount')}
-            value={String(nodes.length)}
-          />
+          <Field label={t('groups.nodeCount')} value={String(nodes.length)} />
           <Field
             label={t('groups.contractCount')}
             value={String(contracts.length)}
@@ -134,7 +138,12 @@ export default function GroupScreen({ route, navigation }: ScreenProps<'Group'>)
           return (
             <Card key={node.signerKey ?? node.contracts[0].contractId}>
               <Row gap={space.md}>
-                <Text variant='mono' tone='faint' numberOfLines={1} style={{ flexShrink: 1 }}>
+                <Text
+                  variant='mono'
+                  tone='faint'
+                  numberOfLines={1}
+                  style={{ flexShrink: 1 }}
+                >
                   {node.signerKey ?? node.contracts[0].contractId}
                 </Text>
                 <View style={{ marginLeft: 'auto' }}>
@@ -147,11 +156,16 @@ export default function GroupScreen({ route, navigation }: ScreenProps<'Group'>)
               </Row>
 
               {behaviour ? (
-                <Text variant='tiny' tone={neverAnswered(behaviour) ? 'bad' : 'faint'}>
+                <Text
+                  variant='tiny'
+                  tone={neverAnswered(behaviour) ? 'bad' : 'faint'}
+                >
                   {neverAnswered(behaviour)
                     ? t('groups.nodeSilent', { cycle: behaviour.cycle })
                     : t('groups.nodeAnswered', {
-                        percent: ((answeredRate(behaviour) ?? 0) * 100).toFixed(1),
+                        percent: ((answeredRate(behaviour) ?? 0) * 100).toFixed(
+                          1,
+                        ),
                         cycle: behaviour.cycle,
                       })}
                 </Text>
@@ -226,8 +240,9 @@ export default function GroupScreen({ route, navigation }: ScreenProps<'Group'>)
                   style={{ gap: 2 }}
                 >
                   <Text variant='tiny' tone='faint'>
-                    {(member.contractId ?? member.signerKey ?? '').split('.')[1] ??
-                      member.signerKey}
+                    {(member.contractId ?? member.signerKey ?? '').split(
+                      '.',
+                    )[1] ?? member.signerKey}
                   </Text>
                   <Text variant='small' tone='muted' style={{ lineHeight: 20 }}>
                     {member.note}

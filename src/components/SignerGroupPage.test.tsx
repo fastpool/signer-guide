@@ -28,7 +28,6 @@ const render = (id: string) =>
       signers={all}
       totals={totals as LockedTotals}
       locale='en'
-      onLocaleChange={() => {}}
     />,
   );
 

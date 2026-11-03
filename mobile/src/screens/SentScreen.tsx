@@ -9,7 +9,17 @@ import { STACKS_API_URL } from '../stacks/api';
 import { shortAddress } from '../format';
 import { useT } from '../i18n';
 import { space } from '../theme';
-import { Button, Card, Label, Loading, Note, Pill, Row, Screen, Text } from '../ui';
+import {
+  Button,
+  Card,
+  Label,
+  Loading,
+  Note,
+  Pill,
+  Row,
+  Screen,
+  Text,
+} from '../ui';
 import type { ScreenProps } from '../navigation-types';
 
 /**
@@ -37,9 +47,17 @@ export default function SentScreen({ route, navigation }: ScreenProps<'Sent'>) {
     <Screen testID='sent-screen'>
       <Card>
         <Row style={{ justifyContent: 'space-between' }}>
-          <Label>{kind === 'unstake' ? t('sent.unstake') : t('sent.stake')}</Label>
+          <Label>
+            {kind === 'unstake' ? t('sent.unstake') : t('sent.stake')}
+          </Label>
           <Pill
-            tone={status === 'success' ? 'good' : status === 'failed' ? 'bad' : 'warn'}
+            tone={
+              status === 'success'
+                ? 'good'
+                : status === 'failed'
+                  ? 'bad'
+                  : 'warn'
+            }
             testID='sent-status'
           >
             {status === 'success'

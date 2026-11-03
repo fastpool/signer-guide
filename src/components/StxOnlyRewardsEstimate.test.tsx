@@ -42,7 +42,11 @@ const CALCULATIONS: StxOnlyCalculations = {
 
 const full = (calculations = CALCULATIONS) =>
   renderToStaticMarkup(
-    <StxOnlyRewardsEstimate calculations={calculations} locale='en' mode='full' />,
+    <StxOnlyRewardsEstimate
+      calculations={calculations}
+      locale='en'
+      mode='full'
+    />,
   );
 
 describe('the three rates', () => {
@@ -63,9 +67,13 @@ describe('the three rates', () => {
     expect(html).toContain('the other 819');
     // In the FAQ, not in the list of figures: the sentence appears after the
     // question it answers.
-    const question = html.indexOf('So why does the published rate match neither?');
+    const question = html.indexOf(
+      'So why does the published rate match neither?',
+    );
     expect(question).toBeGreaterThan(-1);
-    expect(html.indexOf('counts for 231 of 1,050 blocks')).toBeGreaterThan(question);
+    expect(html.indexOf('counts for 231 of 1,050 blocks')).toBeGreaterThan(
+      question,
+    );
   });
 
   it('dates the settled one instead of naming the cycle it paid for', () => {

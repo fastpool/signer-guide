@@ -1,3 +1,5 @@
+import { Breadcrumbs, Page } from './ui';
+import { contractsHref } from '../lib/route';
 import { stxLabel, sumUstx } from '../lib/amounts';
 import { bitcoinPayout } from '../lib/features';
 import { SIP_IDENTICON_URL } from '../lib/identicon';
@@ -7,7 +9,6 @@ import { signerHref } from '../lib/route';
 import type { Template } from '../lib/templates';
 import Badge, { feeLabel, noticeLabel } from './Badge';
 import Identicon from './Identicon';
-import LocaleSwitch from './LocaleSwitch';
 import PoolName from './PoolName';
 
 const Code = ({ children }: { children: string }) => (
@@ -18,13 +19,11 @@ export default function ContractPage({
   template,
   lockedUstx,
   locale,
-  onLocaleChange,
 }: {
   template: Template;
   /** uSTX per pool right now; undefined until the amounts are read. */
   lockedUstx?: Record<string, string | null>;
   locale: Locale;
-  onLocaleChange: (locale: Locale) => void;
 }) {
   const { signers } = template;
   const btc = bitcoinPayout(template);
@@ -67,16 +66,13 @@ export default function ContractPage({
         );
 
   return (
-    <main className='mx-auto max-w-3xl px-5 py-12 md:py-20'>
-      <div className='flex flex-wrap items-center justify-between gap-3'>
-        <a
-          href='#/'
-          className='text-sm font-semibold text-grape underline underline-offset-2'
-        >
-          {t('contract.back')}
-        </a>
-        <LocaleSwitch locale={locale} onChange={onLocaleChange} />
-      </div>
+    <Page>
+      <Breadcrumbs
+        items={[
+          { label: t('nav.contracts'), href: contractsHref() },
+          { label: localizeProfile(template.profile, locale).name },
+        ]}
+      />
 
       <h1 className='mt-6 flex items-center gap-3 text-4xl font-extrabold md:text-5xl'>
         <Identicon
@@ -273,13 +269,15 @@ export default function ContractPage({
                       ? 'contract.bitcoinEvidence'
                       : 'contract.bitcoinViaPool',
                     {
-                      code: <Code>{template.evidence.bitcoinRewards ?? ''}</Code>,
+                      code: (
+                        <Code>{template.evidence.bitcoinRewards ?? ''}</Code>
+                      ),
                     },
                   )}
             </dd>
           </div>
         </dl>
       </section>
-    </main>
+    </Page>
   );
 }

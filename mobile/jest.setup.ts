@@ -17,7 +17,9 @@ jest.mock('expo-clipboard', () => ({
 
 jest.mock('expo-constants', () => ({
   __esModule: true,
-  default: { expoConfig: { extra: { walletConnectProjectId: 'test-project' } } },
+  default: {
+    expoConfig: { extra: { walletConnectProjectId: 'test-project' } },
+  },
 }));
 
 /*
@@ -34,14 +36,12 @@ jest.mock('react-native-svg', () => {
    * — is settled before this is reached; what is left is geometry, which a
    * test renderer cannot see anyway.
    */
-  const stub =
-    (name: string) =>
-    (props: Record<string, unknown>) =>
-      React.createElement(View, {
-        ...props,
-        testID: props.testID ?? name,
-        children: props.children,
-      });
+  const stub = (name: string) => (props: Record<string, unknown>) =>
+    React.createElement(View, {
+      ...props,
+      testID: props.testID ?? name,
+      children: props.children,
+    });
   return {
     __esModule: true,
     default: stub('svg'),

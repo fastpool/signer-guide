@@ -140,6 +140,15 @@ export interface Signer {
     maxFee: string | null;
   };
   callApi?: 'pox5' | 'nativePool';
+  /**
+   * What a reward arrives as, when it is not what the flags above imply.
+   *
+   * Set by hand (signers-manual.json) for a contract whose payout the
+   * detectors cannot see: juice-pool-sbtc-signer swaps its sBTC into STX
+   * and pays stakers in STX. Absent for every other pool, which is paid in
+   * sBTC, and to Bitcoin where `bitcoinRewards` says so.
+   */
+  rewardsIn?: ('btc' | 'sbtc' | 'stx')[];
 }
 
 export interface SignerData {

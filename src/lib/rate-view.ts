@@ -120,10 +120,7 @@ export function payoutHappenedAt(opts: {
 }
 
 /** When the next payout falls due, from a burn height count. */
-export function payoutDueAt(opts: {
-  now: number;
-  blocksLeft: number;
-}): Date {
+export function payoutDueAt(opts: { now: number; blocksLeft: number }): Date {
   return new Date(
     opts.now + opts.blocksLeft * BITCOIN_BLOCK_MINUTES * 60 * 1000,
   );

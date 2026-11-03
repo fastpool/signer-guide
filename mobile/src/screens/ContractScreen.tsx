@@ -28,7 +28,10 @@ import type { ScreenProps } from '../navigation-types';
  * refused by the chain. Reached from the browse-everything side, the list is
  * the whole group, because that is what it claims to be.
  */
-export default function ContractScreen({ route, navigation }: ScreenProps<'Contract'>) {
+export default function ContractScreen({
+  route,
+  navigation,
+}: ScreenProps<'Contract'>) {
   const { snapshot } = useSnapshot();
   const { locale } = useSettings();
   const t = useT();
@@ -47,7 +50,9 @@ export default function ContractScreen({ route, navigation }: ScreenProps<'Contr
   const profile = localizeProfile(template.profile, locale);
   const pools = choosing
     ? joinableSigners(template, snapshot.totals)
-    : [...template.signers].sort((a, b) => a.contractId.localeCompare(b.contractId));
+    : [...template.signers].sort((a, b) =>
+        a.contractId.localeCompare(b.contractId),
+      );
   const hidden = template.signers.length - pools.length;
   const count = template.signers.length;
 
@@ -56,13 +61,21 @@ export default function ContractScreen({ route, navigation }: ScreenProps<'Contr
       <Row gap={space.md}>
         <Identicon hash={template.identiconHash} size={48} />
         <View style={{ flexShrink: 1 }}>
-          <Text variant='title' accessibilityRole='header' testID='contract-name'>
+          <Text
+            variant='title'
+            accessibilityRole='header'
+            testID='contract-name'
+          >
             {profile.name}
           </Text>
           <Text variant='small' tone='faint'>
-            {t(count === 1 ? 'contract.runByOne' : 'contract.runBy', { count })} ·{' '}
+            {t(count === 1 ? 'contract.runByOne' : 'contract.runBy', { count })}{' '}
+            ·{' '}
             {t('contracts.staked', {
-              amount: stxShort(templateStakedUstx(template, snapshot.totals), locale),
+              amount: stxShort(
+                templateStakedUstx(template, snapshot.totals),
+                locale,
+              ),
             })}
           </Text>
         </View>
@@ -77,7 +90,9 @@ export default function ContractScreen({ route, navigation }: ScreenProps<'Contr
 
       {template.identiconOutliers > 0 ? (
         <Note tone='warn'>
-          {t('contract.identiconOutliers', { count: template.identiconOutliers })}
+          {t('contract.identiconOutliers', {
+            count: template.identiconOutliers,
+          })}
         </Note>
       ) : null}
 
@@ -92,12 +107,17 @@ export default function ContractScreen({ route, navigation }: ScreenProps<'Contr
             signer={signer}
             stakedUstx={stakedUstx(snapshot.totals, signer.contractId)}
             testID={`pool-${signer.contractId}`}
-            onPress={() => navigation.navigate('Pool', { contractId: signer.contractId })}
+            onPress={() =>
+              navigation.navigate('Pool', { contractId: signer.contractId })
+            }
           />
         ))}
         {pools.length === 0 ? (
           <Card>
-            <Field label={t('contract.noPool')} value={t('contract.noPoolBody')} />
+            <Field
+              label={t('contract.noPool')}
+              value={t('contract.noPoolBody')}
+            />
           </Card>
         ) : null}
         {hidden > 0 ? (

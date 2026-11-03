@@ -122,30 +122,66 @@ function frame(file, caption, onGrape) {
   const prepared = path.join(out, `.${key}.device.png`);
   magick([
     shot,
-    '-gravity', 'North', '-chop', `0x${STATUS_BAR}`,
-    '-gravity', 'South', '-chop', `0x${NAVIGATION_BAR}`,
-    '-resize', `${WIDTH - 176}x`,
+    '-gravity',
+    'North',
+    '-chop',
+    `0x${STATUS_BAR}`,
+    '-gravity',
+    'South',
+    '-chop',
+    `0x${NAVIGATION_BAR}`,
+    '-resize',
+    `${WIDTH - 176}x`,
     prepared,
   ]);
 
   magick([
-    '-size', `${WIDTH}x${HEIGHT}`, `xc:${ground}`,
-    '-gravity', 'NorthWest',
+    '-size',
+    `${WIDTH}x${HEIGHT}`,
+    `xc:${ground}`,
+    '-gravity',
+    'NorthWest',
 
-    '-font', BOLD, '-pointsize', '30', '-fill', indexColor,
-    '-annotate', '+72+120', caption.index,
+    '-font',
+    BOLD,
+    '-pointsize',
+    '30',
+    '-fill',
+    indexColor,
+    '-annotate',
+    '+72+120',
+    caption.index,
 
-    '-font', BOLD, '-pointsize', '60', '-fill', headlineColor,
-    '-interline-spacing', '16',
-    '-annotate', '+72+200', caption.headline,
+    '-font',
+    BOLD,
+    '-pointsize',
+    '60',
+    '-fill',
+    headlineColor,
+    '-interline-spacing',
+    '16',
+    '-annotate',
+    '+72+200',
+    caption.headline,
 
-    '-font', BOOK, '-pointsize', '27', '-fill', subColor,
-    '-interline-spacing', '10',
-    '-annotate', `+72+${BAND - 96}`, caption.sub,
+    '-font',
+    BOOK,
+    '-pointsize',
+    '27',
+    '-fill',
+    subColor,
+    '-interline-spacing',
+    '10',
+    '-annotate',
+    `+72+${BAND - 96}`,
+    caption.sub,
 
     // Bled off the bottom: a whole phone shrunk to fit would put the app at a
     // size nobody can read.
-    prepared, '-geometry', `+88+${BAND}`, '-composite',
+    prepared,
+    '-geometry',
+    `+88+${BAND}`,
+    '-composite',
     target,
   ]);
 
@@ -164,37 +200,101 @@ function featureGraphic(rate) {
   mkdirSync(path.dirname(target), { recursive: true });
 
   magick([
-    '-size', '1024x500', `xc:${GRAPE}`,
+    '-size',
+    '1024x500',
+    `xc:${GRAPE}`,
 
     // The mark: one filled circle and one outlined, overlapping.
-    '-fill', WHITE, '-draw', 'circle 74,66 74,83',
-    '-fill', 'none', '-stroke', WHITE, '-strokewidth', '6',
-    '-draw', 'circle 116,66 116,83', '-stroke', 'none',
+    '-fill',
+    WHITE,
+    '-draw',
+    'circle 74,66 74,83',
+    '-fill',
+    'none',
+    '-stroke',
+    WHITE,
+    '-strokewidth',
+    '6',
+    '-draw',
+    'circle 116,66 116,83',
+    '-stroke',
+    'none',
 
-    '-font', BOLD, '-pointsize', '30', '-fill', WHITE,
-    '-annotate', '+150+78', 'Signer Guide',
+    '-font',
+    BOLD,
+    '-pointsize',
+    '30',
+    '-fill',
+    WHITE,
+    '-annotate',
+    '+150+78',
+    'Signer Guide',
 
-    '-font', BOLD, '-pointsize', '62', '-fill', WHITE,
-    '-interline-spacing', '10',
-    '-annotate', '+74+210', 'Lock STX.\nEarn bitcoin.',
+    '-font',
+    BOLD,
+    '-pointsize',
+    '62',
+    '-fill',
+    WHITE,
+    '-interline-spacing',
+    '10',
+    '-annotate',
+    '+74+210',
+    'Lock STX.\nEarn bitcoin.',
 
-    '-font', BOOK, '-pointsize', '26', '-fill', 'rgba(255,255,255,0.72)',
-    '-interline-spacing', '8',
-    '-annotate', '+74+390',
+    '-font',
+    BOOK,
+    '-pointsize',
+    '26',
+    '-fill',
+    'rgba(255,255,255,0.72)',
+    '-interline-spacing',
+    '8',
+    '-annotate',
+    '+74+390',
     'Staked in your own wallet. Paid in bitcoin,\nevery week. 45 pools, read and hashed.',
 
     // A translucent panel holding the figure.
-    '-fill', 'rgba(255,255,255,0.08)', '-stroke', 'rgba(255,255,255,0.16)',
-    '-strokewidth', '1',
-    '-draw', 'roundrectangle 640,110 960,390 22,22', '-stroke', 'none',
+    '-fill',
+    'rgba(255,255,255,0.08)',
+    '-stroke',
+    'rgba(255,255,255,0.16)',
+    '-strokewidth',
+    '1',
+    '-draw',
+    'roundrectangle 640,110 960,390 22,22',
+    '-stroke',
+    'none',
 
-    '-font', BOLD, '-pointsize', '22', '-fill', 'rgba(255,255,255,0.65)',
-    '-annotate', '+676+176', 'EARNING NOW',
-    '-font', BOLD, '-pointsize', '92', '-fill', AMBER_ON_GRAPE,
-    '-annotate', '+676+272', rate,
-    '-font', BOOK, '-pointsize', '24', '-fill', 'rgba(255,255,255,0.78)',
-    '-interline-spacing', '6',
-    '-annotate', '+676+320', 'sats per 1,000 STX,\neach payout',
+    '-font',
+    BOLD,
+    '-pointsize',
+    '22',
+    '-fill',
+    'rgba(255,255,255,0.65)',
+    '-annotate',
+    '+676+176',
+    'EARNING NOW',
+    '-font',
+    BOLD,
+    '-pointsize',
+    '92',
+    '-fill',
+    AMBER_ON_GRAPE,
+    '-annotate',
+    '+676+272',
+    rate,
+    '-font',
+    BOOK,
+    '-pointsize',
+    '24',
+    '-fill',
+    'rgba(255,255,255,0.78)',
+    '-interline-spacing',
+    '6',
+    '-annotate',
+    '+676+320',
+    'sats per 1,000 STX,\neach payout',
 
     target,
   ]);
@@ -202,13 +302,17 @@ function featureGraphic(rate) {
 }
 
 if (!existsSync(raw)) {
-  console.error(`No screenshots in ${raw}. Run: maestro test e2e/screenshots.yaml`);
+  console.error(
+    `No screenshots in ${raw}. Run: maestro test e2e/screenshots.yaml`,
+  );
   process.exit(1);
 }
 
 mkdirSync(out, { recursive: true });
 
-const files = readdirSync(raw).filter((n) => n.endsWith('.png')).sort();
+const files = readdirSync(raw)
+  .filter((n) => n.endsWith('.png'))
+  .sort();
 if (files.length === 0) {
   console.error(`No PNGs in ${raw}.`);
   process.exit(1);
@@ -228,7 +332,10 @@ for (const file of files) {
 /* The published figure, so the graphic cannot claim a rate nobody is paying. */
 const calculations = JSON.parse(
   await import('node:fs/promises').then((fs) =>
-    fs.readFile(path.join(root, '../src/data/stx-only-calculations.json'), 'utf8'),
+    fs.readFile(
+      path.join(root, '../src/data/stx-only-calculations.json'),
+      'utf8',
+    ),
   ),
 );
 featureGraphic(calculations.rateSatsPer1000Stx ?? '—');

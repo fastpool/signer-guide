@@ -53,7 +53,9 @@ const totals = totalsData as LockedTotals;
  * on file were locked in before it existed. Neither is a reason to take a
  * contract type off the page.
  */
-const stillUsed = (implementing: (signer: SignerData['signers'][number]) => boolean) =>
+const stillUsed = (
+  implementing: (signer: SignerData['signers'][number]) => boolean,
+) =>
   signers
     .filter(implementing)
     .filter((signer) => inUse(signer, totals))

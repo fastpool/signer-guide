@@ -77,7 +77,9 @@ describe('connecting', () => {
     fireEvent.press(await screen.findByTestId('connect-any'));
 
     // A rejection is a decision, not a fault.
-    await waitFor(() => expect(screen.queryByTestId('wallet-error')).toBeNull());
+    await waitFor(() =>
+      expect(screen.queryByTestId('wallet-error')).toBeNull(),
+    );
     expect(screen.getByTestId('wallet-screen')).toBeOnTheScreen();
   });
 

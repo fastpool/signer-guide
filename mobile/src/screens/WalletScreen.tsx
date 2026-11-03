@@ -44,7 +44,10 @@ import type { ScreenProps } from '../navigation-types';
  * on a phone with no wallet installed it is the only way in. So it is a
  * heading of its own here rather than a link at the bottom of a card.
  */
-export default function WalletScreen({ route, navigation }: ScreenProps<'Wallet'>) {
+export default function WalletScreen({
+  route,
+  navigation,
+}: ScreenProps<'Wallet'>) {
   const t = useT();
   const colors = useColors();
   const wallet = useWallet();
@@ -63,7 +66,9 @@ export default function WalletScreen({ route, navigation }: ScreenProps<'Wallet'
    * second would tell somebody their name does not exist.
    */
   const [resolving, setResolving] = useState(false);
-  const [bnsError, setBnsError] = useState<'unregistered' | 'failed' | null>(null);
+  const [bnsError, setBnsError] = useState<'unregistered' | 'failed' | null>(
+    null,
+  );
   /*
    * Which wallet was asked, not whether *a* wallet was asked.
    * `wallet.connecting` is one flag for the whole app, and handing it to four
@@ -190,7 +195,9 @@ export default function WalletScreen({ route, navigation }: ScreenProps<'Wallet'
           {bnsError ? (
             <Text variant='small' tone='bad' testID='watch-error'>
               {bnsError === 'unregistered'
-                ? t('wallet.nameUnregistered', { name: typed.trim().toLowerCase() })
+                ? t('wallet.nameUnregistered', {
+                    name: typed.trim().toLowerCase(),
+                  })
                 : t('wallet.nameLookupFailed')}
             </Text>
           ) : null}

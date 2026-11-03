@@ -71,15 +71,15 @@ listing is a rejection with a week's delay attached.
 
 Checked against the files here; a listing that overruns is rejected at upload.
 
-| Field                       | Limit | Ours |
-| --------------------------- | ----- | ---- |
-| Play title                  | 30    | 23   |
-| Play short description      | 80    | 78   |
-| Play full description       | 4000  | ~3000 |
-| App Store name              | 30    | 23   |
-| App Store subtitle          | 30    | 22   |
-| App Store promotional text  | 170   | 155  |
-| App Store keywords          | 100   | 86   |
+| Field                      | Limit | Ours  |
+| -------------------------- | ----- | ----- |
+| Play title                 | 30    | 23    |
+| Play short description     | 80    | 78    |
+| Play full description      | 4000  | ~3000 |
+| App Store name             | 30    | 23    |
+| App Store subtitle         | 30    | 22    |
+| App Store promotional text | 170   | 155   |
+| App Store keywords         | 100   | 86    |
 
 ## Zapstore
 
@@ -119,7 +119,7 @@ Before signing anything, `zsp publish zapstore.yaml --check` answers
 resolves, and fails otherwise. That is the cheap way to find out that a tag has
 not been pushed yet.
 
-`SIGN_WITH=npub1…` goes one step further and writes the events it *would*
+`SIGN_WITH=npub1…` goes one step further and writes the events it _would_
 publish to stdout, signed by nobody. Worth doing once before every first
 publish: it is what caught `release_notes` being emitted as text when `zsp`
 wants a path, which fails at the very end with `file name too long` and no clue
@@ -135,13 +135,13 @@ from the Play Store and the repository and overwrites the listing above.
 
 The one required variable. It takes any of:
 
-| value | what it is |
-| --- | --- |
-| `nsec1…` | a nostr private key, in the clear |
-| 64 hex characters | the same key, unencoded |
-| `bunker://pubkey?relay=…&secret=…` | NIP-46: a remote signer signs on request |
-| `browser` | a NIP-07 extension, via the local preview page |
-| `npub1…` | signs nothing — writes unsigned events to stdout |
+| value                              | what it is                                       |
+| ---------------------------------- | ------------------------------------------------ |
+| `nsec1…`                           | a nostr private key, in the clear                |
+| 64 hex characters                  | the same key, unencoded                          |
+| `bunker://pubkey?relay=…&secret=…` | NIP-46: a remote signer signs on request         |
+| `browser`                          | a NIP-07 extension, via the local preview page   |
+| `npub1…`                           | signs nothing — writes unsigned events to stdout |
 
 **Use a bunker URL**, on a laptop as much as in CI. `zsp`'s own warning is that
 a private key in an environment variable is readable through `/proc/*/environ`
@@ -214,19 +214,20 @@ future update has to carry the same one. Two things follow:
 
   `expo prebuild` writes `release { signingConfig signingConfigs.debug }` and a
   comment asking you to fix it — the most dangerous default in the project,
-  because `assembleRelease` then produces an APK signed with Android's *shared
-  debug key* and says nothing about it. `plugins/withReleaseSigning.js`
+  because `assembleRelease` then produces an APK signed with Android's _shared
+  debug key_ and says nothing about it. `plugins/withReleaseSigning.js`
   replaces that, and it is a plugin rather than an edit because `android/` is
   regenerated and gitignored. Two outcomes now, and neither is a debug-signed
   release:
 
-  | | result |
-  | --- | --- |
-  | keystore properties set | signed with the release key |
-  | properties absent | **unsigned** — `app-release-unsigned.apk`, which cannot be installed or published by accident |
+  |                         | result                                                                                        |
+  | ----------------------- | --------------------------------------------------------------------------------------------- |
+  | keystore properties set | signed with the release key                                                                   |
+  | properties absent       | **unsigned** — `app-release-unsigned.apk`, which cannot be installed or published by accident |
 
   The second is what CI wants: Bitrise builds, then its own `sign-apk` step
   applies `BITRISEIO_ANDROID_KEYSTORE_*`.
+
 ### Building a signed release locally
 
 The keystore and its passwords live at `~/.signer-guide-keystore/`, outside the

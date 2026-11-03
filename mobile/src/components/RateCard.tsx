@@ -48,7 +48,12 @@ export default function RateCard({
       ) : (
         <View>
           <Row gap={space.sm} style={{ alignItems: 'flex-end' }}>
-            <Text variant='hero' tone='accent' testID='rate-value' style={styles.figure}>
+            <Text
+              variant='hero'
+              tone='accent'
+              testID='rate-value'
+              style={styles.figure}
+            >
               {groupDigits(rate.satsPer1000Stx)}
             </Text>
             <Text tone='muted' style={styles.unit}>
@@ -64,7 +69,11 @@ export default function RateCard({
       <Progress value={rate.progress} />
 
       <Row gap={space.sm} style={{ alignItems: 'flex-start' }}>
-        <Column label={t('rate.apy')} value={percent(rate.apy)} testID='rate-apy' />
+        <Column
+          label={t('rate.apy')}
+          value={percent(rate.apy)}
+          testID='rate-apy'
+        />
         <Column
           label={t('rate.next')}
           value={
@@ -141,7 +150,10 @@ function Progress({ value }: { value: number | null }) {
       <View
         style={[
           styles.fill,
-          { width: `${Math.round(value * 100)}%`, backgroundColor: colors.accent },
+          {
+            width: `${Math.round(value * 100)}%`,
+            backgroundColor: colors.accent,
+          },
         ]}
       />
     </View>

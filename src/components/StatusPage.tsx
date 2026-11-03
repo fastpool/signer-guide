@@ -1,3 +1,4 @@
+import { Page } from './ui';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { exactStxLabel } from '../lib/amounts';
 import { explorerUrl } from '../lib/explorer';
@@ -21,7 +22,6 @@ import { ellipsedAddr } from '../lib/strings';
 import type { Signer } from '../lib/types';
 import AddressRewards from './AddressRewards';
 import Badge from './Badge';
-import LocaleSwitch from './LocaleSwitch';
 
 /**
  * What one or more addresses are staking, and what it has earned them.
@@ -53,14 +53,12 @@ export default function StatusPage({
   principals,
   signers,
   locale,
-  onLocaleChange,
 }: {
   /** From the hash; empty means the box, waiting to be filled in. */
   principals: string[];
   /** The pools the guide knows, so a signer contract can be named and linked. */
   signers: Signer[];
   locale: Locale;
-  onLocaleChange: (locale: Locale) => void;
 }) {
   const t = translator(locale);
   const [input, setInput] = useState(principals.join('\n'));
@@ -78,7 +76,9 @@ export default function StatusPage({
   useEffect(() => {
     // Once for the page rather than once per row: it is the same answer for
     // everybody, and the rows that want it are the expensive ones already.
-    void readFirstPox5Cycle().then(setFirstCycle).catch(() => {});
+    void readFirstPox5Cycle()
+      .then(setFirstCycle)
+      .catch(() => {});
   }, []);
 
   const asked: AddressEntry[] = useMemo(
@@ -146,18 +146,8 @@ export default function StatusPage({
   };
 
   return (
-    <main className='mx-auto max-w-3xl px-5 py-12 md:py-20'>
-      <div className='flex flex-wrap items-center justify-between gap-3'>
-        <a
-          href='#/'
-          className='text-sm font-semibold text-grape underline underline-offset-2'
-        >
-          {t('status.back')}
-        </a>
-        <LocaleSwitch locale={locale} onChange={onLocaleChange} />
-      </div>
-
-      <h1 className='mt-6 text-4xl font-extrabold md:text-5xl'>
+    <Page>
+      <h1 className='text-4xl font-extrabold md:text-5xl'>
         {t('status.heading')}
       </h1>
       <p className='mt-4 text-lg text-muted'>{t('status.intro')}</p>
@@ -245,7 +235,7 @@ export default function StatusPage({
           <p className='mt-4 text-xs text-muted'>{t('status.readNote')}</p>
         </section>
       )}
-    </main>
+    </Page>
   );
 }
 

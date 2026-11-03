@@ -573,8 +573,9 @@ export async function fetchUserData(opts: {
     try {
       const response = await fetch(url);
       if (!response.ok) return null;
-      results = ((await response.json()) as { results?: { tx: ApiTransaction }[] })
-        .results ?? [];
+      results =
+        ((await response.json()) as { results?: { tx: ApiTransaction }[] })
+          .results ?? [];
     } catch {
       return null;
     }

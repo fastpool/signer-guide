@@ -80,7 +80,8 @@ function field(data: Record<string, unknown>, kebab: string): unknown {
 function uint(data: Record<string, unknown>, key: string): bigint {
   const value = field(data, key);
   if (typeof value === 'bigint') return value;
-  if (typeof value === 'number' && Number.isInteger(value)) return BigInt(value);
+  if (typeof value === 'number' && Number.isInteger(value))
+    return BigInt(value);
   if (typeof value === 'string' && /^\d+$/.test(value)) return BigInt(value);
   throw new Error(`pox-5 print without a uint ${key}: ${String(value)}`);
 }
@@ -105,7 +106,8 @@ function span(
   kind: CycleMembershipRow['kind'],
 ): CycleMembershipRow[] {
   const rows: CycleMembershipRow[] = [];
-  for (let c = from; c < to; c += 1) rows.push({ cycle: c, signer, ustx, kind });
+  for (let c = from; c < to; c += 1)
+    rows.push({ cycle: c, signer, ustx, kind });
   return rows;
 }
 
@@ -121,7 +123,13 @@ export function membershipChange(
       return {
         staker: principal(d, 'staker'),
         drop: null,
-        set: span(first, unlock, principal(d, 'signer'), uint(d, 'amount-ustx'), 'stake'),
+        set: span(
+          first,
+          unlock,
+          principal(d, 'signer'),
+          uint(d, 'amount-ustx'),
+          'stake',
+        ),
       };
     }
     case 'register-for-bond': {
@@ -130,7 +138,13 @@ export function membershipChange(
       return {
         staker: principal(d, 'staker'),
         drop: null,
-        set: span(first, unlock, principal(d, 'signer'), uint(d, 'amount-ustx'), 'bond'),
+        set: span(
+          first,
+          unlock,
+          principal(d, 'signer'),
+          uint(d, 'amount-ustx'),
+          'bond',
+        ),
       };
     }
     case 'stake-update': {
@@ -140,7 +154,13 @@ export function membershipChange(
       return {
         staker: principal(d, 'staker'),
         drop: { from, to: Math.max(prevUnlock, unlock) },
-        set: span(from, unlock, principal(d, 'signer'), uint(d, 'amount-ustx'), 'stake'),
+        set: span(
+          from,
+          unlock,
+          principal(d, 'signer'),
+          uint(d, 'amount-ustx'),
+          'stake',
+        ),
       };
     }
     case 'unstake': {
@@ -159,7 +179,13 @@ export function membershipChange(
       return {
         staker: principal(d, 'staker'),
         drop: { from: first, to },
-        set: span(first, to, principal(d, 'signer'), uint(d, 'amount-ustx'), 'bond'),
+        set: span(
+          first,
+          to,
+          principal(d, 'signer'),
+          uint(d, 'amount-ustx'),
+          'bond',
+        ),
       };
     }
     default:

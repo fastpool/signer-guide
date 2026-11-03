@@ -18,24 +18,28 @@ describe('watchAddressFromUrl', () => {
 
   it('takes a contract principal too, since a contract can stake', () => {
     expect(
-      watchAddressFromUrl('signerguide://watch/SMEVJTEWM9AE521B8E3HWQTHQR0WAPASHATZTA6Y'),
+      watchAddressFromUrl(
+        'signerguide://watch/SMEVJTEWM9AE521B8E3HWQTHQR0WAPASHATZTA6Y',
+      ),
     ).toBe('SMEVJTEWM9AE521B8E3HWQTHQR0WAPASHATZTA6Y');
   });
 
   it('normalises case, because an address is upper case', () => {
-    expect(watchAddressFromUrl(`signerguide://watch/${ADDRESS.toLowerCase()}`)).toBe(
-      ADDRESS,
-    );
+    expect(
+      watchAddressFromUrl(`signerguide://watch/${ADDRESS.toLowerCase()}`),
+    ).toBe(ADDRESS);
   });
 
   it('ignores a query string or fragment hung off the end', () => {
-    expect(watchAddressFromUrl(`signerguide://watch/${ADDRESS}?from=twitter`)).toBe(
-      ADDRESS,
-    );
+    expect(
+      watchAddressFromUrl(`signerguide://watch/${ADDRESS}?from=twitter`),
+    ).toBe(ADDRESS);
   });
 
   it('refuses anything that is not a Stacks address', () => {
-    expect(watchAddressFromUrl('signerguide://watch/../../etc/passwd')).toBeNull();
+    expect(
+      watchAddressFromUrl('signerguide://watch/../../etc/passwd'),
+    ).toBeNull();
     expect(watchAddressFromUrl('signerguide://watch/<script>')).toBeNull();
     expect(watchAddressFromUrl('signerguide://watch/')).toBeNull();
   });
@@ -44,8 +48,9 @@ describe('watchAddressFromUrl', () => {
     // Nothing here can stake, sign, choose a pool or connect a wallet.
     expect(watchAddressFromUrl(`signerguide://stake/${ADDRESS}`)).toBeNull();
     expect(watchAddressFromUrl(`signerguide://connect/${ADDRESS}`)).toBeNull();
-    expect(watchAddressFromUrl(`https://signer-guide.fastpool.org/watch/${ADDRESS}`))
-      .toBeNull();
+    expect(
+      watchAddressFromUrl(`https://signer-guide.fastpool.org/watch/${ADDRESS}`),
+    ).toBeNull();
     expect(watchAddressFromUrl(`wc://watch/${ADDRESS}`)).toBeNull();
   });
 

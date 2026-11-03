@@ -245,9 +245,19 @@ function Step({
 export default function StakeModal({
   signer,
   locale,
+  compact = false,
+  variant = 'primary',
 }: {
   signer: Signer;
   locale: Locale;
+  /** The short "Stake" that fits a table row, rather than "Stake with wallet". */
+  compact?: boolean;
+  /**
+   * `secondary` is an outline instead of a fill, for a pool the page warns
+   * against (a fee that keeps the reward). Still a way to stake — the choice
+   * is the reader's — but not the button the eye lands on first.
+   */
+  variant?: 'primary' | 'secondary';
 }) {
   const t = translator(locale);
   const titleId = useId();
@@ -972,9 +982,13 @@ export default function StakeModal({
       <button
         type='button'
         onClick={() => setOpen(true)}
-        className='rounded-full bg-grape px-4 py-2 text-sm font-semibold text-on-grape transition-colors hover:bg-grape/90'
+        className={`rounded-full font-semibold whitespace-nowrap transition-colors ${
+          variant === 'primary'
+            ? 'bg-grape text-on-grape hover:bg-grape/90'
+            : 'text-grape ring-1 ring-grape ring-inset hover:bg-grape-soft'
+        } ${compact ? 'px-3 py-1.5 text-xs' : 'px-4 py-2 text-sm'}`}
       >
-        {t('stake.open')}
+        {compact ? t('stake.openShort') : t('stake.open')}
       </button>
 
       {open && (
@@ -1012,499 +1026,506 @@ export default function StakeModal({
                 child refuses to shrink below its content and the footer is
                 pushed off the bottom instead of pinned to it. */}
             <div className='min-h-0 flex-1 overflow-y-auto px-6 pb-2'>
-            <p className='mt-2 text-sm text-muted'>{t('stake.intro')}</p>
+              <p className='mt-2 text-sm text-muted'>{t('stake.intro')}</p>
 
-            <div className={`mt-4 ${CARD}`}>
-              <div className='flex flex-wrap items-baseline justify-between gap-2'>
-                <p className='text-sm font-bold'>{t('stake.wallet')}</p>
-                <span className='flex items-center gap-2'>
-                  {/* Always reachable once anything is remembered, so a wallet
+              <div className={`mt-4 ${CARD}`}>
+                <div className='flex flex-wrap items-baseline justify-between gap-2'>
+                  <p className='text-sm font-bold'>{t('stake.wallet')}</p>
+                  <span className='flex items-center gap-2'>
+                    {/* Always reachable once anything is remembered, so a wallet
                       that connects but cannot be used is never a dead end. */}
-                  {walletAddress && (
+                    {walletAddress && (
+                      <button
+                        type='button'
+                        onClick={disconnectWallet}
+                        className='rounded-full px-2 py-1 text-xs font-semibold text-muted underline underline-offset-2 hover:text-ink'
+                      >
+                        {t('stake.disconnect')}
+                      </button>
+                    )}
                     <button
                       type='button'
-                      onClick={disconnectWallet}
-                      className='rounded-full px-2 py-1 text-xs font-semibold text-muted underline underline-offset-2 hover:text-ink'
+                      onClick={connectWallet}
+                      className='rounded-full bg-grape-soft px-3 py-1 text-xs font-semibold text-grape hover:bg-grape-soft/80'
                     >
-                      {t('stake.disconnect')}
+                      {loading
+                        ? t('stake.checking')
+                        : walletAddress
+                          ? t('stake.switch')
+                          : t('stake.connect')}
                     </button>
-                  )}
-                  <button
-                    type='button'
-                    onClick={connectWallet}
-                    className='rounded-full bg-grape-soft px-3 py-1 text-xs font-semibold text-grape hover:bg-grape-soft/80'
-                  >
-                    {loading
-                      ? t('stake.checking')
-                      : walletAddress
-                        ? t('stake.switch')
-                        : t('stake.connect')}
-                  </button>
-                </span>
-              </div>
-              <p className='mt-1 font-mono text-sm text-ink'>
-                {walletAddress ? (
-                  <span title={walletAddress}>
-                    {ellipsedAddr(walletAddress, 12)}
                   </span>
-                ) : (
-                  <span className='font-sans text-muted'>
-                    {t('stake.walletNone')}
-                  </span>
-                )}
-              </p>
-              <p className='mt-1 text-sm text-muted'>
-                {spendableUstx === null
-                  ? t('stake.availableUnknown')
-                  : t('stake.available', {
-                      amount: exactStxLabel(spendableUstx, locale),
-                    })}
-              </p>
-            </div>
-
-            {/*
-             * The only route to a wallet from a phone browser.
-             * There is no extension here to inject a provider, and
-             * WalletConnect is switched off (see lib/wallet-connect), so
-             * without this the button above opens a picker with nothing in it.
-             * A real link, not a button with an onClick: iOS refuses a
-             * custom-scheme navigation that did not come from a gesture, and a
-             * gesture on an anchor is the one it always accepts.
-             */}
-            {offerBrowser && (
-              <div className='mt-3 rounded-2xl bg-grape-soft p-4'>
-                <p className='text-sm font-bold text-grape'>
-                  {t('stake.browserTitle')}
-                </p>
-                <p className='mt-1 text-xs text-muted'>
-                  {t('stake.browserBody')}
-                </p>
-                <div className='mt-3 flex flex-wrap gap-2'>
-                  {BROWSER_WALLETS.map((id) => {
-                    const here =
-                      typeof location === 'undefined' ? '' : location.href;
-                    const link = walletBrowserUrl(id, here);
-                    if (link === null) return null;
-                    return (
-                      <a
-                        key={id}
-                        href={link}
-                        className='rounded-full bg-card px-4 py-2 text-sm font-semibold text-grape shadow-lift'
-                      >
-                        {t('stake.browserOpen', {
-                          wallet: BROWSER_WALLET_NAMES[id],
-                        })}
-                      </a>
-                    );
-                  })}
                 </div>
-                <p className='mt-2 text-xs text-muted'>
-                  {t('stake.browserNote')}
+                <p className='mt-1 font-mono text-sm text-ink'>
+                  {walletAddress ? (
+                    <span title={walletAddress}>
+                      {ellipsedAddr(walletAddress, 12)}
+                    </span>
+                  ) : (
+                    <span className='font-sans text-muted'>
+                      {t('stake.walletNone')}
+                    </span>
+                  )}
+                </p>
+                <p className='mt-1 text-sm text-muted'>
+                  {spendableUstx === null
+                    ? t('stake.availableUnknown')
+                    : t('stake.available', {
+                        amount: exactStxLabel(spendableUstx, locale),
+                      })}
                 </p>
               </div>
-            )}
 
-            {position && (
-              <div className='mt-3 rounded-2xl bg-mint-soft p-4 text-sm'>
-                <p className='font-bold text-ink'>
-                  {t('stake.position.title')}
-                </p>
-                <p className='mt-1 text-ink'>
-                  {t('stake.position.amount', {
-                    amount: exactStxLabel(position.amountUstx, locale),
-                    pool: currentPoolName ?? position.signer,
-                  })}{' '}
-                  <span className='text-muted'>
-                    {stakingHere
-                      ? t('stake.position.thisPool')
-                      : t('stake.position.otherPool', {
-                          pool: signer.displayName,
-                        })}
-                  </span>
-                </p>
-                <p className='mt-1 text-muted'>
-                  {t.plural('stake.position.cycles', position.numCycles, {
-                    first: position.firstRewardCycle,
-                  })}{' '}
-                  {t('stake.position.cyclesHint')}
-                </p>
-                <p className='mt-2 text-ink'>
-                  {position.payout === null
-                    ? t('stake.position.rewardsUnknown')
-                    : position.payout.route.kind === 'sbtc'
-                      ? t('stake.position.rewardsSbtc')
-                      : t.rich('stake.position.rewardsBitcoin', {
-                          // Shortened, with the whole of it a hover away: the
-                          // point is that there *is* one and that it is yours.
-                          address: (
-                            <span
-                              className='font-mono'
-                              title={position.payout.route.address}
-                            >
-                              {ellipsedAddr(position.payout.route.address, 16)}
-                            </span>
-                          ),
-                        })}
-                </p>
-                {position.payout?.route.kind === 'bitcoin' && (
-                  <p className='mt-1 text-xs text-muted'>
-                    {t('stake.position.maxFee', {
-                      sats: position.payout.route.maxFeeSats.toLocaleString(
-                        t.bundle.intlLocale,
-                      ),
-                    })}
-                    {position.payout.route.minClaimSats !== null && (
-                      <>
-                        {' '}
-                        {t('stake.position.minClaim', {
-                          sats: position.payout.route.minClaimSats.toLocaleString(
-                            t.bundle.intlLocale,
-                          ),
-                        })}
-                      </>
-                    )}
+              {/*
+               * The only route to a wallet from a phone browser.
+               * There is no extension here to inject a provider, and
+               * WalletConnect is switched off (see lib/wallet-connect), so
+               * without this the button above opens a picker with nothing in it.
+               * A real link, not a button with an onClick: iOS refuses a
+               * custom-scheme navigation that did not come from a gesture, and a
+               * gesture on an anchor is the one it always accepts.
+               */}
+              {offerBrowser && (
+                <div className='mt-3 rounded-2xl bg-grape-soft p-4'>
+                  <p className='text-sm font-bold text-grape'>
+                    {t('stake.browserTitle')}
                   </p>
-                )}
-                {/*
-                 * What the pool holds is above; this is what the person
-                 * themselves sent. Usually the same thing said twice, but not
-                 * always: a two-field calldata carries no floor, and the pool
-                 * puts one in. Worth seeing before staking again.
-                 */}
-                <p className='mt-2 text-xs text-muted'>
-                  {position.userData === null
-                    ? t('stake.position.userDataUnknown')
-                    : t.rich(
-                        position.userData.route.kind === 'sbtc'
-                          ? 'stake.position.userDataSbtc'
-                          : 'stake.position.userDataBitcoin',
-                        {
-                          address:
-                            position.userData.route.kind === 'bitcoin' ? (
+                  <p className='mt-1 text-xs text-muted'>
+                    {t('stake.browserBody')}
+                  </p>
+                  <div className='mt-3 flex flex-wrap gap-2'>
+                    {BROWSER_WALLETS.map((id) => {
+                      const here =
+                        typeof location === 'undefined' ? '' : location.href;
+                      const link = walletBrowserUrl(id, here);
+                      if (link === null) return null;
+                      return (
+                        <a
+                          key={id}
+                          href={link}
+                          className='rounded-full bg-card px-4 py-2 text-sm font-semibold text-grape shadow-lift'
+                        >
+                          {t('stake.browserOpen', {
+                            wallet: BROWSER_WALLET_NAMES[id],
+                          })}
+                        </a>
+                      );
+                    })}
+                  </div>
+                  <p className='mt-2 text-xs text-muted'>
+                    {t('stake.browserNote')}
+                  </p>
+                </div>
+              )}
+
+              {position && (
+                <div className='mt-3 rounded-2xl bg-mint-soft p-4 text-sm'>
+                  <p className='font-bold text-ink'>
+                    {t('stake.position.title')}
+                  </p>
+                  <p className='mt-1 text-ink'>
+                    {t('stake.position.amount', {
+                      amount: exactStxLabel(position.amountUstx, locale),
+                      pool: currentPoolName ?? position.signer,
+                    })}{' '}
+                    <span className='text-muted'>
+                      {stakingHere
+                        ? t('stake.position.thisPool')
+                        : t('stake.position.otherPool', {
+                            pool: signer.displayName,
+                          })}
+                    </span>
+                  </p>
+                  <p className='mt-1 text-muted'>
+                    {t.plural('stake.position.cycles', position.numCycles, {
+                      first: position.firstRewardCycle,
+                    })}{' '}
+                    {t('stake.position.cyclesHint')}
+                  </p>
+                  <p className='mt-2 text-ink'>
+                    {position.payout === null
+                      ? t('stake.position.rewardsUnknown')
+                      : position.payout.route.kind === 'sbtc'
+                        ? t('stake.position.rewardsSbtc')
+                        : t.rich('stake.position.rewardsBitcoin', {
+                            // Shortened, with the whole of it a hover away: the
+                            // point is that there *is* one and that it is yours.
+                            address: (
                               <span
                                 className='font-mono'
-                                title={position.userData.route.address}
+                                title={position.payout.route.address}
                               >
-                                {ellipsedAddr(position.userData.route.address, 16)}
+                                {ellipsedAddr(
+                                  position.payout.route.address,
+                                  16,
+                                )}
                               </span>
-                            ) : (
-                              ''
                             ),
-                          sats:
-                            position.userData.route.kind === 'bitcoin'
-                              ? position.userData.route.maxFeeSats.toLocaleString(
-                                  t.bundle.intlLocale,
-                                )
-                              : '',
-                          tx: (
-                            <a
-                              className='underline underline-offset-2'
-                              href={explorerUrl(position.userData.txId)}
-                              target='_blank'
-                              rel='noreferrer'
-                            >
-                              {t(
-                                position.userData.functionName === 'stake-update'
-                                  ? 'stake.position.userDataUpdateTx'
-                                  : 'stake.position.userDataStakeTx',
-                              )}
-                            </a>
-                          ),
-                        },
-                      )}{' '}
-                  {position.userData?.route.kind === 'bitcoin' &&
-                    (position.userData.route.minClaimSats === null
-                      ? position.payout?.route.kind === 'bitcoin' &&
-                        position.payout.route.minClaimSats !== null &&
-                        t('stake.position.userDataNoFloor')
-                      : t('stake.position.userDataFloor', {
-                          sats: position.userData.route.minClaimSats.toLocaleString(
-                            t.bundle.intlLocale,
-                          ),
-                        }))}
-                </p>
-              </div>
-            )}
-
-            <Step
-              title={
-                position
-                  ? t('stake.amountQuestionMore')
-                  : t('stake.amountQuestion')
-              }
-            >
-              <div className='mt-2 flex gap-2'>
-                <input
-                  type='text'
-                  inputMode='decimal'
-                  value={amountStx}
-                  onChange={(e) => setAmountStx(e.target.value)}
-                  className={FIELD}
-                  placeholder='0'
-                  aria-label={
-                    position
-                      ? t('stake.amountQuestionMore')
-                      : t('stake.amountQuestion')
-                  }
-                />
-                <button
-                  type='button'
-                  onClick={onUseMax}
-                  className='shrink-0 rounded-xl bg-grape-soft px-3 py-2 text-sm font-semibold text-grape'
-                >
-                  {t('stake.max')}
-                </button>
-              </div>
-              {position && (
-                <p className='mt-1 text-xs text-muted'>
-                  {rotating
-                    ? t('stake.amountOptionalMove')
-                    : t('stake.amountOptional')}
-                </p>
+                          })}
+                  </p>
+                  {position.payout?.route.kind === 'bitcoin' && (
+                    <p className='mt-1 text-xs text-muted'>
+                      {t('stake.position.maxFee', {
+                        sats: position.payout.route.maxFeeSats.toLocaleString(
+                          t.bundle.intlLocale,
+                        ),
+                      })}
+                      {position.payout.route.minClaimSats !== null && (
+                        <>
+                          {' '}
+                          {t('stake.position.minClaim', {
+                            sats: position.payout.route.minClaimSats.toLocaleString(
+                              t.bundle.intlLocale,
+                            ),
+                          })}
+                        </>
+                      )}
+                    </p>
+                  )}
+                  {/*
+                   * What the pool holds is above; this is what the person
+                   * themselves sent. Usually the same thing said twice, but not
+                   * always: a two-field calldata carries no floor, and the pool
+                   * puts one in. Worth seeing before staking again.
+                   */}
+                  <p className='mt-2 text-xs text-muted'>
+                    {position.userData === null
+                      ? t('stake.position.userDataUnknown')
+                      : t.rich(
+                          position.userData.route.kind === 'sbtc'
+                            ? 'stake.position.userDataSbtc'
+                            : 'stake.position.userDataBitcoin',
+                          {
+                            address:
+                              position.userData.route.kind === 'bitcoin' ? (
+                                <span
+                                  className='font-mono'
+                                  title={position.userData.route.address}
+                                >
+                                  {ellipsedAddr(
+                                    position.userData.route.address,
+                                    16,
+                                  )}
+                                </span>
+                              ) : (
+                                ''
+                              ),
+                            sats:
+                              position.userData.route.kind === 'bitcoin'
+                                ? position.userData.route.maxFeeSats.toLocaleString(
+                                    t.bundle.intlLocale,
+                                  )
+                                : '',
+                            tx: (
+                              <a
+                                className='underline underline-offset-2'
+                                href={explorerUrl(position.userData.txId)}
+                                target='_blank'
+                                rel='noreferrer'
+                              >
+                                {t(
+                                  position.userData.functionName ===
+                                    'stake-update'
+                                    ? 'stake.position.userDataUpdateTx'
+                                    : 'stake.position.userDataStakeTx',
+                                )}
+                              </a>
+                            ),
+                          },
+                        )}{' '}
+                    {position.userData?.route.kind === 'bitcoin' &&
+                      (position.userData.route.minClaimSats === null
+                        ? position.payout?.route.kind === 'bitcoin' &&
+                          position.payout.route.minClaimSats !== null &&
+                          t('stake.position.userDataNoFloor')
+                        : t('stake.position.userDataFloor', {
+                            sats: position.userData.route.minClaimSats.toLocaleString(
+                              t.bundle.intlLocale,
+                            ),
+                          }))}
+                  </p>
+                </div>
               )}
-              <p className='mt-1 text-xs text-muted'>{t('stake.maxHint')}</p>
-            </Step>
 
-            {/* A first stake picks its own lock period; an update's comes from
-                what is left of the position, so there is nothing to choose. */}
-            {!position && (
-              <Step title={t('stake.cyclesQuestion')}>
-                <div className='mt-2 flex flex-wrap items-center gap-2'>
-                  {CYCLE_PRESETS.map((preset) => (
-                    <button
-                      key={preset}
-                      type='button'
-                      onClick={() => setCyclesInput(String(preset))}
-                      className={`rounded-full px-3 py-1.5 text-sm font-semibold ${
-                        numCycles === preset
-                          ? 'bg-grape text-on-grape'
-                          : 'bg-grape-soft text-grape'
-                      }`}
-                    >
-                      {t.plural('stake.cyclesCount', preset)}
-                    </button>
-                  ))}
+              <Step
+                title={
+                  position
+                    ? t('stake.amountQuestionMore')
+                    : t('stake.amountQuestion')
+                }
+              >
+                <div className='mt-2 flex gap-2'>
                   <input
-                    type='number'
-                    inputMode='numeric'
-                    min={1}
-                    max={MAX_LOCK_CYCLES}
-                    value={cyclesInput}
-                    onChange={(e) => setCyclesInput(e.target.value)}
-                    className={`w-24 ${FIELD}`}
-                    aria-label={t('stake.cyclesQuestion')}
+                    type='text'
+                    inputMode='decimal'
+                    value={amountStx}
+                    onChange={(e) => setAmountStx(e.target.value)}
+                    className={FIELD}
+                    placeholder='0'
+                    aria-label={
+                      position
+                        ? t('stake.amountQuestionMore')
+                        : t('stake.amountQuestion')
+                    }
                   />
+                  <button
+                    type='button'
+                    onClick={onUseMax}
+                    className='shrink-0 rounded-xl bg-grape-soft px-3 py-2 text-sm font-semibold text-grape'
+                  >
+                    {t('stake.max')}
+                  </button>
                 </div>
-                <p className='mt-1 text-xs text-muted'>
-                  {numCycles !== null && isValidLockCycles(numCycles)
-                    ? `${t.plural(
-                        `stake.cyclesFor.${lockDuration(numCycles).unit}`,
-                        lockDuration(numCycles).count,
-                      )} ${t('stake.cyclesHint', { max: MAX_LOCK_CYCLES })}`
-                    : t('stake.cyclesHint', { max: MAX_LOCK_CYCLES })}
-                </p>
-              </Step>
-            )}
-
-            {/* The same question for a position, asked the other way round:
-                not how long in all, but how much longer than it has. */}
-            {position && range !== null && range.max > 0 && (
-              <Step title={t('stake.extendQuestion')}>
-                <div className='mt-2 flex flex-wrap items-center gap-2'>
-                  {extendPresets.map((preset) => (
-                    <button
-                      key={preset}
-                      type='button'
-                      onClick={() => setExtendInput(String(preset))}
-                      className={`rounded-full px-3 py-1.5 text-sm font-semibold ${
-                        askedExtend === preset
-                          ? 'bg-grape text-on-grape'
-                          : 'bg-grape-soft text-grape'
-                      }`}
-                    >
-                      {preset === 0
-                        ? t('stake.extendKeep')
-                        : t.plural('stake.extendCount', preset)}
-                    </button>
-                  ))}
-                  <input
-                    type='number'
-                    inputMode='numeric'
-                    min={range.min}
-                    max={range.max}
-                    value={extendInput ?? String(extendCycles)}
-                    onChange={(e) => setExtendInput(e.target.value)}
-                    className={`w-24 ${FIELD}`}
-                    aria-label={t('stake.extendQuestion')}
-                  />
-                </div>
-                <p className='mt-1 text-xs text-muted'>
-                  {extendedTotal !== null && extendedTotal >= 1
-                    ? `${t.plural('stake.extendTotal', extendedTotal)} ${t.plural(
-                        `stake.cyclesFor.${lockDuration(extendedTotal).unit}`,
-                        lockDuration(extendedTotal).count,
-                      )} `
-                    : ''}
-                  {t('stake.extendHint', { min: range.min, max: range.max })}
-                </p>
-              </Step>
-            )}
-
-            {position && extendCycles > 0 && askedExtend === extendCycles && (
-              <p className='mt-3 rounded-xl bg-card-raised p-3 text-xs text-muted'>
-                {t('stake.extendNote')}
-              </p>
-            )}
-
-            {position && cycle?.inPreparePhase && (
-              <p className='mt-3 rounded-xl bg-amber-soft p-3 text-xs text-amber-warm'>
-                {t('stake.prepareNote')}
-              </p>
-            )}
-
-            {canToggleBtc && (
-              <Step title={t('stake.rewardsQuestion')}>
-                <div className='mt-2 space-y-2'>
-                  <RewardOption
-                    name={rewardsName}
-                    checked={!receiveBtc}
-                    onSelect={() => setRewardChoice('sbtc')}
-                    title={t('stake.rewardsSbtc')}
-                    help={t('stake.rewardsSbtcHelp')}
-                    now={recorded === null && payout !== null}
-                    nowLabel={t('stake.rewardsNow')}
-                  />
-                  <RewardOption
-                    name={rewardsName}
-                    checked={receiveBtc}
-                    onSelect={() => setRewardChoice('bitcoin')}
-                    title={t('stake.rewardsBitcoin')}
-                    help={t('stake.rewardsBitcoinHelp')}
-                    now={recorded !== null}
-                    nowLabel={t('stake.rewardsNow')}
-                  />
-                </div>
-
-                {(stopsBitcoinPayouts || replacesBtcAddress) && (
-                  <p className='mt-2 rounded-xl bg-amber-soft p-3 text-xs text-amber-warm'>
-                    {stopsBitcoinPayouts
-                      ? t('stake.rewardsChangeToSbtc')
-                      : t('stake.rewardsChangeAddress')}
+                {position && (
+                  <p className='mt-1 text-xs text-muted'>
+                    {rotating
+                      ? t('stake.amountOptionalMove')
+                      : t('stake.amountOptional')}
                   </p>
                 )}
+                <p className='mt-1 text-xs text-muted'>{t('stake.maxHint')}</p>
+              </Step>
 
-                {receiveBtc && (
-                  <div className='mt-3 space-y-3 rounded-xl bg-card-raised p-3'>
-                    <div>
-                      <label className='block text-xs font-semibold'>
-                        {t('stake.btcAddress')}
-                      </label>
-                      <input
-                        type='text'
-                        value={btcAddress}
-                        onChange={(e) => setBtcAddressInput(e.target.value)}
-                        className={`mt-1 font-mono ${FIELD}`}
-                        placeholder='bc1...'
-                      />
-                    </div>
-                    <div>
-                      <label className='block text-xs font-semibold'>
-                        {t('stake.maxFee')}
-                      </label>
-                      <input
-                        type='text'
-                        inputMode='numeric'
-                        value={maxFeeSats}
-                        onChange={(e) => setMaxFeeInput(e.target.value)}
-                        className={`mt-1 ${FIELD}`}
-                      />
-                      <p className='mt-1 text-xs text-muted'>
-                        {t('stake.maxFeeHint', {
-                          min: MIN_PAYOUT_FEE_SATS.toLocaleString(
-                            t.bundle.intlLocale,
-                          ),
-                        })}
-                      </p>
-                    </div>
-                    {supportsMinClaim && (
+              {/* A first stake picks its own lock period; an update's comes from
+                what is left of the position, so there is nothing to choose. */}
+              {!position && (
+                <Step title={t('stake.cyclesQuestion')}>
+                  <div className='mt-2 flex flex-wrap items-center gap-2'>
+                    {CYCLE_PRESETS.map((preset) => (
+                      <button
+                        key={preset}
+                        type='button'
+                        onClick={() => setCyclesInput(String(preset))}
+                        className={`rounded-full px-3 py-1.5 text-sm font-semibold ${
+                          numCycles === preset
+                            ? 'bg-grape text-on-grape'
+                            : 'bg-grape-soft text-grape'
+                        }`}
+                      >
+                        {t.plural('stake.cyclesCount', preset)}
+                      </button>
+                    ))}
+                    <input
+                      type='number'
+                      inputMode='numeric'
+                      min={1}
+                      max={MAX_LOCK_CYCLES}
+                      value={cyclesInput}
+                      onChange={(e) => setCyclesInput(e.target.value)}
+                      className={`w-24 ${FIELD}`}
+                      aria-label={t('stake.cyclesQuestion')}
+                    />
+                  </div>
+                  <p className='mt-1 text-xs text-muted'>
+                    {numCycles !== null && isValidLockCycles(numCycles)
+                      ? `${t.plural(
+                          `stake.cyclesFor.${lockDuration(numCycles).unit}`,
+                          lockDuration(numCycles).count,
+                        )} ${t('stake.cyclesHint', { max: MAX_LOCK_CYCLES })}`
+                      : t('stake.cyclesHint', { max: MAX_LOCK_CYCLES })}
+                  </p>
+                </Step>
+              )}
+
+              {/* The same question for a position, asked the other way round:
+                not how long in all, but how much longer than it has. */}
+              {position && range !== null && range.max > 0 && (
+                <Step title={t('stake.extendQuestion')}>
+                  <div className='mt-2 flex flex-wrap items-center gap-2'>
+                    {extendPresets.map((preset) => (
+                      <button
+                        key={preset}
+                        type='button'
+                        onClick={() => setExtendInput(String(preset))}
+                        className={`rounded-full px-3 py-1.5 text-sm font-semibold ${
+                          askedExtend === preset
+                            ? 'bg-grape text-on-grape'
+                            : 'bg-grape-soft text-grape'
+                        }`}
+                      >
+                        {preset === 0
+                          ? t('stake.extendKeep')
+                          : t.plural('stake.extendCount', preset)}
+                      </button>
+                    ))}
+                    <input
+                      type='number'
+                      inputMode='numeric'
+                      min={range.min}
+                      max={range.max}
+                      value={extendInput ?? String(extendCycles)}
+                      onChange={(e) => setExtendInput(e.target.value)}
+                      className={`w-24 ${FIELD}`}
+                      aria-label={t('stake.extendQuestion')}
+                    />
+                  </div>
+                  <p className='mt-1 text-xs text-muted'>
+                    {extendedTotal !== null && extendedTotal >= 1
+                      ? `${t.plural('stake.extendTotal', extendedTotal)} ${t.plural(
+                          `stake.cyclesFor.${lockDuration(extendedTotal).unit}`,
+                          lockDuration(extendedTotal).count,
+                        )} `
+                      : ''}
+                    {t('stake.extendHint', { min: range.min, max: range.max })}
+                  </p>
+                </Step>
+              )}
+
+              {position && extendCycles > 0 && askedExtend === extendCycles && (
+                <p className='mt-3 rounded-xl bg-card-raised p-3 text-xs text-muted'>
+                  {t('stake.extendNote')}
+                </p>
+              )}
+
+              {position && cycle?.inPreparePhase && (
+                <p className='mt-3 rounded-xl bg-amber-soft p-3 text-xs text-amber-warm'>
+                  {t('stake.prepareNote')}
+                </p>
+              )}
+
+              {canToggleBtc && (
+                <Step title={t('stake.rewardsQuestion')}>
+                  <div className='mt-2 space-y-2'>
+                    <RewardOption
+                      name={rewardsName}
+                      checked={!receiveBtc}
+                      onSelect={() => setRewardChoice('sbtc')}
+                      title={t('stake.rewardsSbtc')}
+                      help={t('stake.rewardsSbtcHelp')}
+                      now={recorded === null && payout !== null}
+                      nowLabel={t('stake.rewardsNow')}
+                    />
+                    <RewardOption
+                      name={rewardsName}
+                      checked={receiveBtc}
+                      onSelect={() => setRewardChoice('bitcoin')}
+                      title={t('stake.rewardsBitcoin')}
+                      help={t('stake.rewardsBitcoinHelp')}
+                      now={recorded !== null}
+                      nowLabel={t('stake.rewardsNow')}
+                    />
+                  </div>
+
+                  {(stopsBitcoinPayouts || replacesBtcAddress) && (
+                    <p className='mt-2 rounded-xl bg-amber-soft p-3 text-xs text-amber-warm'>
+                      {stopsBitcoinPayouts
+                        ? t('stake.rewardsChangeToSbtc')
+                        : t('stake.rewardsChangeAddress')}
+                    </p>
+                  )}
+
+                  {receiveBtc && (
+                    <div className='mt-3 space-y-3 rounded-xl bg-card-raised p-3'>
                       <div>
                         <label className='block text-xs font-semibold'>
-                          {t('stake.minClaim')}
+                          {t('stake.btcAddress')}
+                        </label>
+                        <input
+                          type='text'
+                          value={btcAddress}
+                          onChange={(e) => setBtcAddressInput(e.target.value)}
+                          className={`mt-1 font-mono ${FIELD}`}
+                          placeholder='bc1...'
+                        />
+                      </div>
+                      <div>
+                        <label className='block text-xs font-semibold'>
+                          {t('stake.maxFee')}
                         </label>
                         <input
                           type='text'
                           inputMode='numeric'
-                          value={minClaimSats}
-                          onChange={(e) => setMinClaimInput(e.target.value)}
+                          value={maxFeeSats}
+                          onChange={(e) => setMaxFeeInput(e.target.value)}
                           className={`mt-1 ${FIELD}`}
                         />
                         <p className='mt-1 text-xs text-muted'>
-                          {t('stake.minClaimHint', {
-                            min:
-                              parsedMaxFee === null
-                                ? '—'
-                                : minClaimFloorSats(
-                                    parsedMaxFee,
-                                  ).toLocaleString(t.bundle.intlLocale),
+                          {t('stake.maxFeeHint', {
+                            min: MIN_PAYOUT_FEE_SATS.toLocaleString(
+                              t.bundle.intlLocale,
+                            ),
                           })}
                         </p>
                       </div>
-                    )}
-                  </div>
-                )}
-              </Step>
-            )}
+                      {supportsMinClaim && (
+                        <div>
+                          <label className='block text-xs font-semibold'>
+                            {t('stake.minClaim')}
+                          </label>
+                          <input
+                            type='text'
+                            inputMode='numeric'
+                            value={minClaimSats}
+                            onChange={(e) => setMinClaimInput(e.target.value)}
+                            className={`mt-1 ${FIELD}`}
+                          />
+                          <p className='mt-1 text-xs text-muted'>
+                            {t('stake.minClaimHint', {
+                              min:
+                                parsedMaxFee === null
+                                  ? '—'
+                                  : minClaimFloorSats(
+                                      parsedMaxFee,
+                                    ).toLocaleString(t.bundle.intlLocale),
+                            })}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </Step>
+              )}
 
-            <details className='mt-5 text-xs text-muted'>
-              <summary className='cursor-pointer font-semibold'>
-                {t('stake.explain')}
-              </summary>
-              <p className='mt-1 max-w-sm'>{t('stake.explainBody')}</p>
-            </details>
+              <details className='mt-5 text-xs text-muted'>
+                <summary className='cursor-pointer font-semibold'>
+                  {t('stake.explain')}
+                </summary>
+                <p className='mt-1 max-w-sm'>{t('stake.explainBody')}</p>
+              </details>
 
-            {/* Only for the pool the stake is actually with: unstaking ends
+              {/* Only for the pool the stake is actually with: unstaking ends
                 that position wherever the reader happens to be looking. A
                 position with no cycle left after this one is already ending,
                 so there is nothing for this to stop. */}
-            {stakingHere && extendCycles === 0 && (
-              <div className='mt-5 border-t border-hairline pt-4'>
-                <p className='text-sm font-bold text-ink'>
-                  {t('stake.unstake.title')}
-                </p>
-                <p className='mt-1 text-xs text-muted'>
-                  {t('stake.unstake.body')}
-                </p>
-                {confirmUnstake ? (
-                  <div className='mt-2 flex flex-wrap items-center gap-2'>
+              {stakingHere && extendCycles === 0 && (
+                <div className='mt-5 border-t border-hairline pt-4'>
+                  <p className='text-sm font-bold text-ink'>
+                    {t('stake.unstake.title')}
+                  </p>
+                  <p className='mt-1 text-xs text-muted'>
+                    {t('stake.unstake.body')}
+                  </p>
+                  {confirmUnstake ? (
+                    <div className='mt-2 flex flex-wrap items-center gap-2'>
+                      <button
+                        type='button'
+                        onClick={onUnstake}
+                        disabled={submitting}
+                        className='rounded-full bg-amber-soft px-4 py-2 text-sm font-semibold text-amber-warm disabled:opacity-50'
+                      >
+                        {submitting
+                          ? t('stake.submitting')
+                          : t('stake.unstake.confirm')}
+                      </button>
+                      <button
+                        type='button'
+                        onClick={() => setConfirmUnstake(false)}
+                        className='rounded-full px-3 py-2 text-xs font-semibold text-muted underline underline-offset-2 hover:text-ink'
+                      >
+                        {t('stake.unstake.cancel')}
+                      </button>
+                    </div>
+                  ) : (
                     <button
                       type='button'
-                      onClick={onUnstake}
-                      disabled={submitting}
-                      className='rounded-full bg-amber-soft px-4 py-2 text-sm font-semibold text-amber-warm disabled:opacity-50'
+                      onClick={() => setConfirmUnstake(true)}
+                      className='mt-2 rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-ink'
                     >
-                      {submitting
-                        ? t('stake.submitting')
-                        : t('stake.unstake.confirm')}
+                      {t('stake.unstake.open')}
                     </button>
-                    <button
-                      type='button'
-                      onClick={() => setConfirmUnstake(false)}
-                      className='rounded-full px-3 py-2 text-xs font-semibold text-muted underline underline-offset-2 hover:text-ink'
-                    >
-                      {t('stake.unstake.cancel')}
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type='button'
-                    onClick={() => setConfirmUnstake(true)}
-                    className='mt-2 rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-ink'
-                  >
-                    {t('stake.unstake.open')}
-                  </button>
-                )}
-              </div>
-            )}
+                  )}
+                </div>
+              )}
             </div>
 
             {/*

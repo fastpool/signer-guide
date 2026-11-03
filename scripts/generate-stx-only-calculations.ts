@@ -171,7 +171,10 @@ function readHistory(): StxOnlyHistory | null {
  */
 function writeHistory(entry: StxOnlyDistribution | null): number {
   const previous = readHistory();
-  const distributions = recordDistribution(previous?.distributions ?? [], entry);
+  const distributions = recordDistribution(
+    previous?.distributions ?? [],
+    entry,
+  );
 
   const unchanged =
     previous !== null &&
@@ -300,7 +303,9 @@ async function main() {
   // Where the next payout falls: the end of that cycle, which is the
   // `calculation-height` the next `calculate-rewards` will use.
   const nextRewardBurnHeight =
-    distributionStart === null ? null : distributionStart + distributionBlocks - 1;
+    distributionStart === null
+      ? null
+      : distributionStart + distributionBlocks - 1;
 
   // How long `get-new-rewards` has been filling up. Measured from the last
   // computation rather than from the start of the distribution cycle, because
@@ -405,7 +410,8 @@ async function main() {
     bondStakedUstx: bondStakedUstx.toString(),
     stxOnlyStakedUstx: stxOnlyStakedUstx.toString(),
     stxPriceSats,
-    sbtcBalanceSats: sbtcBalanceSats === null ? null : sbtcBalanceSats.toString(),
+    sbtcBalanceSats:
+      sbtcBalanceSats === null ? null : sbtcBalanceSats.toString(),
     accruedRewardsSats:
       newRewardsSats === null ? null : newRewardsSats.toString(),
     bondShareSats: bondShareSats === null ? null : bondShareSats.toString(),

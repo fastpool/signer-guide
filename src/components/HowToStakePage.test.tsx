@@ -17,8 +17,7 @@ beforeEach(() => {
   vi.stubGlobal('navigator', { language: 'en-GB' });
 });
 
-const html = () =>
-  renderToStaticMarkup(<HowToStakePage locale='en' onLocaleChange={() => {}} />);
+const html = () => renderToStaticMarkup(<HowToStakePage locale='en' />);
 
 describe('staking in three steps', () => {
   const t = translator('en');

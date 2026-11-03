@@ -4,7 +4,10 @@ import { useSnapshot } from '../data/snapshot';
 import { useOnboarding } from '../data/onboarding';
 import { percent } from '../format';
 import { useT } from '../i18n';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { useColors } from '../settings';
 import { fonts, radius, space } from '../theme';
 import { Button, Row, Text } from '../ui';
@@ -48,7 +51,10 @@ export default function WelcomeScreen({ navigation }: ScreenProps<'Welcome'>) {
   };
 
   return (
-    <View style={[styles.screen, { backgroundColor: colors.bg }]} testID='welcome-screen'>
+    <View
+      style={[styles.screen, { backgroundColor: colors.bg }]}
+      testID='welcome-screen'
+    >
       {/*
         A grape band, the steps, and a pinned footer. The first two scroll and
         the footer does not, so the button that acts on the argument is never
@@ -60,10 +66,7 @@ export default function WelcomeScreen({ navigation }: ScreenProps<'Welcome'>) {
       */}
       <View style={{ height: insets.top, backgroundColor: colors.stx }} />
 
-      <ScrollView
-        contentContainerStyle={styles.scroll}
-        testID='welcome-scroll'
-      >
+      <ScrollView contentContainerStyle={styles.scroll} testID='welcome-scroll'>
         <View style={[styles.band, { backgroundColor: colors.stx }]}>
           <Row gap={space.md}>
             <Mark size={26} onGrape />
@@ -89,9 +92,21 @@ export default function WelcomeScreen({ navigation }: ScreenProps<'Welcome'>) {
         </View>
 
         <View style={styles.steps}>
-          <Step n='1' title={t('welcome.step1.title')} body={t('welcome.step1.body')} />
-          <Step n='2' title={t('welcome.step2.title')} body={t('welcome.step2.body')} />
-          <Step n='3' title={t('welcome.step3.title')} body={t('welcome.step3.body')} />
+          <Step
+            n='1'
+            title={t('welcome.step1.title')}
+            body={t('welcome.step1.body')}
+          />
+          <Step
+            n='2'
+            title={t('welcome.step2.title')}
+            body={t('welcome.step2.body')}
+          />
+          <Step
+            n='3'
+            title={t('welcome.step3.title')}
+            body={t('welcome.step3.body')}
+          />
         </View>
       </ScrollView>
 
@@ -127,7 +142,11 @@ function Step({ n, title, body }: { n: string; title: string; body: string }) {
       </View>
       <View style={{ flexShrink: 1, gap: 2 }}>
         <Text variant='heading'>{title}</Text>
-        <Text variant='small' tone='muted' style={{ fontSize: 12.5, lineHeight: 18 }}>
+        <Text
+          variant='small'
+          tone='muted'
+          style={{ fontSize: 12.5, lineHeight: 18 }}
+        >
           {body}
         </Text>
       </View>
@@ -153,7 +172,12 @@ const styles = StyleSheet.create({
    * nothing else in the app puts a figure on a grape ground, and adding a role
    * for one use would be a role the next palette has to answer for.
    */
-  apy: { fontSize: 46, fontFamily: fonts.extrabold, letterSpacing: -1.8, color: '#f2c891' },
+  apy: {
+    fontSize: 46,
+    fontFamily: fonts.extrabold,
+    letterSpacing: -1.8,
+    color: '#f2c891',
+  },
   apyUnit: {
     fontSize: 18,
     fontFamily: fonts.bold,
@@ -161,7 +185,13 @@ const styles = StyleSheet.create({
     paddingBottom: 7,
   },
   bandNote: { fontSize: 12, lineHeight: 17, color: 'rgba(255,255,255,0.75)' },
-  steps: { flexGrow: 1, paddingHorizontal: 22, paddingTop: 18, paddingBottom: 18, gap: 14 },
+  steps: {
+    flexGrow: 1,
+    paddingHorizontal: 22,
+    paddingTop: 18,
+    paddingBottom: 18,
+    gap: 14,
+  },
   numeral: {
     width: 26,
     height: 26,

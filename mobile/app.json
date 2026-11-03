@@ -35,10 +35,7 @@
               "scheme": "signerguide"
             }
           ],
-          "category": [
-            "BROWSABLE",
-            "DEFAULT"
-          ]
+          "category": ["BROWSABLE", "DEFAULT"]
         }
       ],
       "versionCode": 2

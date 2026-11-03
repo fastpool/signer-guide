@@ -50,7 +50,9 @@ export function isKnownEmpty(
   if (readings.length === 0) return false;
   return readings.every(
     (amount) =>
-      typeof amount === 'string' && /^\d+$/.test(amount) && BigInt(amount) === 0n,
+      typeof amount === 'string' &&
+      /^\d+$/.test(amount) &&
+      BigInt(amount) === 0n,
   );
 }
 

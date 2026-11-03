@@ -74,7 +74,9 @@ export default function PoolsScreen({ navigation }: ScreenProps<'Pools'>) {
         signer={item}
         stakedUstx={stakedUstx(snapshot.totals, item.contractId)}
         testID={`pools-row-${item.contractId}`}
-        onPress={() => navigation.navigate('Pool', { contractId: item.contractId })}
+        onPress={() =>
+          navigation.navigate('Pool', { contractId: item.contractId })
+        }
       />
     ),
     [snapshot.totals, navigation],
@@ -103,7 +105,9 @@ export default function PoolsScreen({ navigation }: ScreenProps<'Pools'>) {
                 {t('pools.title')}
               </Text>
               <Text variant='small' tone='faint'>
-                {t('pools.subtitle', { count: snapshot.signers.signers.length })}
+                {t('pools.subtitle', {
+                  count: snapshot.signers.signers.length,
+                })}
               </Text>
             </View>
             <TextInput

@@ -112,7 +112,9 @@ export default function AddressRewards({
                   </li>
                 ))}
               </ul>
-              <p className='mt-2 text-xs text-muted'>{t('myRewards.onlyYou')}</p>
+              <p className='mt-2 text-xs text-muted'>
+                {t('myRewards.onlyYou')}
+              </p>
             </dd>
           </div>
 

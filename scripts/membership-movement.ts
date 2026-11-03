@@ -77,13 +77,7 @@ import type {
 } from '../src/lib/types.js';
 import { formatStx, shortPrincipal } from './format.js';
 import { readMembership, walkSignerMembers } from './members.js';
-import {
-  API_URL,
-  describeNode,
-  nodeFetch,
-  sleep,
-  SPACING_MS,
-} from './node.js';
+import { API_URL, describeNode, nodeFetch, sleep, SPACING_MS } from './node.js';
 import { contractLabel, groupName, matchGroups } from './signer-members.js';
 
 const DATA = path.join(

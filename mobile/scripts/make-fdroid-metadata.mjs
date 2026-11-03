@@ -58,7 +58,8 @@ const LIMITS = { title: 50, short: 80, full: 4000 };
  * en-US for anything a locale does not carry, so a partial Korean page is a
  * page, not a hole.
  */
-const KO_SHORT = 'STX를 자기 지갑에 잠그고 매주 비트코인을 받는 스테이킹 가이드.';
+const KO_SHORT =
+  'STX를 자기 지갑에 잠그고 매주 비트코인을 받는 스테이킹 가이드.';
 const KO_FULL = `Stacks의 비트코인 스테이킹. STX는 지갑을 떠나지 않습니다. 지금 있는 자리에서 잠기고, 그 물량이 서명자에게 힘을 실어 주며, 매주 비트코인이 돌아옵니다.
 
 Signer Guide는 pox-5에 등록된 45개 풀을 모두 보여 주고, 각 풀을 배포한 이름이 아니라 컨트랙트 코드의 해시로 식별합니다. 수수료는 체인에서 직접 읽습니다. 코드가 강제하는 상한과 운영자가 오늘 바꿀 수 있는 요율을 구분해 표시합니다.

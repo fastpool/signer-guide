@@ -41,9 +41,10 @@ export const STACKS_MAINNET_CHAIN = 'stacks:1';
 export function projectId(): string | null {
   const fromEnv = process.env.EXPO_PUBLIC_WALLETCONNECT_PROJECT_ID;
   if (fromEnv) return fromEnv;
-  const fromConfig = (Constants.expoConfig?.extra as
-    | { walletConnectProjectId?: string }
-    | undefined)?.walletConnectProjectId;
+  const fromConfig = (
+    Constants.expoConfig?.extra as
+      { walletConnectProjectId?: string } | undefined
+  )?.walletConnectProjectId;
   return fromConfig || null;
 }
 
@@ -197,8 +198,13 @@ export function accountFromSession(session: {
   try {
     const published = session.sessionProperties?.stacks_getAddresses;
     if (published) {
-      const entries = JSON.parse(published) as { address?: string; publicKey?: string }[];
-      publicKey = entries.find((e) => e.address === stxAddress && e.publicKey)?.publicKey;
+      const entries = JSON.parse(published) as {
+        address?: string;
+        publicKey?: string;
+      }[];
+      publicKey = entries.find(
+        (e) => e.address === stxAddress && e.publicKey,
+      )?.publicKey;
     }
   } catch {
     // A wallet publishing something we cannot parse tells us nothing, which
@@ -283,7 +289,9 @@ export function walletConnectWallet(walletId: WalletId): Wallet {
       }
     },
 
-    async callContract(request: ContractCallRequest): Promise<{ txid: string }> {
+    async callContract(
+      request: ContractCallRequest,
+    ): Promise<{ txid: string }> {
       const provider = await getProvider();
       if (!provider.session) {
         throw new WalletUnusable('The wallet is no longer connected.');
