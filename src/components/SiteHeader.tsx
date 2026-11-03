@@ -96,7 +96,7 @@ export default function SiteHeader({
         placeholder={t('nav.searchPlaceholder')}
         autoComplete='off'
         spellCheck={false}
-        className='w-full min-w-0 rounded-full bg-card-raised px-3.5 py-1.5 text-sm text-ink placeholder:text-faint focus:ring-2 focus:ring-grape focus:outline-none xl:w-44 2xl:w-56'
+        className='w-full min-w-0 rounded-full bg-card-raised px-3.5 py-1.5 text-sm text-ink placeholder:text-faint focus:ring-2 focus:ring-grape focus:outline-none xl:w-40 2xl:w-56'
       />
     </form>
   );
@@ -110,7 +110,7 @@ export default function SiteHeader({
           href={section.href}
           aria-current={on ? 'page' : undefined}
           onClick={() => setOpen(false)}
-          className={`rounded-full px-3 py-1.5 text-sm font-semibold whitespace-nowrap transition-colors ${
+          className={`rounded-full px-2.5 py-1.5 text-sm font-semibold whitespace-nowrap transition-colors ${
             on ? 'bg-grape-soft text-grape' : 'text-muted hover:text-ink'
           } ${layout === 'menu' ? 'block' : ''}`}
         >

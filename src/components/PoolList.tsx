@@ -269,7 +269,7 @@ export default function PoolList({
           )}
         </p>
         {/* On a phone there are no column heads to sort by. */}
-        <label className='flex items-center gap-2 text-muted md:hidden'>
+        <label className='flex items-center gap-2 text-muted lg:hidden'>
           {t('pools.sortBy')}
           <select
             value={sort}
@@ -293,7 +293,7 @@ export default function PoolList({
 
       {shown.length > 0 && (
         <>
-          <div className='hidden overflow-hidden rounded-2xl bg-card shadow-lift md:block'>
+          <div className='hidden overflow-x-auto rounded-2xl bg-card shadow-lift lg:block'>
             <table className='w-full border-collapse text-sm'>
               <thead className='border-b border-hairline'>
                 <tr>
@@ -338,7 +338,7 @@ export default function PoolList({
             </table>
           </div>
 
-          <ul className='overflow-hidden rounded-2xl bg-card shadow-lift md:hidden'>
+          <ul className='overflow-hidden rounded-2xl bg-card shadow-lift lg:hidden'>
             {shown.map((row) => (
               <PhoneRow key={row.signer.contractId} row={row} locale={locale} />
             ))}
