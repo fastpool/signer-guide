@@ -7,7 +7,9 @@
       "firstOfCycle": true,
       "burnHeight": 963199,
       "cumulativeRewardsPerUstx": "350915540939",
-      "rateSatsPer1000Stx": "350"
+      "rateSatsPer1000Stx": "350",
+      "stxPriceSats": "185",
+      "btcPriceUsd": 64686
     },
     {
       "cycle": 141,
@@ -15,7 +17,9 @@
       "firstOfCycle": false,
       "burnHeight": 964249,
       "cumulativeRewardsPerUstx": "758607677183",
-      "rateSatsPer1000Stx": "407"
+      "rateSatsPer1000Stx": "407",
+      "stxPriceSats": "341",
+      "btcPriceUsd": 79018
     },
     {
       "cycle": 142,
@@ -23,7 +27,9 @@
       "firstOfCycle": true,
       "burnHeight": 965299,
       "cumulativeRewardsPerUstx": "437756556368",
-      "rateSatsPer1000Stx": "437"
+      "rateSatsPer1000Stx": "437",
+      "stxPriceSats": "338",
+      "btcPriceUsd": 77297
     },
     {
       "cycle": 142,
@@ -31,7 +37,9 @@
       "firstOfCycle": false,
       "burnHeight": 966349,
       "cumulativeRewardsPerUstx": "909456324512",
-      "rateSatsPer1000Stx": "471"
+      "rateSatsPer1000Stx": "471",
+      "stxPriceSats": "350",
+      "btcPriceUsd": 78283
     },
     {
       "cycle": 143,
@@ -39,7 +47,9 @@
       "firstOfCycle": true,
       "burnHeight": 967399,
       "cumulativeRewardsPerUstx": "420177251715",
-      "rateSatsPer1000Stx": "420"
+      "rateSatsPer1000Stx": "420",
+      "stxPriceSats": "319",
+      "btcPriceUsd": 76147
     },
     {
       "cycle": 143,
@@ -47,7 +57,9 @@
       "firstOfCycle": false,
       "burnHeight": 968449,
       "cumulativeRewardsPerUstx": "903631748280",
-      "rateSatsPer1000Stx": "483"
+      "rateSatsPer1000Stx": "483",
+      "stxPriceSats": "364",
+      "btcPriceUsd": 84382
     },
     {
       "cycle": 144,
@@ -55,7 +67,9 @@
       "firstOfCycle": true,
       "burnHeight": 969499,
       "cumulativeRewardsPerUstx": "646291401690",
-      "rateSatsPer1000Stx": "646"
+      "rateSatsPer1000Stx": "646",
+      "stxPriceSats": "445",
+      "btcPriceUsd": 83576
     },
     {
       "cycle": 144,
@@ -63,7 +77,9 @@
       "firstOfCycle": false,
       "burnHeight": 970549,
       "cumulativeRewardsPerUstx": "1440258939597",
-      "rateSatsPer1000Stx": "793"
+      "rateSatsPer1000Stx": "793",
+      "stxPriceSats": "467",
+      "btcPriceUsd": 81686
     },
     {
       "cycle": 145,
@@ -71,7 +87,9 @@
       "firstOfCycle": true,
       "burnHeight": 971599,
       "cumulativeRewardsPerUstx": "787380836277",
-      "rateSatsPer1000Stx": "787"
+      "rateSatsPer1000Stx": "787",
+      "stxPriceSats": "520",
+      "btcPriceUsd": 81604
     },
     {
       "cycle": 145,
@@ -79,7 +97,9 @@
       "firstOfCycle": false,
       "burnHeight": 972649,
       "cumulativeRewardsPerUstx": "1617724895229",
-      "rateSatsPer1000Stx": "830"
+      "rateSatsPer1000Stx": "830",
+      "stxPriceSats": "434",
+      "btcPriceUsd": 84082
     },
     {
       "cycle": 146,
@@ -87,7 +107,9 @@
       "firstOfCycle": true,
       "burnHeight": 973699,
       "cumulativeRewardsPerUstx": "734472027352",
-      "rateSatsPer1000Stx": "734"
+      "rateSatsPer1000Stx": "734",
+      "stxPriceSats": "369",
+      "btcPriceUsd": 81274
     }
   ]
 }

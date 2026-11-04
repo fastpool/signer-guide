@@ -14,6 +14,7 @@
     "generate:events": "tsx scripts/pox5-events.ts",
     "subgraph:sync": "tsx scripts/sync-subgraph.ts",
     "generate:history": "tsx scripts/generate-signer-history.ts",
+    "generate:network-history": "tsx scripts/generate-network-history.ts",
     "generate:nodes": "tsx scripts/generate-signer-nodes.ts",
     "generate:performance": "tsx scripts/generate-signer-performance.ts",
     "backfill:rotations": "tsx scripts/backfill-key-rotations.ts",

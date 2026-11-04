@@ -250,6 +250,14 @@ export interface StxOnlyDistribution {
    * pair's total as though one payout had paid it.
    */
   rateSatsPer1000Stx: string | null;
+  /**
+   * One STX in sats and one BTC in dollars when the payout was recorded, so a
+   * cycle's APY is measured against the price it was paid at rather than
+   * today's. Optional: payouts recorded before this was added were filled in
+   * once by scripts/backfill-payout-prices.ts, from daily prices.
+   */
+  stxPriceSats?: string | null;
+  btcPriceUsd?: number | null;
 }
 
 /** Every distribution the refresh has seen, as its own committed file. */
@@ -257,6 +265,52 @@ export interface StxOnlyHistory {
   generatedAt: string;
   /** Oldest first. */
   distributions: StxOnlyDistribution[];
+}
+
+/**
+ * The whole network, one line per pox-5 reward cycle, as
+ * `src/data/network-history.json`.
+ *
+ * Built by scripts/generate-network-history.ts from files the refresh has
+ * already written — the signers' histories and the payout history — so it
+ * costs no chain calls. See src/lib/network-history.ts for how each figure is
+ * counted.
+ */
+export interface NetworkCycle {
+  cycle: number;
+  /** Everything pox-5 counted for the cycle, bond signers included. */
+  stakedUstx: string;
+  /** The part with a BTC bond behind it. */
+  bondUstx: string;
+  /** Signer keys with any stake in the cycle. */
+  signers: number;
+  /**
+   * Places to stake with any stake in the cycle: one per contract, except
+   * that a group of kind "stake" (Stacking DAO) counts once however many
+   * contracts it runs.
+   */
+  pools: number;
+  /** pox-5's rewards-per-token for the cycle so far, or null before a payout. */
+  rewardsPerUstx: string | null;
+  /** STX-only rewards for the whole cycle so far, in sats. */
+  stxOnlyRewardsSats: string | null;
+  /** The cycle's payouts on file, oldest first. */
+  payouts: NetworkPayout[];
+}
+
+export interface NetworkPayout {
+  burnHeight: number;
+  firstOfCycle: boolean;
+  /** What this payout paid, sats per 1000 STX — from the cumulative figures. */
+  rateSatsPer1000Stx: string;
+  stxPriceSats: string | null;
+  btcPriceUsd: number | null;
+}
+
+export interface NetworkHistory {
+  generatedAt: string;
+  /** Newest first. */
+  cycles: NetworkCycle[];
 }
 
 export interface StxOnlyCalculations {

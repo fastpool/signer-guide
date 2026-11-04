@@ -485,6 +485,11 @@ async function main() {
             lastPayoutRateSatsPer1000Stx === null
               ? null
               : lastPayoutRateSatsPer1000Stx.toString(),
+          // The price at the run that first sees the payout, within an hour
+          // of it — what the cycle's APY is measured against. A payout
+          // already on file keeps the price it was recorded with.
+          stxPriceSats,
+          btcPriceUsd,
         }
       : null;
   const kept = writeHistory(recorded);

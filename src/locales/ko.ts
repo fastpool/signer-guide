@@ -196,7 +196,7 @@ export const ko: LocaleBundle = {
     'app.stxOnlyEstimate.openFull': '전체 계산 보기',
     'app.stxOnlyEstimate.openHistory': '지금까지 분배별 지급 내역',
     'app.stxOnlyHistory.back': '← 보상 추정으로 돌아가기',
-    'app.stxOnlyHistory.title': '지금까지 분배별 지급 내역',
+    'app.stxOnlyHistory.title': '모든 사이클과 지급 내역',
     'app.stxOnlyHistory.intro':
       '보상은 분배 사이클마다 계산되고 보상 사이클 하나에는 분배 사이클이 두 번 있으므로, 각 보상 사이클은 두 번에 나누어 지급됩니다. 아래는 추정이 아니라 실제로 지급된 비율로, pox-5가 스테이킹된 1000 STX당 적립한 금액입니다.',
     'app.stxOnlyHistory.loading': '지급 내역을 불러오는 중…',
@@ -879,6 +879,31 @@ export const ko: LocaleBundle = {
     'pools.feeElsewhere':
       '이 컨트랙트에 수수료가 없습니다. 다른 곳에서 부과될 수 있습니다',
     'pools.feeElsewhereShort': '별도 설정',
+    'cycles.loading': '사이클을 읽는 중…',
+    'cycles.pageIntro':
+      '모든 pox-5 사이클: 스테이킹된 금액, 서명자와 풀의 수, 지급액과 그 수익률, 그리고 각 지급 내역입니다.',
+    'cycles.title': '사이클별 네트워크',
+    'cycles.intro':
+      '각 사이클에 모든 컨트랙트가 보유한 금액과 각 지급이 1000 STX당 지급한 금액으로 계산했습니다. 아직 지급 중인 사이클을 빼면 추정치가 아닙니다.',
+    'cycles.chart': '사이클별 STX 전용 보상 (sBTC)',
+    'cycles.rewardsHelp':
+      '사이클이 STX 전용 스테이커에게 지급한 금액입니다. 스테이킹 금액에 그 사이클의 pox-5 STX당 보상을 곱한 값이며, 본드 서명자의 본드 몫은 별도로 지급되어 포함되지 않습니다.',
+    'cycles.col.cycle': '사이클',
+    'cycles.col.staked': '스테이킹',
+    'cycles.col.signers': '서명자',
+    'cycles.col.pools': '풀',
+    'cycles.col.rate': '1000 STX당',
+    'cycles.col.apy': '연 수익률',
+    'cycles.col.rewards': 'STX 전용 보상',
+    'cycles.signersHelp': '사이클에 STX가 스테이킹된 서명자 키입니다.',
+    'cycles.poolsHelp':
+      '사이클에 STX가 스테이킹된 컨트랙트입니다. Stacking DAO는 하나의 스테이킹 장소이므로 컨트랙트를 하나의 풀로 셉니다.',
+    'cycles.apyHelp':
+      '각 지급의 보상률을 지급 당시 STX 가격과 비교해 연 50회 복리로 계산한 값을 사이클의 지급들에 대해 평균했습니다. 홈페이지의 보상률과 같은 방법이며, 풀 수수료 차감 전입니다.',
+    'cycles.notPaid': '아직 지급 전',
+    'cycles.soFar': '현재까지',
+    'cycles.payoutsTitle': '각 지급',
+    'timing.allCycles': '모든 사이클 →',
     'pools.nextInline': '{cycle}: {amount} ·',
     'pools.nextInlineHelp':
       '사이클 {cycle}에 현재까지 스테이킹된 금액과 이번 사이클 대비 변화',
@@ -977,7 +1002,7 @@ export const ko: LocaleBundle = {
     'contracts.notice': '수수료 변경 사전 고지',
 
     'stake.openShort': '스테이킹',
-    'app.stxOnlyHistory.crumb': '지급 내역',
+    'app.stxOnlyHistory.crumb': '사이클',
 
     'conduct.caption': '이 키가 채굴자가 제안한 블록에 응답하는지 여부입니다.',
     'conduct.staleTitle': '{at} 이후 서명 보고서가 없습니다.',

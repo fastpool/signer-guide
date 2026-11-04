@@ -402,7 +402,8 @@ describe('the page as a reader sees it', () => {
     });
 
     const html = renderToStaticMarkup(<App />);
-    expect(html).toContain('What every distribution has paid');
+    expect(html).toContain('Every cycle, and what it paid');
+    expect(html).toContain('Reading the cycles');
     expect(html).toContain('Reading the payout history');
     expect(html).toContain('href="#/rewards/stx-only"');
     // renderToStaticMarkup runs no effects, so the request belongs to the

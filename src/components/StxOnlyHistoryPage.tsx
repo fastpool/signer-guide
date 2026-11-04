@@ -1,3 +1,4 @@
+import CyclesOverview from './CyclesOverview';
 import { Breadcrumbs, Page } from './ui';
 import { translator, type Locale } from '../lib/i18n';
 import { burnBlockUrl } from '../lib/explorer';
@@ -28,7 +29,7 @@ export default function StxOnlyHistoryPage({ locale }: { locale: Locale }) {
   const largest = largestRate(cycles);
 
   return (
-    <Page>
+    <Page wide>
       <Breadcrumbs
         items={[
           { label: t('nav.pools'), href: '#/' },
@@ -43,7 +44,14 @@ export default function StxOnlyHistoryPage({ locale }: { locale: Locale }) {
       <h1 className='mt-6 text-3xl font-extrabold md:text-4xl'>
         {t('app.stxOnlyHistory.title')}
       </h1>
-      <p className='mt-3 text-lg text-muted'>{t('app.stxOnlyHistory.intro')}</p>
+      <p className='mt-3 text-lg text-muted'>{t('cycles.pageIntro')}</p>
+
+      <CyclesOverview locale={locale} />
+
+      <h2 className='mt-10 text-xl font-extrabold'>
+        {t('cycles.payoutsTitle')}
+      </h2>
+      <p className='mt-1 text-sm text-muted'>{t('app.stxOnlyHistory.intro')}</p>
 
       {history.state === 'loading' && (
         <p className='mt-6 text-muted'>{t('app.stxOnlyHistory.loading')}</p>
