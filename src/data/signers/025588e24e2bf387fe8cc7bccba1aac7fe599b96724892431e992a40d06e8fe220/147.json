@@ -429,7 +429,7 @@
     },
     {
       "staker": "SP3FYQYV42AV9E1NFTS85FJTAZY0VP97K6N2S8Z3V",
-      "ustx": "8311000000",
+      "ustx": "8325000000",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
@@ -613,11 +613,6 @@
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
-      "staker": "SP3P6FXCEQX8W7KSMJ489YHSTMXSBXYN7F4HXCE7M",
-      "ustx": "1957264910",
-      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
-    },
-    {
       "staker": "SP10CP55325XPRJBJ5DZ3MQAR0T5E7EXXZHKTZD2A",
       "ustx": "1840000000",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
@@ -700,6 +695,11 @@
     {
       "staker": "SP2W01TKZDZEXMSNTSQ48N162RB1DTHAQPWDZ4PCD",
       "ustx": "1116430010",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
+    },
+    {
+      "staker": "SP3S126E4R922N5GJE3YV3NMH54GVD4BCVDV2EVRG",
+      "ustx": "1100000000",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
@@ -918,11 +918,6 @@
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
-      "staker": "SPBKC1NGB52EMR5HWXB3P615XKTHD64TXY3D6J1G",
-      "ustx": "150000000",
-      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
-    },
-    {
       "staker": "SP1W3STB3M6CV20TDWPXZPWZQG3CR6PC7J2FKHWTN",
       "ustx": "148000000",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
@@ -930,11 +925,6 @@
     {
       "staker": "SPW4FG5SFGKTPD89A42EKB1TJMX8T9F044KCRDY5",
       "ustx": "145707878",
-      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
-    },
-    {
-      "staker": "SP1M9SQYE8P02PV35G97PSZV2E4BVK6VD05YEGM5C",
-      "ustx": "125606792",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
