@@ -3,7 +3,9 @@ import { inUse } from '../lib/activity';
 import { stxCompact, sumUstx, usdCompact } from '../lib/amounts';
 import { pricesFrom, ustxInUsd } from '../lib/prices';
 import { formatLastUpdate, translator, type Locale } from '../lib/i18n';
+import { bondStakeFor, totalBondUstx } from '../lib/bond-stake';
 import {
+  bondsHref,
   contractsHref,
   stxOnlyHistoryHref,
   stxOnlyRewardsHref,
@@ -75,6 +77,9 @@ export default function HomePage({
   const stakedNext = totals.next
     ? sumUstx(contractIds, totals.next.ustx)
     : null;
+  // What of it is STX-only and what backs a bond: one line, the same length
+  // however many bonds are running — the bonds page has them one by one.
+  const bonded = totalBondUstx(bondStakeFor(totals, totals.cycle));
   const rewards = stxOnlySummary(stxOnlyCalculations);
   const stakedUsd = ustxInUsd(staked, pricesFrom(stxOnlyCalculations));
   const lastUpdate = formatLastUpdate(signerData.generatedAt, locale);
@@ -112,6 +117,17 @@ export default function HomePage({
                 amount: stxCompact(stakedNext, locale) ?? '—',
               },
             )}
+          {staked !== null && bonded !== null && bonded > 0n && (
+            <a href={bondsHref()} className='mt-0.5 block hover:text-grape'>
+              {t('home.stat.split', {
+                stxOnly: (stxCompact(staked - bonded, locale) ?? '').replace(
+                  / STX$/,
+                  '',
+                ),
+                bond: (stxCompact(bonded, locale) ?? '').replace(/ STX$/, ''),
+              })}
+            </a>
+          )}
         </StatTile>
 
         <StatTile label={t('home.stat.pools')} value={choosable.length}>

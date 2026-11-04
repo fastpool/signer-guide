@@ -127,10 +127,75 @@ describe('poolEarnings', () => {
 });
 
 describe('isBondPool', () => {
-  it('knows a bond contract by its name', () => {
+  it('falls back to the name when there is no split', () => {
     expect(isBondPool({ contractId: 'SP4.signer-manager-bond-1-v2' })).toBe(
       true,
     );
     expect(isBondPool({ contractId: 'SP4.signer-manager' })).toBe(false);
+  });
+
+  it('goes by the split when there is one', () => {
+    const stake = {
+      ustx: { 'SP8.xverse-signer-manager-3': { '2': '294122400045' } },
+      unknown: ['SP9.unread'],
+    };
+    expect(
+      isBondPool({ contractId: 'SP8.xverse-signer-manager-3' }, stake),
+    ).toBe(true);
+    // Checked and holding none, whatever the name says.
+    expect(
+      isBondPool({ contractId: 'SP4.signer-manager-bond-9-v2' }, stake),
+    ).toBe(false);
+    // Not known: the name stands in.
+    expect(isBondPool({ contractId: 'SP9.unread' }, stake)).toBe(false);
+  });
+});
+
+describe('poolEarnings and bond stake', () => {
+  const rates = new Map([
+    [146, { cycle: 146, rewardsPerUstx: 10n ** 12n, complete: true }],
+  ]);
+
+  it('pays only the STX-only part the STX-only rate', () => {
+    const [entry] = poolEarnings({
+      contractId: 'SP8.x3',
+      cycles: [
+        {
+          cycle: 146,
+          ustx: { 'SP8.x3': '3000000' },
+          bondUstx: { 'SP8.x3': { '1': '500000', '2': '500000' } },
+        },
+      ],
+      rates,
+    });
+    expect(entry.ustx).toBe(2_000_000n);
+    expect(entry.bondUstx).toBe(1_000_000n);
+    expect(entry.sats).toBe(2n);
+  });
+
+  it('leaves out a cycle that is all bond stake', () => {
+    expect(
+      poolEarnings({
+        contractId: 'SP2.hashkeycloud-v1',
+        cycles: [
+          {
+            cycle: 146,
+            ustx: { 'SP2.hashkeycloud-v1': '620474000000' },
+            bondUstx: { 'SP2.hashkeycloud-v1': { '1': '620474000000' } },
+          },
+        ],
+        rates,
+      }),
+    ).toEqual([]);
+  });
+
+  it('treats a bond-only contract as bond stake when no split is on file', () => {
+    expect(
+      poolEarnings({
+        contractId: 'SP4.signer-manager-bond-1-v2',
+        cycles: [{ cycle: 146, ustx: { 'SP4.signer-manager-bond-1-v2': '5' } }],
+        rates,
+      }),
+    ).toEqual([]);
   });
 });

@@ -26,6 +26,8 @@ import {
 import { ellipsedAddr } from '../lib/strings';
 import type { LockedTotals, Signer, StxOnlyCalculations } from '../lib/types';
 import { isBondPool, netApyPercent } from '../lib/pool-yield';
+import { bondParts, bondStakeFor, type BondPart } from '../lib/bond-stake';
+import { BOND_MARK, BondLine, BondMark } from './BondStake';
 import { pricesFrom } from '../lib/prices';
 import Badge, { feePercent, noticeLabel } from './Badge';
 import Identicon from './Identicon';
@@ -87,6 +89,10 @@ interface Row {
    * fee held somewhere else, or without a rate or price.
    */
   netApy: number | null;
+  /** This cycle's bond stake, bond by bond; empty when none or not known. */
+  bondParts: BondPart[];
+  /** Whether the pool counts as earning more than the STX-only yield sees. */
+  bond: boolean;
   group: string | null;
   isNew: boolean;
 }
@@ -140,11 +146,14 @@ export default function PoolList({
     return map;
   }, [nodes]);
 
+  const stake = bondStakeFor(totals, totals.cycle);
   const rows = useMemo<Row[]>(
     () =>
       signers.map((signer) => {
         const node = nodeOf.get(signer.contractId);
         return {
+          bondParts: bondParts(stake?.ustx, [signer.contractId]),
+          bond: isBondPool(signer, stake),
           signer,
           nowRaw: totals.ustx[signer.contractId],
           now: big(totals.ustx[signer.contractId]),
@@ -162,7 +171,7 @@ export default function PoolList({
           isNew: isNewSigner(signer, totals.cycle),
         };
       }),
-    [signers, totals, nodeOf, rate, stxPriceSats],
+    [signers, totals, stake, nodeOf, rate, stxPriceSats],
   );
 
   const needle = query.trim().toLowerCase();
@@ -661,6 +670,7 @@ function TableRow({
         <strong>
           <Amount raw={row.nowRaw} locale={locale} />
         </strong>
+        <BondLine parts={row.bondParts} total={row.now} locale={locale} />
         <span
           className='block text-xs text-muted'
           title={t('pools.nextInlineHelp', { cycle: nextCycle })}
@@ -788,6 +798,12 @@ function Legend({ locale }: { locale: Locale }) {
         </span>
         {t('pools.legend.notice')}
       </span>
+      <span>
+        <span aria-hidden='true' className='text-amber-warm'>
+          {BOND_MARK}{' '}
+        </span>
+        {t('pools.legend.bond')}
+      </span>
     </p>
   );
 }
@@ -830,7 +846,7 @@ function YieldCell({ row, locale }: { row: Row; locale: Locale }) {
       <span className={`font-bold ${isHighFee(signer) ? 'text-rose' : ''}`}>
         {yieldPercent(row.netApy, locale)}
       </span>
-      {isBondPool(signer) && (
+      {row.bond && (
         <span className='block text-xs text-muted' title={t('pools.bondHelp')}>
           {t('pools.bondPlus')}
         </span>
@@ -876,6 +892,7 @@ function PhoneRow({ row, locale }: { row: Row; locale: Locale }) {
         </span>
         <span className='text-right text-sm font-extrabold whitespace-nowrap tabular-nums'>
           <Amount raw={row.nowRaw} locale={locale} />
+          <BondMark parts={row.bondParts} locale={locale} />
         </span>
         <span className='min-w-0 truncate text-xs text-muted'>{meta}</span>
         <span className='text-right text-xs whitespace-nowrap text-muted tabular-nums'>

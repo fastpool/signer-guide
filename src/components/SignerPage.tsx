@@ -20,6 +20,7 @@ import {
   poolEarnings,
 } from '../lib/pool-yield';
 import { pricesFrom, satsInUsd, ustxInUsd } from '../lib/prices';
+import { bondParts, bondStakeFor, sumParts } from '../lib/bond-stake';
 import { useStxOnlyHistory } from '../lib/stx-only-history';
 import { contractTypeName, localizeProfile } from '../lib/profile-i18n';
 import { profileFor } from '../lib/profiles';
@@ -49,6 +50,7 @@ import type {
 import Badge, { feeLabel, feePercent, noticeLabel } from './Badge';
 import { countdown } from './CycleTimeline';
 import Identicon from './Identicon';
+import { BondChips, BondLine } from './BondStake';
 import { JoinTag, RewardTags } from './PoolList';
 import PoolName from './PoolName';
 import SignerConductSection from './SignerConductSection';
@@ -288,6 +290,16 @@ function KeyFacts({
     feeBips: signer.feeBips,
   });
   const nowUsd = ustxInUsd(now == null ? null : BigInt(now), prices);
+  // This contract's bond stake, bond by bond. The list shows one figure; the
+  // page has room to say which bonds, a chip each, however many are running.
+  const nowBond = bondParts(bondStakeFor(totals, totals.cycle)?.ustx, [
+    signer.contractId,
+  ]);
+  const nextBond = totals.next
+    ? bondParts(bondStakeFor(totals, totals.next.cycle)?.ustx, [
+        signer.contractId,
+      ])
+    : [];
   const timing = cycleTiming(calculations);
   const closesIn =
     timing && !timing.inPrepare ? countdownParts(timing.prepareStartsAt) : null;
@@ -361,37 +373,69 @@ function KeyFacts({
     {
       label: t('pool.fact.staked', { cycle: totals.cycle }),
       value: stxCompact(now, locale) ?? '—',
-      note:
-        [
-          nowCycle?.memberCount != null
-            ? several
-              ? t.plural('pool.fact.membersKey', nowCycle.memberCount)
-              : t.plural('signerPage.memberCount', nowCycle.memberCount)
-            : null,
-          nowUsd !== null
-            ? t('amount.usdAbout', { usd: usdCompact(nowUsd, locale) })
-            : null,
-        ]
-          .filter(Boolean)
-          .join(' · ') || undefined,
+      note: (() => {
+        const line =
+          [
+            nowCycle?.memberCount != null
+              ? several
+                ? t.plural('pool.fact.membersKey', nowCycle.memberCount)
+                : t.plural('signerPage.memberCount', nowCycle.memberCount)
+              : null,
+            nowUsd !== null
+              ? t('amount.usdAbout', { usd: usdCompact(nowUsd, locale) })
+              : null,
+          ]
+            .filter(Boolean)
+            .join(' · ') || undefined;
+        if (nowBond.length === 0) return line;
+        return (
+          <>
+            {line}
+            <BondLine
+              parts={nowBond}
+              total={now == null ? null : BigInt(now)}
+              locale={locale}
+              className='block'
+            />
+            <BondChips parts={nowBond} locale={locale} />
+          </>
+        );
+      })(),
     },
     {
       label: t('pool.fact.next', {
         cycle: totals.next?.cycle ?? totals.cycle + 1,
       }),
       value: stxCompact(next, locale) ?? '—',
-      note: totals.next?.lockedIn
-        ? t('pool.fact.nextLocked')
-        : [
-            change
-              ? t('pool.fact.nextChange', { change })
-              : t('pool.fact.nextOpen'),
-            closesIn
-              ? t('pool.fact.nextCloses', { countdown: countdown(closesIn, t) })
-              : null,
-          ]
-            .filter(Boolean)
-            .join(' · '),
+      note: (() => {
+        const line = totals.next?.lockedIn
+          ? t('pool.fact.nextLocked')
+          : [
+              change
+                ? t('pool.fact.nextChange', { change })
+                : t('pool.fact.nextOpen'),
+              closesIn
+                ? t('pool.fact.nextCloses', {
+                    countdown: countdown(closesIn, t),
+                  })
+                : null,
+            ]
+              .filter(Boolean)
+              .join(' · ');
+        if (nextBond.length === 0) return line;
+        return (
+          <>
+            {line}
+            <BondLine
+              parts={nextBond}
+              total={next == null ? null : BigInt(next)}
+              locale={locale}
+              className='block'
+            />
+            <BondChips parts={nextBond} locale={locale} />
+          </>
+        );
+      })(),
     },
     {
       label: t('pool.fact.share'),
@@ -804,6 +848,16 @@ function MemberList({
                   </a>
                 </td>
                 <td className='py-1 pr-2 text-right whitespace-nowrap tabular-nums'>
+                  {member.bondIndex !== undefined && (
+                    <span
+                      className='mr-1.5 rounded-full bg-trough px-1.5 py-0.5 text-xs text-amber-warm'
+                      title={t('pool.members.bondHelp')}
+                    >
+                      {member.bondIndex === null
+                        ? t('pool.members.bondUnnamed')
+                        : t('pool.members.bond', { index: member.bondIndex })}
+                    </span>
+                  )}
                   {stxLabel(member.ustx, locale)}
                 </td>
                 <td className='hidden py-1 pr-2 text-right whitespace-nowrap text-muted tabular-nums sm:table-cell'>
@@ -967,7 +1021,26 @@ function Earnings({
     stxPriceSats: prices.stxPriceSats,
     feeBips: signer.feeBips,
   });
-  const bond = isBondPool(signer);
+  // The current cycle's bond stake, from the history's checked split; the
+  // name test only when the history has none for it.
+  const current =
+    history.state === 'ready'
+      ? cycleFor(history, history.value.currentCycle ?? -1)
+      : null;
+  const currentBond = current?.bondUstx
+    ? bondParts(current.bondUstx, [signer.contractId])
+    : null;
+  const currentTotal = (() => {
+    const raw = current?.ustx[signer.contractId];
+    return typeof raw === 'string' ? BigInt(raw) : null;
+  })();
+  const bondNow = currentBond ? sumParts(currentBond) : null;
+  const allBond =
+    bondNow !== null &&
+    currentTotal !== null &&
+    bondNow > 0n &&
+    bondNow >= currentTotal;
+  const bond = currentBond ? (bondNow ?? 0n) > 0n : isBondPool(signer);
 
   const earnings =
     history.state === 'ready' && rates.state === 'ready'
@@ -1031,7 +1104,17 @@ function Earnings({
         </div>
       </div>
 
-      {bond && <p className='mt-2 text-xs text-muted'>{t('pools.bondHelp')}</p>}
+      {bond && (
+        <p className='mt-2 text-xs text-muted'>
+          {allBond
+            ? t('pool.earned.allBond')
+            : bondNow !== null && bondNow > 0n
+              ? t('pool.earned.bondNote', {
+                  amount: stxCompact(bondNow, locale) ?? '',
+                })
+              : t('pools.bondHelp')}
+        </p>
+      )}
 
       {earnings === null ? (
         <p className='mt-3 text-sm text-muted'>
@@ -1040,7 +1123,11 @@ function Earnings({
             : t('pool.earned.unavailable')}
         </p>
       ) : earnings.length === 0 ? (
-        <p className='mt-3 text-sm text-muted'>{t('pool.earned.none')}</p>
+        // An all-bond pool has said why above; "nothing earned yet" would
+        // read as a pool nobody has paid.
+        allBond ? null : (
+          <p className='mt-3 text-sm text-muted'>{t('pool.earned.none')}</p>
+        )
       ) : (
         <>
           <table className='mt-3 w-full text-sm'>

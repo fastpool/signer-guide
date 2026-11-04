@@ -312,6 +312,50 @@ as its current cycle. At a rollover it simply moves across. That is what lets
 the list tell a pool nobody has used for two cycles from one that emptied
 yesterday.
 
+### The part of it that backs a bond
+
+`get-amount-delegated-for-signer` counts two kinds of STX together: STX-only
+stake, which earns the one STX-only rate, and STX registered alongside a BTC
+bond, which is paid out of the bond share instead. The guide used to tell them
+apart by contract name — anything called `signer-manager-bond-*` was bond
+stake, everything else was not — and that missed every ordinary pool that takes
+bond stakers too. In cycle 146 it found 8.8M STX of bond stake where there was
+10.3M, spread over seven pools and two bonds; in cycle 147 it would have missed
+the 13.8M bond 3 puts behind Stacks Labs altogether.
+
+The split now comes from the copy of pox-5's membership prints
+(`cache/pox5-events/`). `register-for-bond` and `update-bond-registration` write
+a bond row with its bond index, `stake` and `stake-update` an STX-only one, so
+the replay says, staker by staker, which kind each row is
+(`scripts/bond-stake.ts`). It is only trusted where it can be checked: a
+contract whose replayed rows add up to the chain's total to the microstack has
+its split written to `totals.json` as `bond`, keyed by cycle; one that does not
+is listed as `unknown`, and the page says nothing about its bonds rather than
+calling it all STX-only. The signer histories carry the same split per cycle as
+`bondUstx`, and the member lists mark each bond holder with their bond. So the
+refresh brings the copy of the prints up to date _before_ reading the totals.
+`scripts/backfill-bond-stake.ts` fills in all three from the copy alone, for a
+checkout without a node.
+
+Up to six bonds run at once, so a label that named each one — "21.5M STX ·
+465k backing bond 1, 1.3k backing bond 2…" — would grow with the chain. The list
+says one thing instead, the same length however many bonds there are: a ◆ and
+"294K in bonds" under the amount (just the ◆ on a phone), with the bond-by-bond
+figures in its title. The pool's own page has room for one chip per bond, for
+this cycle and the one filling; `#/bonds` has every running bond, pool by pool,
+and the line that makes the list add up: 10.3M of the 493.4M staked in cycle
+146 backs a bond, 483.1M is STX-only.
+
+The yield follows. The STX-only rate's denominator is the STX-only stake, so
+`generate-stx-only-calculations.ts` subtracts the real bond stake rather than
+the bond-named contracts'. A pool's _earned_ counts its STX-only part alone —
+its total less the bond part in that cycle's history — since bond stake is not
+paid the STX-only rate, and the bond share is not broken down by pool anywhere
+pox-5 can be asked. A pool with bond stake carries "+ bond share" beside its
+yield, which is what an STX-only staker there keeps; a pool that is all bond
+stake (Hashkeycloud V1, the Stacking DAO bond contracts) says so instead of
+showing earnings it did not have.
+
 ### Which pools the list shows
 
 Fifteen of the forty-five registered signers hold nothing and never have. They

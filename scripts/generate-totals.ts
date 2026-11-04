@@ -17,12 +17,20 @@
  * Usage: npx tsx scripts/generate-totals.ts
  *
  * Reads STACKS_API_URL and HIRO_API_KEY — see scripts/node.ts.
+ *
+ * Also writes which part of each amount backs a BTC bond (`bond`), from the
+ * copy of pox-5's membership prints in cache/pox5-events — so the refresh
+ * brings that copy up to date first. No chain calls: the replay is checked
+ * against the amounts just read. SECONDLAYER_API_KEY adds the prints the
+ * index has not finalised yet. See scripts/bond-stake.ts.
  */
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { replay, withBondStake } from './bond-stake.js';
 import { readLockedTotals } from './locked.js';
+import { fetchUnconfirmedTail, readEventLog } from './pox5-events.js';
 import { describeNode } from './node.js';
 import { preserveKnownTotals } from './totals-merge.js';
 import type { LockedTotals, SignerData } from '../src/lib/types.js';
@@ -72,8 +80,18 @@ async function main() {
     previous,
   );
 
+  const log = readEventLog();
+  const tail = log ? await fetchUnconfirmedTail(log) : null;
+  const state = log ? replay([...log.entries, ...(tail ?? [])]) : null;
+  if (!state) {
+    console.log(
+      '  no copy of the pox-5 prints; keeping the bond split on file',
+    );
+  }
+  const written = withBondStake(merged, state, previous);
+
   const unknown = Object.values(merged.ustx).filter((v) => v === null).length;
-  fs.writeFileSync(OUTPUT, `${JSON.stringify(merged, null, 2)}\n`);
+  fs.writeFileSync(OUTPUT, `${JSON.stringify(written, null, 2)}\n`);
 
   const cycles = merged.next
     ? `cycles ${merged.cycle} and ${merged.next.cycle}`
@@ -86,6 +104,15 @@ async function main() {
   }
   if (unknown) {
     console.log(`  ${unknown} pool(s) would not read, recorded as not known`);
+  }
+  for (const [cycle, stake] of Object.entries(written.bond ?? {})) {
+    const pools = Object.keys(stake.ustx).length;
+    console.log(
+      `  cycle ${cycle}: ${pools} pool(s) with bond stake` +
+        (stake.unknown.length
+          ? `, ${stake.unknown.length} whose split did not add up`
+          : ''),
+    );
   }
 }
 

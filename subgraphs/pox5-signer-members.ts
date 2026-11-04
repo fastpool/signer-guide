@@ -53,6 +53,12 @@ interface CycleMembershipRow {
   ustx: bigint;
   /** STX-only staking, or a protocol bond. Both count towards the signer. */
   kind: 'stake' | 'bond';
+  /**
+   * Which bond a `bond` row is for, as the print gives it. Null when the
+   * print did not carry one; absent on `stake` rows. pox-5 runs up to six
+   * bonds at once, so a signer's bond stake is kept apart bond by bond.
+   */
+  bondIndex?: number | null;
 }
 
 /**
@@ -120,11 +126,24 @@ function span(
   signer: string,
   ustx: bigint,
   kind: CycleMembershipRow['kind'],
+  bondIndex: number | null = null,
 ): CycleMembershipRow[] {
   const rows: CycleMembershipRow[] = [];
-  for (let c = from; c < to; c += 1)
-    rows.push({ cycle: c, signer, ustx, kind });
+  for (let c = from; c < to; c += 1) {
+    rows.push(
+      kind === 'bond'
+        ? { cycle: c, signer, ustx, kind, bondIndex }
+        : { cycle: c, signer, ustx, kind },
+    );
+  }
   return rows;
+}
+
+/** The print's bond index, or null when it carries none. */
+function optionalIndex(data: Record<string, unknown>): number | null {
+  const value = field(data, 'bond-index');
+  if (value === undefined || value === null) return null;
+  return Number(uint(data, 'bond-index'));
 }
 
 /** The change one pox-5 print makes, or null for a topic that makes none. */
@@ -160,6 +179,7 @@ function membershipChange(
           principal(d, 'signer'),
           uint(d, 'amount-ustx'),
           'bond',
+          optionalIndex(d),
         ),
       };
     }
@@ -201,6 +221,7 @@ function membershipChange(
           principal(d, 'signer'),
           uint(d, 'amount-ustx'),
           'bond',
+          optionalIndex(d),
         ),
       };
     }
@@ -228,18 +249,36 @@ function applyChange(
   for (const row of change.set) rows.set(row.cycle, row);
 }
 
+/** One staker's row in one cycle, as `membersOf` reports it. */
+interface FoundMember {
+  staker: string;
+  signer: string;
+  ustx: bigint;
+  /** Set for a bond row: the bond it is for, or null when not printed. */
+  bondIndex?: number | null;
+}
+
 /** Everyone with one of these contracts in one cycle, and for how much. */
 function membersOf(
   state: MembershipState,
   contractIds: readonly string[],
   cycleNumber: number,
-): { staker: string; signer: string; ustx: bigint }[] {
+): FoundMember[] {
   const wanted = new Set(contractIds);
-  const found: { staker: string; signer: string; ustx: bigint }[] = [];
+  const found: FoundMember[] = [];
   for (const [staker, rows] of state) {
     const row = rows.get(cycleNumber);
     if (row && wanted.has(row.signer)) {
-      found.push({ staker, signer: row.signer, ustx: row.ustx });
+      found.push(
+        row.kind === 'bond'
+          ? {
+              staker,
+              signer: row.signer,
+              ustx: row.ustx,
+              bondIndex: row.bondIndex ?? null,
+            }
+          : { staker, signer: row.signer, ustx: row.ustx },
+      );
     }
   }
   return found;

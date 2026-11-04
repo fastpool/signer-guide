@@ -48,6 +48,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Cl, cvToHex } from '@stacks/transactions';
+import { bondStakeFor, bondUstxOf } from '../src/lib/bond-stake.js';
 import { describeNode } from './node.js';
 import { callReadOnly, uintValue } from './pox5.js';
 import {
@@ -226,17 +227,51 @@ async function fetchPrices(): Promise<{
   }
 }
 
+/**
+ * The uSTX registered for bonds this cycle, from the split in totals.json.
+ *
+ * pox-5 pays bond stake out of the bond share and STX-only stake out of what
+ * is left, so the rate's denominator has to be the STX-only part alone. The
+ * split comes from the replayed prints (scripts/bond-stake.ts). A pool whose
+ * split is not known — or every pool, in a file written before the split
+ * existed — falls back to the old test by contract name, which is right for
+ * the bond-only contracts and blind to bond stakers in ordinary pools, and
+ * the run says how many it had to guess for.
+ */
+function bondStakeOf(
+  contractIds: readonly string[],
+  totals: LockedTotals,
+): bigint {
+  const stake = bondStakeFor(totals, totals.cycle);
+  let guessed = 0;
+  let sum = 0n;
+  for (const contractId of contractIds) {
+    const known = bondUstxOf(stake, [contractId]);
+    if (known !== null) {
+      sum += known;
+      continue;
+    }
+    if (!contractId.includes('signer-manager-bond-')) continue;
+    const raw = totals.ustx[contractId];
+    if (typeof raw === 'string') sum += BigInt(raw);
+    guessed += 1;
+  }
+  if (!stake) {
+    console.log('  no bond split in totals.json; bond stake guessed by name');
+  } else if (guessed) {
+    console.log(`  bond stake guessed by name for ${guessed} pool(s)`);
+  }
+  return sum;
+}
+
 async function main() {
   const signers = JSON.parse(fs.readFileSync(SIGNERS, 'utf8')) as SignerData;
   const totals = JSON.parse(fs.readFileSync(TOTALS, 'utf8')) as LockedTotals;
 
   const contractIds = signers.signers.map((s) => s.contractId);
-  const bondContractIds = signers.signers
-    .filter((s) => s.contractId.includes('signer-manager-bond-'))
-    .map((s) => s.contractId);
 
   const totalStakedUstx = sumKnownUstx(contractIds, totals.ustx);
-  const bondStakedUstx = sumKnownUstx(bondContractIds, totals.ustx);
+  const bondStakedUstx = bondStakeOf(contractIds, totals);
   const stxOnlyStakedUstx = totalStakedUstx - bondStakedUstx;
 
   console.log(`Reading STX-only estimate inputs from ${describeNode()} ...`);

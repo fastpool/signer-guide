@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Page } from './ui';
-import { btcLabel, stxLabel } from '../lib/amounts';
+import { btcLabel, stxCompact, stxLabel } from '../lib/amounts';
 import {
   filledPercent,
   lastCycle,
@@ -11,7 +11,17 @@ import {
 import { explorerUrl } from '../lib/explorer';
 import { formatLastUpdate, translator, type Locale } from '../lib/i18n';
 import { shortPrincipal } from '../lib/strings';
-import type { BondPeriod, BondStaker, Signer } from '../lib/types';
+import {
+  bondStakeFor,
+  poolsWithBondStake,
+  totalBondUstx,
+} from '../lib/bond-stake';
+import type {
+  BondPeriod,
+  BondStaker,
+  LockedTotals,
+  Signer,
+} from '../lib/types';
 import PoolName from './PoolName';
 
 /**
@@ -40,9 +50,12 @@ import PoolName from './PoolName';
  */
 export default function BondsPage({
   signers,
+  totals,
   locale,
 }: {
   signers: Signer[];
+  /** For the STX behind the bonds: every bond running, not just two. */
+  totals?: LockedTotals;
   locale: Locale;
 }) {
   const t = translator(locale);
@@ -100,6 +113,10 @@ export default function BondsPage({
               locale={locale}
             />
           </div>
+
+          {totals && (
+            <BondStxCard totals={totals} signers={signers} locale={locale} />
+          )}
 
           <p className='mt-8 text-sm text-muted'>{t('app.bonds.note')}</p>
           <p className='mt-2 text-sm text-muted'>
@@ -446,5 +463,124 @@ function StakerRow({
         </span>
       </span>
     </li>
+  );
+}
+
+/**
+ * The STX side of the bonds: every bond running this cycle, pool by pool.
+ *
+ * The cards above are about bitcoin and cover two periods; this covers all of
+ * them, up to six, because it is what makes the pool list add up. A pool's
+ * total counts the STX registered for bonds through it, and that STX is not
+ * paid at the STX-only rate — so this is where the difference is accounted
+ * for, bond by bond, and the list itself carries a single figure per pool.
+ */
+function BondStxCard({
+  totals,
+  signers,
+  locale,
+}: {
+  totals: LockedTotals;
+  signers: Signer[];
+  locale: Locale;
+}) {
+  const t = translator(locale);
+  const stake = bondStakeFor(totals, totals.cycle);
+  if (!stake) return null;
+  const bonded = totalBondUstx(stake) ?? 0n;
+  const total = Object.values(totals.ustx).reduce<bigint>(
+    (sum, raw) => (typeof raw === 'string' ? sum + BigInt(raw) : sum),
+    0n,
+  );
+
+  // Bond by bond, then pool by pool inside each.
+  const byBond = new Map<
+    string,
+    { index: number | null; pools: Map<string, bigint> }
+  >();
+  for (const row of poolsWithBondStake(stake)) {
+    for (const part of row.parts) {
+      const key = part.bondIndex === null ? '?' : String(part.bondIndex);
+      const entry = byBond.get(key) ?? {
+        index: part.bondIndex,
+        pools: new Map(),
+      };
+      entry.pools.set(row.contractId, part.ustx);
+      byBond.set(key, entry);
+    }
+  }
+  const bonds = [...byBond.values()].sort((a, b) =>
+    a.index === null ? 1 : b.index === null ? -1 : a.index - b.index,
+  );
+
+  return (
+    <section className='mt-6 rounded-3xl bg-card p-5 shadow-lift md:p-6'>
+      <h2 className='text-xl font-bold'>
+        {t('app.bonds.stxTitle', { cycle: totals.cycle })}
+      </h2>
+      <p className='mt-2 text-sm text-muted'>{t('app.bonds.stxIntro')}</p>
+      {bonds.length === 0 ? (
+        <p className='mt-4 text-sm text-muted'>{t('app.bonds.stxNone')}</p>
+      ) : (
+        <div className='mt-4 space-y-4'>
+          {bonds.map((bond) => {
+            const pools = [...bond.pools.entries()].sort((a, b) =>
+              b[1] > a[1] ? 1 : b[1] < a[1] ? -1 : 0,
+            );
+            const sum = pools.reduce((acc, [, ustx]) => acc + ustx, 0n);
+            return (
+              <div key={bond.index ?? '?'}>
+                <h3 className='flex items-baseline justify-between gap-3 text-base font-bold'>
+                  <span>
+                    {bond.index === null
+                      ? t('app.bonds.stxBondUnnamed')
+                      : t('app.bonds.stxBond', { index: bond.index })}
+                  </span>
+                  <span className='tabular-nums'>
+                    {stxCompact(sum, locale) ?? '—'}
+                  </span>
+                </h3>
+                <ul className='mt-1 space-y-0.5 text-sm'>
+                  {pools.map(([contractId, ustx]) => {
+                    const pool = signers.find(
+                      (s) => s.contractId === contractId,
+                    );
+                    return (
+                      <li
+                        key={contractId}
+                        className='flex items-baseline justify-between gap-3'
+                      >
+                        <span className='min-w-0 truncate'>
+                          {pool ? (
+                            <PoolName signer={pool} locale={locale} />
+                          ) : (
+                            shortPrincipal(contractId)
+                          )}
+                        </span>
+                        <span className='text-muted tabular-nums'>
+                          {stxCompact(ustx, locale) ?? '—'}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      <p className='mt-4 text-sm text-muted'>
+        {t('app.bonds.stxTotal', {
+          bond: stxCompact(bonded, locale) ?? '—',
+          total: stxCompact(total, locale) ?? '—',
+          stxOnly: stxCompact(total - bonded, locale) ?? '—',
+        })}
+      </p>
+      {stake.unknown.length > 0 && (
+        <p className='mt-2 text-sm text-amber-warm'>
+          {t.plural('app.bonds.stxUnknown', stake.unknown.length)}
+        </p>
+      )}
+    </section>
   );
 }

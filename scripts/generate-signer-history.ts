@@ -109,6 +109,8 @@ import type {
   SignerData,
   SignerHistory,
 } from '../src/lib/types.js';
+import { bondKey } from '../src/lib/bond-stake.js';
+import { sameAmounts } from './bond-stake.js';
 import { fetchAmountDelegated } from './locked.js';
 import { indexSigner, readPositions } from './members.js';
 import { describeNode, sleep, SPACING_MS } from './node.js';
@@ -299,7 +301,16 @@ export function membersFromEvents(
     const sum = found.reduce((total, m) => total + m.ustx, 0n);
     if (sum !== BigInt(onChain)) return null;
     for (const m of found) {
-      members.push({ staker: m.staker, ustx: m.ustx.toString(), contractId });
+      members.push(
+        m.bondIndex === undefined
+          ? { staker: m.staker, ustx: m.ustx.toString(), contractId }
+          : {
+              staker: m.staker,
+              ustx: m.ustx.toString(),
+              contractId,
+              bondIndex: m.bondIndex,
+            },
+      );
     }
   }
   // The walk's order: largest first, then by address.
@@ -310,6 +321,35 @@ export function membersFromEvents(
     return right > left ? 1 : -1;
   });
   return members;
+}
+
+/**
+ * The bond part of a cycle's members: contract id → bond index → uSTX.
+ *
+ * Only for a list `membersFromEvents` returned, which has already been
+ * checked against the chain, contract by contract. `{}` when nobody in it is
+ * registered for a bond.
+ */
+export function bondSplitOf(
+  members: readonly CycleMember[],
+): Record<string, Record<string, string>> {
+  const sums = new Map<string, Map<string, bigint>>();
+  for (const m of members) {
+    if (m.bondIndex === undefined) continue;
+    const byBond = sums.get(m.contractId) ?? new Map<string, bigint>();
+    const key = bondKey(m.bondIndex);
+    byBond.set(key, (byBond.get(key) ?? 0n) + BigInt(m.ustx));
+    sums.set(m.contractId, byBond);
+  }
+  const split: Record<string, Record<string, string>> = {};
+  for (const contractId of [...sums.keys()].sort()) {
+    const byBond: Record<string, string> = {};
+    for (const [key, ustx] of [...sums.get(contractId)!.entries()].sort()) {
+      byBond[key] = ustx.toString();
+    }
+    split[contractId] = byBond;
+  }
+  return split;
 }
 
 /**
@@ -686,6 +726,11 @@ async function updateGroup(
       fileFinal,
       cycleFinal,
     };
+    // A split checked against an earlier run's amounts still holds while the
+    // amounts are the same ones; the replay below replaces it when it can.
+    if (before?.bondUstx && sameAmounts(before.ustx, ustx)) {
+      summary.bondUstx = before.bondUstx;
+    }
 
     /*
      * The members, asked separately: a cycle whose amounts were settled long
@@ -703,6 +748,9 @@ async function updateGroup(
       ? membersFromEvents(replayed, contractIds, cycle, ustx)
       : null;
     if (fromEvents && total !== null) {
+      // The same check that settles the members settles the bond split:
+      // every contract's replayed rows added up to the chain's total.
+      summary.bondUstx = bondSplitOf(fromEvents);
       const changed = writeMembers(slug, node.signerKey, cycle, fromEvents);
       summary.memberCount = fromEvents.length;
       summary.membersAddUp = true;
