@@ -301,6 +301,24 @@ export interface StxOnlyCalculations {
   /** The published rate: `projectedRateSatsPer1000Stx` weighted by how far
    * the cycle has run, `lastPayoutRateSatsPer1000Stx` for the rest. */
   rateSatsPer1000Stx: string | null;
+  /**
+   * One bitcoin in US dollars at the refresh, from CoinGecko like
+   * `stxPriceSats`. Optional: files written before it was added lack it, and
+   * a page reading one shows no dollar figures rather than wrong ones.
+   */
+  btcPriceUsd?: number | null;
+  /**
+   * pox-5's cycle geometry, so a page can say when a cycle starts and when
+   * staking for the next one closes. Optional for the same reason.
+   *
+   *   firstBurnchainBlockHeight  burn height cycle 0 started at
+   *   rewardCycleLength          burn blocks per reward cycle (2100)
+   *   prepareCycleLength         the prepare phase at a cycle's end (100),
+   *                              when the next cycle's stakers are frozen
+   */
+  firstBurnchainBlockHeight?: number | null;
+  rewardCycleLength?: number | null;
+  prepareCycleLength?: number | null;
   generatedAt: string;
 }
 

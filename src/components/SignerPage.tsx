@@ -1,10 +1,26 @@
 import { useState } from 'react';
-import { satsLabel, stxCompact, stxLabel } from '../lib/amounts';
+import {
+  satsLabel,
+  sbtcCompact,
+  stxCompact,
+  stxLabel,
+  usdCompact,
+} from '../lib/amounts';
+import { countdownParts, cycleTiming } from '../lib/cycle-timing';
 import { explorerUrl } from '../lib/explorer';
 import { bitcoinPayout } from '../lib/features';
 import { translator, type Locale } from '../lib/i18n';
 import { joinMode, poolWarnings, stakesHere } from '../lib/pool-facts';
 import { isHighFee } from '../lib/pool-filters';
+import {
+  afterFee,
+  cycleRates,
+  isBondPool,
+  netApyPercent,
+  poolEarnings,
+} from '../lib/pool-yield';
+import { pricesFrom, satsInUsd, ustxInUsd } from '../lib/prices';
+import { useStxOnlyHistory } from '../lib/stx-only-history';
 import { contractTypeName, localizeProfile } from '../lib/profile-i18n';
 import { profileFor } from '../lib/profiles';
 import { contractHref, groupHref, signerHref, statusHref } from '../lib/route';
@@ -28,8 +44,10 @@ import type {
   Signer,
   SignerCycleSummary,
   SignerHistory,
+  StxOnlyCalculations,
 } from '../lib/types';
 import Badge, { feeLabel, feePercent, noticeLabel } from './Badge';
+import { countdown } from './CycleTimeline';
 import Identicon from './Identicon';
 import { JoinTag, RewardTags } from './PoolList';
 import PoolName from './PoolName';
@@ -68,6 +86,7 @@ export default function SignerPage({
   node,
   slug,
   totals,
+  calculations,
   locale,
 }: {
   signer: Signer;
@@ -76,6 +95,8 @@ export default function SignerPage({
   slug: string;
   /** Every pool's amount for the cycle: the denominator of a weight. */
   totals: LockedTotals;
+  /** The rate, the prices and the cycle geometry, from the last refresh. */
+  calculations: StxOnlyCalculations;
   locale: Locale;
 }) {
   const t = translator(locale);
@@ -166,6 +187,7 @@ export default function SignerPage({
           history={history}
           groupName={group?.name ?? null}
           groupId={group?.id ?? null}
+          calculations={calculations}
           locale={locale}
         />
       </div>
@@ -198,7 +220,12 @@ export default function SignerPage({
           />
         </div>
         <div className='min-w-0 space-y-4'>
-          <RewardsCard signer={signer} locale={locale} />
+          <RewardsCard
+            signer={signer}
+            history={history}
+            calculations={calculations}
+            locale={locale}
+          />
           <SignerConductSection
             signer={signer}
             currentCycle={totals.cycle}
@@ -234,6 +261,7 @@ function KeyFacts({
   history,
   groupName,
   groupId,
+  calculations,
   locale,
 }: {
   signer: Signer;
@@ -242,6 +270,7 @@ function KeyFacts({
   history: Remote<SignerHistory>;
   groupName: string | null;
   groupId: string | null;
+  calculations: StxOnlyCalculations;
   locale: Locale;
 }) {
   const t = translator(locale);
@@ -252,6 +281,16 @@ function KeyFacts({
   const nowCycle = cycleFor(history, totals.cycle);
   const btc = bitcoinPayout(signer);
   const typeName = contractTypeName(signer, locale);
+  const prices = pricesFrom(calculations);
+  const netApy = netApyPercent({
+    rateSatsPer1000Stx: rateOf(calculations),
+    stxPriceSats: prices.stxPriceSats,
+    feeBips: signer.feeBips,
+  });
+  const nowUsd = ustxInUsd(now == null ? null : BigInt(now), prices);
+  const timing = cycleTiming(calculations);
+  const closesIn =
+    timing && !timing.inPrepare ? countdownParts(timing.prepareStartsAt) : null;
 
   const change = (() => {
     if (now == null || next == null) return null;
@@ -279,7 +318,9 @@ function KeyFacts({
           ? t('pools.feeElsewhere')
           : signer.feeExemption
             ? t('badge.feeExemption')
-            : t('pool.fact.feeNote'),
+            : netApy !== null
+              ? t('pool.fact.feeYield', { percent: netApy.toFixed(2) })
+              : t('pool.fact.feeNote'),
     },
     {
       label: t('pool.fact.cap'),
@@ -321,11 +362,18 @@ function KeyFacts({
       label: t('pool.fact.staked', { cycle: totals.cycle }),
       value: stxCompact(now, locale) ?? '—',
       note:
-        nowCycle?.memberCount != null
-          ? several
-            ? t.plural('pool.fact.membersKey', nowCycle.memberCount)
-            : t.plural('signerPage.memberCount', nowCycle.memberCount)
-          : undefined,
+        [
+          nowCycle?.memberCount != null
+            ? several
+              ? t.plural('pool.fact.membersKey', nowCycle.memberCount)
+              : t.plural('signerPage.memberCount', nowCycle.memberCount)
+            : null,
+          nowUsd !== null
+            ? t('amount.usdAbout', { usd: usdCompact(nowUsd, locale) })
+            : null,
+        ]
+          .filter(Boolean)
+          .join(' · ') || undefined,
     },
     {
       label: t('pool.fact.next', {
@@ -334,9 +382,16 @@ function KeyFacts({
       value: stxCompact(next, locale) ?? '—',
       note: totals.next?.lockedIn
         ? t('pool.fact.nextLocked')
-        : change
-          ? t('pool.fact.nextChange', { change })
-          : t('pool.fact.nextOpen'),
+        : [
+            change
+              ? t('pool.fact.nextChange', { change })
+              : t('pool.fact.nextOpen'),
+            closesIn
+              ? t('pool.fact.nextCloses', { countdown: countdown(closesIn, t) })
+              : null,
+          ]
+            .filter(Boolean)
+            .join(' · '),
     },
     {
       label: t('pool.fact.share'),
@@ -782,7 +837,31 @@ function MemberList({
  * has collected and not paid out, and what it has kept for itself. Together
  * they answer whether the pool is actually paying people.
  */
-function RewardsCard({ signer, locale }: { signer: Signer; locale: Locale }) {
+/** The published rate, or null. */
+function rateOf(calculations: StxOnlyCalculations): bigint | null {
+  try {
+    return calculations.rateSatsPer1000Stx == null
+      ? null
+      : BigInt(calculations.rateSatsPer1000Stx);
+  } catch {
+    return null;
+  }
+}
+
+/** How many cycles of earnings to list before "show earlier". */
+const EARNED_CYCLES = 4;
+
+function RewardsCard({
+  signer,
+  history,
+  calculations,
+  locale,
+}: {
+  signer: Signer;
+  history: Remote<SignerHistory>;
+  calculations: StxOnlyCalculations;
+  locale: Locale;
+}) {
   const t = translator(locale);
   const unclaimed = signer.unclaimedFromPoxSats ?? null;
   const undistributed = signer.undistributedSats ?? null;
@@ -822,6 +901,16 @@ function RewardsCard({ signer, locale }: { signer: Signer; locale: Locale }) {
       title={t('signerPage.rewards')}
       caption={t('pool.rewards.caption')}
     >
+      <Earnings
+        signer={signer}
+        history={history}
+        calculations={calculations}
+        locale={locale}
+      />
+
+      <h3 className='mt-5 mb-2 text-sm font-bold'>
+        {t('pool.earned.whereNow')}
+      </h3>
       <dl className='space-y-2 text-sm'>
         {rows.map((row) => (
           <div
@@ -846,6 +935,184 @@ function RewardsCard({ signer, locale }: { signer: Signer; locale: Locale }) {
         <p className='mt-3 text-xs text-muted'>{t('pool.rewards.none')}</p>
       )}
     </Card>
+  );
+}
+
+/**
+ * What this contract has earned, cycle by cycle, and what that is a year.
+ *
+ * Worked out rather than read: pox-5 pays every STX-only share in a cycle
+ * the same, so a cycle's earnings are what this contract held times that
+ * cycle's rewards-per-token (see `lib/pool-yield.ts`). Before the fee,
+ * because only today's fee is on file; the yield after the fee is at today's
+ * fee and today's rate, which is the figure somebody choosing now compares.
+ */
+function Earnings({
+  signer,
+  history,
+  calculations,
+  locale,
+}: {
+  signer: Signer;
+  history: Remote<SignerHistory>;
+  calculations: StxOnlyCalculations;
+  locale: Locale;
+}) {
+  const t = translator(locale);
+  const [all, setAll] = useState(false);
+  const rates = useStxOnlyHistory();
+  const prices = pricesFrom(calculations);
+  const netApy = netApyPercent({
+    rateSatsPer1000Stx: rateOf(calculations),
+    stxPriceSats: prices.stxPriceSats,
+    feeBips: signer.feeBips,
+  });
+  const bond = isBondPool(signer);
+
+  const earnings =
+    history.state === 'ready' && rates.state === 'ready'
+      ? poolEarnings({
+          contractId: signer.contractId,
+          cycles: history.value.cycles,
+          rates: cycleRates(rates.value.distributions),
+        })
+      : null;
+  const total = earnings?.reduce((sum, e) => sum + e.sats, 0n) ?? null;
+  const listed = earnings && !all ? earnings.slice(0, EARNED_CYCLES) : earnings;
+  const usd = (sats: bigint) => {
+    const value = satsInUsd(sats, prices);
+    return value === null ? null : usdCompact(value, locale);
+  };
+
+  return (
+    <div>
+      <div className='grid grid-cols-2 gap-3'>
+        <div>
+          <p className='flex items-center gap-1 text-xs font-semibold text-muted'>
+            {t('pool.earned.yield')}{' '}
+            <InfoTip text={t('pool.earned.yieldHelp')} />
+          </p>
+          <p
+            className={`text-2xl font-extrabold tabular-nums ${
+              isHighFee(signer) ? 'text-rose' : ''
+            }`}
+          >
+            {netApy === null
+              ? signer.feeBips === null
+                ? t('pools.feeElsewhereShort')
+                : '—'
+              : `${netApy.toFixed(2)}%`}
+          </p>
+          <p className='text-xs text-muted'>
+            {signer.feeBips === null
+              ? t('pools.feeElsewhere')
+              : t('pool.earned.yieldNote', {
+                  fee: feePercent(signer.feeBips) ?? '',
+                })}
+          </p>
+        </div>
+        <div>
+          <p className='flex items-center gap-1 text-xs font-semibold text-muted'>
+            {earnings && earnings.length > 0
+              ? t('pool.earned.total', {
+                  cycle: earnings[earnings.length - 1].cycle,
+                })
+              : t('pool.earned.totalPlain')}{' '}
+            <InfoTip text={t('pool.earned.how')} />
+          </p>
+          <p className='text-2xl font-extrabold tabular-nums'>
+            {total === null ? '—' : (sbtcCompact(total, locale) ?? '—')}
+          </p>
+          <p className='text-xs text-muted'>
+            {[total !== null ? usd(total) : null, t('pool.earned.beforeFee')]
+              .filter(Boolean)
+              .join(' · ')}
+          </p>
+        </div>
+      </div>
+
+      {bond && <p className='mt-2 text-xs text-muted'>{t('pools.bondHelp')}</p>}
+
+      {earnings === null ? (
+        <p className='mt-3 text-sm text-muted'>
+          {history.state === 'loading' || rates.state === 'loading'
+            ? t('signerPage.loading')
+            : t('pool.earned.unavailable')}
+        </p>
+      ) : earnings.length === 0 ? (
+        <p className='mt-3 text-sm text-muted'>{t('pool.earned.none')}</p>
+      ) : (
+        <>
+          <table className='mt-3 w-full text-sm'>
+            <thead>
+              <tr className='border-b border-hairline text-left text-xs text-muted'>
+                <th className='py-1.5 pr-2 font-bold'>
+                  {t('pool.members.cycle')}
+                </th>
+                <th className='py-1.5 pr-2 text-right font-bold'>
+                  {t('pool.earned.colEarned')}
+                </th>
+                {signer.feeBips !== null && (
+                  <th className='py-1.5 text-right font-bold'>
+                    {t('pool.earned.colKept', {
+                      fee: feePercent(signer.feeBips) ?? '',
+                    })}
+                  </th>
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              {listed!.map((entry) => {
+                const kept =
+                  signer.feeBips === null
+                    ? null
+                    : afterFee(entry.sats, signer.feeBips);
+                return (
+                  <tr
+                    key={entry.cycle}
+                    className='border-b border-hairline last:border-b-0'
+                  >
+                    <td className='py-1.5 pr-2 font-bold tabular-nums'>
+                      {entry.cycle}
+                      {entry.partial && (
+                        <span className='ml-1.5 text-xs font-normal text-muted'>
+                          {t('pool.earned.soFar')}
+                        </span>
+                      )}
+                    </td>
+                    <td className='py-1.5 pr-2 text-right whitespace-nowrap tabular-nums'>
+                      <strong>{sbtcCompact(entry.sats, locale)}</strong>
+                      {usd(entry.sats) && (
+                        <span className='block text-xs text-muted'>
+                          {usd(entry.sats)}
+                        </span>
+                      )}
+                    </td>
+                    {kept !== null && (
+                      <td className='py-1.5 text-right whitespace-nowrap text-muted tabular-nums'>
+                        {sbtcCompact(kept, locale)}
+                      </td>
+                    )}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          {!all && earnings.length > EARNED_CYCLES && (
+            <button
+              type='button'
+              onClick={() => setAll(true)}
+              className='mt-2 text-xs font-semibold text-grape underline underline-offset-2'
+            >
+              {t.plural(
+                'pool.members.earlier',
+                earnings.length - EARNED_CYCLES,
+              )}
+            </button>
+          )}
+        </>
+      )}
+    </div>
   );
 }
 

@@ -171,3 +171,69 @@ export function stxCompact(
   // British English writes "89m"; a capital reads as the unit it is.
   return `${value.replace(/(\d)([kmbt])$/, (_, d: string, u: string) => d + u.toUpperCase())} STX`;
 }
+
+/**
+ * "0.5427 sBTC", "1.168 sBTC", "48,210 sats" — a reward for a table cell.
+ *
+ * Four significant figures once it is a hundredth of a coin, sats below that.
+ * `satsLabel` keeps every digit, which is right for what *you* are owed and
+ * too much for a column of what a pool earned in each cycle.
+ */
+export function sbtcCompact(
+  sats: bigint | null | undefined,
+  locale: Locale = 'en',
+): string | null {
+  if (sats === null || sats === undefined) return null;
+  const t = translator(locale);
+  if (sats < 1_000_000n) {
+    return t('amount.sats', { value: groupDigits(sats) });
+  }
+  const coins = Number(sats) / Number(SATS_PER_SBTC);
+  const value = new Intl.NumberFormat(t.bundle.intlLocale, {
+    maximumSignificantDigits: 4,
+  }).format(coins);
+  return t('amount.sbtc', { value });
+}
+
+/** Dollars for sats, at a BTC price in dollars. */
+export function usdFromSats(sats: bigint, btcPriceUsd: number): number {
+  return (Number(sats) / Number(SATS_PER_SBTC)) * btcPriceUsd;
+}
+
+/** Dollars for microSTX, through the STX price in sats. */
+export function usdFromUstx(
+  ustx: bigint,
+  stxPriceSats: bigint,
+  btcPriceUsd: number,
+): number {
+  return (
+    (Number(ustx) / Number(MICRO_STX)) *
+    (Number(stxPriceSats) / Number(SATS_PER_SBTC)) *
+    btcPriceUsd
+  );
+}
+
+/**
+ * "$163M", "$41.9K", "$0.33" — dollars as a side note, never the headline.
+ *
+ * The page counts in STX and sats because that is what the chain pays; a
+ * dollar figure is there for scale, so it is compact and rounded.
+ */
+export function usdCompact(usd: number, locale: Locale = 'en'): string {
+  const t = translator(locale);
+  return (
+    new Intl.NumberFormat(t.bundle.intlLocale, {
+      style: 'currency',
+      currency: 'USD',
+      notation: usd >= 10_000 ? 'compact' : 'standard',
+      maximumFractionDigits: usd >= 10_000 ? 1 : usd >= 100 ? 0 : 2,
+    })
+      .format(usd)
+      .replace(/US\$/, '$')
+      // British English writes "$163m"; a capital reads as the unit it is.
+      .replace(
+        /(\d)([kmbt])$/,
+        (_, d: string, u: string) => d + u.toUpperCase(),
+      )
+  );
+}

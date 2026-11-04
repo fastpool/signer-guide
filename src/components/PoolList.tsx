@@ -24,16 +24,18 @@ import {
   type SignerNode,
 } from '../lib/signer-nodes';
 import { ellipsedAddr } from '../lib/strings';
-import type { LockedTotals, Signer } from '../lib/types';
+import type { LockedTotals, Signer, StxOnlyCalculations } from '../lib/types';
+import { isBondPool, netApyPercent } from '../lib/pool-yield';
+import { pricesFrom } from '../lib/prices';
 import Badge, { feePercent, noticeLabel } from './Badge';
 import Identicon from './Identicon';
 import PoolName from './PoolName';
 import StakeModal from './StakeModal';
 import { InfoTip, useEdgeFade } from './ui';
 
-type SortKey = 'staked' | 'next' | 'fee' | 'share' | 'name';
+type SortKey = 'staked' | 'next' | 'yield' | 'fee' | 'share' | 'name';
 
-const SORTS: SortKey[] = ['staked', 'next', 'fee', 'share', 'name'];
+const SORTS: SortKey[] = ['staked', 'next', 'yield', 'fee', 'share', 'name'];
 
 /** The filters offered as chips. `inUse` is the "show empty pools" toggle. */
 const CHIP_FILTERS = FILTER_IDS.filter((id) => id !== 'inUse');
@@ -80,6 +82,11 @@ interface Row {
   shareBips: number | null;
   /** How many contracts share that key — the note under a repeated share. */
   keyContracts: number;
+  /**
+   * What a staker keeps, a year, at today's rate and today's fee. Null for a
+   * fee held somewhere else, or without a rate or price.
+   */
+  netApy: number | null;
   group: string | null;
   isNew: boolean;
 }
@@ -96,13 +103,26 @@ interface Row {
 export default function PoolList({
   signers,
   totals,
+  calculations,
   locale,
 }: {
   signers: Signer[];
   totals: LockedTotals;
+  /** The rate and the STX price the yield column is worked out from. */
+  calculations: StxOnlyCalculations;
   locale: Locale;
 }) {
   const t = translator(locale);
+  const rate = useMemo(() => {
+    try {
+      return calculations.rateSatsPer1000Stx == null
+        ? null
+        : BigInt(calculations.rateSatsPer1000Stx);
+    } catch {
+      return null;
+    }
+  }, [calculations.rateSatsPer1000Stx]);
+  const { stxPriceSats } = pricesFrom(calculations);
   const [active, setActive] = useState<Set<FilterId>>(
     () => new Set<FilterId>(['inUse']),
   );
@@ -131,13 +151,18 @@ export default function PoolList({
           next: totals.next ? big(totals.next.ustx[signer.contractId]) : null,
           shareBips: node ? votingPowerBips(node, totals.ustx) : null,
           keyContracts: node?.contracts.length ?? 1,
+          netApy: netApyPercent({
+            rateSatsPer1000Stx: rate,
+            stxPriceSats,
+            feeBips: signer.feeBips,
+          }),
           group:
             groupsForContract(signer.contractId, signer.signerKey)[0]?.name ??
             null,
           isNew: isNewSigner(signer, totals.cycle),
         };
       }),
-    [signers, totals, nodeOf],
+    [signers, totals, nodeOf, rate, stxPriceSats],
   );
 
   const needle = query.trim().toLowerCase();
@@ -159,6 +184,9 @@ export default function PoolList({
           (b.signer.feeBips ?? Number.MAX_SAFE_INTEGER) ||
         byAmount(a.now, b.now),
       share: (a, b) => (b.shareBips ?? -1) - (a.shareBips ?? -1),
+      // Highest first; a yield that cannot be worked out sorts last.
+      yield: (a, b) =>
+        (b.netApy ?? -1) - (a.netApy ?? -1) || byAmount(a.now, b.now),
       name: (a, b) =>
         a.signer.displayName.localeCompare(
           b.signer.displayName,
@@ -196,9 +224,11 @@ export default function PoolList({
     <th
       scope='col'
       aria-sort={sort === key ? 'descending' : undefined}
-      className={`px-2 py-2.5 text-xs font-bold whitespace-nowrap text-muted ${
-        align === 'right' ? 'text-right' : 'text-left'
-      }`}
+      // A head with a help mark may wrap: "Yield after fee" over two lines is
+      // narrower than any figure under it.
+      className={`px-2 py-2.5 text-xs font-bold text-muted ${
+        help ? 'max-w-24' : 'whitespace-nowrap'
+      } ${align === 'right' ? 'text-right' : 'text-left'}`}
     >
       <button
         type='button'
@@ -327,11 +357,19 @@ export default function PoolList({
                   {header('name', t('pools.col.pool'), 'left')}
                   <th
                     scope='col'
-                    className='px-2 py-2.5 text-left text-xs font-bold text-muted'
+                    // On the pool's own page too; below 1280px the table
+                    // needs the room more.
+                    className='hidden px-2 py-2.5 text-left text-xs font-bold text-muted xl:table-cell'
                   >
                     {t('pools.col.type')}
                   </th>
                   {header('fee', t('pools.col.fee'), 'left')}
+                  {header(
+                    'yield',
+                    t('pools.col.yield'),
+                    'right',
+                    t('pools.yieldHelp'),
+                  )}
                   <th
                     scope='col'
                     className='px-2 py-2.5 text-left text-xs font-bold text-muted'
@@ -345,7 +383,6 @@ export default function PoolList({
                     {t('pools.col.rewards')}
                   </th>
                   {header('staked', sortLabel('staked'), 'right')}
-                  {header('next', sortLabel('next'), 'right')}
                   {header(
                     'share',
                     t('pools.col.share'),
@@ -363,6 +400,7 @@ export default function PoolList({
                     key={row.signer.contractId}
                     row={row}
                     maxShare={maxShare}
+                    nextCycle={totals.next?.cycle ?? totals.cycle + 1}
                     locale={locale}
                   />
                 ))}
@@ -451,7 +489,7 @@ function FeeCell({ signer, locale }: { signer: Signer; locale: Locale }) {
         {feePercent(signer.feeBips)}
       </span>
       {(signer.maxFeeBips !== null || signer.feeChangeNotice) && (
-        <span className='mt-0.5 flex flex-wrap gap-x-2 text-xs text-mint'>
+        <span className='mt-0.5 flex flex-col text-xs text-mint'>
           {signer.maxFeeBips !== null && (
             <span title={t('pools.capHelp')}>
               <span aria-hidden='true'>⛉ </span>
@@ -524,19 +562,31 @@ export function RewardTags({
   );
 }
 
-function Change({ row, locale }: { row: Row; locale: Locale }) {
+function Change({
+  row,
+  locale,
+  inline = false,
+}: {
+  row: Row;
+  locale: Locale;
+  /** Run on after the amount, in the table's two-line Staked cell. */
+  inline?: boolean;
+}) {
+  const display = inline ? 'inline' : 'block';
   const t = translator(locale);
   if (row.next === null) return null;
   if (row.now === null || row.now === 0n) {
     return row.next > 0n ? (
-      <span className='block text-xs text-mint'>{t('pools.change.new')}</span>
+      <span className={`${display} text-xs text-mint`}>
+        {t('pools.change.new')}
+      </span>
     ) : null;
   }
   // An invite-only pool is filled by its operator, often late in the cycle,
   // so an empty next cycle is "not yet" rather than a hundred per cent gone.
   if (row.next === 0n) {
     return (
-      <span className='block text-xs text-muted'>
+      <span className={`${display} text-xs text-muted`}>
         {t('pools.change.notYet')}
       </span>
     );
@@ -544,12 +594,14 @@ function Change({ row, locale }: { row: Row; locale: Locale }) {
   const percent = Number(((row.next - row.now) * 1000n) / row.now) / 10;
   if (Math.abs(percent) < 1) {
     return (
-      <span className='block text-xs text-muted'>{t('pools.change.same')}</span>
+      <span className={`${display} text-xs text-muted`}>
+        {t('pools.change.same')}
+      </span>
     );
   }
   return (
     <span
-      className={`block text-xs ${percent > 0 ? 'text-mint' : 'text-amber-warm'}`}
+      className={`${display} text-xs ${percent > 0 ? 'text-mint' : 'text-amber-warm'}`}
     >
       {percent > 0 ? '+' : '−'}
       {Math.round(Math.abs(percent))}%
@@ -560,10 +612,12 @@ function Change({ row, locale }: { row: Row; locale: Locale }) {
 function TableRow({
   row,
   maxShare,
+  nextCycle,
   locale,
 }: {
   row: Row;
   maxShare: number;
+  nextCycle: number;
   locale: Locale;
 }) {
   const t = translator(locale);
@@ -572,7 +626,7 @@ function TableRow({
   const typeName = contractTypeName(signer, locale);
   return (
     <tr className='border-b border-hairline last:border-b-0 hover:bg-card-raised'>
-      <td className='max-w-60 px-2 py-2 pl-3'>
+      <td className='max-w-52 px-2 py-2 pl-3'>
         <a href={href} className='flex items-center gap-2.5'>
           <Identicon
             hash={signer.identiconHash}
@@ -582,15 +636,18 @@ function TableRow({
           <NameBlock row={row} locale={locale} />
         </a>
       </td>
-      <td className='max-w-32 px-2 py-2 text-xs text-muted'>
+      <td className='hidden max-w-32 px-2 py-2 text-xs text-muted xl:table-cell'>
         {typeName ?? (
           <span className='font-semibold text-amber-warm'>
             {t('pools.unreviewed')}
           </span>
         )}
       </td>
-      <td className='px-2 py-2'>
+      <td className='max-w-32 px-2 py-2'>
         <FeeCell signer={signer} locale={locale} />
+      </td>
+      <td className='px-2 py-2 text-right whitespace-nowrap tabular-nums'>
+        <YieldCell row={row} locale={locale} />
       </td>
       <td className='px-2 py-2'>
         <JoinTag signer={signer} locale={locale} />
@@ -598,14 +655,24 @@ function TableRow({
       <td className='px-2 py-2'>
         <RewardTags signer={signer} locale={locale} />
       </td>
-      <td className='px-2 py-2 text-right font-bold whitespace-nowrap tabular-nums'>
-        <Amount raw={row.nowRaw} locale={locale} />
-      </td>
+      {/* Two lines: this cycle, and the next one filling. The next cycle had
+          a column of its own, which the yield column needed more. */}
       <td className='px-2 py-2 text-right whitespace-nowrap tabular-nums'>
-        {stxCompact(row.next, locale) ?? (
-          <Missing reason='unknown' locale={locale} />
-        )}
-        <Change row={row} locale={locale} />
+        <strong>
+          <Amount raw={row.nowRaw} locale={locale} />
+        </strong>
+        <span
+          className='block text-xs text-muted'
+          title={t('pools.nextInlineHelp', { cycle: nextCycle })}
+        >
+          {t('pools.nextInline', {
+            cycle: nextCycle,
+            amount:
+              stxCompact(row.next, locale)?.replace(/ STX$/, '') ??
+              t('pools.amountUnknown'),
+          })}{' '}
+          <Change row={row} locale={locale} inline />
+        </span>
       </td>
       <td className='px-2 py-2 text-right whitespace-nowrap tabular-nums'>
         {row.shareBips === null ? (
@@ -725,6 +792,53 @@ function Legend({ locale }: { locale: Locale }) {
   );
 }
 
+/** "8.12%" — one place, so the table and the phone row round alike. */
+function yieldPercent(apy: number, locale: Locale): string {
+  const t = translator(locale);
+  return `${apy.toLocaleString(t.bundle.intlLocale, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}%`;
+}
+
+/**
+ * The yield a staker keeps, a year. A fee that keeps the reward keeps the
+ * yield too, so it is red for the same pools the fee is red for; a fee this
+ * contract does not hold leaves nothing to work out.
+ */
+function YieldCell({ row, locale }: { row: Row; locale: Locale }) {
+  const t = translator(locale);
+  const { signer } = row;
+  if (row.netApy === null) {
+    return (
+      <span
+        title={
+          signer.feeBips === null
+            ? t('pools.feeElsewhere')
+            : t('pools.yieldUnknown')
+        }
+        className='text-xs text-muted'
+      >
+        {signer.feeBips === null
+          ? t('pools.feeElsewhereShort')
+          : t('pools.amountUnknown')}
+      </span>
+    );
+  }
+  return (
+    <span className='block'>
+      <span className={`font-bold ${isHighFee(signer) ? 'text-rose' : ''}`}>
+        {yieldPercent(row.netApy, locale)}
+      </span>
+      {isBondPool(signer) && (
+        <span className='block text-xs text-muted' title={t('pools.bondHelp')}>
+          {t('pools.bondPlus')}
+        </span>
+      )}
+    </span>
+  );
+}
+
 function PhoneRow({ row, locale }: { row: Row; locale: Locale }) {
   const t = translator(locale);
   const { signer } = row;
@@ -739,6 +853,9 @@ function PhoneRow({ row, locale }: { row: Row; locale: Locale }) {
       ? ` (${t('pools.cap', { percent: signer.maxFeeBips / 100 })})`
       : '';
   const meta = [
+    ...(row.netApy !== null
+      ? [t('pools.phone.yield', { percent: yieldPercent(row.netApy, locale) })]
+      : []),
     fee + cap,
     t(`join.${join}.short`),
     currencies.map((c) => t(`currency.${c}`)).join(' + '),

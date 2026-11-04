@@ -822,6 +822,54 @@ const messages = {
   'pools.unnamedIn': 'unnamed · {group}',
   'pools.feeElsewhere': 'Not held in this contract — it may be taken elsewhere',
   'pools.feeElsewhereShort': 'set elsewhere',
+  'pools.nextInline': '{cycle}: {amount} ·',
+  'pools.nextInlineHelp':
+    'Staked for cycle {cycle} so far, and the change from this cycle',
+  'amount.usdAbout': '≈ {usd}',
+  'pools.sort.yield': 'Yield after fee',
+  'pools.col.yield': 'Yield after fee',
+  'pools.yieldHelp':
+    "What a staker keeps in a year, in sBTC against the STX staked, at today's STX-only rate and today's fee. Every STX-only pool earns the same rate before its fee, so this is the fee said as what you keep.",
+  'pools.yieldUnknown': 'No rate or STX price at the last refresh',
+  'pools.bondHelp':
+    'This signer holds a BTC bond, which earns it a share of the rewards on top of the STX-only rate. That share is not counted here.',
+  'pools.bondPlus': '+ bond share',
+  'pools.phone.yield': '{percent} a year',
+  'pool.fact.feeYield': '≈ {percent}% a year after the fee',
+  'pool.fact.nextCloses': 'closes in {countdown}',
+  'pool.earned.whereNow': 'Where the sBTC is now',
+  'pool.earned.yield': 'Yield after fee',
+  'pool.earned.yieldHelp':
+    "What a staker keeps in a year, at today's STX-only rate, today's fee and today's STX price. Rates move every payout, so this is a guide, not a promise.",
+  'pool.earned.yieldNote': "a year, at today's rate and the {fee} fee",
+  'pool.earned.total': 'Earned since cycle {cycle}',
+  'pool.earned.totalPlain': 'Earned',
+  'pool.earned.how':
+    "Worked out from what this contract held in each cycle and pox-5's rewards per STX for that cycle, which is the same for every STX-only share. Before the pool's fee, because only today's fee is on file.",
+  'pool.earned.beforeFee': 'before the fee',
+  'pool.earned.unavailable': 'The cycle history would not load.',
+  'pool.earned.none':
+    'Nothing earned yet: no pox-5 payout has covered a cycle this contract held stake in.',
+  'pool.earned.colEarned': 'Earned',
+  'pool.earned.colKept': 'After {fee} fee',
+  'pool.earned.soFar': 'so far',
+  'timing.label': 'Reward cycle',
+  'timing.prices': 'STX {stx} · BTC {btc}',
+  'timing.pricesHelp':
+    'From CoinGecko at the last refresh. Rewards are paid in sBTC and stakes are in STX; dollars are only for scale.',
+  'timing.closes': 'Staking for cycle {next} closes in {countdown}.',
+  'timing.closesWhen':
+    'About {date}, at Bitcoin block {block}, when the prepare phase starts. Stake after that and you are in the cycle after.',
+  'timing.inPrepare':
+    'Cycle {next} is fixed: a stake now counts from cycle {joins}.',
+  'timing.inPrepareWhen': 'Cycle {next} starts in {countdown}, about {date}.',
+  'timing.soon': 'a few minutes',
+  'timing.progress': 'Cycle {cycle} is {percent}% through',
+  'timing.started': 'Cycle {cycle} began {date}',
+  'timing.next': 'Cycle {cycle} starts {date} · block {block}',
+  'timing.dh': '{d}d {h}h',
+  'timing.hm': '{h}h {m}m',
+  'timing.m': '{m}m',
   'pools.amountUnknown': 'unknown',
   'pools.amountNotRead': 'not read yet',
   'pools.noticeShort': '{notice} notice',
@@ -942,7 +990,8 @@ const messages = {
   'pool.members.showKey': 'Show the whole key',
   'pool.members.showThis': 'Only this contract',
   'pool.members.none': 'Nobody in this contract in this cycle.',
-  'pool.rewards.caption': 'The sBTC in or around this pool right now.',
+  'pool.rewards.caption':
+    'What this contract has earned, and where the sBTC is now.',
   'pool.rewards.none':
     'This contract does not publish what it holds, so only what pox-5 still owes it can be read.',
   'pool.key.caption':

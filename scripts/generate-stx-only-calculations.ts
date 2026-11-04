@@ -189,24 +189,40 @@ function writeHistory(entry: StxOnlyDistribution | null): number {
   return distributions.length;
 }
 
-async function fetchStxPriceSats(): Promise<string | null> {
+/**
+ * STX in sats and BTC in US dollars, in one CoinGecko call.
+ *
+ * Either may be missing on its own; each is null rather than a guess, and the
+ * page leaves out what it cannot convert.
+ */
+async function fetchPrices(): Promise<{
+  stxPriceSats: string | null;
+  btcPriceUsd: number | null;
+}> {
+  const none = { stxPriceSats: null, btcPriceUsd: null };
   try {
     const response = await fetch(
-      'https://api.coingecko.com/api/v3/simple/price?ids=blockstack&vs_currencies=btc',
+      'https://api.coingecko.com/api/v3/simple/price?ids=blockstack,bitcoin&vs_currencies=btc,usd',
     );
-    if (!response.ok) return null;
+    if (!response.ok) return none;
 
     const body = (await response.json()) as {
       blockstack?: { btc?: number };
+      bitcoin?: { usd?: number };
     };
-    const btc = body.blockstack?.btc;
-    if (typeof btc !== 'number' || !Number.isFinite(btc) || btc <= 0) {
-      return null;
-    }
+    const positive = (value: unknown): value is number =>
+      typeof value === 'number' && Number.isFinite(value) && value > 0;
+    const stxBtc = body.blockstack?.btc;
+    const btcUsd = body.bitcoin?.usd;
 
-    return String(Math.round(btc * SATS_PER_BTC));
+    return {
+      stxPriceSats: positive(stxBtc)
+        ? String(Math.round(stxBtc * SATS_PER_BTC))
+        : null,
+      btcPriceUsd: positive(btcUsd) ? btcUsd : null,
+    };
   } catch {
-    return null;
+    return none;
   }
 }
 
@@ -252,7 +268,7 @@ async function main() {
       ? null
       : rewardsBalanceSats + reserveBalanceSats + stakedSbtcSats;
 
-  const stxPriceSats = await fetchStxPriceSats();
+  const { stxPriceSats, btcPriceUsd } = await fetchPrices();
 
   const currentBurnchainBlockHeight = Number(
     (pox as { currentBurnchainBlockHeight?: unknown })
@@ -264,6 +280,11 @@ async function main() {
   const rewardCycleLength = Number(
     (pox as { rewardCycleLength?: unknown }).rewardCycleLength,
   );
+  const prepareCycleLength = Number(
+    (pox as { prepareCycleLength?: unknown }).prepareCycleLength,
+  );
+  const wholeOrNull = (value: number): number | null =>
+    Number.isInteger(value) && value > 0 ? value : null;
 
   // pox-5 pays twice per reward cycle: its distribution cycle is half a PoX
   // one, `(/ pox-reward-cycle-length u2)`, which is 1050 blocks on mainnet.
@@ -436,6 +457,10 @@ async function main() {
         : cumulativeRewardsPerUstx.toString(),
     rateSatsPer1000Stx:
       rateSatsPer1000Stx === null ? null : rateSatsPer1000Stx.toString(),
+    btcPriceUsd,
+    firstBurnchainBlockHeight: wholeOrNull(firstBurnchainBlockHeight),
+    rewardCycleLength: wholeOrNull(rewardCycleLength),
+    prepareCycleLength: wholeOrNull(prepareCycleLength),
     generatedAt: new Date().toISOString(),
   };
 
