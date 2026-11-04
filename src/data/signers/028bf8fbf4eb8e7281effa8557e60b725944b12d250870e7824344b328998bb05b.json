@@ -19,7 +19,8 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": false,
-      "cycleFinal": false
+      "cycleFinal": false,
+      "bondUstx": {}
     },
     {
       "cycle": 146,
@@ -35,7 +36,8 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": false,
-      "cycleFinal": true
+      "cycleFinal": true,
+      "bondUstx": {}
     },
     {
       "cycle": 145,
@@ -51,7 +53,8 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": true,
-      "cycleFinal": true
+      "cycleFinal": true,
+      "bondUstx": {}
     },
     {
       "cycle": 144,
@@ -67,7 +70,8 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": true,
-      "cycleFinal": true
+      "cycleFinal": true,
+      "bondUstx": {}
     },
     {
       "cycle": 143,
@@ -83,7 +87,8 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": true,
-      "cycleFinal": true
+      "cycleFinal": true,
+      "bondUstx": {}
     },
     {
       "cycle": 142,
@@ -99,7 +104,8 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": true,
-      "cycleFinal": true
+      "cycleFinal": true,
+      "bondUstx": {}
     },
     {
       "cycle": 141,
@@ -115,7 +121,8 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": true,
-      "cycleFinal": true
+      "cycleFinal": true,
+      "bondUstx": {}
     }
   ],
   "currentCycle": 146,

@@ -17,7 +17,14 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": false,
-      "cycleFinal": false
+      "cycleFinal": false,
+      "bondUstx": {
+        "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs": {
+          "1": "465425303325",
+          "2": "1336920000",
+          "3": "13764611000000"
+        }
+      }
     },
     {
       "cycle": 146,
@@ -32,7 +39,13 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": false,
-      "cycleFinal": true
+      "cycleFinal": true,
+      "bondUstx": {
+        "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs": {
+          "1": "465425303325",
+          "2": "1336920000"
+        }
+      }
     },
     {
       "cycle": 145,
@@ -47,7 +60,13 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": true,
-      "cycleFinal": true
+      "cycleFinal": true,
+      "bondUstx": {
+        "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs": {
+          "1": "465425303325",
+          "2": "1336920000"
+        }
+      }
     },
     {
       "cycle": 144,
@@ -62,7 +81,12 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": true,
-      "cycleFinal": true
+      "cycleFinal": true,
+      "bondUstx": {
+        "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs": {
+          "1": "465425303325"
+        }
+      }
     },
     {
       "cycle": 143,
@@ -77,7 +101,12 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": true,
-      "cycleFinal": true
+      "cycleFinal": true,
+      "bondUstx": {
+        "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs": {
+          "1": "465425303325"
+        }
+      }
     },
     {
       "cycle": 142,
@@ -92,7 +121,8 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": true,
-      "cycleFinal": true
+      "cycleFinal": true,
+      "bondUstx": {}
     },
     {
       "cycle": 141,
@@ -107,7 +137,8 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": true,
-      "cycleFinal": true
+      "cycleFinal": true,
+      "bondUstx": {}
     }
   ],
   "currentCycle": 146,

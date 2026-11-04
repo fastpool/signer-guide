@@ -245,7 +245,8 @@
     {
       "staker": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.sbtc-bond-staker-v1-1",
       "ustx": "80326850251",
-      "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-2"
+      "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-2",
+      "bondIndex": 1
     },
     {
       "staker": "SP17V915QXXTRP4WDGRH348X538HA9HDSWKRMR4CY",

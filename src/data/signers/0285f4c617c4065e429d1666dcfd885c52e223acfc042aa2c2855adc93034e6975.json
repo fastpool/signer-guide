@@ -19,7 +19,12 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": false,
-      "cycleFinal": false
+      "cycleFinal": false,
+      "bondUstx": {
+        "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-2": {
+          "1": "80326850251"
+        }
+      }
     },
     {
       "cycle": 146,
@@ -35,7 +40,12 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": false,
-      "cycleFinal": true
+      "cycleFinal": true,
+      "bondUstx": {
+        "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-2": {
+          "1": "80326850251"
+        }
+      }
     },
     {
       "cycle": 145,
@@ -51,7 +61,12 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": true,
-      "cycleFinal": true
+      "cycleFinal": true,
+      "bondUstx": {
+        "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-2": {
+          "1": "80326850251"
+        }
+      }
     },
     {
       "cycle": 144,
@@ -67,7 +82,12 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": true,
-      "cycleFinal": true
+      "cycleFinal": true,
+      "bondUstx": {
+        "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-2": {
+          "1": "80326850251"
+        }
+      }
     },
     {
       "cycle": 143,
@@ -83,7 +103,12 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": true,
-      "cycleFinal": true
+      "cycleFinal": true,
+      "bondUstx": {
+        "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-2": {
+          "1": "80326850251"
+        }
+      }
     },
     {
       "cycle": 142,
@@ -99,7 +124,8 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": true,
-      "cycleFinal": true
+      "cycleFinal": true,
+      "bondUstx": {}
     },
     {
       "cycle": 141,
@@ -115,7 +141,8 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": true,
-      "cycleFinal": true
+      "cycleFinal": true,
+      "bondUstx": {}
     }
   ],
   "currentCycle": 146,

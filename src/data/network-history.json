@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-11-04T18:04:24.283Z",
+  "generatedAt": "2026-11-04T22:58:18.352Z",
   "cycles": [
     {
       "cycle": 147,
       "stakedUstx": "513481310903412",
-      "bondUstx": "8784101100000",
+      "bondUstx": "24087859220426",
       "signers": 36,
       "pools": 31,
       "rewardsPerUstx": null,
@@ -14,11 +14,11 @@
     {
       "cycle": 146,
       "stakedUstx": "493402397305177",
-      "bondUstx": "8784101100000",
+      "bondUstx": "10323248220426",
       "signers": 36,
       "pools": 31,
       "rewardsPerUstx": "734472027352",
-      "stxOnlyRewardsSats": "355938582",
+      "stxOnlyRewardsSats": "354808121",
       "payouts": [
         {
           "burnHeight": 973699,
@@ -32,11 +32,11 @@
     {
       "cycle": 145,
       "stakedUstx": "493445956980927",
-      "bondUstx": "8784101100000",
+      "bondUstx": "10323248220426",
       "signers": 35,
       "pools": 29,
       "rewardsPerUstx": "1617724895229",
-      "stxOnlyRewardsSats": "784049550",
+      "stxOnlyRewardsSats": "781559633",
       "payouts": [
         {
           "burnHeight": 971599,
@@ -57,11 +57,11 @@
     {
       "cycle": 144,
       "stakedUstx": "448329575893867",
-      "bondUstx": "2326777500000",
+      "bondUstx": "3570465300381",
       "signers": 32,
       "pools": 27,
       "rewardsPerUstx": "1440258939597",
-      "stxOnlyRewardsSats": "642359517",
+      "stxOnlyRewardsSats": "640568284",
       "payouts": [
         {
           "burnHeight": 969499,
@@ -82,11 +82,11 @@
     {
       "cycle": 143,
       "stakedUstx": "443576025261065",
-      "bondUstx": "2326777500000",
+      "bondUstx": "3570465300381",
       "signers": 32,
       "pools": 25,
       "rewardsPerUstx": "903631748280",
-      "stxOnlyRewardsSats": "398726829",
+      "stxOnlyRewardsSats": "397602993",
       "payouts": [
         {
           "burnHeight": 967399,
