@@ -3,8 +3,23 @@
   "cycle": 147,
   "members": [
     {
+      "staker": "SM2K48XNZ7ZSRVKKEMTMTXZ0VAJ2W3XZQF7Q9R6C1",
+      "ustx": "9627226000000",
+      "contractId": "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs"
+    },
+    {
       "staker": "SM3WAR0ANX4HYJ4Q8DSSN2BW83GTV2WYXYCX3YBP4",
       "ustx": "7999990000000",
+      "contractId": "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs"
+    },
+    {
+      "staker": "SM3KXCBRKNG6269PXCFVR4JVN2EA4SJCGTHW7ZCWC",
+      "ustx": "3440751000000",
+      "contractId": "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs"
+    },
+    {
+      "staker": "SM2G09GHGGW4WS2PSAET0BNJE4MMK871DNKP37KXX",
+      "ustx": "688151000000",
       "contractId": "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs"
     },
     {
