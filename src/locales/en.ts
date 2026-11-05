@@ -225,11 +225,14 @@ const messages = {
   'app.footer.feesNoticeBadge': 'fee changes announced',
   'app.footer.identity':
     'Every pool here is registered on Stacks and identified by what its code adds up to, not by its name — so two pools running the same signer contract are shown as such. Fees were read from each contract’s own storage on {at}, and the amounts staked are for cycle {cycle}.',
-  'app.footer.trust':
-    'Nothing here is taken on trust, and neither should this page be: {link} — every claim above comes from a line of Clarity you can check yourself.',
   'app.footer.trustLink': 'read the code on GitHub',
-  'app.footer.madeBy':
-    'Made by {link}, which runs some of the pools listed above. They are described by the same code as everyone else’s and ranked by size like everyone else’s — the reason all of this is public is so you do not have to take that on trust either.',
+  'footer.sections': 'All sections',
+  'footer.data':
+    'Data read from the chain {at}. The guide reads it again every hour.',
+  'footer.code':
+    'Nothing here is taken on trust, and neither should this site be: {link} — every claim comes from a line of Clarity or a read of pox-5 you can check yourself.',
+  'footer.madeBy':
+    'Made by {link}, which runs some of the pools in this guide. They are described by the same code and ranked by the same size as everyone else’s — the reason all of this is public is so you do not have to take that on trust either.',
 
   'filter.inUse.label': 'In use',
   'filter.inUse.help':

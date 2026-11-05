@@ -23,9 +23,6 @@ import Freshness from './Freshness';
 import PoolList from './PoolList';
 import { Meter, Page, StatTile } from './ui';
 
-const REPO_URL = 'https://github.com/fastpool/signer-guide';
-const FASTPOOL_URL = 'https://fastpool.org';
-
 /**
  * The pool list, which is the page most people come for.
  *
@@ -224,7 +221,7 @@ export default function HomePage({
         locale={locale}
       />
 
-      <footer className='mt-12 space-y-3 border-t border-hairline pt-6 text-sm text-muted'>
+      <section className='mt-12 space-y-3 border-t border-hairline pt-6 text-sm text-muted'>
         <p>
           <strong className='text-ink'>{t('app.footer.feesTitle')}</strong>{' '}
           {t('home.footer.fees')}
@@ -232,33 +229,7 @@ export default function HomePage({
         <p>
           {t('app.footer.identity', { at: lastUpdate, cycle: totals.cycle })}
         </p>
-        <p>
-          {t.rich('app.footer.trust', {
-            link: (
-              <a
-                className='font-semibold text-grape underline underline-offset-2'
-                href={REPO_URL}
-                target='_blank'
-                rel='noreferrer'
-              >
-                {t('app.footer.trustLink')}
-              </a>
-            ),
-          })}
-        </p>
-        <p>
-          {t.rich('app.footer.madeBy', {
-            link: (
-              <a
-                className='font-semibold text-grape underline underline-offset-2'
-                href={FASTPOOL_URL}
-              >
-                Fast Pool
-              </a>
-            ),
-          })}
-        </p>
-      </footer>
+      </section>
     </Page>
   );
 }

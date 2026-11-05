@@ -396,22 +396,22 @@ function StakerRow({
 
   return (
     /*
-     * Two columns, and the amount column is pinned rather than allowed to
-     * drop.
+     * Two columns from `sm` up, the amount column pinned to a width of its
+     * own so it is the one a reader can run their eye down; stacked below
+     * that, the amount under the name.
+     *
+     * A grid rather than a wrapping flex row. The name column used to be
+     * `flex-1`, whose basis of zero let it shrink to nothing rather than let
+     * the row wrap — on a phone a long staker id came out one or two
+     * characters a line beside amounts that kept their full width. A grid
+     * gives each column its width outright and has nothing to negotiate.
      *
      * A staker id can be a contract with a long name — `shortPrincipal` keeps
      * those whole on purpose, since the name is the only part a reader
-     * recognises — and with both halves free to wrap, the one row that had one
-     * pushed its amounts onto a second line and left them aligned to the
-     * *left* margin. That is the column the page exists to let somebody run
-     * their eye down, so it is given a width of its own and the description
-     * wraps inside its own column instead.
-     *
-     * Stacked below `sm`, where there is not room for two columns and the
-     * amount reads better under the name than squeezed beside it.
+     * recognises — so it may still break, inside its own column.
      */
-    <li className='flex flex-wrap items-baseline gap-x-4 gap-y-1 sm:flex-nowrap'>
-      <span className='min-w-0 flex-1 break-words'>
+    <li className='grid items-baseline gap-y-0.5 sm:grid-cols-[minmax(0,1fr)_11rem] sm:gap-x-4'>
+      <span className='min-w-0 break-words'>
         <a
           className='font-medium underline underline-offset-2 hover:text-grape'
           href={explorerUrl(staker.staker)}
@@ -446,7 +446,7 @@ function StakerRow({
        * Each half kept whole, so a column too narrow for both breaks between
        * the amount and the ceiling rather than inside either of them.
        */}
-      <span className='shrink-0 text-sm sm:w-44 sm:text-right'>
+      <span className='text-sm sm:text-right'>
         {locked ? (
           <strong className='whitespace-nowrap'>
             {btcLabel(staker.registeredSats, locale)}
