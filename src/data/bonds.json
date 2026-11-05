@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-11-05T06:59:27.889Z",
+  "generatedAt": "2026-11-05T15:35:57.460Z",
   "cycle": 146,
-  "burnHeight": 974633,
+  "burnHeight": 974681,
   "firstBondPeriodCycle": 141,
   "gapCycles": 2,
   "lengthCycles": 12,
@@ -52,7 +52,7 @@
     "unlockCycle": 159,
     "startBurnHeight": 974750,
     "started": false,
-    "registrationClosed": false,
+    "registrationClosed": true,
     "setUp": true,
     "targetRate": 300,
     "stxValueRatio": "275260",
