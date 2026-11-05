@@ -3,7 +3,9 @@ import { inUse } from '../lib/activity';
 import { stxCompact, sumUstx, usdCompact } from '../lib/amounts';
 import { pricesFrom, ustxInUsd } from '../lib/prices';
 import { formatLastUpdate, translator, type Locale } from '../lib/i18n';
+import { bondStakeFor, totalBondUstx } from '../lib/bond-stake';
 import {
+  bondsHref,
   contractsHref,
   stxOnlyHistoryHref,
   stxOnlyRewardsHref,
@@ -20,9 +22,6 @@ import CycleTimeline from './CycleTimeline';
 import Freshness from './Freshness';
 import PoolList from './PoolList';
 import { Meter, Page, StatTile } from './ui';
-
-const REPO_URL = 'https://github.com/fastpool/signer-guide';
-const FASTPOOL_URL = 'https://fastpool.org';
 
 /**
  * The pool list, which is the page most people come for.
@@ -75,6 +74,9 @@ export default function HomePage({
   const stakedNext = totals.next
     ? sumUstx(contractIds, totals.next.ustx)
     : null;
+  // What of it is STX-only and what backs a bond: one line, the same length
+  // however many bonds are running — the bonds page has them one by one.
+  const bonded = totalBondUstx(bondStakeFor(totals, totals.cycle));
   const rewards = stxOnlySummary(stxOnlyCalculations);
   const stakedUsd = ustxInUsd(staked, pricesFrom(stxOnlyCalculations));
   const lastUpdate = formatLastUpdate(signerData.generatedAt, locale);
@@ -112,6 +114,17 @@ export default function HomePage({
                 amount: stxCompact(stakedNext, locale) ?? '—',
               },
             )}
+          {staked !== null && bonded !== null && bonded > 0n && (
+            <a href={bondsHref()} className='mt-0.5 block hover:text-grape'>
+              {t('home.stat.split', {
+                stxOnly: (stxCompact(staked - bonded, locale) ?? '').replace(
+                  / STX$/,
+                  '',
+                ),
+                bond: (stxCompact(bonded, locale) ?? '').replace(/ STX$/, ''),
+              })}
+            </a>
+          )}
         </StatTile>
 
         <StatTile label={t('home.stat.pools')} value={choosable.length}>
@@ -208,7 +221,7 @@ export default function HomePage({
         locale={locale}
       />
 
-      <footer className='mt-12 space-y-3 border-t border-hairline pt-6 text-sm text-muted'>
+      <section className='mt-12 space-y-3 border-t border-hairline pt-6 text-sm text-muted'>
         <p>
           <strong className='text-ink'>{t('app.footer.feesTitle')}</strong>{' '}
           {t('home.footer.fees')}
@@ -216,33 +229,7 @@ export default function HomePage({
         <p>
           {t('app.footer.identity', { at: lastUpdate, cycle: totals.cycle })}
         </p>
-        <p>
-          {t.rich('app.footer.trust', {
-            link: (
-              <a
-                className='font-semibold text-grape underline underline-offset-2'
-                href={REPO_URL}
-                target='_blank'
-                rel='noreferrer'
-              >
-                {t('app.footer.trustLink')}
-              </a>
-            ),
-          })}
-        </p>
-        <p>
-          {t.rich('app.footer.madeBy', {
-            link: (
-              <a
-                className='font-semibold text-grape underline underline-offset-2'
-                href={FASTPOOL_URL}
-              >
-                Fast Pool
-              </a>
-            ),
-          })}
-        </p>
-      </footer>
+      </section>
     </Page>
   );
 }

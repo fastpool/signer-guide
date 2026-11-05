@@ -17,7 +17,7 @@ const FASTPOOL_URL = 'https://fastpool.org';
 /** The site's sections, and which routes count as being inside each. */
 type Section = 'pools' | 'contracts' | 'groups' | 'bonds' | 'status' | 'howTo';
 
-const SECTIONS: { id: Section; href: string; label: MessageKey }[] = [
+export const SECTIONS: { id: Section; href: string; label: MessageKey }[] = [
   { id: 'pools', href: '#/', label: 'nav.pools' },
   { id: 'contracts', href: contractsHref(), label: 'nav.contracts' },
   { id: 'groups', href: groupsHref(), label: 'nav.groups' },

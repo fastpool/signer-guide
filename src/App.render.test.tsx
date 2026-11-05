@@ -474,11 +474,11 @@ describe('the page as a reader sees it', () => {
     expect(html).not.toContain('hidden with nothing staked');
   });
 
-  it('says who made it and that they run some of the pools listed', () => {
+  it('says who made it and that they run some of the pools in it', () => {
     // The guide ranks pools by size and Fast Pool operates several. Saying so
     // is the difference between a guide and an advertisement.
     const html = renderToStaticMarkup(<App />);
     expect(html).toContain('https://fastpool.org');
-    expect(html).toContain('runs some of the pools listed above');
+    expect(html).toContain('runs some of the pools in this guide');
   });
 });

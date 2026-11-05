@@ -114,6 +114,23 @@ jobs:
           pnpm exec tsx scripts/describe-signer-changes.ts \
             "$RUNNER_TEMP/previous-signers.json" src/data/signers.json
 
+      - name: Bring the copy of pox-5's membership prints up to date
+        # Every write to pox-5's staker-per-cycle map comes with a print that
+        # says what it wrote, so a copy of the prints is a copy of the map.
+        # Read on from the cursor in cache/pox5-events/state.json: a page or
+        # two a run, and nothing is written unless a print moved somebody.
+        # The totals step below splits each pool's amount into STX-only and
+        # bond stake from the copy, and the history step rebuilds every
+        # member list from it — so this runs first.
+        #
+        # Allowed to fail, and optional like HIRO_API_KEY: without
+        # SECONDLAYER_API_KEY, or on a bad hour there, the history uses the
+        # copy as committed, and any cycle that copy cannot settle is walked.
+        continue-on-error: true
+        env:
+          SECONDLAYER_API_KEY: ${{ secrets.SECONDLAYER_API_KEY }}
+        run: pnpm generate:events
+
       - name: Read what each pool is looking after
         id: totals
         # Reads the pools out of the file the step above just wrote, so the
@@ -124,6 +141,7 @@ jobs:
         continue-on-error: true
         env:
           HIRO_API_KEY: ${{ secrets.HIRO_API_KEY }}
+          SECONDLAYER_API_KEY: ${{ secrets.SECONDLAYER_API_KEY }}
         run: pnpm generate:totals
 
       - name: Build static STX-only rewards calculations
@@ -184,21 +202,6 @@ jobs:
         env:
           HIRO_API_KEY: ${{ secrets.HIRO_API_KEY }}
         run: pnpm generate:performance
-
-      - name: Bring the copy of pox-5's membership prints up to date
-        # Every write to pox-5's staker-per-cycle map comes with a print that
-        # says what it wrote, so a copy of the prints is a copy of the map.
-        # Read on from the cursor in cache/pox5-events/state.json: a page or
-        # two a run, and nothing is written unless a print moved somebody.
-        # The history step below rebuilds every member list from the copy.
-        #
-        # Allowed to fail, and optional like HIRO_API_KEY: without
-        # SECONDLAYER_API_KEY, or on a bad hour there, the history uses the
-        # copy as committed, and any cycle that copy cannot settle is walked.
-        continue-on-error: true
-        env:
-          SECONDLAYER_API_KEY: ${{ secrets.SECONDLAYER_API_KEY }}
-        run: pnpm generate:events
 
       - name: Read each signer's cycles, and who was in them
         # The data behind the page for one pool: what its signer held each

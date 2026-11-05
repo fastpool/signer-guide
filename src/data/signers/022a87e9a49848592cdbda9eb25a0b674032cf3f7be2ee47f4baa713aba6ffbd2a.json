@@ -15,7 +15,8 @@
       "walkedAt": "2026-08-27T08:19:29.040Z",
       "walkedUstx": "1000000500110",
       "fileFinal": false,
-      "cycleFinal": false
+      "cycleFinal": false,
+      "bondUstx": {}
     },
     {
       "cycle": 142,
@@ -28,7 +29,8 @@
       "walkedAt": "2026-08-14T21:29:04.389Z",
       "walkedUstx": "1000000500110",
       "fileFinal": false,
-      "cycleFinal": true
+      "cycleFinal": true,
+      "bondUstx": {}
     },
     {
       "cycle": 141,
@@ -41,7 +43,8 @@
       "walkedAt": "2026-08-14T21:29:04.389Z",
       "walkedUstx": "0",
       "fileFinal": true,
-      "cycleFinal": true
+      "cycleFinal": true,
+      "bondUstx": {}
     }
   ],
   "currentCycle": 142,

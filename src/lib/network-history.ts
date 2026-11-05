@@ -31,6 +31,7 @@
  * phone app can both use it.
  */
 
+import { bondParts, sumParts } from './bond-stake';
 import { rateFromRewardsPerUstx } from './rewards-rate';
 import { apyPercent } from './rate-view';
 import type {
@@ -46,7 +47,12 @@ const PRECISION = 10n ** 18n;
 /** What the builder needs of one signer's history file. */
 export interface KeyHistoryInput {
   signerKey: string | null;
-  cycles: readonly { cycle: number; ustx: Record<string, string | null> }[];
+  cycles: readonly {
+    cycle: number;
+    ustx: Record<string, string | null>;
+    /** The bond part of `ustx`, when the history has a checked split. */
+    bondUstx?: Record<string, Record<string, string>>;
+  }[];
 }
 
 /** What the builder needs of a signer group. */
@@ -56,9 +62,23 @@ export interface GroupInput {
   members: readonly { signerKey?: string; contractId?: string }[];
 }
 
-/** The same test generate-stx-only-calculations.ts counts bond stake with. */
+/**
+ * The old test for bond stake, by contract name. Only a fallback now, for a
+ * cycle whose history has no checked split: it is right for the bond-only
+ * contracts and blind to bond stakers in ordinary pools.
+ */
 export function isBondContract(contractId: string): boolean {
   return contractId.includes('signer-manager-bond-');
+}
+
+/** The bond part of one contract's stake in one cycle of a history. */
+function bondPartOf(
+  cycle: KeyHistoryInput['cycles'][number],
+  contractId: string,
+  ustx: bigint,
+): bigint {
+  if (cycle.bondUstx) return sumParts(bondParts(cycle.bondUstx, [contractId]));
+  return isBondContract(contractId) ? ustx : 0n;
 }
 
 /**
@@ -158,7 +178,7 @@ export function buildNetworkHistory(opts: {
           pools: new Set<string>(),
         };
         tally.staked += ustx;
-        if (isBondContract(contractId)) tally.bond += ustx;
+        tally.bond += bondPartOf(cycle, contractId, ustx);
         const group = stakeGroupOf(contractId, history.signerKey, opts.groups);
         tally.pools.add(group ? `group:${group}` : contractId);
         tallies.set(cycle.cycle, tally);

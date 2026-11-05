@@ -121,7 +121,13 @@ export default function App() {
     }
 
     if (route.name === 'bonds') {
-      return <BondsPage signers={signerData.signers} locale={locale} />;
+      return (
+        <BondsPage
+          signers={signerData.signers}
+          totals={totals}
+          locale={locale}
+        />
+      );
     }
 
     if (route.name === 'stxOnlyHistory') {

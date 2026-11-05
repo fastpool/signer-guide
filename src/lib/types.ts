@@ -211,6 +211,31 @@ export interface LockedTotals {
     cycle: number;
     ustx: Record<string, string | null>;
   };
+  /**
+   * How much of each pool's stake backs a BTC bond, keyed by cycle — the
+   * cycles above, each one whose split could be checked.
+   *
+   * Absent from files written before it existed, and for a cycle the refresh
+   * could not check; the page then says nothing about bonds rather than
+   * calling everything STX-only. See src/lib/bond-stake.ts.
+   */
+  bond?: Record<string, BondStake>;
+}
+
+/**
+ * One cycle's bond stake, pool by pool and bond by bond.
+ *
+ * Only pools with bond stake appear in `ustx`; a pool missing from both lists
+ * was checked and holds none. Written by scripts/bond-stake.ts.
+ */
+export interface BondStake {
+  /** contract id → bond index (or `?`, unprinted) → uSTX, as strings. */
+  ustx: Record<string, Record<string, string>>;
+  /**
+   * Pools whose split is not known: the chain's total could not be read, or
+   * the replayed prints did not add up to it. Never read as "no bond stake".
+   */
+  unknown: string[];
 }
 
 /**
@@ -496,6 +521,12 @@ export interface SignerCycleSummary {
   /** uSTX per contract id; null for one the node would not answer for. */
   ustx: Record<string, string | null>;
   /**
+   * The part of `ustx` that backs a BTC bond: contract id → bond index →
+   * uSTX. Written only when the replayed prints added up to `ustx` for every
+   * contract, so `{}` is a checked "none" and absent is "not known".
+   */
+  bondUstx?: Record<string, Record<string, string>>;
+  /**
    * How many members the list for this cycle has, or null when no list has
    * been built yet. Zero is a signer nobody staked with, which is a fact; null
    * is one we have not walked, which is not the same and must not read as one.
@@ -600,6 +631,11 @@ export interface CycleMember {
   ustx: string;
   /** Which of the signer's contracts they are with. */
   contractId: string;
+  /**
+   * Set when this stake is registered for a BTC bond rather than STX-only:
+   * the bond's index, or null when the print did not say which.
+   */
+  bondIndex?: number | null;
 }
 
 /**

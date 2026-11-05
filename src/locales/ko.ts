@@ -139,7 +139,7 @@ export const ko: LocaleBundle = {
     'app.stxOnlyEstimate.title':
       'STX 전용 스테이커의 다음 분배 사이클 예상 보상',
     'app.stxOnlyEstimate.intro':
-      '지난 지급 이후 pox-5에 새로 들어온 sBTC에서 본드 보유자 몫과 재단 몫(15%)을 뺀 뒤, 현재 분배 사이클 진행도(총 1050블록)로 분배 사이클 전체를 추정하고, 본드 풀을 제외한 STX 스테이킹 총량으로 나눈 값입니다. pox-5의 잔액이 아니라 새로 들어온 금액을 씁니다. 잔액에는 이미 확정되었지만 아직 청구하지 않은 보상도 섞여 있기 때문입니다. 다만 몇 블록치 입금만으로 환산하면 오차가 크므로, 이번 분배 사이클 진행분은 진행한 만큼만 반영하고 나머지는 pox-5가 이미 확정한 직전 지급 실적으로 채웁니다.',
+      '지난 지급 이후 pox-5에 새로 들어온 sBTC에서 본드 보유자 몫과 재단 몫(15%)을 뺀 뒤, 현재 분배 사이클 진행도(총 1050블록)로 분배 사이클 전체를 추정하고, STX 전용 스테이킹(전체 스테이킹에서 본드에 등록된 STX를 뺀 것)으로 나눈 값입니다. pox-5의 잔액이 아니라 새로 들어온 금액을 씁니다. 잔액에는 이미 확정되었지만 아직 청구하지 않은 보상도 섞여 있기 때문입니다. 다만 몇 블록치 입금만으로 환산하면 오차가 크므로, 이번 분배 사이클 진행분은 진행한 만큼만 반영하고 나머지는 pox-5가 이미 확정한 직전 지급 실적으로 채웁니다.',
     'app.stxOnlyEstimate.loading': '체인 데이터로 예상치를 계산하는 중…',
     'app.stxOnlyEstimate.unavailable':
       '지금은 이 예상치를 계산할 수 없습니다. 잠시 후 다시 시도해 주세요.',
@@ -290,11 +290,14 @@ export const ko: LocaleBundle = {
     'app.footer.feesNoticeBadge': '수수료 변경 사전 공지',
     'app.footer.identity':
       '여기의 모든 풀은 이름이 아니라 코드 해시로 식별되며, 같은 서명자 컨트랙트를 실행하면 같은 것으로 묶어 표시됩니다. 수수료는 {at} 시점에 각 컨트랙트 저장소에서 읽었고, 스테이킹 금액은 {cycle} 사이클 기준입니다.',
-    'app.footer.trust':
-      '여기의 내용은 신뢰에 기대지 않으며, 이 페이지도 마찬가지입니다: {link} 모든 설명은 직접 확인 가능한 Clarity 코드에 근거합니다.',
     'app.footer.trustLink': 'GitHub에서 코드 보기',
-    'app.footer.madeBy':
-      '제작: {link}, 위 목록의 일부 풀을 운영합니다. 해당 풀도 다른 풀과 똑같이 같은 코드 기준으로 설명되고 규모 순으로 정렬됩니다. 이 모든 내용을 공개한 이유는 누구의 말도 그대로 믿지 않아도 되게 하기 위해서입니다.',
+    'footer.sections': '모든 섹션',
+    'footer.data':
+      '데이터는 {at}에 체인에서 읽었습니다. 가이드는 매시간 다시 읽습니다.',
+    'footer.code':
+      '여기의 내용은 신뢰에 기대지 않으며, 이 사이트도 마찬가지입니다: {link} 모든 설명은 직접 확인할 수 있는 Clarity 코드나 pox-5 조회에 근거합니다.',
+    'footer.madeBy':
+      '제작: {link}, 이 가이드에 있는 일부 풀을 운영합니다. 해당 풀도 다른 풀과 똑같이 같은 코드 기준으로 설명되고 같은 규모 기준으로 정렬됩니다. 이 모든 내용을 공개한 이유는 그것조차 그대로 믿지 않아도 되게 하기 위해서입니다.',
 
     'filter.inUse.label': '실제로 사용 중',
     'filter.inUse.help':
@@ -887,7 +890,7 @@ export const ko: LocaleBundle = {
       '각 사이클에 모든 컨트랙트가 보유한 금액과 각 지급이 1000 STX당 지급한 금액으로 계산했습니다. 아직 지급 중인 사이클을 빼면 추정치가 아닙니다.',
     'cycles.chart': '사이클별 STX 전용 보상 (sBTC)',
     'cycles.rewardsHelp':
-      '사이클이 STX 전용 스테이커에게 지급한 금액입니다. 스테이킹 금액에 그 사이클의 pox-5 STX당 보상을 곱한 값이며, 본드 서명자의 본드 몫은 별도로 지급되어 포함되지 않습니다.',
+      '사이클이 STX 전용 스테이커에게 지급한 금액입니다. 스테이킹 금액에 그 사이클의 pox-5 STX당 보상을 곱한 값이며, 본드에 등록된 STX는 본드 몫에서 대신 지급되므로 포함되지 않습니다.',
     'cycles.col.cycle': '사이클',
     'cycles.col.staked': '스테이킹',
     'cycles.col.signers': '서명자',
@@ -914,8 +917,38 @@ export const ko: LocaleBundle = {
       '오늘의 STX 전용 보상률과 오늘의 수수료로 계산한, 스테이킹한 STX 대비 1년 동안 받는 sBTC입니다. STX 전용 풀은 수수료 전에는 모두 같은 보상률을 받으므로, 이 수치는 수수료를 실제로 받는 몫으로 나타낸 것입니다.',
     'pools.yieldUnknown': '마지막 갱신에 보상률이나 STX 가격이 없었습니다',
     'pools.bondHelp':
-      '이 서명자는 BTC 본드를 보유하고 있어 STX 전용 보상률에 더해 보상의 일부를 받습니다. 그 몫은 여기에 포함되지 않습니다.',
+      '이 풀의 스테이킹 중 일부는 BTC 본드를 뒷받침합니다. 그 부분은 STX 전용 보상률이 아니라 본드 몫에서 지급되므로, 여기의 수익률은 STX 전용 스테이커가 받는 몫입니다.',
     'pools.bondPlus': '+ 본드 몫',
+    'pools.legend.bond': 'BTC 본드를 뒷받침하는 STX',
+    'bondStake.some': '본드 {amount}',
+    'bondStake.all': '전부 본드',
+    'bondStake.part': '본드 {index}: {amount}',
+    'bondStake.partUnnamed': '본드: {amount}',
+    'bondStake.chip': '본드 {index} · {amount}',
+    'bondStake.chipUnnamed': '본드 · {amount}',
+    'bondStake.markLabel': '일부가 BTC 본드를 뒷받침합니다 — {breakdown}',
+    'home.stat.split': 'STX 전용 {stxOnly} · 본드 {bond}',
+    'pool.fact.bondNote': 'BTC 본드 몫:',
+    'pool.earned.bondNote':
+      '이번 사이클 스테이킹 중 {amount}는 BTC 본드를 뒷받침합니다. 이 부분은 본드 몫에서 지급되며 pox-5가 풀별로 나누지 않으므로, 위의 획득액과 수익률에서 제외했습니다.',
+    'pool.earned.allBond':
+      '여기에 스테이킹된 모든 STX가 BTC 본드를 뒷받침합니다. 본드 스테이킹은 STX 전용 보상률이 아니라 본드 몫에서 지급되고, pox-5는 그 몫을 풀별로 나누지 않으므로 표시할 STX 전용 획득액이 없습니다.',
+    'pool.members.bond': '본드 {index}',
+    'pool.members.bondUnnamed': '본드',
+    'pool.members.bondHelp':
+      'BTC 본드에 등록됨: STX 전용 보상률이 아니라 본드 몫에서 지급됩니다.',
+    'app.bonds.stxTitle': '본드를 뒷받침하는 STX, 사이클 {cycle}',
+    'app.bonds.stxIntro':
+      '본드 스테이커는 비트코인과 함께 STX를 풀을 통해 등록합니다. pox-5는 이 STX를 풀의 총액에 포함하지만, STX 전용 보상률이 아니라 본드 몫에서 지급합니다. 이번 사이클에 진행 중인 모든 본드를 풀별로 보여 줍니다:',
+    'app.bonds.stxBond': '본드 {index}',
+    'app.bonds.stxBondUnnamed': '기록에 번호가 없는 본드',
+    'app.bonds.stxTotal':
+      '이번 사이클 스테이킹 {total} 중 {bond}가 본드를 뒷받침하고, {stxOnly}가 STX 전용입니다.',
+    'app.bonds.stxNone': '이번 사이클에 본드에 등록된 STX가 없습니다.',
+    'app.bonds.stxUnknown.one':
+      '풀 {count}개를 확인하지 못해 그 본드 스테이킹은 여기에 포함되지 않았습니다.',
+    'app.bonds.stxUnknown.other':
+      '풀 {count}개를 확인하지 못해 그 본드 스테이킹은 여기에 포함되지 않았습니다.',
     'pools.phone.yield': '연 {percent}',
     'pool.fact.feeYield': '수수료 차감 후 연 약 {percent}%',
     'pool.fact.nextCloses': '{countdown} 후 마감',

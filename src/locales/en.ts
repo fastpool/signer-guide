@@ -75,7 +75,7 @@ const messages = {
   'app.stxOnlyEstimate.title':
     'Estimated next distribution cycle rewards for STX-only stakers',
   'app.stxOnlyEstimate.intro':
-    'Estimate from the sBTC that has reached pox-5 since the last payout: minus bond-holder share, minus the foundation share (15%), projected to a 1050-block distribution cycle, then divided by STX staked by non-bond pools. Not from the balance pox-5 holds — that also carries rewards already earned and waiting to be claimed. A few blocks of deposits make a rough projection, so this distribution cycle counts for as much of the rate as it has run and the last payout — a figure pox-5 has already settled — covers the rest.',
+    'Estimate from the sBTC that has reached pox-5 since the last payout: minus bond-holder share, minus the foundation share (15%), projected to a 1050-block distribution cycle, then divided by the STX-only stake (everything staked, less the STX registered for bonds). Not from the balance pox-5 holds — that also carries rewards already earned and waiting to be claimed. A few blocks of deposits make a rough projection, so this distribution cycle counts for as much of the rate as it has run and the last payout — a figure pox-5 has already settled — covers the rest.',
   'app.stxOnlyEstimate.loading': 'Reading estimate from chain data…',
   'app.stxOnlyEstimate.unavailable':
     'Could not build this estimate right now. Try again in a moment.',
@@ -225,11 +225,14 @@ const messages = {
   'app.footer.feesNoticeBadge': 'fee changes announced',
   'app.footer.identity':
     'Every pool here is registered on Stacks and identified by what its code adds up to, not by its name — so two pools running the same signer contract are shown as such. Fees were read from each contract’s own storage on {at}, and the amounts staked are for cycle {cycle}.',
-  'app.footer.trust':
-    'Nothing here is taken on trust, and neither should this page be: {link} — every claim above comes from a line of Clarity you can check yourself.',
   'app.footer.trustLink': 'read the code on GitHub',
-  'app.footer.madeBy':
-    'Made by {link}, which runs some of the pools listed above. They are described by the same code as everyone else’s and ranked by size like everyone else’s — the reason all of this is public is so you do not have to take that on trust either.',
+  'footer.sections': 'All sections',
+  'footer.data':
+    'Data read from the chain {at}. The guide reads it again every hour.',
+  'footer.code':
+    'Nothing here is taken on trust, and neither should this site be: {link} — every claim comes from a line of Clarity or a read of pox-5 you can check yourself.',
+  'footer.madeBy':
+    'Made by {link}, which runs some of the pools in this guide. They are described by the same code and ranked by the same size as everyone else’s — the reason all of this is public is so you do not have to take that on trust either.',
 
   'filter.inUse.label': 'In use',
   'filter.inUse.help':
@@ -830,7 +833,7 @@ const messages = {
     'Worked out from what every contract held in each cycle and what each payout paid per 1000 STX. Nothing here is an estimate except a cycle still being paid.',
   'cycles.chart': 'STX-only rewards per cycle, in sBTC',
   'cycles.rewardsHelp':
-    "What the cycle paid STX-only stakers: their stake times pox-5's rewards per STX for the cycle. A bond signer's bond share is paid on top and is not counted.",
+    "What the cycle paid STX-only stakers: their stake times pox-5's rewards per STX for the cycle. STX registered for a bond is paid from the bond share instead, and is not counted.",
   'cycles.col.cycle': 'Cycle',
   'cycles.col.staked': 'Staked',
   'cycles.col.signers': 'Signers',
@@ -858,8 +861,38 @@ const messages = {
     "What a staker keeps in a year, in sBTC against the STX staked, at today's STX-only rate and today's fee. Every STX-only pool earns the same rate before its fee, so this is the fee said as what you keep.",
   'pools.yieldUnknown': 'No rate or STX price at the last refresh',
   'pools.bondHelp':
-    'This signer holds a BTC bond, which earns it a share of the rewards on top of the STX-only rate. That share is not counted here.',
+    "Part of this pool's stake backs a BTC bond. That part is paid from the bond share, not at the STX-only rate, so the yield here is what an STX-only staker keeps.",
   'pools.bondPlus': '+ bond share',
+  'pools.legend.bond': 'STX backing a BTC bond',
+  'bondStake.some': '{amount} in bonds',
+  'bondStake.all': 'all in bonds',
+  'bondStake.part': 'Bond {index}: {amount}',
+  'bondStake.partUnnamed': 'A bond: {amount}',
+  'bondStake.chip': 'Bond {index} · {amount}',
+  'bondStake.chipUnnamed': 'Bond · {amount}',
+  'bondStake.markLabel': 'Part of this backs BTC bonds — {breakdown}',
+  'home.stat.split': '{stxOnly} STX-only · {bond} in bonds',
+  'pool.fact.bondNote': 'backing BTC bonds:',
+  'pool.earned.bondNote':
+    '{amount} of this cycle’s stake backs BTC bonds. It is paid from the bond share, which pox-5 does not break down by pool, so it is left out of the earnings and the yield above.',
+  'pool.earned.allBond':
+    'Everything staked here backs a BTC bond. Bond stake is paid from the bond share rather than at the STX-only rate, and pox-5 does not break that share down by pool, so there are no STX-only earnings to show.',
+  'pool.members.bond': 'bond {index}',
+  'pool.members.bondUnnamed': 'bond',
+  'pool.members.bondHelp':
+    'Registered for a BTC bond: paid from the bond share rather than at the STX-only rate.',
+  'app.bonds.stxTitle': 'The STX behind the bonds, cycle {cycle}',
+  'app.bonds.stxIntro':
+    'A bond staker registers STX alongside the bitcoin, through a pool. pox-5 counts that STX in the pool’s total but pays it from the bond share, not at the STX-only rate. Every bond running this cycle, pool by pool:',
+  'app.bonds.stxBond': 'Bond {index}',
+  'app.bonds.stxBondUnnamed': 'Bond not named in the print',
+  'app.bonds.stxTotal':
+    '{bond} of the {total} staked this cycle backs a bond; {stxOnly} is STX-only.',
+  'app.bonds.stxNone': 'No STX is registered for a bond this cycle.',
+  'app.bonds.stxUnknown.one':
+    '{count} pool could not be checked, so its bond stake is not counted here.',
+  'app.bonds.stxUnknown.other':
+    '{count} pools could not be checked, so their bond stake is not counted here.',
   'pools.phone.yield': '{percent} a year',
   'pool.fact.feeYield': '≈ {percent}% a year after the fee',
   'pool.fact.nextCloses': 'closes in {countdown}',
@@ -871,7 +904,7 @@ const messages = {
   'pool.earned.total': 'Earned since cycle {cycle}',
   'pool.earned.totalPlain': 'Earned',
   'pool.earned.how':
-    "Worked out from what this contract held in each cycle and pox-5's rewards per STX for that cycle, which is the same for every STX-only share. Before the pool's fee, because only today's fee is on file.",
+    "Worked out from the STX-only stake this contract held in each cycle — its total less any STX registered for a BTC bond — and pox-5's rewards per STX for that cycle, which is the same for every STX-only share. Before the pool's fee, because only today's fee is on file.",
   'pool.earned.beforeFee': 'before the fee',
   'pool.earned.unavailable': 'The cycle history would not load.',
   'pool.earned.none':

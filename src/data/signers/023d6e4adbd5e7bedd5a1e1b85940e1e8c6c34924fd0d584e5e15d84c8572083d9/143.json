@@ -275,7 +275,8 @@
     {
       "staker": "SPFCGF789WX1B737VQYAQ6BG3QYVMJGPDKRKYK00.esbee-dao-bond-staker-1",
       "ustx": "77461646805",
-      "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager"
+      "contractId": "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager",
+      "bondIndex": 1
     },
     {
       "staker": "SP2M8SMWPSV95XYZB6SK7C4DVAM6CPF1CSNGW2RT7",
