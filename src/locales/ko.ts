@@ -288,16 +288,12 @@ export const ko: LocaleBundle = {
       '표시된 수수료는 각 풀의 컨트랙트에서 읽은 현재 적용 값입니다. 대부분의 풀은 수수료를 고정하지 않기 때문에 나중에 바꿀 수 있습니다. 일부 컨트랙트는 코드로 상한을 두며, 이런 경우 {capped} 배지가 붙습니다. 또 더 적은 일부는 수수료 변경 전에 대기 기간을 두어 이동할 시간을 주며, 이런 경우 {notice} 배지가 붙습니다. 어떤 풀은 이 컨트랙트에 수수료 정의가 전혀 없기도 하며, 그 경우 무료라는 뜻은 아닙니다.',
     'app.footer.feesCappedBadge': '수수료 상한',
     'app.footer.feesNoticeBadge': '수수료 변경 사전 공지',
-    'app.footer.identity':
-      '여기의 모든 풀은 이름이 아니라 코드 해시로 식별되며, 같은 서명자 컨트랙트를 실행하면 같은 것으로 묶어 표시됩니다. 수수료는 {at} 시점에 각 컨트랙트 저장소에서 읽었고, 스테이킹 금액은 {cycle} 사이클 기준입니다.',
     'app.footer.trustLink': 'GitHub에서 코드 보기',
     'footer.sections': '모든 섹션',
-    'footer.data':
-      '데이터는 {at}에 체인에서 읽었습니다. 가이드는 매시간 다시 읽습니다.',
-    'footer.code':
-      '여기의 내용은 신뢰에 기대지 않으며, 이 사이트도 마찬가지입니다: {link} 모든 설명은 직접 확인할 수 있는 Clarity 코드나 pox-5 조회에 근거합니다.',
-    'footer.madeBy':
-      '제작: {link}, 이 가이드에 있는 일부 풀을 운영합니다. 해당 풀도 다른 풀과 똑같이 같은 코드 기준으로 설명되고 같은 규모 기준으로 정렬됩니다. 이 모든 내용을 공개한 이유는 그것조차 그대로 믿지 않아도 되게 하기 위해서입니다.',
+    'footer.data': '데이터는 {at}에 체인에서 읽었으며 매시간 갱신됩니다.',
+    'footer.code': 'GitHub의 코드',
+    'footer.madeBy': 'Fast Pool 제작',
+    'footer.disclosure': '이 중 일부 풀을 운영하며, 다른 풀과 똑같이 표시됩니다',
 
     'filter.inUse.label': '실제로 사용 중',
     'filter.inUse.help':
@@ -808,9 +804,11 @@ export const ko: LocaleBundle = {
     'nav.bonds': '본드',
     'nav.status': '주소 확인',
     'nav.howTo': '스테이킹 방법',
+    'nav.learn': '알아보기',
+    'nav.suggestGroup': '운영자 그룹',
     'nav.menu': '메뉴',
-    'nav.searchLabel': '주소 또는 BNS 이름 확인',
-    'nav.searchPlaceholder': '주소 또는 BNS',
+    'nav.searchLabel': '풀 찾기, 또는 주소나 BNS 이름 확인',
+    'nav.searchPlaceholder': '풀, 주소 또는 BNS',
 
     // ---- 데이터 신선도
     'freshness.readAgo': '{ago} 전에 체인에서 읽음',
@@ -832,9 +830,15 @@ export const ko: LocaleBundle = {
 
     // ---- 풀 목록 페이지
     'home.intro':
-      '모든 풀을 수수료, 참여 조건, 보상 지급 방식으로 비교해 보세요. 풀을 열면 누가 참여하고 있는지 볼 수 있습니다.',
+      '모든 풀을 수수료, 참여 조건, 보상 지급 방식으로 비교해 보세요.',
+    'home.you.reading': '{who} 읽는 중…',
+    'home.you.failed': '지금은 {who}을(를) 읽을 수 없습니다',
+    'home.you.notStaking': '{who}은(는) 스테이킹하고 있지 않습니다',
+    'home.you.staked': '{who}: {amount} 스테이킹 중 —',
+    'home.you.open': '자세히 →',
+    'home.you.forget': '이 주소 잊기',
     'home.stat.staked': '사이클 {cycle} 스테이킹',
-    'home.stat.nextFilling': '사이클 {cycle} 모집 중: 지금까지 {amount}',
+    'home.stat.nextFilling': '사이클 {cycle}: 지금까지 {amount}',
     'home.stat.nextLocked': '사이클 {cycle} 확정: {amount}',
     'home.stat.pools': '선택할 수 있는 풀',
     'home.stat.types.one': '컨트랙트 유형 {count}개 ·',
@@ -853,15 +857,12 @@ export const ko: LocaleBundle = {
     'home.stat.payoutBlocks': '{total}블록 중 {done} ·',
     'home.stat.history': '지급 내역 →',
     'home.footer.fees':
-      '표시된 수수료는 풀 컨트랙트에서 읽은 현재 수수료입니다. 대부분의 풀은 언제든 수수료를 바꿀 수 있습니다. 일부 컨트랙트는 코드로 상한을 두고(⛉ 표시), 그보다 적은 수의 컨트랙트는 변경이 적용되기 전에 대기 기간을 둡니다(◷ 표시). 그동안 다른 풀로 옮길 수 있습니다. 컨트랙트 안에 수수료가 없다고 해서 무료라는 뜻은 아니며, 다른 곳에서 부과될 수 있습니다.',
+      '수수료는 각 풀의 컨트랙트에서 읽으며, 대부분의 풀은 언제든 바꿀 수 있습니다 — ⛉는 코드로 정한 상한, ◷는 인상 전 대기 기간입니다.',
 
-    'pools.searchLabel': '풀 찾기',
-    'pools.searchPlaceholder': '풀 또는 운영자 찾기',
     'pools.count.one': '풀 {count}개',
     'pools.count.other': '풀 {count}개',
-    'pools.hiddenEmpty.one': '스테이킹이 없는 {count}개 숨김 (새 풀은 표시됨)',
-    'pools.hiddenEmpty.other':
-      '스테이킹이 없는 {count}개 숨김 (새 풀은 표시됨)',
+    'pools.hiddenEmpty.one': '빈 풀 {count}개 숨김 ·',
+    'pools.hiddenEmpty.other': '빈 풀 {count}개 숨김 ·',
     'pools.showEmpty': '보기',
     'pools.hideEmpty': '빈 풀 숨기기',
     'pools.sortBy': '정렬',
@@ -911,15 +912,14 @@ export const ko: LocaleBundle = {
     'pools.nextInlineHelp':
       '사이클 {cycle}에 현재까지 스테이킹된 금액과 이번 사이클 대비 변화',
     'amount.usdAbout': '≈ {usd}',
-    'pools.sort.yield': '수수료 차감 후 수익률',
-    'pools.col.yield': '수수료 차감 후 수익률',
+    'pools.sort.yield': '순수익률',
+    'pools.col.yield': '순수익률',
     'pools.yieldHelp':
       '오늘의 STX 전용 보상률과 오늘의 수수료로 계산한, 스테이킹한 STX 대비 1년 동안 받는 sBTC입니다. STX 전용 풀은 수수료 전에는 모두 같은 보상률을 받으므로, 이 수치는 수수료를 실제로 받는 몫으로 나타낸 것입니다.',
     'pools.yieldUnknown': '마지막 갱신에 보상률이나 STX 가격이 없었습니다',
     'pools.bondHelp':
       '이 풀의 스테이킹 중 일부는 BTC 본드를 뒷받침합니다. 그 부분은 STX 전용 보상률이 아니라 본드 몫에서 지급되므로, 여기의 수익률은 STX 전용 스테이커가 받는 몫입니다.',
     'pools.bondPlus': '+ 본드 몫',
-    'pools.legend.bond': 'BTC 본드를 뒷받침하는 STX',
     'bondStake.some': '본드 {amount}',
     'bondStake.all': '전부 본드',
     'bondStake.part': '본드 {index}: {amount}',
@@ -927,7 +927,6 @@ export const ko: LocaleBundle = {
     'bondStake.chip': '본드 {index} · {amount}',
     'bondStake.chipUnnamed': '본드 · {amount}',
     'bondStake.markLabel': '일부가 BTC 본드를 뒷받침합니다 — {breakdown}',
-    'home.stat.split': 'STX 전용 {stxOnly} · 본드 {bond}',
     'pool.fact.bondNote': 'BTC 본드 몫:',
     'pool.earned.bondNote':
       '이번 사이클 스테이킹 중 {amount}는 BTC 본드를 뒷받침합니다. 이 부분은 본드 몫에서 지급되며 pox-5가 풀별로 나누지 않으므로, 위의 획득액과 수익률에서 제외했습니다.',
@@ -972,13 +971,12 @@ export const ko: LocaleBundle = {
     'timing.prices': 'STX {stx} · BTC {btc}',
     'timing.pricesHelp':
       '마지막 갱신 시점의 CoinGecko 가격입니다. 보상은 sBTC로, 스테이킹은 STX로 이루어지며 달러는 규모를 가늠하기 위한 것입니다.',
-    'timing.closes': '사이클 {next} 스테이킹이 {countdown} 후 마감됩니다.',
-    'timing.closesWhen':
-      '준비 단계가 시작되는 비트코인 블록 {block}, 약 {date}입니다. 그 이후에 스테이킹하면 그다음 사이클부터 포함됩니다.',
-    'timing.inPrepare':
-      '사이클 {next} 구성이 확정되었습니다. 지금 스테이킹하면 사이클 {joins}부터 포함됩니다.',
-    'timing.inPrepareWhen':
-      '사이클 {next}은 {countdown} 후, 약 {date}에 시작됩니다.',
+    'timing.closes': '{countdown} 안에 사이클 {next}에 참여하세요.',
+    'timing.closesWhen': '그 이후에는 사이클 {after}부터 포함됩니다.',
+    'timing.closesAt':
+      '준비 단계가 시작되는 비트코인 블록 {block}, 약 {date}입니다.',
+    'timing.inPrepare': '지금 스테이킹하면 사이클 {joins}부터 포함됩니다.',
+    'timing.inPrepareWhen': '사이클 {next}은 확정되었고 {countdown} 후 시작됩니다.',
     'timing.soon': '몇 분',
     'timing.progress': '사이클 {cycle} {percent}% 진행',
     'timing.started': '사이클 {cycle} 시작 {date}',
@@ -993,11 +991,6 @@ export const ko: LocaleBundle = {
       '이 풀의 서명자 키가 가진 투표 비중입니다. 키를 공유하는 컨트랙트는 서명하는 주체가 키이므로 같은 수치를 표시합니다.',
     'pools.shareSharedKey.one': '이 키의 컨트랙트 1개',
     'pools.shareSharedKey.other': '컨트랙트 {count}개가 공유',
-    'pools.legend.checked': '직접 확인한 이름',
-    'pools.legend.italicSample': '기울임꼴',
-    'pools.legend.italic': '컨트랙트 ID에서 읽은 이름, 확인되지 않음',
-    'pools.legend.cap': '코드에 정해진 수수료 상한',
-    'pools.legend.notice': '수수료 인상 전 고지',
     'pools.cap': '상한 {percent}%',
     'pools.capHelp':
       '컨트랙트가 강제하는 상한입니다. 풀이 어떻게 정하든 수수료는 이 값을 넘을 수 없습니다.',
@@ -1047,11 +1040,10 @@ export const ko: LocaleBundle = {
     'pool.stakeElsewhere':
       '스테이킹은 여기가 아니라 Native Pool 앱에서 합니다.',
     'pool.warning.highFee.title': '수수료가 보상을 거의 전부 가져갑니다.',
-    'pool.warning.highFee.body':
-      '현재 수수료는 {fee}입니다. 이 풀의 스테이커는 거의 아무것도 받지 못합니다.',
+    'pool.warning.highFee.body': '현재 수수료는 {fee}입니다.',
     'pool.warning.feeUnbounded.title': '수수료는 언제든 오를 수 있습니다.',
     'pool.warning.feeUnbounded.body':
-      '컨트랙트에 상한도 사전 고지 기간도 없어서 예고 없이 얼마로든 올릴 수 있습니다. 현재 수수료는 {fee}입니다.',
+      '상한도 변경 전 고지 기간도 없습니다. 현재 수수료는 {fee}입니다.',
     'pool.warning.unreviewed.title': '아무도 이 코드를 검토하지 않았습니다.',
     'pool.warning.unreviewed.body':
       '배지는 소스에서 자동으로 읽은 것이며, 그 밖에 무엇을 하는지는 아무도 확인하지 않았습니다.',

@@ -165,19 +165,23 @@ export default function SignerPage({
         </div>
       </div>
 
+      {/* One box, worst first: the first warning says why, and any others
+          follow as a sentence each rather than as a box of their own. */}
       {warnings.length > 0 && (
-        <div className='mt-4 space-y-2'>
-          {warnings.map((warning) => (
-            <Alert
-              key={warning}
-              tone={warning === 'highFee' ? 'bad' : 'warm'}
-              title={t(`pool.warning.${warning}.title`)}
-            >
-              {t(`pool.warning.${warning}.body`, {
+        <div className='mt-4'>
+          <Alert
+            tone={warnings.includes('highFee') ? 'bad' : 'warm'}
+            title={t(`pool.warning.${warnings[0]}.title`)}
+          >
+            {[
+              t(`pool.warning.${warnings[0]}.body`, {
                 fee: feePercent(signer.feeBips) ?? '',
-              })}
-            </Alert>
-          ))}
+              }),
+              ...warnings
+                .slice(1)
+                .map((warning) => t(`pool.warning.${warning}.title`)),
+            ].join(' ')}
+          </Alert>
         </div>
       )}
 

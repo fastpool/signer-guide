@@ -20,6 +20,7 @@ import {
 } from '../lib/status';
 import { ellipsedAddr } from '../lib/strings';
 import type { Signer } from '../lib/types';
+import { rememberAddress } from '../lib/remembered-address';
 import AddressRewards from './AddressRewards';
 import Badge from './Badge';
 
@@ -80,6 +81,15 @@ export default function StatusPage({
       .then(setFirstCycle)
       .catch(() => {});
   }, []);
+
+  // The header box can send a new address while this page is open; the box
+  // here should show what is being looked up, not what was typed before.
+  useEffect(() => {
+    setInput(principals.join('\n'));
+    // One address is somebody asking about their own; remember it for the
+    // pool list. A list is not, and leaves what was remembered alone.
+    if (principals.length === 1) rememberAddress(principals[0]);
+  }, [principals]);
 
   const asked: AddressEntry[] = useMemo(
     () => principals.map((address) => ({ address, label: null })),

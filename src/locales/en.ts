@@ -223,16 +223,12 @@ const messages = {
     'The fee shown is the one in force right now, read from the pool’s own contract. Most pools do not lock their fee in, so they can change it later. A few contracts do set a ceiling in code — those carry a {capped} badge, and that limit holds whatever the pool decides. Fewer still make a fee change wait before it applies, which gives you time to move — those carry a {notice} badge. Some pools have no fee in this contract at all, which does not always mean free, because the fee may be taken elsewhere.',
   'app.footer.feesCappedBadge': 'fee capped',
   'app.footer.feesNoticeBadge': 'fee changes announced',
-  'app.footer.identity':
-    'Every pool here is registered on Stacks and identified by what its code adds up to, not by its name — so two pools running the same signer contract are shown as such. Fees were read from each contract’s own storage on {at}, and the amounts staked are for cycle {cycle}.',
   'app.footer.trustLink': 'read the code on GitHub',
   'footer.sections': 'All sections',
-  'footer.data':
-    'Data read from the chain {at}. The guide reads it again every hour.',
-  'footer.code':
-    'Nothing here is taken on trust, and neither should this site be: {link} — every claim comes from a line of Clarity or a read of pox-5 you can check yourself.',
-  'footer.madeBy':
-    'Made by {link}, which runs some of the pools in this guide. They are described by the same code and ranked by the same size as everyone else’s — the reason all of this is public is so you do not have to take that on trust either.',
+  'footer.data': 'Data read from the chain {at}, refreshed hourly.',
+  'footer.code': 'Code on GitHub',
+  'footer.madeBy': 'Made by Fast Pool',
+  'footer.disclosure': 'runs some of these pools, listed like any other',
 
   'filter.inUse.label': 'In use',
   'filter.inUse.help':
@@ -751,9 +747,11 @@ const messages = {
   'nav.bonds': 'Bonds',
   'nav.status': 'Check an address',
   'nav.howTo': 'How staking works',
+  'nav.learn': 'Learn',
+  'nav.suggestGroup': 'Operator group',
   'nav.menu': 'Menu',
-  'nav.searchLabel': 'Check an address or BNS name',
-  'nav.searchPlaceholder': 'Address or BNS',
+  'nav.searchLabel': 'Find a pool, or check an address or BNS name',
+  'nav.searchPlaceholder': 'Pool, address or BNS',
 
   // ---- How old the data is.
   'freshness.readAgo': 'Read from the chain {ago} ago',
@@ -775,9 +773,15 @@ const messages = {
 
   // ---- The pool list's page.
   'home.intro':
-    'Compare every pool by its fee, who can join and how rewards are paid. Open one to see who is in it.',
+    'Compare every pool by its fee, who can join and how rewards are paid.',
+  'home.you.reading': 'Reading {who}…',
+  'home.you.failed': 'Could not read {who} just now',
+  'home.you.notStaking': '{who} is not staking',
+  'home.you.staked': '{who}: {amount} staked with',
+  'home.you.open': 'details →',
+  'home.you.forget': 'Forget this address',
   'home.stat.staked': 'Staked in cycle {cycle}',
-  'home.stat.nextFilling': 'Cycle {cycle} filling: {amount} so far',
+  'home.stat.nextFilling': 'Cycle {cycle}: {amount} so far',
   'home.stat.nextLocked': 'Cycle {cycle} locked in: {amount}',
   'home.stat.pools': 'Pools to choose from',
   'home.stat.types.one': 'on {count} contract type ·',
@@ -796,17 +800,13 @@ const messages = {
   'home.stat.payoutBlocks': '{done} of {total} blocks ·',
   'home.stat.history': 'history →',
   'home.footer.fees':
-    'The fee shown is the one in force right now, read from the pool’s own contract. Most pools can change it at any time. A few contracts set a ceiling in code (marked ⛉), and fewer still make a change wait before it applies (marked ◷), which gives you time to move. A pool with no fee in its own contract is not necessarily free: the fee may be taken elsewhere.',
+    'Fees are read from each pool’s contract, and most pools can change theirs at any time — ⛉ marks a cap set in code, ◷ a wait before a rise.',
 
-  'pools.searchLabel': 'Find a pool',
-  'pools.searchPlaceholder': 'Find a pool or operator',
   'pools.count.one': '{count} pool',
   'pools.count.other': '{count} pools',
-  'pools.hiddenEmpty.one':
-    '{count} hidden with nothing staked (new pools stay listed)',
-  'pools.hiddenEmpty.other':
-    '{count} hidden with nothing staked (new pools stay listed)',
-  'pools.showEmpty': 'show them',
+  'pools.hiddenEmpty.one': '{count} empty pool hidden ·',
+  'pools.hiddenEmpty.other': '{count} empty pools hidden ·',
+  'pools.showEmpty': 'show',
   'pools.hideEmpty': 'hide empty pools',
   'pools.sortBy': 'Sort by',
   'pools.sort.staked': 'Staked · {cycle}',
@@ -855,15 +855,14 @@ const messages = {
   'pools.nextInlineHelp':
     'Staked for cycle {cycle} so far, and the change from this cycle',
   'amount.usdAbout': '≈ {usd}',
-  'pools.sort.yield': 'Yield after fee',
-  'pools.col.yield': 'Yield after fee',
+  'pools.sort.yield': 'Net yield',
+  'pools.col.yield': 'Net yield',
   'pools.yieldHelp':
     "What a staker keeps in a year, in sBTC against the STX staked, at today's STX-only rate and today's fee. Every STX-only pool earns the same rate before its fee, so this is the fee said as what you keep.",
   'pools.yieldUnknown': 'No rate or STX price at the last refresh',
   'pools.bondHelp':
     "Part of this pool's stake backs a BTC bond. That part is paid from the bond share, not at the STX-only rate, so the yield here is what an STX-only staker keeps.",
   'pools.bondPlus': '+ bond share',
-  'pools.legend.bond': 'STX backing a BTC bond',
   'bondStake.some': '{amount} in bonds',
   'bondStake.all': 'all in bonds',
   'bondStake.part': 'Bond {index}: {amount}',
@@ -871,7 +870,6 @@ const messages = {
   'bondStake.chip': 'Bond {index} · {amount}',
   'bondStake.chipUnnamed': 'Bond · {amount}',
   'bondStake.markLabel': 'Part of this backs BTC bonds — {breakdown}',
-  'home.stat.split': '{stxOnly} STX-only · {bond} in bonds',
   'pool.fact.bondNote': 'backing BTC bonds:',
   'pool.earned.bondNote':
     '{amount} of this cycle’s stake backs BTC bonds. It is paid from the bond share, which pox-5 does not break down by pool, so it is left out of the earnings and the yield above.',
@@ -916,12 +914,12 @@ const messages = {
   'timing.prices': 'STX {stx} · BTC {btc}',
   'timing.pricesHelp':
     'From CoinGecko at the last refresh. Rewards are paid in sBTC and stakes are in STX; dollars are only for scale.',
-  'timing.closes': 'Staking for cycle {next} closes in {countdown}.',
-  'timing.closesWhen':
-    'About {date}, at Bitcoin block {block}, when the prepare phase starts. Stake after that and you are in the cycle after.',
-  'timing.inPrepare':
-    'Cycle {next} is fixed: a stake now counts from cycle {joins}.',
-  'timing.inPrepareWhen': 'Cycle {next} starts in {countdown}, about {date}.',
+  'timing.closes': 'Join cycle {next} in the next {countdown}.',
+  'timing.closesWhen': 'After that, a stake counts from cycle {after}.',
+  'timing.closesAt':
+    'About {date}, at Bitcoin block {block}, when the prepare phase starts.',
+  'timing.inPrepare': 'A stake now counts from cycle {joins}.',
+  'timing.inPrepareWhen': 'Cycle {next} is fixed and starts in {countdown}.',
   'timing.soon': 'a few minutes',
   'timing.progress': 'Cycle {cycle} is {percent}% through',
   'timing.started': 'Cycle {cycle} began {date}',
@@ -936,11 +934,6 @@ const messages = {
     "The share of the vote held by this pool's signer key. Contracts that share a key show the same figure, because the key is what signs.",
   'pools.shareSharedKey.one': 'one contract on this key',
   'pools.shareSharedKey.other': 'shared by {count} contracts',
-  'pools.legend.checked': 'name checked by hand',
-  'pools.legend.italicSample': 'Italic',
-  'pools.legend.italic': 'name read off the contract id, not checked',
-  'pools.legend.cap': 'fee cap set in the code',
-  'pools.legend.notice': 'notice before a fee rise',
   'pools.cap': 'cap {percent}%',
   'pools.capHelp':
     'A ceiling the contract enforces: the fee can never be set above it, whatever the pool decides.',
@@ -989,11 +982,10 @@ const messages = {
   'pool.checkStake': 'Check my stake',
   'pool.stakeElsewhere': 'Staking happens in Native Pool’s app, not here.',
   'pool.warning.highFee.title': 'The fee keeps almost all of the reward.',
-  'pool.warning.highFee.body':
-    'It is {fee} right now. A staker here receives next to nothing.',
+  'pool.warning.highFee.body': 'It is {fee} right now.',
   'pool.warning.feeUnbounded.title': 'The fee can rise at any time.',
   'pool.warning.feeUnbounded.body':
-    'The contract sets no ceiling and asks for no notice, so it can be raised to anything without warning. It is {fee} today.',
+    'There is no ceiling and no notice before a change. It is {fee} today.',
   'pool.warning.unreviewed.title': 'Nobody here has reviewed this code.',
   'pool.warning.unreviewed.body':
     'The badges are read from the source automatically, but nobody has checked what else it does.',

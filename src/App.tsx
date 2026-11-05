@@ -228,6 +228,7 @@ export default function App() {
   return (
     <Chrome
       route={route}
+      signers={signerData.signers}
       update={update}
       locale={locale}
       onLocaleChange={setLocale}

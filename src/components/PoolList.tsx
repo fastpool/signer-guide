@@ -132,7 +132,6 @@ export default function PoolList({
   const [active, setActive] = useState<Set<FilterId>>(
     () => new Set<FilterId>(['inUse']),
   );
-  const [query, setQuery] = useState('');
   const [sort, setSort] = useState<SortKey>('staked');
   const chips = useRef<HTMLDivElement>(null);
   const chipFade = useEdgeFade(chips);
@@ -174,15 +173,11 @@ export default function PoolList({
     [signers, totals, stake, nodeOf, rate, stxPriceSats],
   );
 
-  const needle = query.trim().toLowerCase();
+  // Finding a pool by name is the header box's job; this list filters by
+  // what a pool is, through the chips.
   const shown = useMemo(() => {
-    const matching = rows.filter(
-      (row) =>
-        poolMatches(row.signer, active, totals) &&
-        (needle === '' ||
-          row.signer.displayName.toLowerCase().includes(needle) ||
-          row.signer.contractId.toLowerCase().includes(needle) ||
-          (row.group ?? '').toLowerCase().includes(needle)),
+    const matching = rows.filter((row) =>
+      poolMatches(row.signer, active, totals),
     );
     const order: Record<SortKey, (a: Row, b: Row) => number> = {
       staked: (a, b) => byAmount(a.now, b.now),
@@ -203,7 +198,7 @@ export default function PoolList({
         ),
     };
     return [...matching].sort(order[sort]);
-  }, [rows, active, totals, needle, sort, t.bundle.intlLocale]);
+  }, [rows, active, totals, sort, t.bundle.intlLocale]);
 
   const hiddenEmpty = active.has('inUse')
     ? rows.filter((row) => !inUse(row.signer, totals)).length
@@ -233,7 +228,7 @@ export default function PoolList({
     <th
       scope='col'
       aria-sort={sort === key ? 'descending' : undefined}
-      // A head with a help mark may wrap: "Yield after fee" over two lines is
+      // A head with a help mark may wrap: "Key's vote share" over two lines is
       // narrower than any figure under it.
       className={`px-2 py-2.5 text-xs font-bold text-muted ${
         help ? 'max-w-24' : 'whitespace-nowrap'
@@ -263,17 +258,6 @@ export default function PoolList({
       </h2>
 
       <div className='flex flex-wrap items-center gap-2'>
-        <label className='sr-only' htmlFor='pool-search'>
-          {t('pools.searchLabel')}
-        </label>
-        <input
-          id='pool-search'
-          type='search'
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder={t('pools.searchPlaceholder')}
-          className='w-full rounded-full bg-card px-4 py-2 text-sm shadow-lift placeholder:text-faint focus:ring-2 focus:ring-grape focus:outline-none sm:w-60'
-        />
         <div
           ref={chips}
           style={chipFade}
@@ -348,8 +332,6 @@ export default function PoolList({
           </select>
         </label>
       </div>
-
-      <Legend locale={locale} />
 
       {shown.length === 0 && (
         <p className='rounded-2xl bg-card p-5 text-muted shadow-lift'>
@@ -764,47 +746,6 @@ function Missing({
     >
       {t(reason === 'unknown' ? 'pools.amountUnknown' : 'pools.amountNotRead')}
     </span>
-  );
-}
-
-/**
- * What the marks in the list mean, above the list rather than under forty
- * rows of it. The italic in particular is invisible as a signal until
- * somebody says it is one.
- */
-function Legend({ locale }: { locale: Locale }) {
-  const t = translator(locale);
-  return (
-    <p className='mb-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted'>
-      <span>
-        <span aria-hidden='true' className='text-grape'>
-          ✓{' '}
-        </span>
-        {t('pools.legend.checked')}
-      </span>
-      <span>
-        <span className='italic'>{t('pools.legend.italicSample')}</span>{' '}
-        {t('pools.legend.italic')}
-      </span>
-      <span>
-        <span aria-hidden='true' className='text-mint'>
-          ⛉{' '}
-        </span>
-        {t('pools.legend.cap')}
-      </span>
-      <span>
-        <span aria-hidden='true' className='text-mint'>
-          ◷{' '}
-        </span>
-        {t('pools.legend.notice')}
-      </span>
-      <span>
-        <span aria-hidden='true' className='text-amber-warm'>
-          {BOND_MARK}{' '}
-        </span>
-        {t('pools.legend.bond')}
-      </span>
-    </p>
   );
 }
 

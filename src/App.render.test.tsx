@@ -117,7 +117,7 @@ describe('the page as a reader sees it', () => {
     // Two cycles, two numbers: somebody who has left is already out of the
     // second one, which is the whole reason it is worth printing.
     const html = renderToStaticMarkup(<App />);
-    expect(html).toContain('Cycle 143 filling: 7.1M STX so far');
+    expect(html).toContain('Cycle 143: 7.1M STX so far');
   });
 
   it('offers every contract type that has pools running it', () => {
@@ -175,7 +175,7 @@ describe('the page as a reader sees it', () => {
     const totals = mockedTotals as LockedTotals;
     const hidden = LIVE.filter((signer) => !inUse(signer, totals)).length;
     expect(hidden).toBeGreaterThan(0);
-    expect(html).toContain(`${hidden} hidden with nothing staked`);
+    expect(html).toContain(`${hidden} empty pool`);
   });
 
   it('keeps a pool the guide has only just seen, and says it is new', () => {
@@ -458,7 +458,7 @@ describe('the page as a reader sees it', () => {
     const html = renderToStaticMarkup(<App />);
     const stamp = /\d+ \w+ \d{4}, \d{2}:\d{2} UTC/;
     expect(html).toMatch(stamp);
-    expect(html.search(stamp)).toBeLessThan(html.indexOf('id="pool-search"'));
+    expect(html.search(stamp)).toBeLessThan(html.indexOf('id="pools-heading"'));
   });
 
   it('leaves no English behind for a Korean reader', () => {
@@ -471,7 +471,7 @@ describe('the page as a reader sees it', () => {
     expect(html).toContain('821.6만 STX');
     expect(html).toContain('마지막 갱신에서 이 금액을 읽지 못했습니다');
     expect(html).not.toContain('could not read');
-    expect(html).not.toContain('hidden with nothing staked');
+    expect(html).not.toContain('empty pools hidden');
   });
 
   it('says who made it and that they run some of the pools in it', () => {
@@ -479,6 +479,6 @@ describe('the page as a reader sees it', () => {
     // is the difference between a guide and an advertisement.
     const html = renderToStaticMarkup(<App />);
     expect(html).toContain('https://fastpool.org');
-    expect(html).toContain('runs some of the pools in this guide');
+    expect(html).toContain('runs some of these pools');
   });
 });

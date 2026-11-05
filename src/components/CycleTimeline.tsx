@@ -86,7 +86,17 @@ function Timing({ timing, t }: { timing: CycleTiming; t: Translator }) {
 
   return (
     <div className='min-w-0 flex-1'>
-      <p className='text-sm'>
+      <p
+        className='text-sm'
+        title={
+          timing.inPrepare
+            ? undefined
+            : t('timing.closesAt', {
+                date: date(timing.prepareStartsAt),
+                block: block(timing.prepareStartHeight),
+              })
+        }
+      >
         <strong>
           {timing.inPrepare
             ? t('timing.inPrepare', {
@@ -102,12 +112,8 @@ function Timing({ timing, t }: { timing: CycleTiming; t: Translator }) {
           {timing.inPrepare
             ? t('timing.inPrepareWhen', {
                 countdown: left ? countdown(left, t) : t('timing.soon'),
-                date: date(timing.nextCycleStartsAt),
               })
-            : t('timing.closesWhen', {
-                date: date(timing.prepareStartsAt),
-                block: block(timing.prepareStartHeight),
-              })}
+            : t('timing.closesWhen', { after: timing.cycle + 2 })}
         </span>
       </p>
 

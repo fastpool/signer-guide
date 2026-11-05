@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { Locale } from '../lib/i18n';
 import type { Route } from '../lib/route';
 import type { UpdateState } from '../lib/service-worker';
+import type { Signer } from '../lib/types';
 import Freshness from './Freshness';
 import SiteFooter from './SiteFooter';
 import SiteHeader from './SiteHeader';
@@ -19,6 +20,7 @@ import WalletBrowserBanner from './WalletBrowserBanner';
  */
 export default function Chrome({
   route,
+  signers,
   update,
   locale,
   onLocaleChange,
@@ -27,6 +29,7 @@ export default function Chrome({
   children,
 }: {
   route: Route;
+  signers: Signer[];
   update: UpdateState;
   locale: Locale;
   onLocaleChange: (locale: Locale) => void;
@@ -40,6 +43,7 @@ export default function Chrome({
       <WalletBrowserBanner locale={locale} />
       <SiteHeader
         route={route}
+        signers={signers}
         locale={locale}
         onLocaleChange={onLocaleChange}
       />
@@ -50,7 +54,12 @@ export default function Chrome({
         variant='banner'
       />
       {children}
-      <SiteFooter route={route} generatedAt={generatedAt} locale={locale} />
+      <SiteFooter
+        route={route}
+        generatedAt={generatedAt}
+        locale={locale}
+        onLocaleChange={onLocaleChange}
+      />
       <UpdateBanner update={update} locale={locale} />
     </>
   );
