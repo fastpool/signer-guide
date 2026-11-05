@@ -819,14 +819,13 @@ export const ko: LocaleBundle = {
     'freshness.ago.hour.other': '{count}시간',
     'freshness.ago.day.one': '{count}일',
     'freshness.ago.day.other': '{count}일',
-    'freshness.staleTitle.minute.one': '{count}분 전 데이터입니다.',
-    'freshness.staleTitle.minute.other': '{count}분 전 데이터입니다.',
-    'freshness.staleTitle.hour.one': '{count}시간 전 데이터입니다.',
-    'freshness.staleTitle.hour.other': '{count}시간 전 데이터입니다.',
-    'freshness.staleTitle.day.one': '{count}일 전 데이터입니다.',
-    'freshness.staleTitle.day.other': '{count}일 전 데이터입니다.',
-    'freshness.staleBody':
-      '{at}에 체인에서 읽은 뒤로 매시간 갱신이 실행되지 않았습니다. 금액, 수수료, 예상치가 달라졌을 수 있습니다.',
+    'freshness.staleTitle.minute.one': '{count}분 전 데이터',
+    'freshness.staleTitle.minute.other': '{count}분 전 데이터',
+    'freshness.staleTitle.hour.one': '{count}시간 전 데이터',
+    'freshness.staleTitle.hour.other': '{count}시간 전 데이터',
+    'freshness.staleTitle.day.one': '{count}일 전 데이터',
+    'freshness.staleTitle.day.other': '{count}일 전 데이터',
+    'freshness.staleBody': '수치가 달라졌을 수 있음',
 
     // ---- 풀 목록 페이지
     'home.intro':

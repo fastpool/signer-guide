@@ -762,14 +762,13 @@ const messages = {
   'freshness.ago.hour.other': '{count} hours',
   'freshness.ago.day.one': '{count} day',
   'freshness.ago.day.other': '{count} days',
-  'freshness.staleTitle.minute.one': 'This data is {count} minute old.',
-  'freshness.staleTitle.minute.other': 'This data is {count} minutes old.',
-  'freshness.staleTitle.hour.one': 'This data is {count} hour old.',
-  'freshness.staleTitle.hour.other': 'This data is {count} hours old.',
-  'freshness.staleTitle.day.one': 'This data is {count} day old.',
-  'freshness.staleTitle.day.other': 'This data is {count} days old.',
-  'freshness.staleBody':
-    'It was read from the chain on {at} and the hourly refresh has not run since, so amounts, fees and estimates may have moved.',
+  'freshness.staleTitle.minute.one': 'Data is {count} minute old',
+  'freshness.staleTitle.minute.other': 'Data is {count} minutes old',
+  'freshness.staleTitle.hour.one': 'Data is {count} hour old',
+  'freshness.staleTitle.hour.other': 'Data is {count} hours old',
+  'freshness.staleTitle.day.one': 'Data is {count} day old',
+  'freshness.staleTitle.day.other': 'Data is {count} days old',
+  'freshness.staleBody': 'figures may have moved',
 
   // ---- The pool list's page.
   'home.intro':

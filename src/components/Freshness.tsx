@@ -32,11 +32,17 @@ export default function Freshness({
     const age = ageParts(fresh.ageMs);
     return (
       <div role='status' className='bg-amber-soft'>
-        <p className='mx-auto max-w-6xl px-4 py-2 text-sm text-ink sm:px-6'>
+        {/* One line at any width: the age is what matters, and the exact
+            time is a hover away. */}
+        <p
+          title={t('app.lastUpdate', { at })}
+          className='mx-auto max-w-6xl truncate px-4 py-1.5 text-sm text-ink sm:px-6'
+        >
           <strong className='text-amber-warm'>
             {t.plural(`freshness.staleTitle.${age.unit}`, age.count)}
-          </strong>{' '}
-          {t('freshness.staleBody', { at })}
+          </strong>
+          {' · '}
+          {t('freshness.staleBody')}
         </p>
       </div>
     );
