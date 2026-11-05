@@ -3,8 +3,12 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import {
+  fetchUnconfirmedTail,
   readEventLog,
+  readTail,
   stakersFromEvents,
+  TAIL_MAX_AGE_MS,
+  writeTail,
   toLogEntry,
   type LogEntry,
   type Pox5Event,
@@ -114,6 +118,46 @@ describe('readEventLog', () => {
       expect(error).toHaveBeenCalled();
     } finally {
       error.mockRestore();
+    }
+  });
+});
+
+describe('the tail kept for the steps after the events step', () => {
+  const now = Date.parse('2026-11-05T08:00:00Z');
+  const onFile = toLogEntry(row({ cursor: '1:0' })) as LogEntry;
+  const fresh = toLogEntry(
+    row({ cursor: '12:0', block_height: 12 }),
+  ) as LogEntry;
+  const setUp = (over: Partial<{ baseCursor: string; ageMs: number }> = {}) => {
+    const dir = writeCopy([onFile]);
+    writeTail(dir, {
+      baseCursor: over.baseCursor ?? '9:9',
+      fetchedAt: new Date(now - (over.ageMs ?? 60_000)).toISOString(),
+      entries: [onFile, fresh],
+    });
+    return { dir, log: readEventLog(dir)! };
+  };
+
+  it('is used for the copy it was written against, minus what the copy has', () => {
+    const { dir, log } = setUp();
+    expect(readTail(log, dir, now)).toEqual([fresh]);
+  });
+
+  it('is not used against another copy, or once it is old', () => {
+    const other = setUp({ baseCursor: '8:8' });
+    expect(readTail(other.log, other.dir, now)).toBeNull();
+    const old = setUp({ ageMs: TAIL_MAX_AGE_MS + 1 });
+    expect(readTail(old.log, old.dir, now)).toBeNull();
+  });
+
+  it('saves the request when there is one to use', async () => {
+    const { dir, log } = setUp();
+    const fetch = vi.spyOn(globalThis, 'fetch');
+    try {
+      expect(await fetchUnconfirmedTail(log, dir, now)).toEqual([fresh]);
+      expect(fetch).not.toHaveBeenCalled();
+    } finally {
+      fetch.mockRestore();
     }
   });
 });

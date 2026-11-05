@@ -123,6 +123,11 @@ jobs:
         # bond stake from the copy, and the history step rebuilds every
         # member list from it — so this runs first.
         #
+        # It also reads the prints not yet final, once, from where it stopped,
+        # and leaves them in cache/pox5-events/tail.json (gitignored) for both
+        # of those steps. They keep the key only to ask for themselves when
+        # this step failed and left no tail.
+        #
         # Allowed to fail, and optional like HIRO_API_KEY: without
         # SECONDLAYER_API_KEY, or on a bad hour there, the history uses the
         # copy as committed, and any cycle that copy cannot settle is walked.
@@ -231,10 +236,11 @@ jobs:
         #
         # The members come from the copy of pox-5's prints when they add up,
         # contract by contract, to the amounts the chain gives: no per-staker
-        # call at all. SECONDLAYER_API_KEY is for the prints the index has not
-        # finalised yet, which the cycle being filled needs and which are
-        # used for this run only, never written down. A cycle the copy
-        # cannot settle falls back to the walk, within the budget.
+        # call at all. The prints the index has not finalised yet, which the
+        # cycle being filled needs, come from the tail the events step left;
+        # SECONDLAYER_API_KEY is only for fetching them when it left none.
+        # Used for this run only, never committed. A cycle the copy cannot
+        # settle falls back to the walk, within the budget.
         env:
           HIRO_API_KEY: ${{ secrets.HIRO_API_KEY }}
           SECONDLAYER_API_KEY: ${{ secrets.SECONDLAYER_API_KEY }}

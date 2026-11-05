@@ -976,10 +976,21 @@ asking the chain about everyone Hiro's index or the copy has ever seen with
 that signer. In practice that is no per-staker calls at all.
 
 Only finalised prints go in the copy. The few minutes the index has not
-finalised yet are fetched by the history step for that run only, so the cycle
-being filled matches the chain without a reorg ever reaching the file. Both
-need the `SECONDLAYER_API_KEY` secret, optional like the Hiro one. Without it
-the copy is used as committed, and whatever it cannot settle is walked.
+finalised yet are fetched for that run only, so the cycle being filled matches
+the chain without a reorg ever reaching the file. `generate:events` fetches
+them once, straight after the finalised pages and from where those stopped,
+and leaves them in `cache/pox5-events/tail.json` (gitignored) with the
+committed cursor they read on from. The totals and history steps both read
+that file; either one asks secondlayer itself only when there is no tail for
+the copy it has, or the tail is more than half an hour old. That is one read
+of the unfinalised prints a run instead of two, and it starts where the
+finalised read ended rather than at the committed cursor — which an hour with
+no membership print leaves behind, since it is not committed for nothing. It
+is also the more consistent tail: the totals step reads the chain's amounts a
+minute after it, and the history step checks the replay against those same
+amounts. All of it needs the `SECONDLAYER_API_KEY` secret, optional like the
+Hiro one. Without it the copy is used as committed, and whatever it cannot
+settle is walked.
 
 Replaying every cycle every run is what put right the lists the walk had got
 wrong: cycles walked from Hiro's present-tense index, short by everyone who

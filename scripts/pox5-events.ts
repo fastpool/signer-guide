@@ -19,9 +19,12 @@
  * script says so and leaves the copy as committed.
  *
  * Only finalised prints are kept (`confirmed=true`). The few minutes the index
- * has not finalised yet are fetched separately by `fetchUnconfirmedTail` for
- * the run that needs them and never written down, so a reorg can never leave
- * a wrong line in the file.
+ * has not finalised yet are fetched by this same run, straight after, from
+ * where the finalised read stopped, and kept in `cache/pox5-events/tail.json`
+ * — gitignored, so a reorg can never leave a wrong line in the committed
+ * copy. The totals and history steps read that file rather than asking
+ * secondlayer again; `fetchUnconfirmedTail` only asks for itself when the
+ * file is missing, stale, or written against another copy.
  *
  * Nothing is written when a run finds no new membership prints. Most new pox-5
  * prints are reward claims, so the cursor moves nearly every hour, and writing
@@ -50,6 +53,26 @@ export function secondlayerKey(): string {
 }
 /** Most pages the unconfirmed tail may cost a run before it gives up. */
 const TAIL_MAX_PAGES = 10;
+
+/**
+ * Where this run's tail is kept for the steps after it. Not committed.
+ *
+ * Older than this and it is fetched again rather than used: the history step
+ * matches the replay against the amounts the totals step read a minute after
+ * the tail, so a tail from the same run is the consistent one, but one left
+ * over from an hour ago would be missing everything since.
+ */
+const TAIL_FILE = 'tail.json';
+export const TAIL_MAX_AGE_MS = 30 * 60 * 1000;
+
+/** What `tail.json` holds. */
+export interface TailFile {
+  /** The committed cursor this tail reads on from: valid against that copy. */
+  baseCursor: string | null;
+  fetchedAt: string;
+  /** Membership prints beyond the committed copy, final or not, oldest first. */
+  entries: LogEntry[];
+}
 
 /** A row of secondlayer's pox-5 index, as far as this needs it. */
 export interface Pox5Event {
@@ -258,10 +281,17 @@ async function readOn(
  * the chain says the signer holds, and every busy signer would fall back to
  * the walk most hours. Null without a key or when the index will not answer,
  * which costs that, and nothing worse.
+ *
+ * Read from `tail.json` when the events step of this run left one for this
+ * copy, which is the usual case and costs no request at all.
  */
 export async function fetchUnconfirmedTail(
   log: EventLog,
+  dir = EVENTS_DIR,
+  now = Date.now(),
 ): Promise<LogEntry[] | null> {
+  const saved = readTail(log, dir, now);
+  if (saved) return saved;
   const apiKey = secondlayerKey();
   if (!apiKey || !log.state.cursor) return null;
   try {
@@ -271,15 +301,95 @@ export async function fetchUnconfirmedTail(
       false,
       TAIL_MAX_PAGES,
     );
-    const known = new Set(log.entries.map((entry) => entry.cursor));
-    return events
-      .map(toLogEntry)
-      .filter((e): e is LogEntry => e !== null && !known.has(e.cursor));
+    return beyondCopy(log, events);
   } catch (err) {
     console.error(
       `  ! the unconfirmed pox-5 prints would not read: ${err instanceof Error ? err.message : err}`,
     );
     return null;
+  }
+}
+
+/** The membership prints among `events` that the copy does not hold. */
+function beyondCopy(log: EventLog, events: readonly Pox5Event[]): LogEntry[] {
+  const known = new Set(log.entries.map((entry) => entry.cursor));
+  const seen = new Set<string>();
+  const out: LogEntry[] = [];
+  for (const event of events) {
+    const entry = toLogEntry(event);
+    if (!entry || known.has(entry.cursor) || seen.has(entry.cursor)) continue;
+    seen.add(entry.cursor);
+    out.push(entry);
+  }
+  return out;
+}
+
+/**
+ * This run's tail from `tail.json`, or null when there is none to trust: no
+ * file, one written against a different committed cursor, or one too old.
+ */
+export function readTail(
+  log: EventLog,
+  dir = EVENTS_DIR,
+  now = Date.now(),
+): LogEntry[] | null {
+  let tail: TailFile;
+  try {
+    tail = JSON.parse(
+      fs.readFileSync(path.join(dir, TAIL_FILE), 'utf8'),
+    ) as TailFile;
+  } catch {
+    return null;
+  }
+  if (!Array.isArray(tail.entries)) return null;
+  if (tail.baseCursor !== log.state.cursor) return null;
+  const age = now - Date.parse(tail.fetchedAt);
+  if (!(age >= 0 && age <= TAIL_MAX_AGE_MS)) return null;
+  const known = new Set(log.entries.map((entry) => entry.cursor));
+  return tail.entries.filter((entry) => !known.has(entry.cursor));
+}
+
+/** Keep this run's tail for the steps after it. */
+export function writeTail(dir: string, tail: TailFile): void {
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, TAIL_FILE), `${JSON.stringify(tail)}\n`);
+}
+
+/**
+ * The unfinalised prints after `cursor`, together with the finalised ones the
+ * copy was not given, as one tail against the committed copy.
+ *
+ * Read on from where the finalised read stopped, not from the committed
+ * cursor: an hour with no membership print leaves that cursor behind (it is
+ * not committed for nothing), and reading from it again would fetch every
+ * finalised page this run has just read a second time.
+ */
+async function saveTail(
+  apiKey: string,
+  log: EventLog,
+  reachedCursor: string | null,
+  unwritten: readonly Pox5Event[],
+): Promise<void> {
+  const from = reachedCursor ?? log.state.cursor;
+  if (!from) return;
+  try {
+    const { events, pages } = await readOn(apiKey, from, false, TAIL_MAX_PAGES);
+    const entries = beyondCopy(log, [...unwritten, ...events]);
+    writeTail(EVENTS_DIR, {
+      baseCursor: log.state.cursor,
+      fetchedAt: new Date().toISOString(),
+      entries,
+    });
+    console.log(
+      `Kept ${entries.length} membership print(s) beyond the copy, from` +
+        ` ${pages} page(s) not yet final, for the steps after this one.`,
+    );
+  } catch (err) {
+    // The steps after this one then ask for themselves, as they used to.
+    fs.rmSync(path.join(EVENTS_DIR, TAIL_FILE), { force: true });
+    console.error(
+      `  ! the unconfirmed pox-5 prints would not read: ${err instanceof Error ? err.message : err}`,
+    );
   }
 }
 
@@ -327,6 +437,7 @@ async function main() {
         ` ${pages} page(s): none moved anybody, so the copy and its cursor` +
         ' stay as they are.',
     );
+    await saveTail(apiKey, log, cursor, events);
     return;
   }
 
@@ -345,6 +456,7 @@ async function main() {
       ` page(s): ${appended.length} membership print(s) added,` +
       ` ${log.entries.length} on file, finalised to block ${log.state.blockHeight}.`,
   );
+  await saveTail(apiKey, log, cursor, []);
 }
 
 const invokedAs = process.argv[1] ? path.resolve(process.argv[1]) : '';

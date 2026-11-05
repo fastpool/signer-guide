@@ -11,3 +11,7 @@ __pycache__/
 
 # `secondlayer subgraphs test` recordings: chain data, megabytes, re-recordable
 cassettes/
+
+# the run's unfinalised pox-5 prints, handed from the events step to the
+# totals and history steps; never committed, so a reorg cannot reach the copy
+cache/pox5-events/tail.json
