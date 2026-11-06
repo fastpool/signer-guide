@@ -101,9 +101,10 @@ describe('the bonds as a reader sees them', () => {
 
   it('names both periods and the cycles they cover', () => {
     const page = html();
-    expect(page).toContain('The bond period now');
-    expect(page).toContain('The next bond period');
-    expect(page).toContain('Bond 1 · cycles 143 to 154');
+    expect(page).toContain('>now<');
+    expect(page).toContain('>next<');
+    expect(page).toContain('Bond 1');
+    expect(page).toContain('cycles 143–154');
   });
 
   it('says a period nobody set up has no bond, rather than an empty one', () => {
@@ -112,18 +113,18 @@ describe('the bonds as a reader sees them', () => {
     // next period has figures, so the labels appear once each.
     const page = html();
     expect(page).toContain('No bond was set up for this period');
-    expect(page.match(/Locked so far/g)).toHaveLength(1);
-    expect(page.match(/Ceiling/g)).toHaveLength(1);
+    expect(page.match(/locked so far/g)).toHaveLength(1);
+    expect(page.match(/>ceiling</g)).toHaveLength(1);
   });
 
   it('keeps what is locked apart from what the allowlist permits', () => {
     const page = html();
-    expect(page).toContain('Locked so far');
+    expect(page).toContain('locked so far');
     expect(page).toContain('220.0045 BTC');
-    expect(page).toContain('Ceiling');
+    expect(page).toContain('ceiling');
     expect(page).toContain('250.005 BTC');
     // Named, rather than left as a subtraction for the reader.
-    expect(page).toContain('Still open');
+    expect(page).toContain('still open');
     expect(page).toContain('30.0005 BTC');
   });
 
@@ -186,22 +187,21 @@ describe('the bonds as a reader sees them', () => {
     const page = html();
     // The height still gets named — knowing when it opens is useful. What
     // must go is the invitation to join it.
-    expect(page).toContain('Closed to new registrations');
-    expect(page).toContain('with what is locked below');
-    expect(page).not.toContain('Still open');
-    expect(page).not.toContain('Locked so far');
+    expect(page).toContain('registration closed');
+    expect(page).not.toContain('still open');
+    expect(page).not.toContain('locked so far');
     // The same number, said as a fact about a shut bond rather than as room.
-    expect(page).toContain('Went unused');
+    expect(page).toContain('went unused');
     expect(page).toContain('30.0005 BTC');
   });
 
   it('still says "still open" while a bond is taking registrations', () => {
     const page = html();
-    expect(page).toContain('Opens at burn height');
-    expect(page).toContain('Still open');
-    expect(page).toContain('Locked so far');
-    expect(page).not.toContain('Closed to new registrations');
-    expect(page).not.toContain('Went unused');
+    expect(page).toContain('opens at burn height');
+    expect(page).toContain('still open');
+    expect(page).toContain('locked so far');
+    expect(page).not.toContain('registration closed');
+    expect(page).not.toContain('went unused');
   });
 
   it('warns when the ceiling is only a floor', () => {
@@ -219,7 +219,7 @@ describe('the bonds as a reader sees them', () => {
     useBonds.mockReturnValueOnce({ state: 'missing' } as never);
     const page = html();
     expect(page).toContain('Nothing on file for the bonds yet');
-    expect(page).not.toContain('Locked so far');
+    expect(page).not.toContain('locked so far');
   });
 
   it('leads with the bond split, and lists the bonds newest first', () => {
@@ -245,15 +245,15 @@ describe('the bonds as a reader sees them', () => {
     // 25M of 500M backs a bond: the tiles say both halves, with shares.
     expect(page).toContain('Backing a bond');
     expect(page).toContain('25M STX');
-    expect(page).toContain('5% of the total');
+    expect(page).toContain('5%');
     expect(page).toContain('475M STX');
-    expect(page).toContain('95% of the total');
+    expect(page).toContain('95%');
     // And the split comes before any period card.
-    expect(page.indexOf('Backing a bond')).toBeLessThan(
-      page.indexOf('The bond period now'),
-    );
+    expect(page.indexOf('Backing a bond')).toBeLessThan(page.indexOf('>now<'));
     // Newest bond first.
-    const at = (index: number) => page.indexOf(`>Bond ${index}<`);
+    // In the list of running bonds; the period cards above say "Bond n" too.
+    const list = page.slice(page.indexOf('Every bond running'));
+    const at = (index: number) => list.indexOf(`>Bond ${index}<`);
     expect(at(3)).toBeGreaterThan(-1);
     expect(at(3)).toBeLessThan(at(2));
     expect(at(2)).toBeLessThan(at(1));

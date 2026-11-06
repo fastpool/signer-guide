@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Page, StatTile } from './ui';
+import Badge from './Badge';
+import { Page } from './ui';
 import { btcLabel, stxCompact, stxLabel } from '../lib/amounts';
 import {
   filledPercent,
@@ -179,40 +180,47 @@ function PeriodCard({
 
   return (
     <section className='rounded-3xl bg-card p-5 shadow-lift'>
-      <div className='flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1'>
-        <h2 className='text-lg font-bold'>{heading}</h2>
+      {/*
+       * "Bond 3" and whether it is the one now or the next, then on the right
+       * its cycles and the burn height it opened or opens at.
+       *
+       * Three states for that height, not two. A bond that has not opened may
+       * still be closed: pox-5 refuses `register-for-bond` throughout a prepare
+       * phase, and a bond opens on a cycle boundary, so registration shuts a
+       * prepare phase before the bond does. In that window "opens at X"
+       * invites somebody to do a thing the chain will refuse.
+       */}
+      <div className='flex flex-wrap items-center justify-between gap-x-4 gap-y-1'>
+        <h2 className='flex items-center gap-2 text-lg font-bold'>
+          {t('app.bonds.heading', { index: period.bondIndex })}
+          <Badge tone={period.started ? 'good' : 'neutral'} size='sm'>
+            {heading}
+          </Badge>
+        </h2>
         <span className='text-sm text-muted'>
           {t('app.bonds.period', {
-            index: period.bondIndex,
             first: period.firstRewardCycle,
             last: lastCycle(period),
           })}
+          {period.startBurnHeight !== null && (
+            <>
+              {' · '}
+              {t(
+                period.started
+                  ? 'app.bonds.running'
+                  : period.registrationClosed
+                    ? 'app.bonds.closed'
+                    : 'app.bonds.opensAt',
+                {
+                  height: period.startBurnHeight.toLocaleString(
+                    t.bundle.intlLocale,
+                  ),
+                },
+              )}
+            </>
+          )}
         </span>
       </div>
-
-      {/*
-       * Three states, not two. A bond that has not opened may still be closed:
-       * pox-5 refuses `register-for-bond` throughout a prepare phase, and a
-       * bond opens on a cycle boundary, so registration shuts a prepare phase
-       * before the bond does. In that window "opens at height X" invites
-       * somebody to do a thing the chain will refuse.
-       */}
-      {period.startBurnHeight !== null && (
-        <p className='mt-1 text-sm text-muted'>
-          {t(
-            period.started
-              ? 'app.bonds.running'
-              : period.registrationClosed
-                ? 'app.bonds.closed'
-                : 'app.bonds.opensAt',
-            {
-              height: period.startBurnHeight.toLocaleString(
-                t.bundle.intlLocale,
-              ),
-            },
-          )}
-        </p>
-      )}
 
       {!period.setUp ? (
         <p className='mt-2 text-sm text-muted'>{t('app.bonds.notSetUp')}</p>
@@ -225,7 +233,7 @@ function PeriodCard({
            * the first is final and the second is not room but the part of the
            * allowlist nobody took up.
            */}
-          <dl className='mt-4 grid gap-3 sm:grid-cols-3'>
+          <dl className='mt-3 flex flex-wrap items-baseline gap-x-5 gap-y-1'>
             <Figure
               label={t(
                 period.registrationClosed
@@ -236,16 +244,16 @@ function PeriodCard({
               strong
             />
             <Figure
+              label={t('app.bonds.ceiling')}
+              value={btcLabel(period.allowlistedSats, locale)}
+            />
+            <Figure
               label={t(
                 period.registrationClosed
                   ? 'app.bonds.wentUnused'
                   : 'app.bonds.stillOpen',
               )}
               value={btcLabel(openSats(period), locale)}
-            />
-            <Figure
-              label={t('app.bonds.ceiling')}
-              value={btcLabel(period.allowlistedSats, locale)}
             />
           </dl>
 
@@ -257,7 +265,7 @@ function PeriodCard({
            */}
           {filled !== null && (
             <span
-              className='mt-4 flex h-2 overflow-hidden rounded-full bg-trough'
+              className='mt-3 flex h-2 overflow-hidden rounded-full bg-trough'
               aria-hidden='true'
             >
               {/*
@@ -383,15 +391,15 @@ function Figure({
   strong?: boolean;
 }) {
   return (
-    <div>
-      <dt className='text-sm text-muted'>{label}</dt>
+    <div className='flex items-baseline gap-1.5'>
       <dd
-        className={
-          strong ? 'text-xl font-extrabold text-ink' : 'text-lg font-semibold'
-        }
+        className={`tabular-nums ${
+          strong ? 'text-xl font-extrabold text-ink' : 'font-semibold'
+        }`}
       >
         {value}
       </dd>
+      <dt className='order-last text-sm text-muted'>{label}</dt>
     </div>
   );
 }
@@ -563,54 +571,45 @@ function SplitSummary({
   const bondShare = percentOf(split.bonded, split.total);
   const onlyShare = percentOf(stxOnly, split.total);
   const fmt = (share: number | null) =>
-    share === null
-      ? null
-      : t('app.bonds.sum.share', {
-          percent: share.toLocaleString(t.bundle.intlLocale),
-        });
+    share === null ? null : `${share.toLocaleString(t.bundle.intlLocale)}%`;
+
+  const half = (
+    dot: string,
+    label: string,
+    amount: bigint,
+    share: number | null,
+  ) => (
+    <div className='flex items-baseline gap-2'>
+      <span
+        aria-hidden='true'
+        className={`h-2.5 w-2.5 shrink-0 self-center rounded-full ${dot}`}
+      />
+      <span className='text-xl font-extrabold whitespace-nowrap tabular-nums'>
+        {stxCompact(amount, locale) ?? '—'}
+      </span>
+      <span className='text-sm text-muted'>
+        {label}
+        {fmt(share) && <> · {fmt(share)}</>}
+      </span>
+    </div>
+  );
 
   return (
-    <section aria-labelledby='bond-split' className='mt-6'>
-      <h2 id='bond-split' className='sr-only'>
-        {t('app.bonds.sum.heading', { cycle })}
+    <section
+      aria-labelledby='bond-split'
+      className='mt-6 rounded-3xl bg-card p-5 shadow-lift'
+    >
+      <h2 id='bond-split' className='text-sm font-semibold text-muted'>
+        {t('app.bonds.sum.total', { cycle })}
       </h2>
-      <div className='grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3'>
-        {/* Full width on a phone, so the two halves sit side by side under
-            it rather than three figures wrapping in a third each. */}
-        <div className='col-span-2 sm:col-span-1'>
-          <StatTile
-            label={t('app.bonds.sum.total', { cycle })}
-            value={stxCompact(split.total, locale) ?? '—'}
-          />
-        </div>
-        <StatTile
-          label={
-            <span className='flex items-center gap-1.5'>
-              <span
-                aria-hidden='true'
-                className='h-2 w-2 rounded-full bg-amber-warm'
-              />
-              {t('app.bonds.sum.bond')}
-            </span>
-          }
-          value={stxCompact(split.bonded, locale) ?? '—'}
-        >
-          {fmt(bondShare)}
-        </StatTile>
-        <StatTile
-          label={
-            <span className='flex items-center gap-1.5'>
-              <span
-                aria-hidden='true'
-                className='h-2 w-2 rounded-full bg-grape'
-              />
-              {t('app.bonds.sum.stxOnly')}
-            </span>
-          }
-          value={stxCompact(stxOnly, locale) ?? '—'}
-        >
-          {fmt(onlyShare)}
-        </StatTile>
+      <div className='mt-2 flex flex-wrap gap-x-6 gap-y-1'>
+        {half(
+          'bg-amber-warm',
+          t('app.bonds.sum.bond'),
+          split.bonded,
+          bondShare,
+        )}
+        {half('bg-grape', t('app.bonds.sum.stxOnly'), stxOnly, onlyShare)}
       </div>
       {bondShare !== null && (
         <span
@@ -627,6 +626,11 @@ function SplitSummary({
           <span className='h-full flex-1 bg-grape' />
         </span>
       )}
+      {/* The whole the two halves add up to, under the bar it is the
+          length of. */}
+      <p className='mt-2 text-right text-lg font-extrabold text-ink tabular-nums'>
+        {stxCompact(split.total, locale) ?? '—'}
+      </p>
       {split.unknown > 0 && (
         <p className='mt-2 text-sm text-amber-warm'>
           {t.plural('app.bonds.stxUnknown', split.unknown)}

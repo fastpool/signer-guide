@@ -223,13 +223,13 @@ export const ko: LocaleBundle = {
       '아직 본드 기록이 없습니다. 시간단위 갱신이 읽어오면 여기에 표시됩니다.',
     'app.bonds.failed':
       '본드 정보를 가져오지 못했습니다. 잠시 후 다시 시도하세요.',
-    'app.bonds.current': '현재 본드 기간',
-    'app.bonds.next': '다음 본드 기간',
-    'app.bonds.period': '본드 {index} · {first}–{last} 사이클',
+    'app.bonds.heading': '본드 {index}',
+    'app.bonds.current': '현재',
+    'app.bonds.next': '다음',
+    'app.bonds.period': '사이클 {first}–{last}',
     'app.bonds.notSetUp':
       '이 기간에는 본드가 설정되지 않았습니다. 본드 관리자는 기간이 열리기 전 두 사이클 안에서만 본드를 설정할 수 있습니다.',
-    'app.bonds.closed':
-      '신규 등록이 마감되었습니다. 아래 잠긴 금액으로 번 높이 {height}에 시작됩니다.',
+    'app.bonds.closed': '등록 마감, 번 높이 {height}에 열림',
     'app.bonds.wentUnused': '미사용',
     'app.bonds.lockedFinal': '잠긴 금액',
     'app.bonds.locked': '지금까지 잠긴 금액',
@@ -238,8 +238,8 @@ export const ko: LocaleBundle = {
     'app.bonds.ceiling': '상한',
     'app.bonds.invited.one': '초대된 스테이커 {count}명',
     'app.bonds.invited.other': '초대된 스테이커 {count}명',
-    'app.bonds.opensAt': '번 높이 {height}에 열립니다.',
-    'app.bonds.running': '번 높이 {height}부터 열려 있습니다.',
+    'app.bonds.opensAt': '번 높이 {height}에 열림',
+    'app.bonds.running': '번 높이 {height}부터',
     'app.bonds.incomplete':
       '아래 허용 목록이 불완전합니다. 항목의 합계가 pox-5가 말하는 본드 총액과 맞지 않으므로 상한은 “최소 이 정도”로 읽어야 합니다. pox-5는 허용 목록을 조회해 주지 않아 setup-bond 트랜잭션에서 복원하는데, 일부를 찾지 못했습니다.',
     'app.bonds.who': '초대된 스테이커',
@@ -941,7 +941,6 @@ export const ko: LocaleBundle = {
     'app.bonds.sum.total': '사이클 {cycle} 스테이킹',
     'app.bonds.sum.bond': '본드 뒷받침',
     'app.bonds.sum.stxOnly': 'STX 전용',
-    'app.bonds.sum.share': '전체의 {percent}%',
     'app.bonds.stxBond': '본드 {index}',
     'app.bonds.stxBondUnnamed': '기록에 번호가 없는 본드',
     'app.bonds.stxNone': '이번 사이클에 본드에 등록된 STX가 없습니다.',
