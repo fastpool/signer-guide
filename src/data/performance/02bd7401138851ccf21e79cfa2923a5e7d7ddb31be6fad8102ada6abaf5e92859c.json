@@ -5,12 +5,12 @@
       "cycle": 142,
       "accepted": 0,
       "rejected": 0,
-      "missed": 68978,
+      "missed": 107307,
       "responseMs": null,
       "lastSeen": null,
       "weight": 9,
       "weightPercent": 0.225,
-      "final": false
+      "final": true
     }
   ]
 }

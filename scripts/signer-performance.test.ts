@@ -111,6 +111,18 @@ describe('which cycles a run reads', () => {
     expect(cyclesToRead(142, onFile, { from: 138 })).toEqual([140, 141, 142]);
   });
 
+  it('reads again a past cycle still on file as unfinished', () => {
+    // Cycle 142: no answered run in the fortnight after it closed, so its
+    // mid-flight row stayed "so far" beside the real current cycle.
+    const onFile = Array.from(
+      { length: 147 - FIRST_SIGNER_CYCLE + 1 },
+      (_, i) => FIRST_SIGNER_CYCLE + i,
+    );
+    expect(cyclesToRead(147, onFile, { unfinished: [142, 147] })).toEqual([
+      142, 146, 147,
+    ]);
+  });
+
   it('takes --all as an instruction to read the lot again', () => {
     expect(
       cyclesToRead(90, [84, 85, 86, 87, 88, 89, 90], { all: true }),

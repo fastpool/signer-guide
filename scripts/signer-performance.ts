@@ -149,11 +149,16 @@ export async function fetchCyclePerformance(
  * The cycle before the current one is re-read once: it was written while it
  * was still running, so the row on file is a fortnight's work cut short at
  * whatever hour the refresh last ran.
+ *
+ * "Once" relies on a run landing in the fortnight after the cycle closed and
+ * being answered. When none does, the row stays marked as running for good —
+ * cycle 142 did, and every signer's table carried two "so far" rows. So any
+ * past cycle still on file as unfinished is read again too, until it is not.
  */
 export function cyclesToRead(
   current: number,
   onFile: readonly number[],
-  options: { all?: boolean; from?: number } = {},
+  options: { all?: boolean; from?: number; unfinished?: readonly number[] } = {},
 ): number[] {
   const first = options.from ?? FIRST_SIGNER_CYCLE;
   if (options.all) {
@@ -164,6 +169,9 @@ export function cyclesToRead(
   const wanted = new Set<number>([current]);
   // The one that has just closed, whose row was written mid-flight.
   if (current - 1 >= first) wanted.add(current - 1);
+  for (const cycle of options.unfinished ?? []) {
+    if (cycle >= first && cycle < current) wanted.add(cycle);
+  }
   for (const cycle of range(first, current)) {
     if (!have.has(cycle)) wanted.add(cycle);
   }

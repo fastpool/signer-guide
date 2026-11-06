@@ -3,11 +3,11 @@
   "cycles": [
     {
       "cycle": 147,
-      "accepted": 3628,
-      "rejected": 45,
-      "missed": 79,
-      "responseMs": 4476,
-      "lastSeen": "2026-11-06T11:06:15.997Z",
+      "accepted": 5739,
+      "rejected": 63,
+      "missed": 118,
+      "responseMs": 4456,
+      "lastSeen": "2026-11-06T16:20:19.422Z",
       "weight": 401,
       "weightPercent": 10.025,
       "final": false
@@ -58,14 +58,14 @@
     },
     {
       "cycle": 142,
-      "accepted": 68693,
-      "rejected": 1864,
-      "missed": 356,
-      "responseMs": 5453,
-      "lastSeen": "2026-09-04T18:10:22.032Z",
+      "accepted": 106765,
+      "rejected": 2871,
+      "missed": 723,
+      "responseMs": 6042,
+      "lastSeen": "2026-09-10T10:52:22.371Z",
       "weight": 436,
       "weightPercent": 10.9,
-      "final": false
+      "final": true
     },
     {
       "cycle": 141,

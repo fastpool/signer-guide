@@ -5,7 +5,7 @@
       "cycle": 147,
       "accepted": 0,
       "rejected": 0,
-      "missed": 3716,
+      "missed": 5869,
       "responseMs": null,
       "lastSeen": null,
       "weight": 89,
@@ -58,14 +58,14 @@
     },
     {
       "cycle": 142,
-      "accepted": 67677,
-      "rejected": 2871,
-      "missed": 1971,
-      "responseMs": 5947,
-      "lastSeen": "2026-09-04T18:10:23.114Z",
+      "accepted": 105332,
+      "rejected": 4346,
+      "missed": 2471,
+      "responseMs": 6547,
+      "lastSeen": "2026-09-10T10:52:23.070Z",
       "weight": 109,
       "weightPercent": 2.725,
-      "final": false
+      "final": true
     },
     {
       "cycle": 141,

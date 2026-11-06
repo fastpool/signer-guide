@@ -5,12 +5,12 @@
       "cycle": 142,
       "accepted": 54550,
       "rejected": 1320,
-      "missed": 15030,
+      "missed": 53359,
       "responseMs": 5662,
       "lastSeen": "2026-09-02T18:59:52.634Z",
       "weight": 10,
       "weightPercent": 0.25,
-      "final": false
+      "final": true
     }
   ]
 }

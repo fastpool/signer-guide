@@ -73,6 +73,23 @@ function parseArgs(argv: string[]): { all: boolean; from?: number } {
   return { all, from };
 }
 
+/**
+ * Every cycle some signer's file still holds as running. Past ones among them
+ * missed their re-read; see `cyclesToRead`.
+ */
+function unfinishedOnFile(): number[] {
+  const cycles = new Set<number>();
+  if (!fs.existsSync(HISTORY)) return [];
+  for (const name of fs.readdirSync(HISTORY)) {
+    if (!name.endsWith('.json')) continue;
+    const file = readJson<SignerPerformance>(path.join(HISTORY, name));
+    for (const row of file?.cycles ?? []) {
+      if (!row.final) cycles.add(row.cycle);
+    }
+  }
+  return [...cycles];
+}
+
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
   console.log(`Reading signer conduct from ${METRICS_URL}`);
@@ -86,7 +103,10 @@ async function main(): Promise<void> {
 
   const summary = readJson<PerformanceData>(SUMMARY);
   const onFile = summary?.cycles ?? [];
-  const wanted = cyclesToRead(current, onFile, options);
+  const wanted = cyclesToRead(current, onFile, {
+    ...options,
+    unfinished: unfinishedOnFile(),
+  });
   console.log(
     `Cycle ${current}; ${onFile.length} on file; reading ${wanted.length}:` +
       ` ${wanted[0]}…${wanted[wanted.length - 1]}`,
