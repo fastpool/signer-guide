@@ -851,6 +851,8 @@ const messages = {
     "Each payout's rate against the STX price when it was paid, compounded over fifty payouts a year — the same method as the rate on the home page — and averaged over the cycle's payouts. Before any pool's fee.",
   'cycles.notPaid': 'not paid yet',
   'cycles.notStarted': 'not started yet',
+  'cycles.estimateNote':
+    'An arrow marks the estimate for the whole cycle: the payout in progress projected from the sBTC that has come in, then split the same way.',
   'cycles.soFar': 'so far',
   'cycles.payoutsTitle': 'Each payout',
   'timing.allCycles': 'Every cycle →',

@@ -8,8 +8,9 @@ import {
   cycleRewardsUsd,
   isNetworkHistory,
 } from '../lib/network-history';
+import { projectCycle, type CycleProjection } from '../lib/cycle-projection';
 import { useRemoteJson } from '../lib/remote-json';
-import type { NetworkCycle } from '../lib/types';
+import type { NetworkCycle, StxOnlyCalculations } from '../lib/types';
 import { InfoTip } from './ui';
 
 /**
@@ -18,15 +19,21 @@ import { InfoTip } from './ui';
  *
  * A chart of what each cycle paid in sBTC first, because the trend is the
  * question; the table after it for the figures. The cycle still being paid is
- * striped, as the pool page's cycle chart stripes the cycle still filling.
+ * striped, as the pool page's cycle chart stripes the cycle still filling, and
+ * drawn at where it is heading: paid so far plus the refresh's projection of
+ * the payouts to come (`projectCycle`). In the table the same estimate follows
+ * each figure of that row, after an arrow.
  */
 export default function CyclesOverview({
   locale,
   currentCycle,
+  calculations,
 }: {
   locale: Locale;
   /** The reward cycle running now; a later one has not started. */
   currentCycle: number | null;
+  /** The refresh's projection of the payout in progress. */
+  calculations: StxOnlyCalculations;
 }) {
   const t = translator(locale);
   const history = useRemoteJson('network-history.json', isNetworkHistory);
@@ -39,20 +46,31 @@ export default function CyclesOverview({
     return null;
   }
 
-  // Cycles with a payout, oldest first for the chart.
-  const paid = history.value.cycles.filter((c) => c.payouts.length > 0);
+  const projections = new Map<number, CycleProjection>();
+  for (const cycle of history.value.cycles) {
+    const projection = projectCycle(cycle, calculations);
+    if (projection) projections.set(cycle.cycle, projection);
+  }
+
+  // Cycles with a payout or a projection, oldest first for the chart.
+  const shown = history.value.cycles.filter(
+    (c) => c.payouts.length > 0 || projections.has(c.cycle),
+  );
   // Without the payout prints on file, a bar is the STX-only part alone
   // rather than nothing.
-  const chart = [...paid].reverse().map((cycle) => {
+  const chart = [...shown].reverse().map((cycle) => {
     const stxOnly = BigInt(cycle.stxOnlyRewardsSats ?? '0');
+    const projection = projections.get(cycle.cycle);
     return {
       cycle,
-      split: cycleRewardSplit(cycle) ?? {
-        stxOnly,
-        bond: 0n,
-        foundation: 0n,
-        total: stxOnly,
-      },
+      estimate: projection !== undefined,
+      split: projection ??
+        cycleRewardSplit(cycle) ?? {
+          stxOnly,
+          bond: 0n,
+          foundation: 0n,
+          total: stxOnly,
+        },
     };
   });
   const most = chart.reduce(
@@ -77,8 +95,8 @@ export default function CyclesOverview({
           aria-hidden='true'
           className='flex h-32 items-end gap-2 border-b border-hairline px-1'
         >
-          {chart.map(({ cycle, split }) => {
-            const open = !cycleComplete(cycle);
+          {chart.map(({ cycle, split, estimate }) => {
+            const open = estimate || !cycleComplete(cycle);
             const total = split.total;
             return (
               <div
@@ -86,6 +104,7 @@ export default function CyclesOverview({
                 className='flex h-full flex-1 flex-col items-center justify-end'
               >
                 <span className='mb-1 text-[0.7rem] font-bold text-muted tabular-nums'>
+                  {estimate && '≈'}
                   {(Number(total) / 1e8).toFixed(2)}
                 </span>
                 {/* Foundation on top, then bonds, STX-only at the base. */}
@@ -176,6 +195,7 @@ export default function CyclesOverview({
                 <Row
                   key={cycle.cycle}
                   cycle={cycle}
+                  projection={projections.get(cycle.cycle) ?? null}
                   started={currentCycle === null || cycle.cycle <= currentCycle}
                   locale={locale}
                 />
@@ -183,7 +203,10 @@ export default function CyclesOverview({
             </tbody>
           </table>
         </div>
-        <p className='mt-3 text-xs text-muted'>{t('cycles.splitNote')}</p>
+        <p className='mt-3 text-xs text-muted'>
+          {t('cycles.splitNote')}
+          {projections.size > 0 && ` ${t('cycles.estimateNote')}`}
+        </p>
       </div>
     </section>
   );
@@ -191,10 +214,12 @@ export default function CyclesOverview({
 
 function Row({
   cycle,
+  projection,
   started,
   locale,
 }: {
   cycle: NetworkCycle;
+  projection: CycleProjection | null;
   started: boolean;
   locale: Locale;
 }) {
@@ -232,32 +257,49 @@ function Row({
         )}
       </td>
       <td className='py-2 pr-3 whitespace-nowrap'>
-        {rewards === null || cycle.payouts.length === 0 ? (
-          '—'
-        ) : (
-          <>
-            <strong>{rewards}</strong>
-            {usd !== null && (
-              <span className='block text-xs text-muted'>
-                {usdCompact(usd, locale)}
-              </span>
-            )}
-          </>
-        )}
+        <Figure
+          strong
+          now={cycle.payouts.length === 0 ? null : rewards}
+          then={projection && sbtcCompact(projection.stxOnly, locale)}
+          below={!projection && usd !== null ? usdCompact(usd, locale) : null}
+        />
       </td>
       <td className='py-2 pr-3 whitespace-nowrap'>
-        {split === null ? '—' : sbtcCompact(split.bond, locale)}
+        <Figure
+          now={split && sbtcCompact(split.bond, locale)}
+          then={projection && sbtcCompact(projection.bond, locale)}
+        />
       </td>
       <td className='py-2 pr-3 whitespace-nowrap'>
-        {split === null ? '—' : sbtcCompact(split.foundation, locale)}
+        <Figure
+          now={split && sbtcCompact(split.foundation, locale)}
+          then={projection && sbtcCompact(projection.foundation, locale)}
+        />
       </td>
       <td className='py-2 pr-3 whitespace-nowrap'>
-        {apy === null ? '—' : `${apy.toFixed(2)}%`}
+        <Figure
+          now={apy === null ? null : `${apy.toFixed(2)}%`}
+          then={
+            projection?.apyPercent == null
+              ? null
+              : `${projection.apyPercent.toFixed(2)}%`
+          }
+        />
       </td>
       <td className='py-2 pr-3 whitespace-nowrap'>
-        {rate === null
-          ? '—'
-          : t('app.stxOnlyEstimate.satsShort', { sats: number(rate) })}
+        <Figure
+          now={
+            rate === null
+              ? null
+              : t('app.stxOnlyEstimate.satsShort', { sats: number(rate) })
+          }
+          then={
+            projection &&
+            t('app.stxOnlyEstimate.satsShort', {
+              sats: number(projection.rateSatsPer1000Stx),
+            })
+          }
+        />
       </td>
       <td className='py-2 pr-3 whitespace-nowrap'>
         <strong>{stx(staked)}</strong>
@@ -280,5 +322,32 @@ function Key({ className, label }: { className: string; label: string }) {
       />
       {label}
     </span>
+  );
+}
+
+/**
+ * A figure, and where it is heading when the cycle is still being paid:
+ * "—" then "→ 5.48 sBTC" below it, as paid so far and the estimate.
+ */
+function Figure({
+  now,
+  then,
+  below = null,
+  strong = false,
+}: {
+  now: string | null | undefined;
+  then?: string | null;
+  below?: string | null;
+  strong?: boolean;
+}) {
+  return (
+    <>
+      {now ? strong ? <strong>{now}</strong> : now : '—'}
+      {then ? (
+        <span className='block text-xs text-muted'>→ {then}</span>
+      ) : (
+        below && <span className='block text-xs text-muted'>{below}</span>
+      )}
+    </>
   );
 }

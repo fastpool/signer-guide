@@ -374,6 +374,16 @@ export interface StxOnlyCalculations {
    * before anybody else. Optional: files written before it was added lack it.
    */
   bondTargetSats?: string | null;
+  /** The reward cycle the next payout is for. */
+  payoutCycle?: number | null;
+  /**
+   * The next payout as projected from what has come in: its whole, and the
+   * bonds' and the foundation's parts of it (`projectedCycleSats` is the
+   * STX-only part). Optional, as `bondTargetSats`.
+   */
+  projectedGrossSats?: string | null;
+  projectedBondSats?: string | null;
+  projectedFoundationSats?: string | null;
   foundationShareSats: string | null;
   stxOnlySoFarSats: string | null;
   projectedCycleSats: string | null;

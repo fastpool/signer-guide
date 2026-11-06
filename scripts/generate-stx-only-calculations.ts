@@ -450,6 +450,9 @@ async function main() {
   let stxOnlySoFarSats: bigint | null = null;
   let projectedCycleSats: bigint | null = null;
   let projectedRateSatsPer1000Stx: bigint | null = null;
+  let projectedGrossSats: bigint | null = null;
+  let projectedBondSats: bigint | null = null;
+  let projectedFoundationSats: bigint | null = null;
 
   // The reward cycle the next payout is for, which is whose bond shares it
   // pays on.
@@ -469,27 +472,26 @@ async function main() {
     bondTargetSats !== null &&
     stxOnlyStakedUstx > 0n
   ) {
-    // pox-5 pays each bond a set yield first, whatever has come in, then
-    // takes the foundation's 15% of the rest — so "so far" is what the
-    // payout would be if it ran now.
-    const soFar = splitPayout(
-      newRewardsSats,
-      bondTargetSats,
-      FOUNDATION_SHARE_BIPS,
-    );
-    bondShareSats = soFar.bond;
-    foundationShareSats = soFar.foundation;
-    stxOnlySoFarSats = soFar.stxOnly;
-
-    // The projection scales what has come in, not the STX-only share: the
-    // bonds' cut is fixed, so it does not grow with the cycle.
-    const projectedGrossSats =
+    // Worked back from the end of the distribution cycle. What has come in
+    // is scaled up to the whole cycle, split there as pox-5 will split it —
+    // the bonds' set yield first, the foundation's 15% of the rest, the
+    // remainder STX-only — and what has come in so far is credited in those
+    // same shares. Splitting the sats so far directly would hand nearly all
+    // of them to the bonds early in a cycle, which says nothing about what
+    // the payout will be.
+    const gross =
       (newRewardsSats * BigInt(distributionBlocks)) / BigInt(blocksIntoCycle);
-    projectedCycleSats = splitPayout(
-      projectedGrossSats,
-      bondTargetSats,
-      FOUNDATION_SHARE_BIPS,
-    ).stxOnly;
+    projectedGrossSats = gross;
+    const projected = splitPayout(gross, bondTargetSats, FOUNDATION_SHARE_BIPS);
+    projectedBondSats = projected.bond;
+    projectedFoundationSats = projected.foundation;
+    projectedCycleSats = projected.stxOnly;
+
+    const soFar = (part: bigint) =>
+      gross > 0n ? (newRewardsSats * part) / gross : 0n;
+    bondShareSats = soFar(projected.bond);
+    foundationShareSats = soFar(projected.foundation);
+    stxOnlySoFarSats = newRewardsSats - bondShareSats - foundationShareSats;
 
     projectedRateSatsPer1000Stx =
       (projectedCycleSats * USTX_PER_1000_STX) / stxOnlyStakedUstx;
@@ -525,6 +527,10 @@ async function main() {
       newRewardsSats === null ? null : newRewardsSats.toString(),
     bondShareSats: bondShareSats === null ? null : bondShareSats.toString(),
     bondTargetSats: bondTargetSats === null ? null : bondTargetSats.toString(),
+    payoutCycle,
+    projectedGrossSats: projectedGrossSats?.toString() ?? null,
+    projectedBondSats: projectedBondSats?.toString() ?? null,
+    projectedFoundationSats: projectedFoundationSats?.toString() ?? null,
     foundationShareSats:
       foundationShareSats === null ? null : foundationShareSats.toString(),
     stxOnlySoFarSats:

@@ -909,6 +909,8 @@ export const ko: LocaleBundle = {
       '각 지급의 보상률을 지급 당시 STX 가격과 비교해 연 50회 복리로 계산한 값을 사이클의 지급들에 대해 평균했습니다. 홈페이지의 보상률과 같은 방법이며, 풀 수수료 차감 전입니다.',
     'cycles.notPaid': '아직 지급 전',
     'cycles.notStarted': '아직 시작 전',
+    'cycles.estimateNote':
+      '화살표는 사이클 전체의 추정치입니다. 진행 중인 지급을 지금까지 들어온 sBTC로 추산한 뒤 같은 방식으로 나눴습니다.',
     'cycles.soFar': '현재까지',
     'cycles.payoutsTitle': '각 지급',
     'timing.allCycles': '모든 사이클 →',

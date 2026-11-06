@@ -1,6 +1,7 @@
 import CyclesOverview from './CyclesOverview';
 import { Breadcrumbs, Page } from './ui';
 import { translator, type Locale } from '../lib/i18n';
+import type { StxOnlyCalculations } from '../lib/types';
 import { burnBlockUrl } from '../lib/explorer';
 import { stxOnlyRewardsHref } from '../lib/route';
 import {
@@ -23,9 +24,11 @@ import {
 export default function StxOnlyHistoryPage({
   locale,
   currentCycle,
+  calculations,
 }: {
   locale: Locale;
   currentCycle: number | null;
+  calculations: StxOnlyCalculations;
 }) {
   const t = translator(locale);
   const history = useStxOnlyHistory();
@@ -52,7 +55,11 @@ export default function StxOnlyHistoryPage({
       </h1>
       <p className='mt-3 text-lg text-muted'>{t('cycles.pageIntro')}</p>
 
-      <CyclesOverview locale={locale} currentCycle={currentCycle} />
+      <CyclesOverview
+        locale={locale}
+        currentCycle={currentCycle}
+        calculations={calculations}
+      />
 
       <h2 className='mt-10 text-xl font-extrabold'>
         {t('cycles.payoutsTitle')}

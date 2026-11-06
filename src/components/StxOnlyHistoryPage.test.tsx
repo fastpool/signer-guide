@@ -1,6 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
-import type { StxOnlyHistory } from '../lib/types';
+import calculations from '../data/stx-only-calculations.json';
+import type { StxOnlyCalculations, StxOnlyHistory } from '../lib/types';
 
 /*
  * The file the page reads is fetched, not bundled, so the fetch is replaced
@@ -46,7 +47,13 @@ const { default: StxOnlyHistoryPage } = await import('./StxOnlyHistoryPage');
 
 describe('the payout history as a reader sees it', () => {
   const html = () =>
-    renderToStaticMarkup(<StxOnlyHistoryPage locale='en' currentCycle={147} />);
+    renderToStaticMarkup(
+      <StxOnlyHistoryPage
+        locale='en'
+        currentCycle={147}
+        calculations={calculations as StxOnlyCalculations}
+      />,
+    );
 
   it('gives each cycle its two payouts, as paid', () => {
     const page = html();
