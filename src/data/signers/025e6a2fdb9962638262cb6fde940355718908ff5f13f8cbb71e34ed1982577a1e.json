@@ -14,15 +14,15 @@
       "walks": 0,
       "walkedAt": "2026-11-06T02:34:45.916Z",
       "walkedUstx": "620474000000",
+      "eventsWalked": true,
+      "membersFrom": "events",
       "fileFinal": false,
       "cycleFinal": false,
       "bondUstx": {
         "SP206Y7BR5NFCR517VGVX04BSGNA5425GM6DMF9H.signer-manager-hashkeycloud-v1": {
           "1": "620474000000"
         }
-      },
-      "eventsWalked": true,
-      "membersFrom": "events"
+      }
     },
     {
       "cycle": 147,
@@ -158,5 +158,5 @@
     }
   ],
   "currentCycle": 147,
-  "generatedAt": "2026-11-06T02:34:46.095Z"
+  "generatedAt": "2026-11-06T11:06:23.133Z"
 }

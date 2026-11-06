@@ -16,11 +16,11 @@
       "walks": 0,
       "walkedAt": "2026-11-06T02:34:45.916Z",
       "walkedUstx": "0",
+      "eventsWalked": true,
+      "membersFrom": "events",
       "fileFinal": false,
       "cycleFinal": false,
-      "bondUstx": {},
-      "eventsWalked": true,
-      "membersFrom": "events"
+      "bondUstx": {}
     },
     {
       "cycle": 147,
@@ -143,5 +143,5 @@
     }
   ],
   "currentCycle": 147,
-  "generatedAt": "2026-11-06T02:34:46.159Z"
+  "generatedAt": "2026-11-06T11:06:23.201Z"
 }

@@ -14,15 +14,15 @@
       "walks": 0,
       "walkedAt": "2026-11-06T02:34:45.916Z",
       "walkedUstx": "6457323600000",
+      "eventsWalked": true,
+      "membersFrom": "events",
       "fileFinal": false,
       "cycleFinal": false,
       "bondUstx": {
         "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-2-v2": {
           "2": "6457323600000"
         }
-      },
-      "eventsWalked": true,
-      "membersFrom": "events"
+      }
     },
     {
       "cycle": 147,
@@ -154,5 +154,5 @@
     }
   ],
   "currentCycle": 147,
-  "generatedAt": "2026-11-06T02:34:45.986Z"
+  "generatedAt": "2026-11-06T11:06:22.999Z"
 }
