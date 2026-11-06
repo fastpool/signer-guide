@@ -144,6 +144,7 @@ export const ko: LocaleBundle = {
     'app.stxOnlyEstimate.unavailable':
       '지금은 이 예상치를 계산할 수 없습니다. 잠시 후 다시 시도해 주세요.',
     'app.stxOnlyEstimate.accrued': '지난 지급 이후 들어온 sBTC',
+    'app.stxOnlyEstimate.bondOwed': '매 지급마다 본드에 먼저 지급되는 몫',
     'app.stxOnlyEstimate.bondShare': '현재까지 본드 보유자 몫',
     'app.stxOnlyEstimate.foundationShare': '재단 몫 (15%)',
     'app.stxOnlyEstimate.stxOnlySoFar': '현재까지 STX 전용 몫',
@@ -886,22 +887,28 @@ export const ko: LocaleBundle = {
     'cycles.title': '사이클별 네트워크',
     'cycles.intro':
       '각 사이클에 모든 컨트랙트가 보유한 금액과 각 지급이 1000 STX당 지급한 금액으로 계산했습니다. 아직 지급 중인 사이클을 빼면 추정치가 아닙니다.',
-    'cycles.chart': '사이클별 STX 전용 보상 (sBTC)',
+    'cycles.chart': '사이클별 보상 (sBTC)',
     'cycles.rewardsHelp':
-      '사이클이 STX 전용 스테이커에게 지급한 금액입니다. 스테이킹 금액에 그 사이클의 pox-5 STX당 보상을 곱한 값이며, 본드에 등록된 STX는 본드 몫에서 대신 지급되므로 포함되지 않습니다.',
+      '네트워크의 각 부분이 받은 보상입니다. STX 전용은 STX 전용 스테이킹 금액에 pox-5의 STX당 보상을 곱한 값입니다.',
     'cycles.col.cycle': '사이클',
-    'cycles.col.staked': '스테이킹',
+    'cycles.col.staked': '스테이킹 STX',
+    'cycles.col.stakedSplit': 'STX 전용 / 본드',
     'cycles.col.signers': '서명자',
     'cycles.col.pools': '풀',
     'cycles.col.rate': '1000 STX당',
     'cycles.col.apy': '연 수익률',
-    'cycles.col.rewards': 'STX 전용 보상',
+    'cycles.col.rewards': 'STX 전용',
+    'cycles.col.bond': '본드',
+    'cycles.col.foundation': '재단',
+    'cycles.splitNote':
+      '본드와 재단 몫은 pox-5가 각 지급에 기록한 값입니다. 본드가 먼저 sBTC에 대한 정해진 수익을 받고, 재단은 나머지의 15%를 받습니다.',
     'cycles.signersHelp': '사이클에 STX가 스테이킹된 서명자 키입니다.',
     'cycles.poolsHelp':
       '사이클에 STX가 스테이킹된 컨트랙트입니다. Stacking DAO는 하나의 스테이킹 장소이므로 컨트랙트를 하나의 풀로 셉니다.',
     'cycles.apyHelp':
       '각 지급의 보상률을 지급 당시 STX 가격과 비교해 연 50회 복리로 계산한 값을 사이클의 지급들에 대해 평균했습니다. 홈페이지의 보상률과 같은 방법이며, 풀 수수료 차감 전입니다.',
     'cycles.notPaid': '아직 지급 전',
+    'cycles.notStarted': '아직 시작 전',
     'cycles.soFar': '현재까지',
     'cycles.payoutsTitle': '각 지급',
     'timing.allCycles': '모든 사이클 →',

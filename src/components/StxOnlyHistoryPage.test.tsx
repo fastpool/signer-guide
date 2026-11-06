@@ -45,7 +45,8 @@ vi.mock('../lib/stx-only-history', async (importOriginal) => ({
 const { default: StxOnlyHistoryPage } = await import('./StxOnlyHistoryPage');
 
 describe('the payout history as a reader sees it', () => {
-  const html = () => renderToStaticMarkup(<StxOnlyHistoryPage locale='en' />);
+  const html = () =>
+    renderToStaticMarkup(<StxOnlyHistoryPage locale='en' currentCycle={147} />);
 
   it('gives each cycle its two payouts, as paid', () => {
     const page = html();

@@ -20,7 +20,13 @@ import {
  * than from adding the two lines, which would lose the sat each of them
  * rounded away.
  */
-export default function StxOnlyHistoryPage({ locale }: { locale: Locale }) {
+export default function StxOnlyHistoryPage({
+  locale,
+  currentCycle,
+}: {
+  locale: Locale;
+  currentCycle: number | null;
+}) {
   const t = translator(locale);
   const history = useStxOnlyHistory();
   const cycles =
@@ -46,7 +52,7 @@ export default function StxOnlyHistoryPage({ locale }: { locale: Locale }) {
       </h1>
       <p className='mt-3 text-lg text-muted'>{t('cycles.pageIntro')}</p>
 
-      <CyclesOverview locale={locale} />
+      <CyclesOverview locale={locale} currentCycle={currentCycle} />
 
       <h2 className='mt-10 text-xl font-extrabold'>
         {t('cycles.payoutsTitle')}

@@ -134,3 +134,59 @@ describe('isNetworkHistory', () => {
     expect(isNetworkHistory(null)).toBe(false);
   });
 });
+
+describe('cycleRewardSplit', () => {
+  const cycle = {
+    cycle: 150,
+    stakedUstx: '100000000',
+    bondUstx: '20000000',
+    signers: 1,
+    pools: 1,
+    rewardsPerUstx: '1',
+    stxOnlyRewardsSats: '8500',
+    payouts: [],
+  };
+
+  it("adds the prints' bond and foundation shares to the STX-only share", async () => {
+    const { cycleRewardSplit } = await import('./network-history');
+    expect(
+      cycleRewardSplit({
+        ...cycle,
+        bondRewardsSats: '4000',
+        foundationRewardsSats: '1500',
+      }),
+    ).toEqual({
+      stxOnly: 8500n,
+      bond: 4000n,
+      foundation: 1500n,
+      total: 14000n,
+    });
+  });
+
+  it('is null when the prints are not on file', async () => {
+    const { cycleRewardSplit } = await import('./network-history');
+    expect(cycleRewardSplit(cycle)).toBeNull();
+  });
+});
+
+describe('buildNetworkHistory with payout splits', () => {
+  it("sums each cycle's prints", () => {
+    const history = buildNetworkHistory({
+      keyHistories: [
+        {
+          signerKey: 'k',
+          cycles: [{ cycle: 141, ustx: { 'SP1.pool': '100' } }],
+        },
+      ],
+      distributions: [payout(141, true, '1000000000000000000', 1)],
+      groups: [],
+      rewardSplits: [
+        { cycle: 141, bondSats: '10', reserveSats: '5' },
+        { cycle: 141, bondSats: '20', reserveSats: '7' },
+      ],
+      generatedAt: 'now',
+    });
+    expect(history.cycles[0].bondRewardsSats).toBe('30');
+    expect(history.cycles[0].foundationRewardsSats).toBe('12');
+  });
+});

@@ -17,6 +17,7 @@ type Estimate = {
   accruedRewardsSats: bigint;
   stxPriceSats: bigint | null;
   bondShareSats: bigint;
+  bondTargetSats: bigint | null;
   foundationShareSats: bigint;
   stxOnlySoFarSats: bigint;
   projectedCycleSats: bigint;
@@ -143,6 +144,7 @@ export default function StxOnlyRewardsEstimate({
     const stxPriceSats = asBigint(calculations.stxPriceSats);
     const bondShareSats = asBigint(calculations.bondShareSats);
     const foundationShareSats = asBigint(calculations.foundationShareSats);
+    const bondTargetSats = asBigint(calculations.bondTargetSats ?? null);
     const stxOnlySoFarSats = asBigint(calculations.stxOnlySoFarSats);
     const projectedCycleSats = asBigint(calculations.projectedCycleSats);
     const stxOnlyStakedUstx = asBigint(calculations.stxOnlyStakedUstx);
@@ -178,6 +180,7 @@ export default function StxOnlyRewardsEstimate({
       accruedRewardsSats,
       stxPriceSats,
       bondShareSats,
+      bondTargetSats,
       foundationShareSats,
       stxOnlySoFarSats,
       projectedCycleSats,
@@ -454,6 +457,16 @@ export default function StxOnlyRewardsEstimate({
               {formatSbtc(estimate.accruedRewardsSats, locale)}
             </dd>
           </div>
+          {estimate.bondTargetSats !== null && (
+            <div className='flex flex-wrap items-baseline justify-between gap-3'>
+              <dt className='text-muted'>
+                {t('app.stxOnlyEstimate.bondOwed')}
+              </dt>
+              <dd className='font-semibold text-ink'>
+                {formatSbtc(estimate.bondTargetSats, locale)}
+              </dd>
+            </div>
+          )}
           <div className='flex flex-wrap items-baseline justify-between gap-3'>
             <dt className='text-muted'>{t('app.stxOnlyEstimate.bondShare')}</dt>
             <dd className='font-semibold text-ink'>

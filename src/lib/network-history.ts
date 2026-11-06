@@ -21,8 +21,9 @@
  *    group of kind "stake" count once: Stacking DAO is one place to stake,
  *    however many contracts it runs it through. Operator groups (Fast Pool,
  *    Xverse) are several pools by one operator, and count as several.
- *  - **Rewards** are the STX-only part. A bond signer's bond share is paid on
- *    top and is not on file per cycle, so it is not in the total.
+ *  - **Rewards** are the STX-only part. The bond and foundation shares come
+ *    from pox-5's `calculate-rewards` prints (cache/pox5-events/rewards.json),
+ *    which record exactly how each payout was split.
  *  - **APY** is the same method as everywhere else on the page
  *    (`apyPercent`): each payout's rate against the price at that payout,
  *    compounded over fifty payouts a year, averaged over the cycle's payouts.
@@ -53,6 +54,13 @@ export interface KeyHistoryInput {
     /** The bond part of `ustx`, when the history has a checked split. */
     bondUstx?: Record<string, Record<string, string>>;
   }[];
+}
+
+/** What the builder needs of one payout's `calculate-rewards` print. */
+export interface RewardSplitInput {
+  cycle: number;
+  bondSats: string;
+  reserveSats: string;
 }
 
 /** What the builder needs of a signer group. */
@@ -154,8 +162,21 @@ export function buildNetworkHistory(opts: {
   keyHistories: readonly KeyHistoryInput[];
   distributions: readonly StxOnlyDistribution[];
   groups: readonly GroupInput[];
+  /** Absent when no prints are on file; the cycles then carry no split. */
+  rewardSplits?: readonly RewardSplitInput[];
   generatedAt: string;
 }): NetworkHistory {
+  const splits = new Map<number, { bond: bigint; foundation: bigint }>();
+  for (const entry of opts.rewardSplits ?? []) {
+    const bond = big(entry.bondSats);
+    const reserve = big(entry.reserveSats);
+    if (bond === null || reserve === null) continue;
+    const sum = splits.get(entry.cycle) ?? { bond: 0n, foundation: 0n };
+    sum.bond += bond;
+    sum.foundation += reserve;
+    splits.set(entry.cycle, sum);
+  }
+
   interface Tally {
     staked: bigint;
     bond: bigint;
@@ -209,6 +230,8 @@ export function buildNetworkHistory(opts: {
         stxOnlyRewardsSats: rewards
           ? ((stxOnly * rewards.cumulative) / PRECISION).toString()
           : null,
+        bondRewardsSats: splits.get(cycle)?.bond.toString() ?? null,
+        foundationRewardsSats: splits.get(cycle)?.foundation.toString() ?? null,
         payouts: rewards?.payouts ?? [],
       };
     });
@@ -254,6 +277,30 @@ export function cycleRewardsUsd(cycle: NetworkCycle): number | null {
   const last = [...cycle.payouts].reverse().find((p) => p.btcPriceUsd != null);
   if (sats === null || !last?.btcPriceUsd) return null;
   return (Number(sats) / 1e8) * last.btcPriceUsd;
+}
+
+/** A cycle's whole reward and where it went, in sats. */
+export interface CycleRewardSplit {
+  stxOnly: bigint;
+  bond: bigint;
+  foundation: bigint;
+  total: bigint;
+}
+
+/**
+ * The cycle's reward, split three ways: STX-only stakers, the bonds, and the
+ * foundation's reserve (pox-5's RESERVE_RATIO, 15% of what the bonds leave).
+ * The bonds are paid first, a set yield on their sBTC, so their share does
+ * not follow the STX behind them.
+ *
+ * Null before the first payout, or when the prints are not on file.
+ */
+export function cycleRewardSplit(cycle: NetworkCycle): CycleRewardSplit | null {
+  const stxOnly = big(cycle.stxOnlyRewardsSats);
+  const bond = big(cycle.bondRewardsSats);
+  const foundation = big(cycle.foundationRewardsSats);
+  if (stxOnly === null || bond === null || foundation === null) return null;
+  return { stxOnly, bond, foundation, total: stxOnly + bond + foundation };
 }
 
 /**

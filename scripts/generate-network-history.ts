@@ -6,7 +6,8 @@
  * call: the signers' histories in src/data/signers/ for what each contract
  * held, stx-only-history.json for what each payout paid and the price it was
  * paid at, and signer-groups.json to count Stacking DAO's contracts as the one
- * pool a reader thinks of it as. The arithmetic is in
+ * pool a reader thinks of it as, and cache/pox5-events/rewards.json for how
+ * each payout split between bonds, foundation and STX-only. The arithmetic is in
  * src/lib/network-history.ts, shared with the page and the phone app.
  *
  * The file is left alone when nothing but the time would change, so an hour
@@ -25,6 +26,7 @@ import {
   type KeyHistoryInput,
 } from '../src/lib/network-history.js';
 import type { NetworkHistory, StxOnlyHistory } from '../src/lib/types.js';
+import { readRewardSplits } from './pox5-events.js';
 
 const DATA = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -57,6 +59,7 @@ function main(): void {
     keyHistories: readKeyHistories(),
     distributions: payouts.distributions,
     groups,
+    rewardSplits: readRewardSplits() ?? undefined,
     generatedAt: new Date().toISOString(),
   });
 

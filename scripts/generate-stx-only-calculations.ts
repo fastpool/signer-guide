@@ -49,6 +49,17 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Cl, cvToHex } from '@stacks/transactions';
 import { bondStakeFor, bondUstxOf } from '../src/lib/bond-stake.js';
+import {
+  activeBondIndexes,
+  bondTargetYield,
+  splitPayout,
+} from './bond-payout.js';
+import {
+  readBondSharesForCycle,
+  readFirstBondPeriodCycle,
+  readGapCycles,
+  readProtocolBond,
+} from './bonds.js';
 import { describeNode } from './node.js';
 import { callReadOnly, uintValue } from './pox5.js';
 import {
@@ -66,7 +77,7 @@ import type {
 } from '../src/lib/types.js';
 
 const FALLBACK_DISTRIBUTION_BLOCKS = 1050;
-const FOUNDATION_SHARE_BIPS = 1500; // 15%, pox-5's RESERVE_RATIO
+const FOUNDATION_SHARE_BIPS = 1500n; // 15%, pox-5's RESERVE_RATIO
 const USTX_PER_1000_STX = 1_000_000_000n;
 const SATS_PER_BTC = 100_000_000;
 
@@ -264,6 +275,30 @@ function bondStakeOf(
   return sum;
 }
 
+/**
+ * What every bond active in `cycle` is owed from one payout, in sats, or null
+ * when any part of it would not read — a guess here would move the STX-only
+ * estimate by as much as the bonds take. See scripts/bond-payout.ts.
+ */
+async function readBondTargetSats(cycle: number): Promise<bigint | null> {
+  const [first, gap] = await Promise.all([
+    readFirstBondPeriodCycle(),
+    readGapCycles(),
+  ]);
+  if (first === null || gap === null) return null;
+  let total = 0n;
+  for (const index of activeBondIndexes(cycle, first, gap)) {
+    const bond = await readProtocolBond(index);
+    // A period nobody set up is no bond at all, and pox-5 skips it too.
+    if (bond.kind === 'none') continue;
+    if (bond.kind !== 'value') return null;
+    const shares = await readBondSharesForCycle(cycle, index);
+    if (shares === null) return null;
+    total += bondTargetYield(shares, bond.value.targetRate);
+  }
+  return total;
+}
+
 async function main() {
   const signers = JSON.parse(fs.readFileSync(SIGNERS, 'utf8')) as SignerData;
   const totals = JSON.parse(fs.readFileSync(TOTALS, 'utf8')) as LockedTotals;
@@ -416,27 +451,45 @@ async function main() {
   let projectedCycleSats: bigint | null = null;
   let projectedRateSatsPer1000Stx: bigint | null = null;
 
+  // The reward cycle the next payout is for, which is whose bond shares it
+  // pays on.
+  const payoutCycle =
+    nextRewardBurnHeight !== null && heightsKnown && rewardCycleLength > 0
+      ? Math.floor(
+          (nextRewardBurnHeight - firstBurnchainBlockHeight) /
+            rewardCycleLength,
+        )
+      : null;
+  const bondTargetSats =
+    payoutCycle === null ? null : await readBondTargetSats(payoutCycle);
+
   if (
     newRewardsSats !== null &&
     blocksIntoCycle !== null &&
+    bondTargetSats !== null &&
     stxOnlyStakedUstx > 0n
   ) {
-    bondShareSats =
-      totalStakedUstx > 0n
-        ? (newRewardsSats * bondStakedUstx) / totalStakedUstx
-        : 0n;
+    // pox-5 pays each bond a set yield first, whatever has come in, then
+    // takes the foundation's 15% of the rest — so "so far" is what the
+    // payout would be if it ran now.
+    const soFar = splitPayout(
+      newRewardsSats,
+      bondTargetSats,
+      FOUNDATION_SHARE_BIPS,
+    );
+    bondShareSats = soFar.bond;
+    foundationShareSats = soFar.foundation;
+    stxOnlySoFarSats = soFar.stxOnly;
 
-    // pox-5 takes its 15% off what is left once the bonds are paid, so this
-    // does too. With no bond registered the two orders agree.
-    const afterBonds = newRewardsSats - bondShareSats;
-    foundationShareSats =
-      (afterBonds * BigInt(FOUNDATION_SHARE_BIPS)) / 10_000n;
-
-    const raw = afterBonds - foundationShareSats;
-    stxOnlySoFarSats = raw > 0n ? raw : 0n;
-
-    projectedCycleSats =
-      (stxOnlySoFarSats * BigInt(distributionBlocks)) / BigInt(blocksIntoCycle);
+    // The projection scales what has come in, not the STX-only share: the
+    // bonds' cut is fixed, so it does not grow with the cycle.
+    const projectedGrossSats =
+      (newRewardsSats * BigInt(distributionBlocks)) / BigInt(blocksIntoCycle);
+    projectedCycleSats = splitPayout(
+      projectedGrossSats,
+      bondTargetSats,
+      FOUNDATION_SHARE_BIPS,
+    ).stxOnly;
 
     projectedRateSatsPer1000Stx =
       (projectedCycleSats * USTX_PER_1000_STX) / stxOnlyStakedUstx;
@@ -471,6 +524,7 @@ async function main() {
     accruedRewardsSats:
       newRewardsSats === null ? null : newRewardsSats.toString(),
     bondShareSats: bondShareSats === null ? null : bondShareSats.toString(),
+    bondTargetSats: bondTargetSats === null ? null : bondTargetSats.toString(),
     foundationShareSats:
       foundationShareSats === null ? null : foundationShareSats.toString(),
     stxOnlySoFarSats:

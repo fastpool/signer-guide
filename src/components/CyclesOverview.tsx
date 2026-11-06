@@ -4,6 +4,7 @@ import {
   cycleApyPercent,
   cycleComplete,
   cycleRateSatsPer1000Stx,
+  cycleRewardSplit,
   cycleRewardsUsd,
   isNetworkHistory,
 } from '../lib/network-history';
@@ -19,7 +20,14 @@ import { InfoTip } from './ui';
  * question; the table after it for the figures. The cycle still being paid is
  * striped, as the pool page's cycle chart stripes the cycle still filling.
  */
-export default function CyclesOverview({ locale }: { locale: Locale }) {
+export default function CyclesOverview({
+  locale,
+  currentCycle,
+}: {
+  locale: Locale;
+  /** The reward cycle running now; a later one has not started. */
+  currentCycle: number | null;
+}) {
   const t = translator(locale);
   const history = useRemoteJson('network-history.json', isNetworkHistory);
 
@@ -33,11 +41,26 @@ export default function CyclesOverview({ locale }: { locale: Locale }) {
 
   // Cycles with a payout, oldest first for the chart.
   const paid = history.value.cycles.filter((c) => c.payouts.length > 0);
-  const chart = [...paid].reverse();
-  const most = chart.reduce((m, c) => {
-    const sats = BigInt(c.stxOnlyRewardsSats ?? '0');
-    return sats > m ? sats : m;
-  }, 1n);
+  // Without the payout prints on file, a bar is the STX-only part alone
+  // rather than nothing.
+  const chart = [...paid].reverse().map((cycle) => {
+    const stxOnly = BigInt(cycle.stxOnlyRewardsSats ?? '0');
+    return {
+      cycle,
+      split: cycleRewardSplit(cycle) ?? {
+        stxOnly,
+        bond: 0n,
+        foundation: 0n,
+        total: stxOnly,
+      },
+    };
+  });
+  const most = chart.reduce(
+    (m, { split }) => (split.total > m ? split.total : m),
+    1n,
+  );
+  // Each part's height as a share of the tallest bar, which fills 80%.
+  const height = (sats: bigint) => (Number((sats * 1000n) / most) / 10) * 0.8;
 
   return (
     <section aria-labelledby='cycles-heading' className='mt-8'>
@@ -54,32 +77,42 @@ export default function CyclesOverview({ locale }: { locale: Locale }) {
           aria-hidden='true'
           className='flex h-32 items-end gap-2 border-b border-hairline px-1'
         >
-          {chart.map((cycle) => {
-            const sats = BigInt(cycle.stxOnlyRewardsSats ?? '0');
-            const height = Number((sats * 1000n) / most) / 10;
+          {chart.map(({ cycle, split }) => {
             const open = !cycleComplete(cycle);
+            const total = split.total;
             return (
               <div
                 key={cycle.cycle}
-                className='flex h-full flex-1 flex-col items-center justify-end gap-1'
+                className='flex h-full flex-1 flex-col items-center justify-end'
               >
-                <span className='text-[0.7rem] font-bold text-muted tabular-nums'>
-                  {(Number(sats) / 1e8).toFixed(2)}
+                <span className='mb-1 text-[0.7rem] font-bold text-muted tabular-nums'>
+                  {(Number(total) / 1e8).toFixed(2)}
                 </span>
+                {/* Foundation on top, then bonds, STX-only at the base. */}
                 <span
-                  className={`block w-full max-w-12 rounded-t-md ${
+                  className={`block w-full max-w-12 rounded-t-md bg-mint ${open ? 'opacity-60' : ''}`}
+                  style={{ height: `${height(split.foundation)}%` }}
+                />
+                <span
+                  className={`block w-full max-w-12 bg-grape ${open ? 'opacity-60' : ''}`}
+                  style={{ height: `${height(split.bond)}%` }}
+                />
+                <span
+                  className={`block w-full max-w-12 ${
                     open
                       ? 'bg-[repeating-linear-gradient(135deg,var(--color-amber-warm)_0_5px,var(--color-amber-soft)_5px_9px)]'
                       : 'bg-amber-warm'
                   }`}
-                  style={{ height: `${Math.max(2, height * 0.8)}%` }}
+                  style={{
+                    height: `${Math.max(2, height(split.stxOnly))}%`,
+                  }}
                 />
               </div>
             );
           })}
         </div>
         <div aria-hidden='true' className='flex gap-2 px-1 pt-1'>
-          {chart.map((cycle) => (
+          {chart.map(({ cycle }) => (
             <span
               key={cycle.cycle}
               className='flex-1 text-center text-xs text-muted tabular-nums'
@@ -88,6 +121,11 @@ export default function CyclesOverview({ locale }: { locale: Locale }) {
             </span>
           ))}
         </div>
+        <p className='mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted'>
+          <Key className='bg-amber-warm' label={t('cycles.col.rewards')} />
+          <Key className='bg-grape' label={t('cycles.col.bond')} />
+          <Key className='bg-mint' label={t('cycles.col.foundation')} />
+        </p>
 
         <div className='mt-4 overflow-x-auto'>
           <table className='w-full text-sm'>
@@ -100,6 +138,12 @@ export default function CyclesOverview({ locale }: { locale: Locale }) {
                   {t('cycles.col.rewards')}
                 </th>
                 <th scope='col' className='py-2 pr-3 font-bold'>
+                  {t('cycles.col.bond')}
+                </th>
+                <th scope='col' className='py-2 pr-3 font-bold'>
+                  {t('cycles.col.foundation')}
+                </th>
+                <th scope='col' className='py-2 pr-3 font-bold'>
                   <span className='inline-flex items-center gap-1'>
                     {t('cycles.col.apy')} <InfoTip text={t('cycles.apyHelp')} />
                   </span>
@@ -109,6 +153,9 @@ export default function CyclesOverview({ locale }: { locale: Locale }) {
                 </th>
                 <th scope='col' className='py-2 pr-3 font-bold'>
                   {t('cycles.col.staked')}
+                  <span className='block font-normal'>
+                    {t('cycles.col.stakedSplit')}
+                  </span>
                 </th>
                 <th scope='col' className='py-2 pr-3 font-bold'>
                   <span className='inline-flex items-center gap-1'>
@@ -126,26 +173,46 @@ export default function CyclesOverview({ locale }: { locale: Locale }) {
             </thead>
             <tbody>
               {history.value.cycles.map((cycle) => (
-                <Row key={cycle.cycle} cycle={cycle} locale={locale} />
+                <Row
+                  key={cycle.cycle}
+                  cycle={cycle}
+                  started={currentCycle === null || cycle.cycle <= currentCycle}
+                  locale={locale}
+                />
               ))}
             </tbody>
           </table>
         </div>
+        <p className='mt-3 text-xs text-muted'>{t('cycles.splitNote')}</p>
       </div>
     </section>
   );
 }
 
-function Row({ cycle, locale }: { cycle: NetworkCycle; locale: Locale }) {
+function Row({
+  cycle,
+  started,
+  locale,
+}: {
+  cycle: NetworkCycle;
+  started: boolean;
+  locale: Locale;
+}) {
   const t = translator(locale);
   const number = (value: number | bigint) =>
     value.toLocaleString(t.bundle.intlLocale);
   const rate = cycleRateSatsPer1000Stx(cycle);
   const apy = cycleApyPercent(cycle);
   const usd = cycleRewardsUsd(cycle);
+  const split = cycleRewardSplit(cycle);
+  const staked = BigInt(cycle.stakedUstx);
+  const bonded = BigInt(cycle.bondUstx ?? '0');
+  // The column says STX once, so the cell does not.
+  const stx = (ustx: bigint) =>
+    (stxCompact(ustx, locale) ?? '—').replace(/\s*STX$/, '');
   const status =
     cycle.payouts.length === 0
-      ? t('cycles.notPaid')
+      ? t(started ? 'cycles.notPaid' : 'cycles.notStarted')
       : cycleComplete(cycle)
         ? null
         : t('cycles.soFar');
@@ -179,6 +246,12 @@ function Row({ cycle, locale }: { cycle: NetworkCycle; locale: Locale }) {
         )}
       </td>
       <td className='py-2 pr-3 whitespace-nowrap'>
+        {split === null ? '—' : sbtcCompact(split.bond, locale)}
+      </td>
+      <td className='py-2 pr-3 whitespace-nowrap'>
+        {split === null ? '—' : sbtcCompact(split.foundation, locale)}
+      </td>
+      <td className='py-2 pr-3 whitespace-nowrap'>
         {apy === null ? '—' : `${apy.toFixed(2)}%`}
       </td>
       <td className='py-2 pr-3 whitespace-nowrap'>
@@ -187,10 +260,25 @@ function Row({ cycle, locale }: { cycle: NetworkCycle; locale: Locale }) {
           : t('app.stxOnlyEstimate.satsShort', { sats: number(rate) })}
       </td>
       <td className='py-2 pr-3 whitespace-nowrap'>
-        {stxCompact(cycle.stakedUstx, locale)}
+        <strong>{stx(staked)}</strong>
+        <span className='block text-xs text-muted'>
+          {bonded > 0n ? `${stx(staked - bonded)} / ${stx(bonded)}` : '—'}
+        </span>
       </td>
       <td className='py-2 pr-3'>{cycle.signers}</td>
       <td className='py-2'>{cycle.pools}</td>
     </tr>
+  );
+}
+
+function Key({ className, label }: { className: string; label: string }) {
+  return (
+    <span className='inline-flex items-center gap-1.5'>
+      <span
+        aria-hidden='true'
+        className={`inline-block h-2.5 w-2.5 rounded-sm ${className}`}
+      />
+      {label}
+    </span>
   );
 }

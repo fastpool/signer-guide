@@ -39,6 +39,7 @@ import {
   ClarityType,
   hexToCV,
   principalCV,
+  someCV,
   uintCV,
   type ClarityValue,
 } from '@stacks/transactions';
@@ -297,6 +298,22 @@ export async function readProtocolBond(
     kind: 'value',
     value: { targetRate, stxValueRatio, minUstxRatio },
   };
+}
+
+/**
+ * The sBTC staked in a bond for one reward cycle — the shares
+ * `calculate-rewards` pays that bond's yield on. Null when it could not be read.
+ */
+export async function readBondSharesForCycle(
+  cycle: number,
+  bondIndex: number,
+): Promise<bigint | null> {
+  return asUint(
+    await callReadOnly(POX5, 'get-total-shares-staked-for-cycle', [
+      uintCV(cycle),
+      someCV(uintCV(bondIndex)),
+    ]),
+  );
 }
 
 /** pox-5's own total for a bond. Null when it could not be read, never zero. */

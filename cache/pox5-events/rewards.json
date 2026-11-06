@@ -1,0 +1,122 @@
+[
+  {
+    "cursor": "8802937:0",
+    "block": 8802937,
+    "cycle": 141,
+    "calculationHeight": 963199,
+    "grossSats": "162018760",
+    "bondSats": "0",
+    "reserveSats": "24302814",
+    "stxStakerSats": "137715946"
+  },
+  {
+    "cursor": "8849019:0",
+    "block": 8849019,
+    "cycle": 141,
+    "calculationHeight": 964249,
+    "grossSats": "188232684",
+    "bondSats": "0",
+    "reserveSats": "28234902",
+    "stxStakerSats": "159997782"
+  },
+  {
+    "cursor": "8908680:0",
+    "block": 8908680,
+    "cycle": 142,
+    "calculationHeight": 965299,
+    "grossSats": "217098316",
+    "bondSats": "0",
+    "reserveSats": "32564747",
+    "stxStakerSats": "184533569"
+  },
+  {
+    "cursor": "8956329:0",
+    "block": 8956329,
+    "cycle": 142,
+    "calculationHeight": 966349,
+    "grossSats": "233931905",
+    "bondSats": "0",
+    "reserveSats": "35089785",
+    "stxStakerSats": "198842120"
+  },
+  {
+    "cursor": "9009981:1",
+    "block": 9009981,
+    "cycle": 143,
+    "calculationHeight": 967399,
+    "grossSats": "230327835",
+    "bondSats": "13810222",
+    "reserveSats": "32477641",
+    "stxStakerSats": "184039972"
+  },
+  {
+    "cursor": "9055296:1",
+    "block": 9055296,
+    "cycle": 143,
+    "calculationHeight": 968449,
+    "grossSats": "262934641",
+    "bondSats": "13810222",
+    "reserveSats": "37368662",
+    "stxStakerSats": "211755757"
+  },
+  {
+    "cursor": "9104562:1",
+    "block": 9104562,
+    "cycle": 144,
+    "calculationHeight": 969499,
+    "grossSats": "351979584",
+    "bondSats": "13810186",
+    "reserveSats": "50725409",
+    "stxStakerSats": "287443989"
+  },
+  {
+    "cursor": "9149950:1",
+    "block": 9149950,
+    "cycle": 144,
+    "calculationHeight": 970549,
+    "grossSats": "429249034",
+    "bondSats": "13808686",
+    "reserveSats": "62316052",
+    "stxStakerSats": "353124296"
+  },
+  {
+    "cursor": "9217845:2",
+    "block": 9217845,
+    "cycle": 145,
+    "calculationHeight": 971599,
+    "grossSats": "491629217",
+    "bondSats": "44097979",
+    "reserveSats": "67129685",
+    "stxStakerSats": "380401553"
+  },
+  {
+    "cursor": "9280615:2",
+    "block": 9280615,
+    "cycle": 145,
+    "calculationHeight": 972649,
+    "grossSats": "516048386",
+    "bondSats": "44097727",
+    "reserveSats": "70792598",
+    "stxStakerSats": "401158061"
+  },
+  {
+    "cursor": "9357546:26",
+    "block": 9357546,
+    "cycle": 146,
+    "calculationHeight": 973699,
+    "grossSats": "461519047",
+    "bondSats": "44097727",
+    "reserveSats": "62613198",
+    "stxStakerSats": "354808122"
+  },
+  {
+    "cursor": "9422925:2",
+    "block": 9422925,
+    "cycle": 146,
+    "calculationHeight": 974749,
+    "grossSats": "427542312",
+    "bondSats": "44097565",
+    "reserveSats": "57516712",
+    "stxStakerSats": "325928035"
+  }
+]

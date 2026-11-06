@@ -319,6 +319,13 @@ export interface NetworkCycle {
   rewardsPerUstx: string | null;
   /** STX-only rewards for the whole cycle so far, in sats. */
   stxOnlyRewardsSats: string | null;
+  /**
+   * What the bonds and the foundation's reserve got for the cycle so far, in
+   * sats, summed from pox-5's `calculate-rewards` prints. Optional: files
+   * written before they were kept lack them, and null is "not on file".
+   */
+  bondRewardsSats?: string | null;
+  foundationRewardsSats?: string | null;
   /** The cycle's payouts on file, oldest first. */
   payouts: NetworkPayout[];
 }
@@ -362,6 +369,11 @@ export interface StxOnlyCalculations {
    * figure below is derived from. */
   accruedRewardsSats: string | null;
   bondShareSats: string | null;
+  /**
+   * What every active bond is owed from one payout: their set yields, paid
+   * before anybody else. Optional: files written before it was added lack it.
+   */
+  bondTargetSats?: string | null;
   foundationShareSats: string | null;
   stxOnlySoFarSats: string | null;
   projectedCycleSats: string | null;

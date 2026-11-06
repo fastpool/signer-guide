@@ -28,6 +28,12 @@
  * it alone would put a commit on the history every hour for nothing. The next
  * run reads on from the cursor on file instead, which costs a page or two.
  *
+ * Alongside it, cache/pox5-events/rewards.json keeps every `calculate-rewards`
+ * print: how each payout split between the bonds, the foundation's reserve
+ * and STX-only stakers. pox-5 keeps no record of that split it can be asked
+ * for afterwards, so the prints are the only source. A run with no file yet
+ * reads them all from the start, which is one page.
+ *
  * Usage:
  *   pnpm generate:events
  *   pnpm generate:events --from-start   rebuild the copy from pox-5's first block
@@ -86,6 +92,88 @@ export interface EventLog {
 }
 
 const MEMBERSHIP = new Set<string>(MEMBERSHIP_TOPICS);
+
+export const REWARDS_FILE = path.join(EVENTS_DIR, 'rewards.json');
+const REWARDS_TOPIC = 'calculate-rewards';
+
+/** One payout's split, from its `calculate-rewards` print. Sats as strings. */
+export interface RewardSplitEntry {
+  cursor: string;
+  block: number;
+  /** The reward cycle the payout was for (`stx-cycle`). */
+  cycle: number;
+  calculationHeight: number;
+  grossSats: string;
+  bondSats: string;
+  /** What went to the reserve: the foundation's 15% of what the bonds left. */
+  reserveSats: string;
+  stxStakerSats: string;
+}
+
+const digits = (value: unknown): string | null =>
+  typeof value === 'string' && /^\d+$/.test(value)
+    ? value
+    : typeof value === 'number' && Number.isInteger(value) && value >= 0
+      ? String(value)
+      : null;
+
+/** The split a print records, or null for any other print. */
+export function toRewardEntry(event: Pox5Event): RewardSplitEntry | null {
+  if (event.topic !== REWARDS_TOPIC || !event.data) return null;
+  const d = event.data;
+  const cycle = digits(d['stx-cycle']);
+  const height = digits(d['calculation-height']);
+  const gross = digits(d['gross-accrued-rewards']);
+  const bond = digits(d['total-bond-rewards']);
+  const reserve = digits(d['reserve-deposit']);
+  const stx = digits(d['total-stx-staker-rewards']);
+  if (!cycle || !height || !gross || !bond || !reserve || !stx) return null;
+  return {
+    cursor: event.cursor,
+    block: event.block_height,
+    cycle: Number(cycle),
+    calculationHeight: Number(height),
+    grossSats: gross,
+    bondSats: bond,
+    reserveSats: reserve,
+    stxStakerSats: stx,
+  };
+}
+
+/** The splits on file, oldest first, or null when there is no file. */
+export function readRewardSplits(
+  file = REWARDS_FILE,
+): RewardSplitEntry[] | null {
+  try {
+    const value = JSON.parse(fs.readFileSync(file, 'utf8')) as unknown;
+    return Array.isArray(value) ? (value as RewardSplitEntry[]) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Adds what is new to the file; true when it changed. */
+function keepRewardSplits(found: readonly RewardSplitEntry[]): boolean {
+  const kept = readRewardSplits() ?? [];
+  const known = new Set(kept.map((entry) => entry.cursor));
+  const added: RewardSplitEntry[] = [];
+  for (const entry of found) {
+    if (known.has(entry.cursor)) continue;
+    known.add(entry.cursor);
+    added.push(entry);
+  }
+  if (added.length === 0 && fs.existsSync(REWARDS_FILE)) return false;
+  const all = [...kept, ...added].sort(
+    (a, b) => a.calculationHeight - b.calculationHeight,
+  );
+  fs.mkdirSync(EVENTS_DIR, { recursive: true });
+  fs.writeFileSync(REWARDS_FILE, `${JSON.stringify(all, null, 2)}\n`);
+  console.log(
+    `${added.length} payout split(s) added, ${all.length} on file in` +
+      ` ${path.relative(ROOT, REWARDS_FILE)}.`,
+  );
+  return true;
+}
 
 /*
  * The fields the membership rules read, plus the bond index for anyone
@@ -195,6 +283,7 @@ async function fetchPage(
   apiKey: string,
   cursor: string | null,
   confirmed: boolean,
+  topic?: string,
 ): Promise<EventsPage> {
   const params = new URLSearchParams({
     confirmed: String(confirmed),
@@ -202,6 +291,7 @@ async function fetchPage(
   });
   if (cursor) params.set('cursor', cursor);
   else params.set('from_height', '0');
+  if (topic) params.set('topic', topic);
 
   for (let attempt = 0; ; attempt += 1) {
     let response: Response;
@@ -236,11 +326,12 @@ async function readOn(
   cursor: string | null,
   confirmed: boolean,
   maxPages = Number.POSITIVE_INFINITY,
+  topic?: string,
 ): Promise<{ events: Pox5Event[]; cursor: string | null; pages: number }> {
   const events: Pox5Event[] = [];
   let pages = 0;
   while (pages < maxPages) {
-    const page = await fetchPage(apiKey, cursor, confirmed);
+    const page = await fetchPage(apiKey, cursor, confirmed, topic);
     pages += 1;
     if (page.events.length === 0) break;
     events.push(...page.events);
@@ -320,6 +411,28 @@ async function main() {
   const appended = events
     .map(toLogEntry)
     .filter((e): e is LogEntry => e !== null && !known.has(e.cursor));
+
+  // The payout splits ride on the same pages. With no file yet, the ones
+  // before this run's cursor are read from the start, by topic.
+  const splitEvents = fs.existsSync(REWARDS_FILE)
+    ? events
+    : [
+        ...(
+          await readOn(
+            apiKey,
+            null,
+            true,
+            Number.POSITIVE_INFINITY,
+            REWARDS_TOPIC,
+          )
+        ).events,
+        ...events,
+      ];
+  keepRewardSplits(
+    splitEvents
+      .map(toRewardEntry)
+      .filter((e): e is RewardSplitEntry => e !== null),
+  );
 
   if (appended.length === 0 && startedAt !== null) {
     console.log(

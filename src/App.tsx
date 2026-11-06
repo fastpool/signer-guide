@@ -131,7 +131,7 @@ export default function App() {
     }
 
     if (route.name === 'stxOnlyHistory') {
-      return <StxOnlyHistoryPage locale={locale} />;
+      return <StxOnlyHistoryPage locale={locale} currentCycle={totals.cycle} />;
     }
 
     if (route.name === 'stxOnlyRewards') {

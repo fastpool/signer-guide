@@ -103,6 +103,8 @@ export function isStxOnlyCalculations(
     isBigintStringOrNull(data.sbtcBalanceSats) &&
     isBigintStringOrNull(data.accruedRewardsSats) &&
     isBigintStringOrNull(data.bondShareSats) &&
+    (data.bondTargetSats === undefined ||
+      isBigintStringOrNull(data.bondTargetSats)) &&
     isBigintStringOrNull(data.foundationShareSats) &&
     isBigintStringOrNull(data.stxOnlySoFarSats) &&
     isBigintStringOrNull(data.projectedCycleSats) &&

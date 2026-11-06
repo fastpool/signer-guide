@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-06T11:06:24.116Z",
+  "generatedAt": "2026-11-06T12:23:34.163Z",
   "cycles": [
     {
       "cycle": 148,
@@ -9,6 +9,8 @@
       "pools": 31,
       "rewardsPerUstx": null,
       "stxOnlyRewardsSats": null,
+      "bondRewardsSats": null,
+      "foundationRewardsSats": null,
       "payouts": []
     },
     {
@@ -19,6 +21,8 @@
       "pools": 31,
       "rewardsPerUstx": null,
       "stxOnlyRewardsSats": null,
+      "bondRewardsSats": null,
+      "foundationRewardsSats": null,
       "payouts": []
     },
     {
@@ -29,6 +33,8 @@
       "pools": 31,
       "rewardsPerUstx": "1409160710598",
       "stxOnlyRewardsSats": "680736156",
+      "bondRewardsSats": "88195292",
+      "foundationRewardsSats": "120129910",
       "payouts": [
         {
           "burnHeight": 973699,
@@ -54,6 +60,8 @@
       "pools": 29,
       "rewardsPerUstx": "1617724895229",
       "stxOnlyRewardsSats": "781559633",
+      "bondRewardsSats": "88195706",
+      "foundationRewardsSats": "137922283",
       "payouts": [
         {
           "burnHeight": 971599,
@@ -79,6 +87,8 @@
       "pools": 27,
       "rewardsPerUstx": "1440258939597",
       "stxOnlyRewardsSats": "640568284",
+      "bondRewardsSats": "27618872",
+      "foundationRewardsSats": "113041461",
       "payouts": [
         {
           "burnHeight": 969499,
@@ -104,6 +114,8 @@
       "pools": 25,
       "rewardsPerUstx": "903631748280",
       "stxOnlyRewardsSats": "397602993",
+      "bondRewardsSats": "27620444",
+      "foundationRewardsSats": "69846303",
       "payouts": [
         {
           "burnHeight": 967399,
@@ -129,6 +141,8 @@
       "pools": 22,
       "rewardsPerUstx": "909456324512",
       "stxOnlyRewardsSats": "385194602",
+      "bondRewardsSats": "0",
+      "foundationRewardsSats": "67654532",
       "payouts": [
         {
           "burnHeight": 965299,
@@ -154,6 +168,8 @@
       "pools": 19,
       "rewardsPerUstx": "758607677183",
       "stxOnlyRewardsSats": "297713727",
+      "bondRewardsSats": "0",
+      "foundationRewardsSats": "52537716",
       "payouts": [
         {
           "burnHeight": 963199,

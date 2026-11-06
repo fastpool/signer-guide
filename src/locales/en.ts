@@ -80,6 +80,7 @@ const messages = {
   'app.stxOnlyEstimate.unavailable':
     'Could not build this estimate right now. Try again in a moment.',
   'app.stxOnlyEstimate.accrued': 'sBTC received since the last payout',
+  'app.stxOnlyEstimate.bondOwed': 'Owed to bonds each payout, paid first',
   'app.stxOnlyEstimate.bondShare': 'Bond-holder share so far',
   'app.stxOnlyEstimate.foundationShare': 'Foundation share (15%)',
   'app.stxOnlyEstimate.stxOnlySoFar': 'STX-only share so far',
@@ -827,16 +828,21 @@ const messages = {
   'cycles.title': 'The network, cycle by cycle',
   'cycles.intro':
     'Worked out from what every contract held in each cycle and what each payout paid per 1000 STX. Nothing here is an estimate except a cycle still being paid.',
-  'cycles.chart': 'STX-only rewards per cycle, in sBTC',
+  'cycles.chart': 'Rewards per cycle, in sBTC',
   'cycles.rewardsHelp':
-    "What the cycle paid STX-only stakers: their stake times pox-5's rewards per STX for the cycle. STX registered for a bond is paid from the bond share instead, and is not counted.",
+    "What each part of the network got. STX-only is the STX-only stake times pox-5's rewards per STX.",
   'cycles.col.cycle': 'Cycle',
-  'cycles.col.staked': 'Staked',
+  'cycles.col.staked': 'Staked STX',
+  'cycles.col.stakedSplit': 'STX-only / bonds',
   'cycles.col.signers': 'Signers',
   'cycles.col.pools': 'Pools',
   'cycles.col.rate': 'Per 1000 STX',
   'cycles.col.apy': 'APY',
-  'cycles.col.rewards': 'STX-only rewards',
+  'cycles.col.rewards': 'STX-only',
+  'cycles.col.bond': 'Bonds',
+  'cycles.col.foundation': 'Foundation',
+  'cycles.splitNote':
+    'Bonds and Foundation as pox-5 recorded each payout. Bonds are paid first, a set yield on their sBTC; the foundation keeps 15% of the rest.',
   'cycles.signersHelp':
     'Signer keys with any STX staked behind them in the cycle.',
   'cycles.poolsHelp':
@@ -844,6 +850,7 @@ const messages = {
   'cycles.apyHelp':
     "Each payout's rate against the STX price when it was paid, compounded over fifty payouts a year — the same method as the rate on the home page — and averaged over the cycle's payouts. Before any pool's fee.",
   'cycles.notPaid': 'not paid yet',
+  'cycles.notStarted': 'not started yet',
   'cycles.soFar': 'so far',
   'cycles.payoutsTitle': 'Each payout',
   'timing.allCycles': 'Every cycle →',
