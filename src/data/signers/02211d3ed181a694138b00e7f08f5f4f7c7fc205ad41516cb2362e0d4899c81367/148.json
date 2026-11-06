@@ -1,0 +1,11 @@
+{
+  "signerKey": "0x02211d3ed181a694138b00e7f08f5f4f7c7fc205ad41516cb2362e0d4899c81367",
+  "cycle": 148,
+  "members": [
+    {
+      "staker": "SM1FWNZYK18ZNQCWJSE55TQXMAHNC6YKRC5QXNAWM",
+      "ustx": "2000000000000",
+      "contractId": "SP13W6DKAAHWQERQH9NDKPHSWZBAQKYSXEA7DJYAK.blueprint-signer-manager"
+    }
+  ]
+}
