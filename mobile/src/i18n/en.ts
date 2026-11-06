@@ -476,7 +476,7 @@ const messages = {
   // ------------------------------------------------------------------ data --
   'data.title': 'Where these numbers come from',
   'data.intro':
-    'The pool data is generated hourly by scripts in the guide’s repository and committed to its branch. This app reads that branch, and reads the chain directly for anything about you.',
+    'The pool data is generated daily by scripts in the guide’s repository and committed to its branch. This app reads that branch, and reads the chain directly for anything about you.',
   'data.poolData': 'Pool data',
   'data.origin.bundled': 'what shipped in this build',
   'data.origin.cache': 'the last copy this phone downloaded',

@@ -66,7 +66,7 @@ export default function Freshness({
         {ago ? t('freshness.readAgo', { ago }) : t('app.lastUpdate', { at })}
       </span>
       <span aria-hidden='true'>·</span>
-      <span>{savedCopy ? t('app.savedCopy') : t('freshness.hourly')}</span>
+      <span>{savedCopy ? t('app.savedCopy') : t('freshness.daily')}</span>
     </p>
   );
 }

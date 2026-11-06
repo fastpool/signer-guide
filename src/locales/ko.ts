@@ -129,7 +129,7 @@ export const ko: LocaleBundle = {
     'app.poolCount.one': '풀 {count}개',
     'app.poolCount.other': '풀 {count}개',
     'app.lastUpdate': '마지막 업데이트: {at}',
-    'app.refreshNote': '수수료와 금액은 매시간 체인에서 다시 읽습니다.',
+    'app.refreshNote': '수수료와 금액은 매일 체인에서 다시 읽습니다.',
     'app.savedCopy':
       '기기에 저장된 마지막 사본입니다. 최신 데이터를 가져오지 못했습니다.',
     'app.updateReady': '앱의 새 버전이 준비되었습니다.',
@@ -288,7 +288,7 @@ export const ko: LocaleBundle = {
     'app.footer.feesNoticeBadge': '수수료 변경 사전 공지',
     'app.footer.trustLink': 'GitHub에서 코드 보기',
     'footer.sections': '모든 섹션',
-    'footer.data': '데이터는 {at}에 체인에서 읽었으며 매시간 갱신됩니다.',
+    'footer.data': '데이터는 {at}에 체인에서 읽었으며 매일 갱신됩니다.',
     'footer.code': 'GitHub의 코드',
     'footer.madeBy': 'Fast Pool 제작',
     'footer.disclosure':
@@ -551,7 +551,7 @@ export const ko: LocaleBundle = {
     'signerPage.notCounted': '이 사이클의 참여자는 아직 집계되지 않았습니다',
     'signerPage.walkedAt': '· {at} 확인',
     'signerPage.membersFresh':
-      '위 금액은 매시간 갱신됩니다. 누가 보유하는지는 스테이커 한 명당 한 번씩 조회해야 해서 더 느립니다. 사이클이 열려 있는 동안 목록은 하루에 한 번까지만 다시 만들어지므로 그만큼 늦을 수 있습니다.',
+      '위 금액은 매일 갱신됩니다. 누가 보유하는지는 스테이커 한 명당 한 번씩 조회해야 해서 더 느립니다. 사이클이 열려 있는 동안 목록은 금액보다 하루 늦을 수 있습니다.',
     'signerPage.showMembers': '참여자 보기',
     'signerPage.hideMembers': '숨기기',
     'signerPage.shortList':
@@ -564,7 +564,7 @@ export const ko: LocaleBundle = {
     'signerPage.loading': '불러오는 중 …',
     'signerPage.failed': '불러오지 못했습니다. 잠시 후 다시 시도해 주세요.',
     'signerPage.noHistory':
-      '이 풀의 내역은 아직 만들어지지 않았습니다. 매시간 갱신이 서명자별로 기록하므로 나중에 다시 확인해 주세요.',
+      '이 풀의 내역은 아직 만들어지지 않았습니다. 매일 갱신이 서명자별로 기록하므로 나중에 다시 확인해 주세요.',
     'signerPage.noMembers': '이 사이클의 참여자 목록이 없습니다.',
 
     'status.back': '← 전체 풀',
@@ -598,7 +598,7 @@ export const ko: LocaleBundle = {
     'status.unlocksAt': '{cycle} 사이클에 잠금이 해제됩니다.',
     'status.aboutPool': '{pool} 자세히 보기',
     'status.readNote':
-      '방금 체인에서 주소를 하나씩 읽었습니다. 이 가이드의 다른 정보는 매시간 갱신되는 파일에서 오지만, 이 페이지는 여러분만 아는 주소를 다루므로 그럴 수 없습니다.',
+      '방금 체인에서 주소를 하나씩 읽었습니다. 이 가이드의 다른 정보는 매일 갱신되는 파일에서 오지만, 이 페이지는 여러분만 아는 주소를 다루므로 그럴 수 없습니다.',
     'status.open': '주소 조회',
 
     'howTo.open': '스테이킹하는 법',
@@ -811,7 +811,7 @@ export const ko: LocaleBundle = {
 
     // ---- 데이터 신선도
     'freshness.readAgo': '{ago} 전에 체인에서 읽음',
-    'freshness.hourly': '매시간 갱신',
+    'freshness.daily': '매일 갱신',
     'freshness.ago.minute.one': '{count}분',
     'freshness.ago.minute.other': '{count}분',
     'freshness.ago.hour.one': '{count}시간',

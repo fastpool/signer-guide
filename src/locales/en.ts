@@ -65,7 +65,7 @@ const messages = {
   'app.poolCount.other': '{count} pools',
   'app.lastUpdate': 'Last update: {at}',
   'app.refreshNote':
-    'Fees and amounts are read from the chain again every hour.',
+    'Fees and amounts are read from the chain again every day.',
   'app.savedCopy':
     'This is the last copy saved on your device — the newest could not be fetched.',
   'app.updateReady': 'A new version of the app is ready.',
@@ -159,7 +159,7 @@ const messages = {
     'Invited stakers lock bitcoin — as sBTC on Stacks, or on Bitcoin itself — for {length} cycles, alongside the STX they stake. A new bond opens every {gap} cycles.',
   'app.bonds.loading': 'Reading the bonds…',
   'app.bonds.none':
-    'Nothing on file for the bonds yet. They appear here once the hourly refresh has read them.',
+    'Nothing on file for the bonds yet. They appear here once the daily refresh has read them.',
   'app.bonds.failed': 'The bonds could not be fetched. Try again in a moment.',
   'app.bonds.heading': 'Bond {index}',
   'app.bonds.current': 'now',
@@ -223,7 +223,7 @@ const messages = {
   'app.footer.feesNoticeBadge': 'fee changes announced',
   'app.footer.trustLink': 'read the code on GitHub',
   'footer.sections': 'All sections',
-  'footer.data': 'Data read from the chain {at}, refreshed hourly.',
+  'footer.data': 'Data read from the chain {at}, refreshed daily.',
   'footer.code': 'Code on GitHub',
   'footer.madeBy': 'Made by Fast Pool',
   'footer.disclosure': 'runs some of these pools, listed like any other',
@@ -486,7 +486,7 @@ const messages = {
   // photograph rather than a fact — see signerPage.membersFresh.
   'signerPage.walkedAt': '· checked {at}',
   'signerPage.membersFresh':
-    'The amounts above are read every hour. Who holds them is a slower question — one call for every staker — so while a cycle is still open the list is rebuilt at most once a day, and can be that far behind.',
+    'The amounts above are read every day. Who holds them is a slower question — one call for every staker — so while a cycle is still open the list can be a day behind the amounts.',
   'signerPage.showMembers': 'Show who was in it',
   'signerPage.hideMembers': 'Hide',
   'signerPage.shortList':
@@ -499,7 +499,7 @@ const messages = {
   'signerPage.loading': 'Reading …',
   'signerPage.failed': 'That would not load. Try again in a moment.',
   'signerPage.noHistory':
-    'No history has been built for this pool yet. The hourly refresh writes it a signer at a time, so check back later.',
+    'No history has been built for this pool yet. The daily refresh writes it a signer at a time, so check back later.',
   'signerPage.noMembers': 'The list for this cycle is not on file.',
 
   /*
@@ -538,7 +538,7 @@ const messages = {
   'status.unlocksAt': 'Unlocks in cycle {cycle}.',
   'status.aboutPool': 'About {pool}',
   'status.readNote':
-    'Read from the chain just now, one address at a time. Everything else in this guide comes from a file refreshed each hour; this cannot, because it is about addresses only you know.',
+    'Read from the chain just now, one address at a time. Everything else in this guide comes from a file refreshed each day; this cannot, because it is about addresses only you know.',
   'status.open': 'Check an address',
 
   'howTo.open': 'How staking works',
@@ -753,7 +753,7 @@ const messages = {
 
   // ---- How old the data is.
   'freshness.readAgo': 'Read from the chain {ago} ago',
-  'freshness.hourly': 'refreshed hourly',
+  'freshness.daily': 'refreshed daily',
   'freshness.ago.minute.one': '{count} minute',
   'freshness.ago.minute.other': '{count} minutes',
   'freshness.ago.hour.one': '{count} hour',
