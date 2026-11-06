@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-06T11:05:43.884Z",
+  "generatedAt": "2026-11-06T18:05:10.887Z",
   "cycle": 147,
   "standardisedWith": "clarinet 3.26.0",
   "signers": [
@@ -1754,7 +1754,7 @@
       "undistributedSats": "1608",
       "unclaimedFromPoxSats": "0",
       "unclaimedFromCycle": 147,
-      "earnedFeesSats": "4686318",
+      "earnedFeesSats": "0",
       "evidence": {
         "bitcoinRewards": null,
         "openToAnyone": null,

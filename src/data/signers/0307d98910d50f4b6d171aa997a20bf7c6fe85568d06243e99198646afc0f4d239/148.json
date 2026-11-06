@@ -1,0 +1,11 @@
+{
+  "signerKey": "0x0307d98910d50f4b6d171aa997a20bf7c6fe85568d06243e99198646afc0f4d239",
+  "cycle": 148,
+  "members": [
+    {
+      "staker": "SM1XTWQSM3PGFFE1026PW22HFPRP837EE4HJV4B1A",
+      "ustx": "1000000000000",
+      "contractId": "SP17994R8ZY6J30Q6BMYHQXAQS52NAHQX1YEBNQS6.signer-manager-validation-cloud"
+    }
+  ]
+}

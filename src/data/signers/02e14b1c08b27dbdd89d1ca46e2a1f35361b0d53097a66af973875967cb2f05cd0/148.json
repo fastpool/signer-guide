@@ -1,0 +1,11 @@
+{
+  "signerKey": "0x02e14b1c08b27dbdd89d1ca46e2a1f35361b0d53097a66af973875967cb2f05cd0",
+  "cycle": 148,
+  "members": [
+    {
+      "staker": "SM2G9A1KPM0MKAJV70XBQ7F29ZE0E1871TZXZ15YH",
+      "ustx": "1000000000000",
+      "contractId": "SPJ101BVXKT47N2V263FGRWDSRMCASBDXV52AKPW.signer-manager-republic"
+    }
+  ]
+}
