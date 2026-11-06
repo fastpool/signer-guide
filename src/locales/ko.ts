@@ -197,7 +197,7 @@ export const ko: LocaleBundle = {
     'app.stxOnlyEstimate.openFull': '전체 계산 보기',
     'app.stxOnlyEstimate.openHistory': '지금까지 분배별 지급 내역',
     'app.stxOnlyHistory.back': '← 보상 추정으로 돌아가기',
-    'app.stxOnlyHistory.title': '모든 사이클과 지급 내역',
+    'app.stxOnlyHistory.title': '사이클과 지급 내역',
     'app.stxOnlyHistory.intro':
       '보상은 분배 사이클마다 계산되고 보상 사이클 하나에는 분배 사이클이 두 번 있으므로, 각 보상 사이클은 두 번에 나누어 지급됩니다. 아래는 추정이 아니라 실제로 지급된 비율로, pox-5가 스테이킹된 1000 STX당 적립한 금액입니다.',
     'app.stxOnlyHistory.loading': '지급 내역을 불러오는 중…',
@@ -883,7 +883,7 @@ export const ko: LocaleBundle = {
     'pools.feeElsewhereShort': '별도 설정',
     'cycles.loading': '사이클을 읽는 중…',
     'cycles.pageIntro':
-      '모든 pox-5 사이클: 스테이킹된 금액, 서명자와 풀의 수, 지급액과 그 수익률, 그리고 각 지급 내역입니다.',
+      '각 pox-5 사이클의 스테이킹과 지급액, 그리고 모든 지급 내역입니다.',
     'cycles.title': '사이클별 네트워크',
     'cycles.intro':
       '각 사이클에 모든 컨트랙트가 보유한 금액과 각 지급이 1000 STX당 지급한 금액으로 계산했습니다. 아직 지급 중인 사이클을 빼면 추정치가 아닙니다.',
@@ -1040,6 +1040,7 @@ export const ko: LocaleBundle = {
 
     'stake.openShort': '스테이킹',
     'app.stxOnlyHistory.crumb': '사이클',
+    'app.stxOnlyEstimate.crumb': '보상 추정',
 
     'conduct.caption': '이 키가 채굴자가 제안한 블록에 응답하는지 여부입니다.',
     'conduct.staleTitle': '{at} 이후 서명 보고서가 없습니다.',

@@ -1171,7 +1171,7 @@ used its own.
 
 pox-5 computes rewards every 1050 burn blocks — half a reward cycle — so **a
 cycle is paid in two goes**, and `rewards-per-token-for-cycle` accumulates
-across both of them. Everything on `#/rewards/stx-only` follows from that.
+across both of them. Everything on `#/rewards` follows from that.
 
 The rate the page leads with is a blend: this cycle's own accrual counts for as
 much of it as the cycle has run, and the last payout — settled, not projected —
@@ -1193,7 +1193,7 @@ either way: `burn-height-to-reward-cycle` answers 141 for 964,249 and 142 for
 
 ### What every distribution has paid
 
-`#/rewards/stx-only/history` lists them, two to a cycle, at the rate each one
+`#/rewards/history` lists them, two to a cycle, at the rate each one
 actually paid. It reads `src/data/stx-only-history.json`, fetched when the page
 is opened rather than shipped to every reader.
 

@@ -395,17 +395,17 @@ describe('the page as a reader sees it', () => {
     const fetch = vi.fn(() => new Promise(() => {}));
     vi.stubGlobal('fetch', fetch);
     vi.stubGlobal('window', {
-      location: { hash: '#/rewards/stx-only/history' },
+      location: { hash: '#/rewards/history' },
       addEventListener: () => {},
       removeEventListener: () => {},
       scrollTo: () => {},
     });
 
     const html = renderToStaticMarkup(<App />);
-    expect(html).toContain('Every cycle, and what it paid');
+    expect(html).toContain('Cycles and payouts');
     expect(html).toContain('Reading the cycles');
     expect(html).toContain('Reading the payout history');
-    expect(html).toContain('href="#/rewards/stx-only"');
+    expect(html).toContain('href="#/rewards"');
     // renderToStaticMarkup runs no effects, so the request belongs to the
     // browser, not to this: what matters here is that nothing else fetched.
     expect(fetch).not.toHaveBeenCalled();

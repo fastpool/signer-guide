@@ -69,8 +69,15 @@ describe('parseHash', () => {
   });
 
   it('reads the STX-only rewards route', () => {
+    expect(parseHash('#/rewards')).toEqual({ name: 'stxOnlyRewards' });
+  });
+
+  it('still reads the old stx-only links, which have been shared', () => {
     expect(parseHash('#/rewards/stx-only')).toEqual({
       name: 'stxOnlyRewards',
+    });
+    expect(parseHash('#/rewards/stx-only/history')).toEqual({
+      name: 'stxOnlyHistory',
     });
   });
 
@@ -97,7 +104,7 @@ describe('parseHash', () => {
   it('tells the payout history from the estimate it hangs off', () => {
     // One hash is a prefix of the other, and getting that order wrong lands a
     // reader on the estimate whichever link they followed.
-    expect(parseHash('#/rewards/stx-only/history')).toEqual({
+    expect(parseHash('#/rewards/history')).toEqual({
       name: 'stxOnlyHistory',
     });
   });

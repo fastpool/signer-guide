@@ -135,7 +135,7 @@ const messages = {
   'app.stxOnlyEstimate.openFull': 'View full calculation',
   'app.stxOnlyEstimate.openHistory': 'What every distribution has paid',
   'app.stxOnlyHistory.back': '← Back to the rewards estimate',
-  'app.stxOnlyHistory.title': 'Every cycle, and what it paid',
+  'app.stxOnlyHistory.title': 'Cycles and payouts',
   'app.stxOnlyHistory.intro':
     'Rewards are computed at the end of every distribution cycle, and a reward cycle holds two of them — so each reward cycle is paid in two goes. These are the rates as paid, not estimates — each one is what pox-5 credited per 1000 STX staked.',
   'app.stxOnlyHistory.loading': 'Reading the payout history…',
@@ -824,7 +824,7 @@ const messages = {
   'pools.feeElsewhereShort': 'set elsewhere',
   'cycles.loading': 'Reading the cycles…',
   'cycles.pageIntro':
-    'Every pox-5 cycle: what was staked, by how many signers and pools, what it paid and what that was as a yield — then each payout on its own.',
+    'What each pox-5 cycle staked and paid, then every payout.',
   'cycles.title': 'The network, cycle by cycle',
   'cycles.intro':
     'Worked out from what every contract held in each cycle and what each payout paid per 1000 STX. Nothing here is an estimate except a cycle still being paid.',
@@ -981,6 +981,7 @@ const messages = {
 
   'stake.openShort': 'Stake',
   'app.stxOnlyHistory.crumb': 'Cycles',
+  'app.stxOnlyEstimate.crumb': 'Rewards estimate',
 
   'conduct.caption': 'Whether this key answers the blocks miners propose.',
   'conduct.staleTitle': 'No signing report since {at}.',

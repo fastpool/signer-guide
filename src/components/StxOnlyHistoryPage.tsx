@@ -43,7 +43,7 @@ export default function StxOnlyHistoryPage({
         items={[
           { label: t('nav.pools'), href: '#/' },
           {
-            label: t('app.stxOnlyEstimate.title'),
+            label: t('app.stxOnlyEstimate.crumb'),
             href: stxOnlyRewardsHref(),
           },
           { label: t('app.stxOnlyHistory.crumb') },

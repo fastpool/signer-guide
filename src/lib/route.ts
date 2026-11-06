@@ -19,8 +19,8 @@ import { isLookupTarget } from './principals';
  *   #/status[/<principals>]  what one or more addresses are staking and what
  *                            it has earned them; empty for the box to paste
  *                            them into
- *   #/rewards/stx-only       full breakdown of the STX-only rewards estimate
- *   #/rewards/stx-only/history   what every distribution has paid so far
+ *   #/rewards                full breakdown of the STX-only rewards estimate
+ *   #/rewards/history        what every distribution has paid so far
  *   #/bonds                  the bitcoin side: what the current and next bond
  *                            period hold, and who was invited to them
  *
@@ -68,6 +68,9 @@ export function parseHash(hash: string): Route {
   }
 
   // Before the estimate, which is a prefix of it.
+  if (hash === '#/rewards/history') return { name: 'stxOnlyHistory' };
+  if (hash === '#/rewards') return { name: 'stxOnlyRewards' };
+  // Where the two lived before, kept because the links have been shared.
   if (hash === '#/rewards/stx-only/history') return { name: 'stxOnlyHistory' };
   if (hash === '#/rewards/stx-only') return { name: 'stxOnlyRewards' };
 
@@ -175,11 +178,11 @@ export function statusHref(principals: string[] = []): string {
 }
 
 export function stxOnlyRewardsHref(): string {
-  return '#/rewards/stx-only';
+  return '#/rewards';
 }
 
 export function stxOnlyHistoryHref(): string {
-  return '#/rewards/stx-only/history';
+  return '#/rewards/history';
 }
 
 /** A link to the bitcoin side: what the current and next bond hold. */
