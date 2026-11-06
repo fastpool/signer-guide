@@ -6,6 +6,16 @@ export function explorerUrl(idOrTxid: string): string {
 }
 
 /**
+ * An account: a person's address, or a contract seen as a holder of STX.
+ *
+ * Not `explorerUrl` — `/txid/` with a plain address is a transaction search
+ * that finds nothing.
+ */
+export function addressUrl(principal: string): string {
+  return `${EXPLORER}/address/${principal}?chain=mainnet`;
+}
+
+/**
  * A Bitcoin block by its height.
  *
  * The heights on the rewards pages are burn heights — Bitcoin's, not Stacks's

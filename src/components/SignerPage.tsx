@@ -7,7 +7,7 @@ import {
   usdCompact,
 } from '../lib/amounts';
 import { countdownParts, cycleTiming } from '../lib/cycle-timing';
-import { explorerUrl } from '../lib/explorer';
+import { addressUrl, explorerUrl } from '../lib/explorer';
 import { bitcoinPayout } from '../lib/features';
 import { translator, type Locale } from '../lib/i18n';
 import { joinMode, poolWarnings, stakesHere } from '../lib/pool-facts';
@@ -844,7 +844,7 @@ function MemberList({
                 <td className='py-1 pr-2 font-mono text-xs'>
                   <a
                     className='hover:text-grape hover:underline'
-                    href={explorerUrl(member.staker)}
+                    href={addressUrl(member.staker)}
                     target='_blank'
                     rel='noreferrer'
                   >

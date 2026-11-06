@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Page } from './ui';
+import { Page, StatTile } from './ui';
 import { btcLabel, stxCompact, stxLabel } from '../lib/amounts';
 import {
   filledPercent,
@@ -8,7 +8,7 @@ import {
   openSats,
   useBonds,
 } from '../lib/bonds';
-import { explorerUrl } from '../lib/explorer';
+import { addressUrl } from '../lib/explorer';
 import { formatLastUpdate, translator, type Locale } from '../lib/i18n';
 import { shortPrincipal } from '../lib/strings';
 import {
@@ -18,10 +18,12 @@ import {
 } from '../lib/bond-stake';
 import type {
   BondPeriod,
+  BondsData,
   BondStaker,
   LockedTotals,
   Signer,
 } from '../lib/types';
+import { signerHref } from '../lib/route';
 import PoolName from './PoolName';
 
 /**
@@ -61,18 +63,26 @@ export default function BondsPage({
   const t = translator(locale);
   const bonds = useBonds();
 
+  const split = totals ? bondStx(totals) : null;
+
   return (
     <Page>
       <h1 className='text-3xl font-extrabold md:text-4xl'>
         {t('app.bonds.title')}
       </h1>
       {bonds.state === 'ready' && (
-        <p className='mt-3 text-lg text-muted'>
+        <p className='mt-3 max-w-2xl text-muted md:text-lg'>
           {t('app.bonds.intro', {
             length: bonds.value.lengthCycles,
             gap: bonds.value.gapCycles,
           })}
         </p>
+      )}
+
+      {/* The split first: it is the one figure here that explains the pool
+          list, and it was a sentence at the foot of the last card. */}
+      {split && totals && (
+        <SplitSummary split={split} cycle={totals.cycle} locale={locale} />
       )}
 
       {bonds.state === 'loading' && (
@@ -113,18 +123,25 @@ export default function BondsPage({
               locale={locale}
             />
           </div>
-
-          {totals && (
-            <BondStxCard totals={totals} signers={signers} locale={locale} />
-          )}
-
-          <p className='mt-8 text-sm text-muted'>{t('app.bonds.note')}</p>
-          <p className='mt-2 text-sm text-muted'>
-            {t('app.bonds.generatedAt', {
-              at: formatLastUpdate(bonds.value.generatedAt, locale),
-            })}
-          </p>
         </>
+      )}
+
+      {split && totals && (
+        <BondStxCard
+          split={split}
+          cycle={totals.cycle}
+          bonds={bonds.state === 'ready' ? bonds.value : null}
+          signers={signers}
+          locale={locale}
+        />
+      )}
+
+      {bonds.state === 'ready' && (
+        <p className='mt-8 text-sm text-muted'>
+          {t('app.bonds.note', {
+            at: formatLastUpdate(bonds.value.generatedAt, locale),
+          })}
+        </p>
       )}
     </Page>
   );
@@ -198,7 +215,7 @@ function PeriodCard({
       )}
 
       {!period.setUp ? (
-        <p className='mt-3 text-muted'>{t('app.bonds.notSetUp')}</p>
+        <p className='mt-2 text-sm text-muted'>{t('app.bonds.notSetUp')}</p>
       ) : (
         <>
           {/*
@@ -279,10 +296,6 @@ function PeriodCard({
             </p>
           )}
 
-          <p className='mt-3 text-sm text-muted'>
-            {t.plural('app.bonds.invited', period.stakers.length)}
-          </p>
-
           {!period.allowlistComplete && (
             <p className='mt-3 rounded-2xl bg-trough p-4 text-sm text-muted'>
               {t('app.bonds.incomplete')}
@@ -291,10 +304,12 @@ function PeriodCard({
 
           {period.stakers.length > 0 && (
             <>
-              <h3 className='mt-5 text-base font-bold'>{t('app.bonds.who')}</h3>
-              <p className='mt-1 text-sm text-muted'>
-                {t('app.bonds.whoIntro')}
-              </p>
+              <h3 className='mt-5 flex items-baseline gap-2 text-base font-bold'>
+                {t('app.bonds.who')}
+                <span className='text-sm font-normal text-muted'>
+                  {t.plural('app.bonds.invited', period.stakers.length)}
+                </span>
+              </h3>
               <InvitedList
                 stakers={period.stakers}
                 signers={signers}
@@ -414,7 +429,7 @@ function StakerRow({
       <span className='min-w-0 break-words'>
         <a
           className='font-medium underline underline-offset-2 hover:text-grape'
-          href={explorerUrl(staker.staker)}
+          href={addressUrl(staker.staker)}
           target='_blank'
           rel='noreferrer'
         >
@@ -466,28 +481,18 @@ function StakerRow({
   );
 }
 
-/**
- * The STX side of the bonds: every bond running this cycle, pool by pool.
- *
- * The cards above are about bitcoin and cover two periods; this covers all of
- * them, up to six, because it is what makes the pool list add up. A pool's
- * total counts the STX registered for bonds through it, and that STX is not
- * paid at the STX-only rate — so this is where the difference is accounted
- * for, bond by bond, and the list itself carries a single figure per pool.
- */
-function BondStxCard({
-  totals,
-  signers,
-  locale,
-}: {
-  totals: LockedTotals;
-  signers: Signer[];
-  locale: Locale;
-}) {
-  const t = translator(locale);
+/** The STX behind the bonds this cycle, worked out once for the whole page. */
+interface BondSplit {
+  bonded: bigint;
+  total: bigint;
+  /** Newest bond first; a bond the print did not name goes last. */
+  bonds: { index: number | null; sum: bigint; pools: [string, bigint][] }[];
+  unknown: number;
+}
+
+function bondStx(totals: LockedTotals): BondSplit | null {
   const stake = bondStakeFor(totals, totals.cycle);
   if (!stake) return null;
-  const bonded = totalBondUstx(stake) ?? 0n;
   const total = Object.values(totals.ustx).reduce<bigint>(
     (sum, raw) => (typeof raw === 'string' ? sum + BigInt(raw) : sum),
     0n,
@@ -509,39 +514,203 @@ function BondStxCard({
       byBond.set(key, entry);
     }
   }
-  const bonds = [...byBond.values()].sort((a, b) =>
-    a.index === null ? 1 : b.index === null ? -1 : a.index - b.index,
+  const byAmount = (a: [string, bigint], b: [string, bigint]) =>
+    b[1] > a[1] ? 1 : b[1] < a[1] ? -1 : 0;
+  const bonds = [...byBond.values()]
+    // Newest first, matching the period cards above it.
+    .sort((a, b) =>
+      a.index === null ? 1 : b.index === null ? -1 : b.index - a.index,
+    )
+    .map((bond) => {
+      const pools = [...bond.pools.entries()].sort(byAmount);
+      return {
+        index: bond.index,
+        pools,
+        sum: pools.reduce((acc, [, ustx]) => acc + ustx, 0n),
+      };
+    });
+
+  return {
+    bonded: totalBondUstx(stake) ?? 0n,
+    total,
+    bonds,
+    unknown: stake.unknown.length,
+  };
+}
+
+/** A share of a whole, to one decimal, or null without a whole. */
+function percentOf(part: bigint, whole: bigint): number | null {
+  if (whole <= 0n) return null;
+  return Number((part * 1000n) / whole) / 10;
+}
+
+/**
+ * The three numbers the page is for: what is staked, how much of it backs a
+ * bond, and how much is STX-only — with a bar, because "24M of 514M" is a
+ * proportion and reads faster as one.
+ */
+function SplitSummary({
+  split,
+  cycle,
+  locale,
+}: {
+  split: BondSplit;
+  cycle: number;
+  locale: Locale;
+}) {
+  const t = translator(locale);
+  const stxOnly = split.total - split.bonded;
+  const bondShare = percentOf(split.bonded, split.total);
+  const onlyShare = percentOf(stxOnly, split.total);
+  const fmt = (share: number | null) =>
+    share === null
+      ? null
+      : t('app.bonds.sum.share', {
+          percent: share.toLocaleString(t.bundle.intlLocale),
+        });
+
+  return (
+    <section aria-labelledby='bond-split' className='mt-6'>
+      <h2 id='bond-split' className='sr-only'>
+        {t('app.bonds.sum.heading', { cycle })}
+      </h2>
+      <div className='grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3'>
+        {/* Full width on a phone, so the two halves sit side by side under
+            it rather than three figures wrapping in a third each. */}
+        <div className='col-span-2 sm:col-span-1'>
+          <StatTile
+            label={t('app.bonds.sum.total', { cycle })}
+            value={stxCompact(split.total, locale) ?? '—'}
+          />
+        </div>
+        <StatTile
+          label={
+            <span className='flex items-center gap-1.5'>
+              <span
+                aria-hidden='true'
+                className='h-2 w-2 rounded-full bg-amber-warm'
+              />
+              {t('app.bonds.sum.bond')}
+            </span>
+          }
+          value={stxCompact(split.bonded, locale) ?? '—'}
+        >
+          {fmt(bondShare)}
+        </StatTile>
+        <StatTile
+          label={
+            <span className='flex items-center gap-1.5'>
+              <span
+                aria-hidden='true'
+                className='h-2 w-2 rounded-full bg-grape'
+              />
+              {t('app.bonds.sum.stxOnly')}
+            </span>
+          }
+          value={stxCompact(stxOnly, locale) ?? '—'}
+        >
+          {fmt(onlyShare)}
+        </StatTile>
+      </div>
+      {bondShare !== null && (
+        <span
+          aria-hidden='true'
+          className='mt-3 flex h-2.5 overflow-hidden rounded-full bg-trough'
+        >
+          <span
+            className='h-full bg-amber-warm'
+            // At least a sliver, so a small share is still visible as one.
+            style={{
+              width: `${Math.max(bondShare, split.bonded > 0n ? 1 : 0)}%`,
+            }}
+          />
+          <span className='h-full flex-1 bg-grape' />
+        </span>
+      )}
+      {split.unknown > 0 && (
+        <p className='mt-2 text-sm text-amber-warm'>
+          {t.plural('app.bonds.stxUnknown', split.unknown)}
+        </p>
+      )}
+    </section>
   );
+}
+
+/**
+ * Every bond running this cycle, pool by pool.
+ *
+ * The period cards cover two periods; this covers all of them, up to six,
+ * because it is what makes the pool list add up. A pool's total counts the
+ * STX registered for bonds through it, and that STX is not paid at the
+ * STX-only rate — so this is where the difference is accounted for, bond by
+ * bond, and the list itself carries a single figure per pool.
+ */
+function BondStxCard({
+  split,
+  cycle,
+  bonds,
+  signers,
+  locale,
+}: {
+  split: BondSplit;
+  cycle: number;
+  /** For each bond's cycles, counted from the period on file. */
+  bonds: BondsData | null;
+  signers: Signer[];
+  locale: Locale;
+}) {
+  const t = translator(locale);
+  const ref = bonds?.current ?? bonds?.next ?? null;
+  const cyclesOf = (index: number | null) => {
+    if (index === null || !ref || !bonds) return null;
+    const first =
+      ref.firstRewardCycle + (index - ref.bondIndex) * bonds.gapCycles;
+    return { first, last: first + bonds.lengthCycles - 1 };
+  };
 
   return (
     <section className='mt-6 rounded-3xl bg-card p-5 shadow-lift md:p-6'>
-      <h2 className='text-xl font-bold'>
-        {t('app.bonds.stxTitle', { cycle: totals.cycle })}
+      <h2 className='text-lg font-bold'>
+        {t('app.bonds.stxTitle', { cycle })}
       </h2>
-      <p className='mt-2 text-sm text-muted'>{t('app.bonds.stxIntro')}</p>
-      {bonds.length === 0 ? (
+      <p className='mt-1 text-sm text-muted'>{t('app.bonds.stxIntro')}</p>
+      {split.bonds.length === 0 ? (
         <p className='mt-4 text-sm text-muted'>{t('app.bonds.stxNone')}</p>
       ) : (
-        <div className='mt-4 space-y-4'>
-          {bonds.map((bond) => {
-            const pools = [...bond.pools.entries()].sort((a, b) =>
-              b[1] > a[1] ? 1 : b[1] < a[1] ? -1 : 0,
-            );
-            const sum = pools.reduce((acc, [, ustx]) => acc + ustx, 0n);
+        <div className='mt-4 space-y-5'>
+          {split.bonds.map((bond) => {
+            const cycles = cyclesOf(bond.index);
+            const share = percentOf(bond.sum, split.bonded);
             return (
               <div key={bond.index ?? '?'}>
-                <h3 className='flex items-baseline justify-between gap-3 text-base font-bold'>
-                  <span>
+                <h3 className='flex flex-wrap items-baseline justify-between gap-x-3'>
+                  <span className='text-base font-bold'>
                     {bond.index === null
                       ? t('app.bonds.stxBondUnnamed')
                       : t('app.bonds.stxBond', { index: bond.index })}
+                    {cycles && (
+                      <span className='ml-2 text-sm font-normal text-muted'>
+                        {t('app.bonds.stxBondCycles', cycles)}
+                      </span>
+                    )}
                   </span>
-                  <span className='tabular-nums'>
-                    {stxCompact(sum, locale) ?? '—'}
+                  <span className='text-base font-bold tabular-nums'>
+                    {stxCompact(bond.sum, locale) ?? '—'}
                   </span>
                 </h3>
-                <ul className='mt-1 space-y-0.5 text-sm'>
-                  {pools.map(([contractId, ustx]) => {
+                {share !== null && (
+                  <span
+                    aria-hidden='true'
+                    className='mt-1.5 flex h-1.5 overflow-hidden rounded-full bg-trough'
+                  >
+                    <span
+                      className='h-full bg-amber-warm'
+                      style={{ width: `${share}%` }}
+                    />
+                  </span>
+                )}
+                <ul className='mt-2 space-y-0.5 text-sm'>
+                  {bond.pools.map(([contractId, ustx]) => {
                     const pool = signers.find(
                       (s) => s.contractId === contractId,
                     );
@@ -550,13 +719,16 @@ function BondStxCard({
                         key={contractId}
                         className='flex items-baseline justify-between gap-3'
                       >
-                        <span className='min-w-0 truncate'>
+                        <a
+                          href={signerHref(contractId)}
+                          className='min-w-0 truncate hover:text-grape'
+                        >
                           {pool ? (
                             <PoolName signer={pool} locale={locale} />
                           ) : (
                             shortPrincipal(contractId)
                           )}
-                        </span>
+                        </a>
                         <span className='text-muted tabular-nums'>
                           {stxCompact(ustx, locale) ?? '—'}
                         </span>
@@ -568,18 +740,6 @@ function BondStxCard({
             );
           })}
         </div>
-      )}
-      <p className='mt-4 text-sm text-muted'>
-        {t('app.bonds.stxTotal', {
-          bond: stxCompact(bonded, locale) ?? '—',
-          total: stxCompact(total, locale) ?? '—',
-          stxOnly: stxCompact(total - bonded, locale) ?? '—',
-        })}
-      </p>
-      {stake.unknown.length > 0 && (
-        <p className='mt-2 text-sm text-amber-warm'>
-          {t.plural('app.bonds.stxUnknown', stake.unknown.length)}
-        </p>
       )}
     </section>
   );

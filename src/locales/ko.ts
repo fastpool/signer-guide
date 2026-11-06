@@ -217,7 +217,7 @@ export const ko: LocaleBundle = {
     'app.bonds.back': '← 전체 풀',
     'app.bonds.title': '본드에 들어 있는 비트코인',
     'app.bonds.intro':
-      'pox-5에는 STX 외에 본드가 있습니다. 초대받은 스테이커는 스테이킹하는 STX와 함께 비트코인을 — Stacks의 sBTC로, 또는 비트코인 체인에 직접 — {length} 보상 사이클 동안 잠금니다. 본드 기간은 {gap} 사이클마다 새로 열리며, 아래 둘은 지금 진행 중인 기간과 다음에 열릴 기간입니다.',
+      '초대받은 스테이커는 스테이킹하는 STX와 함께 비트코인을 — Stacks의 sBTC로, 또는 비트코인 체인에 직접 — {length} 사이클 동안 잠급니다. 새 본드는 {gap} 사이클마다 열립니다.',
     'app.bonds.loading': '본드를 불러오는 중…',
     'app.bonds.none':
       '아직 본드 기록이 없습니다. 시간단위 갱신이 읽어오면 여기에 표시됩니다.',
@@ -227,7 +227,7 @@ export const ko: LocaleBundle = {
     'app.bonds.next': '다음 본드 기간',
     'app.bonds.period': '본드 {index} · {first}–{last} 사이클',
     'app.bonds.notSetUp':
-      '이 기간에는 본드가 만들어지지 않았습니다. 본드 관리자가 허용 목록과 함께 setup-bond를 호출해야 본드가 되며, 그것은 기간이 열리기 전 두 사이클 안에서만 가능합니다.',
+      '이 기간에는 본드가 설정되지 않았습니다. 본드 관리자는 기간이 열리기 전 두 사이클 안에서만 본드를 설정할 수 있습니다.',
     'app.bonds.closed':
       '신규 등록이 마감되었습니다. 아래 잠긴 금액으로 번 높이 {height}에 시작됩니다.',
     'app.bonds.wentUnused': '미사용',
@@ -243,16 +243,13 @@ export const ko: LocaleBundle = {
     'app.bonds.incomplete':
       '아래 허용 목록이 불완전합니다. 항목의 합계가 pox-5가 말하는 본드 총액과 맞지 않으므로 상한은 “최소 이 정도”로 읽어야 합니다. pox-5는 허용 목록을 조회해 주지 않아 setup-bond 트랜잭션에서 복원하는데, 일부를 찾지 못했습니다.',
     'app.bonds.who': '초대된 스테이커',
-    'app.bonds.whoIntro':
-      '각 스테이커의 상한과 실제로 잠긴 금액입니다. 상한이 큰 순서입니다.',
     'app.bonds.ofCeiling': '/ {ceiling}',
     'app.bonds.notLockedYet': '아직 잠긴 금액 없음',
     'app.bonds.onL1': '비트코인 체인',
     'app.bonds.asSbtc': 'sBTC',
     'app.bonds.throughPool': '{pool} 통해',
     'app.bonds.note':
-      '상한은 약속이 아닙니다. 본드를 만들 때 관리자가 정한, pox-5가 허용하는 최대 금액일 뿐입니다. 잠긴 금액은 실제로 낸 금액이며, 초대받고도 전혀 내지 않을 수 있습니다. 모든 수치는 시간단위 갱신이 pox-5에서 읽은 것입니다.',
-    'app.bonds.generatedAt': '생성 시각: {at}',
+      '상한은 본드를 만들 때 정한, 스테이커가 잠글 수 있는 최대 금액이고, 잠긴 금액은 실제로 낸 금액입니다. {at}에 pox-5에서 읽었습니다.',
     'app.stxOnlyEstimate.back': '← 전체 풀',
     'app.stxOnlyEstimate.note':
       '참고용 예상치입니다. 지난 지급 이후 pox-5에 들어온 금액과 현재 분배 사이클 진행도에 따라 달라지며, 사이클이 진행될수록 안정됩니다.',
@@ -293,7 +290,8 @@ export const ko: LocaleBundle = {
     'footer.data': '데이터는 {at}에 체인에서 읽었으며 매시간 갱신됩니다.',
     'footer.code': 'GitHub의 코드',
     'footer.madeBy': 'Fast Pool 제작',
-    'footer.disclosure': '이 중 일부 풀을 운영하며, 다른 풀과 똑같이 표시됩니다',
+    'footer.disclosure':
+      '이 중 일부 풀을 운영하며, 다른 풀과 똑같이 표시됩니다',
 
     'filter.inUse.label': '실제로 사용 중',
     'filter.inUse.help':
@@ -935,13 +933,17 @@ export const ko: LocaleBundle = {
     'pool.members.bondUnnamed': '본드',
     'pool.members.bondHelp':
       'BTC 본드에 등록됨: STX 전용 보상률이 아니라 본드 몫에서 지급됩니다.',
-    'app.bonds.stxTitle': '본드를 뒷받침하는 STX, 사이클 {cycle}',
+    'app.bonds.stxTitle': '사이클 {cycle}에 진행 중인 모든 본드',
     'app.bonds.stxIntro':
-      '본드 스테이커는 비트코인과 함께 STX를 풀을 통해 등록합니다. pox-5는 이 STX를 풀의 총액에 포함하지만, STX 전용 보상률이 아니라 본드 몫에서 지급합니다. 이번 사이클에 진행 중인 모든 본드를 풀별로 보여 줍니다:',
+      '본드 STX는 풀의 총액에 포함되지만 STX 전용 보상률이 아니라 본드 몫에서 지급됩니다.',
+    'app.bonds.stxBondCycles': '사이클 {first}–{last}',
+    'app.bonds.sum.heading': '사이클 {cycle}에 스테이킹된 STX',
+    'app.bonds.sum.total': '사이클 {cycle} 스테이킹',
+    'app.bonds.sum.bond': '본드 뒷받침',
+    'app.bonds.sum.stxOnly': 'STX 전용',
+    'app.bonds.sum.share': '전체의 {percent}%',
     'app.bonds.stxBond': '본드 {index}',
     'app.bonds.stxBondUnnamed': '기록에 번호가 없는 본드',
-    'app.bonds.stxTotal':
-      '이번 사이클 스테이킹 {total} 중 {bond}가 본드를 뒷받침하고, {stxOnly}가 STX 전용입니다.',
     'app.bonds.stxNone': '이번 사이클에 본드에 등록된 STX가 없습니다.',
     'app.bonds.stxUnknown.one':
       '풀 {count}개를 확인하지 못해 그 본드 스테이킹은 여기에 포함되지 않았습니다.',
@@ -975,7 +977,8 @@ export const ko: LocaleBundle = {
     'timing.closesAt':
       '준비 단계가 시작되는 비트코인 블록 {block}, 약 {date}입니다.',
     'timing.inPrepare': '지금 스테이킹하면 사이클 {joins}부터 포함됩니다.',
-    'timing.inPrepareWhen': '사이클 {next}은 확정되었고 {countdown} 후 시작됩니다.',
+    'timing.inPrepareWhen':
+      '사이클 {next}은 확정되었고 {countdown} 후 시작됩니다.',
     'timing.soon': '몇 분',
     'timing.progress': '사이클 {cycle} {percent}% 진행',
     'timing.started': '사이클 {cycle} 시작 {date}',

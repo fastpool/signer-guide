@@ -1,4 +1,5 @@
 import { renderToStaticMarkup } from 'react-dom/server';
+import type { LockedTotals } from '../lib/types';
 import { describe, expect, it, vi } from 'vitest';
 import type { BondsData, Signer } from '../lib/types';
 
@@ -110,7 +111,7 @@ describe('the bonds as a reader sees them', () => {
     // bond that nobody joined instead of a bond that never existed. Only the
     // next period has figures, so the labels appear once each.
     const page = html();
-    expect(page).toContain('Nobody made a bond of this period');
+    expect(page).toContain('No bond was set up for this period');
     expect(page.match(/Locked so far/g)).toHaveLength(1);
     expect(page.match(/Ceiling/g)).toHaveLength(1);
   });
@@ -219,5 +220,52 @@ describe('the bonds as a reader sees them', () => {
     const page = html();
     expect(page).toContain('Nothing on file for the bonds yet');
     expect(page).not.toContain('Locked so far');
+  });
+
+  it('leads with the bond split, and lists the bonds newest first', () => {
+    const totals = {
+      cycle: 147,
+      ustx: {
+        'SP1.pool-a': '400000000000000',
+        'SP2.pool-b': '100000000000000',
+      },
+      bond: {
+        '147': {
+          ustx: {
+            'SP1.pool-a': { '1': '5000000000000', '3': '15000000000000' },
+            'SP2.pool-b': { '2': '5000000000000' },
+          },
+          unknown: [],
+        },
+      },
+    } as unknown as LockedTotals;
+    const page = renderToStaticMarkup(
+      <BondsPage signers={SIGNERS} totals={totals} locale='en' />,
+    );
+    // 25M of 500M backs a bond: the tiles say both halves, with shares.
+    expect(page).toContain('Backing a bond');
+    expect(page).toContain('25M STX');
+    expect(page).toContain('5% of the total');
+    expect(page).toContain('475M STX');
+    expect(page).toContain('95% of the total');
+    // And the split comes before any period card.
+    expect(page.indexOf('Backing a bond')).toBeLessThan(
+      page.indexOf('The bond period now'),
+    );
+    // Newest bond first.
+    const at = (index: number) => page.indexOf(`>Bond ${index}<`);
+    expect(at(3)).toBeGreaterThan(-1);
+    expect(at(3)).toBeLessThan(at(2));
+    expect(at(2)).toBeLessThan(at(1));
+  });
+
+  it('links a staker to its address, not to a transaction search', () => {
+    const page = html();
+    expect(page).toContain(
+      'https://explorer.hiro.so/address/SP349Q3BGARPT0V1T4H938PY9WK787PHPRFS3YAG?chain=mainnet',
+    );
+    expect(page).not.toContain(
+      '/txid/SP349Q3BGARPT0V1T4H938PY9WK787PHPRFS3YAG',
+    );
   });
 });

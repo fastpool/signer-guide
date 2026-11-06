@@ -1,7 +1,7 @@
 import { Page } from './ui';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { exactStxLabel } from '../lib/amounts';
-import { explorerUrl } from '../lib/explorer';
+import { addressUrl } from '../lib/explorer';
 import { translator, type Locale } from '../lib/i18n';
 import {
   MAX_ADDRESSES,
@@ -304,7 +304,7 @@ function StatusCard({
               className={`font-mono break-all underline underline-offset-2 ${
                 row.name ? 'text-xs text-muted' : 'text-sm font-semibold'
               }`}
-              href={explorerUrl(row.address)}
+              href={addressUrl(row.address)}
               target='_blank'
               rel='noreferrer'
               title={row.address}

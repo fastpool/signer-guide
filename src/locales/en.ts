@@ -155,7 +155,7 @@ const messages = {
   'app.bonds.back': '← All pools',
   'app.bonds.title': 'What the bonds are holding',
   'app.bonds.intro':
-    'Beside the STX side of pox-5 there are bonds. An invited staker locks bitcoin against one — as sBTC on Stacks, or on Bitcoin itself — for {length} reward cycles, alongside the STX they stake. A new bond period opens every {gap} cycles, and the two below are the ones worth looking at: the period the chain is in, and the next one to open.',
+    'Invited stakers lock bitcoin — as sBTC on Stacks, or on Bitcoin itself — for {length} cycles, alongside the STX they stake. A new bond opens every {gap} cycles.',
   'app.bonds.loading': 'Reading the bonds…',
   'app.bonds.none':
     'Nothing on file for the bonds yet. They appear here once the hourly refresh has read them.',
@@ -164,7 +164,7 @@ const messages = {
   'app.bonds.next': 'The next bond period',
   'app.bonds.period': 'Bond {index} · cycles {first} to {last}',
   'app.bonds.notSetUp':
-    'Nobody made a bond of this period. A period becomes a bond when the bond admin calls setup-bond with an allowlist, which can only happen in the two cycles before it opens — so a period can pass without one.',
+    'No bond was set up for this period. The bond admin can only set one up in the two cycles before it opens.',
   'app.bonds.closed':
     'Closed to new registrations. Opens at burn height {height} with what is locked below.',
   'app.bonds.wentUnused': 'Went unused',
@@ -180,16 +180,13 @@ const messages = {
   'app.bonds.incomplete':
     'The allowlist below is short — its rows do not add up to what pox-5 says is in this bond — so read the ceiling as “at least this much”. pox-5 will not list an allowlist, so the guide recovers it from the setup-bond transaction, and some of it could not be found.',
   'app.bonds.who': 'Who was invited',
-  'app.bonds.whoIntro':
-    'What each staker may lock, and what they have locked. Biggest ceiling first.',
   'app.bonds.ofCeiling': 'of {ceiling}',
   'app.bonds.notLockedYet': 'nothing locked yet',
   'app.bonds.onL1': 'on Bitcoin',
   'app.bonds.asSbtc': 'as sBTC',
   'app.bonds.throughPool': 'through {pool}',
   'app.bonds.note':
-    'A ceiling is not a promise. It is the most pox-5 will let a staker lock, fixed by the bond admin when the bond was made; what is locked is what they have actually put up, and an invited staker may put up nothing at all. Everything here is read from pox-5 by the hourly refresh.',
-  'app.bonds.generatedAt': 'Generated at: {at}',
+    'A ceiling is the most a staker may lock, set when the bond was made; what is locked is what they actually put up. Read from pox-5 on {at}.',
   'app.stxOnlyEstimate.back': '← All pools',
   'app.stxOnlyEstimate.note':
     'Estimate only. It depends on what has reached pox-5 since the last payout and on how far this distribution cycle has run, so it settles as that cycle goes on.',
@@ -878,13 +875,17 @@ const messages = {
   'pool.members.bondUnnamed': 'bond',
   'pool.members.bondHelp':
     'Registered for a BTC bond: paid from the bond share rather than at the STX-only rate.',
-  'app.bonds.stxTitle': 'The STX behind the bonds, cycle {cycle}',
+  'app.bonds.stxTitle': 'Every bond running in cycle {cycle}',
   'app.bonds.stxIntro':
-    'A bond staker registers STX alongside the bitcoin, through a pool. pox-5 counts that STX in the pool’s total but pays it from the bond share, not at the STX-only rate. Every bond running this cycle, pool by pool:',
+    'Bond STX counts in a pool’s total but is paid from the bond share, not at the STX-only rate.',
+  'app.bonds.stxBondCycles': 'cycles {first}–{last}',
+  'app.bonds.sum.heading': 'The STX staked in cycle {cycle}',
+  'app.bonds.sum.total': 'Staked in cycle {cycle}',
+  'app.bonds.sum.bond': 'Backing a bond',
+  'app.bonds.sum.stxOnly': 'STX-only',
+  'app.bonds.sum.share': '{percent}% of the total',
   'app.bonds.stxBond': 'Bond {index}',
   'app.bonds.stxBondUnnamed': 'Bond not named in the print',
-  'app.bonds.stxTotal':
-    '{bond} of the {total} staked this cycle backs a bond; {stxOnly} is STX-only.',
   'app.bonds.stxNone': 'No STX is registered for a bond this cycle.',
   'app.bonds.stxUnknown.one':
     '{count} pool could not be checked, so its bond stake is not counted here.',
