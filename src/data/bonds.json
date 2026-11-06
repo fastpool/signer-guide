@@ -1,57 +1,16 @@
 {
-  "generatedAt": "2026-11-05T22:07:13.145Z",
-  "cycle": 146,
-  "burnHeight": 974718,
+  "generatedAt": "2026-11-06T02:34:37.832Z",
+  "cycle": 147,
+  "burnHeight": 974753,
   "firstBondPeriodCycle": 141,
   "gapCycles": 2,
   "lengthCycles": 12,
   "current": {
-    "bondIndex": 2,
-    "firstRewardCycle": 145,
-    "unlockCycle": 157,
-    "startBurnHeight": 970550,
-    "started": true,
-    "registrationClosed": true,
-    "setUp": true,
-    "targetRate": 300,
-    "stxValueRatio": "267384",
-    "minUstxRatio": 500,
-    "allowlistedSats": "50510000000",
-    "registeredSats": "50509730314",
-    "allowlistComplete": true,
-    "stakers": [
-      {
-        "staker": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.stbtc-staker-bond-2-v2",
-        "maxSats": "48300000000",
-        "registeredSats": "48300000000",
-        "amountUstx": "6457323600000",
-        "isL1Lock": false,
-        "signer": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.signer-manager-bond-2-v2"
-      },
-      {
-        "staker": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.sbtc-bond-staker-v1-2",
-        "maxSats": "2200000000",
-        "registeredSats": "2199730314",
-        "amountUstx": "294122400045",
-        "isL1Lock": false,
-        "signer": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-3"
-      },
-      {
-        "staker": "SP2TC7YMDH77T5GP41W6JZK3Q7AJ10ZJ36ZQNGQ79",
-        "maxSats": "10000000",
-        "registeredSats": "10000000",
-        "amountUstx": "1336920000",
-        "isL1Lock": true,
-        "signer": "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs"
-      }
-    ]
-  },
-  "next": {
     "bondIndex": 3,
     "firstRewardCycle": 147,
     "unlockCycle": 159,
     "startBurnHeight": 974750,
-    "started": false,
+    "started": true,
     "registrationClosed": true,
     "setUp": true,
     "targetRate": 300,
@@ -166,5 +125,21 @@
         "signer": null
       }
     ]
+  },
+  "next": {
+    "bondIndex": 4,
+    "firstRewardCycle": 149,
+    "unlockCycle": 161,
+    "startBurnHeight": 978950,
+    "started": false,
+    "registrationClosed": false,
+    "setUp": false,
+    "targetRate": null,
+    "stxValueRatio": null,
+    "minUstxRatio": null,
+    "allowlistedSats": "0",
+    "registeredSats": "0",
+    "allowlistComplete": true,
+    "stakers": []
   }
 }

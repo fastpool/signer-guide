@@ -5,6 +5,28 @@
   ],
   "cycles": [
     {
+      "cycle": 148,
+      "ustx": {
+        "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs": "22231363223325"
+      },
+      "memberCount": 18,
+      "membersAddUp": true,
+      "walks": 0,
+      "walkedAt": "2026-11-06T02:34:45.916Z",
+      "walkedUstx": "22231363223325",
+      "fileFinal": false,
+      "cycleFinal": false,
+      "bondUstx": {
+        "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs": {
+          "1": "465425303325",
+          "2": "1336920000",
+          "3": "13764611000000"
+        }
+      },
+      "eventsWalked": true,
+      "membersFrom": "events"
+    },
+    {
       "cycle": 147,
       "ustx": {
         "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs": "22231363223325"
@@ -17,7 +39,7 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": false,
-      "cycleFinal": false,
+      "cycleFinal": true,
       "bondUstx": {
         "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs": {
           "1": "465425303325",
@@ -38,7 +60,7 @@
       "walkedUstx": "8466752223325",
       "eventsWalked": true,
       "membersFrom": "events",
-      "fileFinal": false,
+      "fileFinal": true,
       "cycleFinal": true,
       "bondUstx": {
         "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs": {
@@ -141,6 +163,6 @@
       "bondUstx": {}
     }
   ],
-  "currentCycle": 146,
-  "generatedAt": "2026-11-05T22:07:18.331Z"
+  "currentCycle": 147,
+  "generatedAt": "2026-11-06T02:34:46.116Z"
 }

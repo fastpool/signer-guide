@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-05T22:07:15.440Z",
-  "cycle": 146,
+  "generatedAt": "2026-11-06T02:34:41.542Z",
+  "cycle": 147,
   "blocks": 50,
   "slots": 4000,
-  "ustxPerSlot": "123338094201",
-  "stackedUstx": "493402397305177",
-  "seatedUstx": "493352376805177",
+  "ustxPerSlot": "128465566958",
+  "stackedUstx": "513912288333589",
+  "seatedUstx": "513862267833589",
   "nodes": [
     {
       "signerKey": "02fcf9e4c4bf998223095d849dcda17de147c4b50ab3751164c670aea956eba68d",
@@ -17,24 +17,24 @@
       ],
       "ourUstx": "89272590000000",
       "seat": {
-        "weight": 724,
-        "weightPercent": 18.099999999999998,
+        "weight": 695,
+        "weightPercent": 17.375,
         "stackedUstx": "89272590000000",
         "signerAddress": "SP2JFFY0M2BT42DVHMJ42BKXY41HAEX6MX5TRP1KB"
       },
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:45.922Z"
+        "observedAt": "2026-11-06T02:30:44.031Z"
       },
       "behaviour": {
-        "participationRate": 0.94,
-        "degradationRate": 0.06,
-        "signedCount": 47,
-        "missedCount": 3,
-        "acceptedCount": 47,
-        "rejectedCount": 0,
-        "preCommitRate": 0.94
+        "participationRate": 0.98,
+        "degradationRate": 0.02,
+        "signedCount": 49,
+        "missedCount": 1,
+        "acceptedCount": 46,
+        "rejectedCount": 3,
+        "preCommitRate": 0.92
       }
     },
     {
@@ -45,26 +45,26 @@
       "groups": [
         "Fast Pool"
       ],
-      "ourUstx": "73560495471804",
+      "ourUstx": "73983583108022",
       "seat": {
-        "weight": 596,
-        "weightPercent": 14.899999999999999,
-        "stackedUstx": "73560495471804",
+        "weight": 576,
+        "weightPercent": 14.399999999999999,
+        "stackedUstx": "73983583108022",
         "signerAddress": "SP0D0P5KKX29BD0JZXZAV9V3XAK3GVNS189NAA3M"
       },
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:53.830Z"
+        "observedAt": "2026-11-06T02:30:51.196Z"
       },
       "behaviour": {
-        "participationRate": 0.98,
-        "degradationRate": 0.02,
-        "signedCount": 49,
-        "missedCount": 1,
-        "acceptedCount": 49,
-        "rejectedCount": 0,
-        "preCommitRate": 0.98
+        "participationRate": 0.92,
+        "degradationRate": 0.1,
+        "signedCount": 46,
+        "missedCount": 4,
+        "acceptedCount": 45,
+        "rejectedCount": 1,
+        "preCommitRate": 0.94
       }
     },
     {
@@ -77,24 +77,24 @@
       ],
       "ourUstx": "71276903000000",
       "seat": {
-        "weight": 578,
-        "weightPercent": 14.45,
+        "weight": 555,
+        "weightPercent": 13.875000000000002,
         "stackedUstx": "71276903000000",
         "signerAddress": "SP3TGC6RWCBSSKV60VE6BP8FRTJ0TY1WT73GZB0A1"
       },
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:44.743Z"
+        "observedAt": "2026-11-06T02:30:44.875Z"
       },
       "behaviour": {
         "participationRate": 0.96,
         "degradationRate": 0.04,
         "signedCount": 48,
         "missedCount": 2,
-        "acceptedCount": 48,
-        "rejectedCount": 0,
-        "preCommitRate": 0.98
+        "acceptedCount": 45,
+        "rejectedCount": 3,
+        "preCommitRate": 0.9
       }
     },
     {
@@ -105,26 +105,26 @@
       "groups": [
         "Stacking DAO"
       ],
-      "ourUstx": "51815431282328",
+      "ourUstx": "51522591825569",
       "seat": {
-        "weight": 420,
-        "weightPercent": 10.5,
-        "stackedUstx": "51815431282328",
+        "weight": 401,
+        "weightPercent": 10.025,
+        "stackedUstx": "51522591825569",
         "signerAddress": "SP2JMM827KCXPB931MGKVJ5GVF3K4VDCBMW5CJ0ES"
       },
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:36.041Z"
+        "observedAt": "2026-11-06T02:31:07.957Z"
       },
       "behaviour": {
-        "participationRate": 0.96,
-        "degradationRate": 0.04,
-        "signedCount": 48,
-        "missedCount": 2,
-        "acceptedCount": 48,
-        "rejectedCount": 0,
-        "preCommitRate": 0.96
+        "participationRate": 1,
+        "degradationRate": 0,
+        "signedCount": 50,
+        "missedCount": 0,
+        "acceptedCount": 49,
+        "rejectedCount": 1,
+        "preCommitRate": 0.98
       }
     },
     {
@@ -137,26 +137,56 @@
         "Xverse",
         "Stacking DAO"
       ],
-      "ourUstx": "25995880223927",
+      "ourUstx": "26358346871381",
       "seat": {
-        "weight": 211,
-        "weightPercent": 5.2749999999999995,
-        "stackedUstx": "25995880223927",
+        "weight": 205,
+        "weightPercent": 5.125,
+        "stackedUstx": "26358346871381",
         "signerAddress": "SP1AD06G9EFPH75SPM6J30CN6M66S55FCE946W15Y"
       },
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:45.157Z"
+        "observedAt": "2026-11-06T02:30:51.731Z"
       },
       "behaviour": {
-        "participationRate": 0.98,
-        "degradationRate": 0.02,
-        "signedCount": 49,
-        "missedCount": 1,
-        "acceptedCount": 49,
+        "participationRate": 0.96,
+        "degradationRate": 0.04,
+        "signedCount": 48,
+        "missedCount": 2,
+        "acceptedCount": 46,
+        "rejectedCount": 2,
+        "preCommitRate": 0.94
+      }
+    },
+    {
+      "signerKey": "03bf03c1c517fc0ac40ee19d019145d1e14b36e108f3f44d2134bc458665f88c1a",
+      "pools": [
+        "Stacks Labs"
+      ],
+      "groups": [
+        "STX Lab"
+      ],
+      "ourUstx": "22231363223325",
+      "seat": {
+        "weight": 173,
+        "weightPercent": 4.324999999999999,
+        "stackedUstx": "22231363223325",
+        "signerAddress": "SP1447EBGAKJ3VMD8AWFW3SS9972VXQXQX7PBNH39"
+      },
+      "version": {
+        "local": 2,
+        "active": 2,
+        "observedAt": "2026-11-06T02:30:51.000Z"
+      },
+      "behaviour": {
+        "participationRate": 0.92,
+        "degradationRate": 0.08,
+        "signedCount": 46,
+        "missedCount": 4,
+        "acceptedCount": 46,
         "rejectedCount": 0,
-        "preCommitRate": 1
+        "preCommitRate": 0.98
       }
     },
     {
@@ -167,26 +197,26 @@
       "groups": [
         "Xverse"
       ],
-      "ourUstx": "21535208461165",
+      "ourUstx": "22211505440145",
       "seat": {
-        "weight": 175,
-        "weightPercent": 4.375,
-        "stackedUstx": "21535208461165",
+        "weight": 173,
+        "weightPercent": 4.324999999999999,
+        "stackedUstx": "22211505440145",
         "signerAddress": "SP2B8KSBDY01RBDNXG7XPPXV9TPR4125CQ12Q7NK2"
       },
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:40.523Z"
+        "observedAt": "2026-11-06T02:30:49.809Z"
       },
       "behaviour": {
-        "participationRate": 0.98,
-        "degradationRate": 0.02,
-        "signedCount": 49,
-        "missedCount": 1,
+        "participationRate": 1,
+        "degradationRate": 0,
+        "signedCount": 50,
+        "missedCount": 0,
         "acceptedCount": 49,
-        "rejectedCount": 0,
-        "preCommitRate": 1
+        "rejectedCount": 1,
+        "preCommitRate": 0.98
       }
     },
     {
@@ -197,26 +227,26 @@
       "groups": [
         "Xverse"
       ],
-      "ourUstx": "20544940478748",
+      "ourUstx": "21766562092448",
       "seat": {
-        "weight": 167,
-        "weightPercent": 4.175,
-        "stackedUstx": "20544940478748",
+        "weight": 169,
+        "weightPercent": 4.2250000000000005,
+        "stackedUstx": "21766562092448",
         "signerAddress": "SP17Q5XNNN7TXGRSMPBRFWW0XPMD7M93F7QK9TGHN"
       },
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:43.200Z"
+        "observedAt": "2026-11-06T02:30:50.368Z"
       },
       "behaviour": {
-        "participationRate": 0.96,
-        "degradationRate": 0.06,
-        "signedCount": 48,
-        "missedCount": 2,
-        "acceptedCount": 47,
-        "rejectedCount": 1,
-        "preCommitRate": 0.98
+        "participationRate": 0.98,
+        "degradationRate": 0.26,
+        "signedCount": 49,
+        "missedCount": 1,
+        "acceptedCount": 37,
+        "rejectedCount": 12,
+        "preCommitRate": 0.78
       }
     },
     {
@@ -227,24 +257,24 @@
       "groups": [],
       "ourUstx": "19999987000000",
       "seat": {
-        "weight": 162,
-        "weightPercent": 4.05,
+        "weight": 156,
+        "weightPercent": 3.9,
         "stackedUstx": "19999987000000",
         "signerAddress": "SP3HKV9VGWF5VSQ0VRMQRD9HW0KQ5DBGF4WKP9CRH"
       },
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:44.773Z"
+        "observedAt": "2026-11-06T02:30:42.900Z"
       },
       "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
-        "rejectedCount": 0,
-        "preCommitRate": 1
+        "participationRate": 0.94,
+        "degradationRate": 0.06,
+        "signedCount": 47,
+        "missedCount": 3,
+        "acceptedCount": 46,
+        "rejectedCount": 1,
+        "preCommitRate": 0.96
       }
     },
     {
@@ -257,24 +287,24 @@
       ],
       "ourUstx": "15285714289999",
       "seat": {
-        "weight": 124,
-        "weightPercent": 3.1,
+        "weight": 119,
+        "weightPercent": 2.9749999999999996,
         "stackedUstx": "15285714289999",
         "signerAddress": "SP64KXDPRRQH2RYXQCGZJANTGVRQYYZ4H0JYS2NM"
       },
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:44.743Z"
+        "observedAt": "2026-11-06T02:30:52.794Z"
       },
       "behaviour": {
-        "participationRate": 0.98,
-        "degradationRate": 0.02,
-        "signedCount": 49,
-        "missedCount": 1,
-        "acceptedCount": 49,
+        "participationRate": 0.96,
+        "degradationRate": 0.04,
+        "signedCount": 48,
+        "missedCount": 2,
+        "acceptedCount": 48,
         "rejectedCount": 0,
-        "preCommitRate": 0.98
+        "preCommitRate": 0.96
       }
     },
     {
@@ -287,8 +317,8 @@
       ],
       "ourUstx": "11499999999999",
       "seat": {
-        "weight": 93,
-        "weightPercent": 2.325,
+        "weight": 89,
+        "weightPercent": 2.225,
         "stackedUstx": "11499999999999",
         "signerAddress": "SP3PQ79SSHWE3XDB6YEYQYJYM7X9AVWSXHYFSDHHK"
       },
@@ -313,24 +343,24 @@
       ],
       "ourUstx": "11499999999999",
       "seat": {
-        "weight": 93,
-        "weightPercent": 2.325,
+        "weight": 89,
+        "weightPercent": 2.225,
         "stackedUstx": "11499999999999",
         "signerAddress": "SP893MPT9JFE2YHM05RW1MHW8C2BAKQM7ZABBJ61"
       },
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:44.773Z"
+        "observedAt": "2026-11-06T02:30:53.124Z"
       },
       "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
+        "participationRate": 0.94,
+        "degradationRate": 0.06,
+        "signedCount": 47,
+        "missedCount": 3,
+        "acceptedCount": 47,
         "rejectedCount": 0,
-        "preCommitRate": 1
+        "preCommitRate": 0.98
       }
     },
     {
@@ -343,24 +373,24 @@
       ],
       "ourUstx": "11499999999999",
       "seat": {
-        "weight": 93,
-        "weightPercent": 2.325,
+        "weight": 89,
+        "weightPercent": 2.225,
         "stackedUstx": "11499999999999",
         "signerAddress": "SP2PHDHWTRNNNHW3SFXWCAD1RADKMC1H6G03XG6QJ"
       },
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:41.080Z"
+        "observedAt": "2026-11-06T02:30:47.044Z"
       },
       "behaviour": {
         "participationRate": 1,
         "degradationRate": 0,
         "signedCount": 50,
         "missedCount": 0,
-        "acceptedCount": 50,
-        "rejectedCount": 0,
-        "preCommitRate": 1
+        "acceptedCount": 47,
+        "rejectedCount": 3,
+        "preCommitRate": 0.94
       }
     },
     {
@@ -373,24 +403,24 @@
       ],
       "ourUstx": "11499999999999",
       "seat": {
-        "weight": 93,
-        "weightPercent": 2.325,
+        "weight": 89,
+        "weightPercent": 2.225,
         "stackedUstx": "11499999999999",
         "signerAddress": "SP19DB24QPDKRYEKNHYJBJ9R78KZC0R2V44GEBZ4D"
       },
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:37.391Z"
+        "observedAt": "2026-11-06T02:30:44.875Z"
       },
       "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
-        "rejectedCount": 0,
-        "preCommitRate": 1
+        "participationRate": 0.96,
+        "degradationRate": 0.04,
+        "signedCount": 48,
+        "missedCount": 2,
+        "acceptedCount": 47,
+        "rejectedCount": 1,
+        "preCommitRate": 0.98
       }
     },
     {
@@ -401,53 +431,23 @@
       "groups": [],
       "ourUstx": "9999999000000",
       "seat": {
-        "weight": 81,
-        "weightPercent": 2.025,
+        "weight": 78,
+        "weightPercent": 1.95,
         "stackedUstx": "9999999000000",
         "signerAddress": "SPRN8ANCZNQ091C1G71GCYTYP1SSKEM9VZ3GEHN4"
       },
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:46.765Z"
+        "observedAt": "2026-11-06T02:30:44.875Z"
       },
       "behaviour": {
-        "participationRate": 0.98,
-        "degradationRate": 0.02,
-        "signedCount": 49,
-        "missedCount": 1,
-        "acceptedCount": 49,
-        "rejectedCount": 0,
-        "preCommitRate": 0.98
-      }
-    },
-    {
-      "signerKey": "03bf03c1c517fc0ac40ee19d019145d1e14b36e108f3f44d2134bc458665f88c1a",
-      "pools": [
-        "Stacks Labs"
-      ],
-      "groups": [
-        "STX Lab"
-      ],
-      "ourUstx": "8466752223325",
-      "seat": {
-        "weight": 69,
-        "weightPercent": 1.725,
-        "stackedUstx": "8466752223325",
-        "signerAddress": "SP1447EBGAKJ3VMD8AWFW3SS9972VXQXQX7PBNH39"
-      },
-      "version": {
-        "local": 2,
-        "active": 2,
-        "observedAt": "2026-11-05T22:03:44.550Z"
-      },
-      "behaviour": {
-        "participationRate": 0.98,
-        "degradationRate": 0.02,
-        "signedCount": 49,
-        "missedCount": 1,
-        "acceptedCount": 49,
-        "rejectedCount": 0,
+        "participationRate": 0.96,
+        "degradationRate": 0.04,
+        "signedCount": 48,
+        "missedCount": 2,
+        "acceptedCount": 47,
+        "rejectedCount": 1,
         "preCommitRate": 0.98
       }
     },
@@ -459,24 +459,24 @@
       "groups": [],
       "ourUstx": "7999900000000",
       "seat": {
-        "weight": 65,
-        "weightPercent": 1.625,
+        "weight": 62,
+        "weightPercent": 1.55,
         "stackedUstx": "7999900000000",
         "signerAddress": "SPG458W0V53AGA368SDFGMGT4WZFWV9AC1X6Q7P1"
       },
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:43.231Z"
+        "observedAt": "2026-11-06T02:30:45.907Z"
       },
       "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
-        "rejectedCount": 0,
-        "preCommitRate": 1
+        "participationRate": 0.96,
+        "degradationRate": 0.04,
+        "signedCount": 48,
+        "missedCount": 2,
+        "acceptedCount": 47,
+        "rejectedCount": 1,
+        "preCommitRate": 0.98
       }
     },
     {
@@ -487,15 +487,130 @@
       "groups": [],
       "ourUstx": "6457323600000",
       "seat": {
-        "weight": 52,
-        "weightPercent": 1.3,
+        "weight": 50,
+        "weightPercent": 1.25,
         "stackedUstx": "6457323600000",
         "signerAddress": "SP2FNEFSNWFXJZJJQVW52T2T9SM99A5N2PXA8R3VA"
       },
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:40.072Z"
+        "observedAt": "2026-11-06T02:30:47.044Z"
+      },
+      "behaviour": {
+        "participationRate": 1,
+        "degradationRate": 0,
+        "signedCount": 50,
+        "missedCount": 0,
+        "acceptedCount": 49,
+        "rejectedCount": 1,
+        "preCommitRate": 0.98
+      }
+    },
+    {
+      "signerKey": "03bed482eb9586ae7ddd77de81d76839d88a5efb5618b5ab88817f9c697f7b1590",
+      "pools": [
+        "Native Pool V2 (Stacking Dao)"
+      ],
+      "groups": [
+        "Stacking DAO"
+      ],
+      "ourUstx": "5613671294152",
+      "seat": {
+        "weight": 44,
+        "weightPercent": 1.0999999999999999,
+        "stackedUstx": "5613671294152",
+        "signerAddress": "SPKD9G4NDNH1T0G23VD3EXZY42WPE27ZWCHW60HV"
+      },
+      "version": {
+        "local": 2,
+        "active": 2,
+        "observedAt": "2026-11-06T02:30:45.907Z"
+      },
+      "behaviour": {
+        "participationRate": 0.94,
+        "degradationRate": 0.06,
+        "signedCount": 47,
+        "missedCount": 3,
+        "acceptedCount": 47,
+        "rejectedCount": 0,
+        "preCommitRate": 0.98
+      }
+    },
+    {
+      "signerKey": "0321129d7a3e14cce66abef68b9a3d31d998f14e9a18b09d66aa1110fc604a3b1f",
+      "pools": [
+        "Sol"
+      ],
+      "groups": [],
+      "ourUstx": "4049000000000",
+      "seat": {
+        "weight": 31,
+        "weightPercent": 0.775,
+        "stackedUstx": "4049000000000",
+        "signerAddress": "SP29QPET3W3CMS7QRY5RRJAYEJJBGKREM3WKSKWX3"
+      },
+      "version": {
+        "local": 2,
+        "active": 2,
+        "observedAt": "2026-11-06T02:30:48.056Z"
+      },
+      "behaviour": {
+        "participationRate": 0.94,
+        "degradationRate": 0.06,
+        "signedCount": 47,
+        "missedCount": 3,
+        "acceptedCount": 47,
+        "rejectedCount": 0,
+        "preCommitRate": 0.98
+      }
+    },
+    {
+      "signerKey": "0228a566db9a7b3212d612aa06e34fa981351a4372737849bfcaa1a28e8a044e5d",
+      "pools": [
+        "signer-manager"
+      ],
+      "groups": [],
+      "ourUstx": "3684770000000",
+      "seat": {
+        "weight": 29,
+        "weightPercent": 0.7250000000000001,
+        "stackedUstx": "3684770000000",
+        "signerAddress": "SP3DTCCC2BZRF2Q3WB53BAR071Y7NYNT7SCD5SDZJ"
+      },
+      "version": {
+        "local": 2,
+        "active": 2,
+        "observedAt": "2026-11-06T02:30:58.186Z"
+      },
+      "behaviour": {
+        "participationRate": 0.94,
+        "degradationRate": 0.06,
+        "signedCount": 47,
+        "missedCount": 3,
+        "acceptedCount": 47,
+        "rejectedCount": 0,
+        "preCommitRate": 0.98
+      }
+    },
+    {
+      "signerKey": "03f55a58fc47821147a5f2a7c35723fd4007037aeecfc6c10d7db4321f14b0beb9",
+      "pools": [
+        "Bond 1 V1",
+        "Bond 1 V2"
+      ],
+      "groups": [],
+      "ourUstx": "2326777500000",
+      "seat": {
+        "weight": 18,
+        "weightPercent": 0.44999999999999996,
+        "stackedUstx": "2326777500000",
+        "signerAddress": "SP49ZZ8E1V6P3PF3S3Q45VWM2J5CZ25AH27280CV"
+      },
+      "version": {
+        "local": 2,
+        "active": 2,
+        "observedAt": "2026-11-06T02:31:10.051Z"
       },
       "behaviour": {
         "participationRate": 0.98,
@@ -508,118 +623,62 @@
       }
     },
     {
-      "signerKey": "0228a566db9a7b3212d612aa06e34fa981351a4372737849bfcaa1a28e8a044e5d",
+      "signerKey": "03a541c1ec2cfb32da48cfadf439c9b2f27d166bbffa18a178c7a6a0d54cfa7813",
       "pools": [
-        "signer-manager"
-      ],
-      "groups": [],
-      "ourUstx": "3999770000000",
-      "seat": {
-        "weight": 33,
-        "weightPercent": 0.8250000000000001,
-        "stackedUstx": "3999770000000",
-        "signerAddress": "SP3DTCCC2BZRF2Q3WB53BAR071Y7NYNT7SCD5SDZJ"
-      },
-      "version": {
-        "local": 2,
-        "active": 2,
-        "observedAt": "2026-11-05T22:03:42.050Z"
-      },
-      "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
-        "rejectedCount": 0,
-        "preCommitRate": 1
-      }
-    },
-    {
-      "signerKey": "0321129d7a3e14cce66abef68b9a3d31d998f14e9a18b09d66aa1110fc604a3b1f",
-      "pools": [
-        "Sol"
-      ],
-      "groups": [],
-      "ourUstx": "4049000000000",
-      "seat": {
-        "weight": 33,
-        "weightPercent": 0.8250000000000001,
-        "stackedUstx": "4049000000000",
-        "signerAddress": "SP29QPET3W3CMS7QRY5RRJAYEJJBGKREM3WKSKWX3"
-      },
-      "version": {
-        "local": 2,
-        "active": 2,
-        "observedAt": "2026-11-05T22:03:38.802Z"
-      },
-      "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
-        "rejectedCount": 0,
-        "preCommitRate": 1
-      }
-    },
-    {
-      "signerKey": "03bed482eb9586ae7ddd77de81d76839d88a5efb5618b5ab88817f9c697f7b1590",
-      "pools": [
-        "Native Pool V2 (Stacking Dao)"
+        "Bd Contract",
+        "Blockdaemon V1"
       ],
       "groups": [
         "Stacking DAO"
       ],
-      "ourUstx": "2386115914872",
+      "ourUstx": "1560000500110",
       "seat": {
-        "weight": 19,
-        "weightPercent": 0.475,
-        "stackedUstx": "2386115914872",
-        "signerAddress": "SPKD9G4NDNH1T0G23VD3EXZY42WPE27ZWCHW60HV"
+        "weight": 12,
+        "weightPercent": 0.3,
+        "stackedUstx": "1560000500110",
+        "signerAddress": "SPTY3CVEZGHBRR3XQ4QS206B13HMEFB04NQ62NMS"
       },
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:38.311Z"
+        "observedAt": "2026-11-06T02:30:50.368Z"
       },
       "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
+        "participationRate": 0.96,
+        "degradationRate": 0.04,
+        "signedCount": 48,
+        "missedCount": 2,
+        "acceptedCount": 48,
         "rejectedCount": 0,
-        "preCommitRate": 1
+        "preCommitRate": 0.96
       }
     },
     {
-      "signerKey": "03f55a58fc47821147a5f2a7c35723fd4007037aeecfc6c10d7db4321f14b0beb9",
+      "signerKey": "023f96d7650baa87d09beca7d024a14a3f84dada24de608d2221d81a967f82c368",
       "pools": [
-        "Bond 1 V1",
-        "Bond 1 V2"
+        "Planbetter"
       ],
       "groups": [],
-      "ourUstx": "2326777500000",
+      "ourUstx": "1153663540210",
       "seat": {
-        "weight": 19,
-        "weightPercent": 0.475,
-        "stackedUstx": "2326777500000",
-        "signerAddress": "SP49ZZ8E1V6P3PF3S3Q45VWM2J5CZ25AH27280CV"
+        "weight": 9,
+        "weightPercent": 0.22499999999999998,
+        "stackedUstx": "1153663540210",
+        "signerAddress": "SP1RWZD0G8Z8R6F94NF4F12KRA61BETFX2HSTYJ60"
       },
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:41.111Z"
+        "observedAt": "2026-11-06T02:30:49.809Z"
       },
       "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
+        "participationRate": 0.94,
+        "degradationRate": 0.06,
+        "signedCount": 47,
+        "missedCount": 3,
+        "acceptedCount": 47,
         "rejectedCount": 0,
-        "preCommitRate": 1
+        "preCommitRate": 0.98
       }
     },
     {
@@ -629,26 +688,26 @@
         "STX Juice"
       ],
       "groups": [],
-      "ourUstx": "1089676310262",
+      "ourUstx": "1121881401683",
       "seat": {
         "weight": 9,
         "weightPercent": 0.22499999999999998,
-        "stackedUstx": "1089676310262",
+        "stackedUstx": "1121881401683",
         "signerAddress": "SP3C0VDGRRBFFAXV09KCE82HS82TVCEDHNHBT2EYC"
       },
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:41.111Z"
+        "observedAt": "2026-11-06T02:30:48.893Z"
       },
       "behaviour": {
         "participationRate": 1,
-        "degradationRate": 0.02,
+        "degradationRate": 0,
         "signedCount": 50,
         "missedCount": 0,
-        "acceptedCount": 49,
-        "rejectedCount": 1,
-        "preCommitRate": 1
+        "acceptedCount": 47,
+        "rejectedCount": 3,
+        "preCommitRate": 0.98
       }
     },
     {
@@ -657,26 +716,26 @@
         "Assymetric Labs"
       ],
       "groups": [],
-      "ourUstx": "1112731753210",
+      "ourUstx": "1112868212118",
       "seat": {
         "weight": 9,
         "weightPercent": 0.22499999999999998,
-        "stackedUstx": "1112731753210",
+        "stackedUstx": "1112868212118",
         "signerAddress": "SP19YS2TFA742GVDDDX7ZG752MD09TBSR5Q4J95YG"
       },
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:39.541Z"
+        "observedAt": "2026-11-06T02:30:48.893Z"
       },
       "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
+        "participationRate": 0.94,
+        "degradationRate": 0.06,
+        "signedCount": 47,
+        "missedCount": 3,
+        "acceptedCount": 47,
         "rejectedCount": 0,
-        "preCommitRate": 1
+        "preCommitRate": 0.98
       }
     },
     {
@@ -695,16 +754,16 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:40.072Z"
+        "observedAt": "2026-11-06T02:30:48.056Z"
       },
       "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
-        "rejectedCount": 0,
-        "preCommitRate": 1
+        "participationRate": 0.96,
+        "degradationRate": 0.04,
+        "signedCount": 48,
+        "missedCount": 2,
+        "acceptedCount": 47,
+        "rejectedCount": 1,
+        "preCommitRate": 0.98
       }
     },
     {
@@ -723,16 +782,16 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:45.922Z"
+        "observedAt": "2026-11-06T02:30:52.794Z"
       },
       "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
+        "participationRate": 0.98,
+        "degradationRate": 0.02,
+        "signedCount": 49,
+        "missedCount": 1,
+        "acceptedCount": 49,
         "rejectedCount": 0,
-        "preCommitRate": 1
+        "preCommitRate": 0.98
       }
     },
     {
@@ -751,16 +810,16 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:43.200Z"
+        "observedAt": "2026-11-06T02:30:52.471Z"
       },
       "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
+        "participationRate": 0.94,
+        "degradationRate": 0.06,
+        "signedCount": 47,
+        "missedCount": 3,
+        "acceptedCount": 47,
         "rejectedCount": 0,
-        "preCommitRate": 1
+        "preCommitRate": 0.98
       }
     },
     {
@@ -780,15 +839,15 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:40.585Z"
+        "observedAt": "2026-11-06T02:30:48.056Z"
       },
       "behaviour": {
-        "participationRate": 0.98,
-        "degradationRate": 0.02,
-        "signedCount": 49,
-        "missedCount": 1,
-        "acceptedCount": 49,
-        "rejectedCount": 0,
+        "participationRate": 0.96,
+        "degradationRate": 0.04,
+        "signedCount": 48,
+        "missedCount": 2,
+        "acceptedCount": 47,
+        "rejectedCount": 1,
         "preCommitRate": 0.98
       }
     },
@@ -800,54 +859,26 @@
       "groups": [
         "Fast Pool"
       ],
-      "ourUstx": "1009567360843",
+      "ourUstx": "1011108360843",
       "seat": {
         "weight": 8,
         "weightPercent": 0.2,
-        "stackedUstx": "1009567360843",
+        "stackedUstx": "1011108360843",
         "signerAddress": "SPS1NGSQ2QB89NF8T37M4Z6SGNBPYS66VXTXJ63Z"
       },
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:43.231Z"
+        "observedAt": "2026-11-06T02:30:52.794Z"
       },
       "behaviour": {
-        "participationRate": 0.98,
-        "degradationRate": 0.02,
-        "signedCount": 49,
-        "missedCount": 1,
-        "acceptedCount": 49,
-        "rejectedCount": 0,
-        "preCommitRate": 0.98
-      }
-    },
-    {
-      "signerKey": "023f96d7650baa87d09beca7d024a14a3f84dada24de608d2221d81a967f82c368",
-      "pools": [
-        "Planbetter"
-      ],
-      "groups": [],
-      "ourUstx": "945454861000",
-      "seat": {
-        "weight": 8,
-        "weightPercent": 0.2,
-        "stackedUstx": "945454861000",
-        "signerAddress": "SP1RWZD0G8Z8R6F94NF4F12KRA61BETFX2HSTYJ60"
-      },
-      "version": {
-        "local": 2,
-        "active": 2,
-        "observedAt": "2026-11-05T22:03:41.987Z"
-      },
-      "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
-        "rejectedCount": 0,
-        "preCommitRate": 1
+        "participationRate": 0.88,
+        "degradationRate": 0.16,
+        "signedCount": 44,
+        "missedCount": 6,
+        "acceptedCount": 42,
+        "rejectedCount": 2,
+        "preCommitRate": 0.88
       }
     },
     {
@@ -866,16 +897,16 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:45.157Z"
+        "observedAt": "2026-11-06T02:31:09.086Z"
       },
       "behaviour": {
         "participationRate": 1,
         "degradationRate": 0,
         "signedCount": 50,
         "missedCount": 0,
-        "acceptedCount": 50,
-        "rejectedCount": 0,
-        "preCommitRate": 1
+        "acceptedCount": 49,
+        "rejectedCount": 1,
+        "preCommitRate": 0.98
       }
     },
     {
@@ -894,16 +925,16 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:42.050Z"
+        "observedAt": "2026-11-06T02:30:47.758Z"
       },
       "behaviour": {
         "participationRate": 1,
         "degradationRate": 0,
         "signedCount": 50,
         "missedCount": 0,
-        "acceptedCount": 50,
-        "rejectedCount": 0,
-        "preCommitRate": 1
+        "acceptedCount": 47,
+        "rejectedCount": 3,
+        "preCommitRate": 0.94
       }
     },
     {
@@ -922,16 +953,16 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:42.838Z"
+        "observedAt": "2026-11-06T02:30:44.875Z"
       },
       "behaviour": {
-        "participationRate": 0.98,
-        "degradationRate": 0.02,
-        "signedCount": 49,
-        "missedCount": 1,
-        "acceptedCount": 49,
-        "rejectedCount": 0,
-        "preCommitRate": 0.98
+        "participationRate": 0.94,
+        "degradationRate": 0.06,
+        "signedCount": 47,
+        "missedCount": 3,
+        "acceptedCount": 46,
+        "rejectedCount": 1,
+        "preCommitRate": 0.96
       }
     },
     {
@@ -950,47 +981,16 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:45.525Z"
+        "observedAt": "2026-11-06T02:30:45.907Z"
       },
       "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
-        "rejectedCount": 0,
-        "preCommitRate": 1
-      }
-    },
-    {
-      "signerKey": "03a541c1ec2cfb32da48cfadf439c9b2f27d166bbffa18a178c7a6a0d54cfa7813",
-      "pools": [
-        "Bd Contract",
-        "Blockdaemon V1"
-      ],
-      "groups": [
-        "Stacking DAO"
-      ],
-      "ourUstx": "360000500110",
-      "seat": {
-        "weight": 3,
-        "weightPercent": 0.075,
-        "stackedUstx": "360000500110",
-        "signerAddress": "SPTY3CVEZGHBRR3XQ4QS206B13HMEFB04NQ62NMS"
-      },
-      "version": {
-        "local": 2,
-        "active": 2,
-        "observedAt": "2026-11-05T22:03:42.868Z"
-      },
-      "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
-        "rejectedCount": 0,
-        "preCommitRate": 1
+        "participationRate": 0.96,
+        "degradationRate": 0.04,
+        "signedCount": 48,
+        "missedCount": 2,
+        "acceptedCount": 47,
+        "rejectedCount": 1,
+        "preCommitRate": 0.98
       }
     },
     {
@@ -1009,16 +1009,16 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-05T22:03:40.585Z"
+        "observedAt": "2026-11-06T02:30:48.612Z"
       },
       "behaviour": {
-        "participationRate": 0.96,
+        "participationRate": 0.94,
         "degradationRate": 0.06,
-        "signedCount": 48,
-        "missedCount": 2,
+        "signedCount": 47,
+        "missedCount": 3,
         "acceptedCount": 47,
-        "rejectedCount": 1,
-        "preCommitRate": 0.96
+        "rejectedCount": 0,
+        "preCommitRate": 0.98
       }
     },
     {

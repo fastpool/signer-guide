@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-03T13:19:37.539Z",
+  "generatedAt": "2026-11-06T02:34:34.095Z",
   "distributions": [
     {
       "cycle": 141,
@@ -110,6 +110,16 @@
       "rateSatsPer1000Stx": "734",
       "stxPriceSats": "369",
       "btcPriceUsd": 81274
+    },
+    {
+      "cycle": 146,
+      "distributionIndex": 293,
+      "firstOfCycle": false,
+      "burnHeight": 974749,
+      "cumulativeRewardsPerUstx": "1409160710598",
+      "rateSatsPer1000Stx": "674",
+      "stxPriceSats": "448",
+      "btcPriceUsd": 75993
     }
   ]
 }

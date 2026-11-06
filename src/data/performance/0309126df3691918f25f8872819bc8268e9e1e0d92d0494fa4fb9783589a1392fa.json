@@ -2,15 +2,26 @@
   "signerKey": "0309126df3691918f25f8872819bc8268e9e1e0d92d0494fa4fb9783589a1392fa",
   "cycles": [
     {
+      "cycle": 147,
+      "accepted": 0,
+      "rejected": 0,
+      "missed": 59,
+      "responseMs": null,
+      "lastSeen": null,
+      "weight": 89,
+      "weightPercent": 2.225,
+      "final": false
+    },
+    {
       "cycle": 146,
       "accepted": 0,
       "rejected": 0,
-      "missed": 140972,
+      "missed": 142325,
       "responseMs": null,
       "lastSeen": null,
       "weight": 93,
       "weightPercent": 2.325,
-      "final": false
+      "final": true
     },
     {
       "cycle": 145,
