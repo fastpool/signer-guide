@@ -882,6 +882,7 @@ const messages = {
   'app.bonds.sum.heading': 'The STX staked in cycle {cycle}',
   'app.bonds.sum.total': 'Staked in cycle {cycle}',
   'app.bonds.sum.bond': 'Backing a bond',
+  'app.bonds.sum.whole': 'Total {amount}',
   'app.bonds.sum.stxOnly': 'STX-only',
   'app.bonds.stxBond': 'Bond {index}',
   'app.bonds.stxBondUnnamed': 'Bond not named in the print',

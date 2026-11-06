@@ -628,8 +628,10 @@ function SplitSummary({
       )}
       {/* The whole the two halves add up to, under the bar it is the
           length of. */}
-      <p className='mt-2 text-right text-lg font-extrabold text-ink tabular-nums'>
-        {stxCompact(split.total, locale) ?? '—'}
+      <p className='mt-1.5 text-right text-sm text-muted'>
+        {t('app.bonds.sum.whole', {
+          amount: stxCompact(split.total, locale) ?? '—',
+        })}
       </p>
       {split.unknown > 0 && (
         <p className='mt-2 text-sm text-amber-warm'>

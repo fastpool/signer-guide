@@ -940,6 +940,7 @@ export const ko: LocaleBundle = {
     'app.bonds.sum.heading': '사이클 {cycle}에 스테이킹된 STX',
     'app.bonds.sum.total': '사이클 {cycle} 스테이킹',
     'app.bonds.sum.bond': '본드 뒷받침',
+    'app.bonds.sum.whole': '합계 {amount}',
     'app.bonds.sum.stxOnly': 'STX 전용',
     'app.bonds.stxBond': '본드 {index}',
     'app.bonds.stxBondUnnamed': '기록에 번호가 없는 본드',
