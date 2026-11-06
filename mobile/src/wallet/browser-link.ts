@@ -41,7 +41,7 @@ export function walletBrowserUrl(
  * view onto.
  */
 export const GUIDE_URL =
-  process.env.EXPO_PUBLIC_GUIDE_URL || 'https://signer-guide.fastpool.org';
+  process.env.EXPO_PUBLIC_GUIDE_URL || 'https://stxsigners.org';
 
 /**
  * What the person was doing when they asked for a wallet.

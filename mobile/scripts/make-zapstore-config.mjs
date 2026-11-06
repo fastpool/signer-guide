@@ -22,7 +22,7 @@ const read = (relative) =>
   readFileSync(path.join(root, relative), 'utf8').trim();
 
 const REPOSITORY = 'https://github.com/fastpool/signer-guide';
-const WEBSITE = 'https://signer-guide.fastpool.org';
+const WEBSITE = 'https://stxsigners.org';
 const LICENSE = 'MIT';
 
 /**

@@ -262,7 +262,7 @@ execFileSync('magick', [
   '21',
   '-annotate',
   `+${PAD}+${H - PAD + 10}`,
-  'signer-guide.fastpool.org',
+  'stxsigners.org',
 
   '-depth',
   '8',

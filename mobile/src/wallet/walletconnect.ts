@@ -51,8 +51,8 @@ export function projectId(): string | null {
 const METADATA = {
   name: 'Signer Guide',
   description: 'Stake your STX with a Stacks signer pool.',
-  url: 'https://signer-guide.fastpool.org',
-  icons: ['https://signer-guide.fastpool.org/icon-512.png'],
+  url: 'https://stxsigners.org',
+  icons: ['https://stxsigners.org/icon-512.png'],
   /**
    * Where the wallet sends the person back to.
    *

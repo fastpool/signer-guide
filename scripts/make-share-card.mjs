@@ -185,7 +185,7 @@ execFileSync('magick', [
   '21',
   '-annotate',
   `+${PAD}+${H - PAD + 8}`,
-  'signer-guide.fastpool.org',
+  'stxsigners.org',
 
   '-depth',
   '8',
@@ -246,7 +246,7 @@ const version = createHash('sha256')
 setMeta(
   'og:image',
   /(property="og:image"\s*\n\s*content=")[^"?]*(?:\?[^"]*)?(")/,
-  `https://signer-guide.fastpool.org/share-card.png?v=${version}`,
+  `https://stxsigners.org/share-card.png?v=${version}`,
 );
 
 setMeta(

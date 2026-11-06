@@ -24,7 +24,7 @@ const render = (here: string, locale: 'en' | 'ko' = 'en') =>
   );
 
 describe('the two ways in', () => {
-  const html = () => render('https://signer-guide.fastpool.org/#/');
+  const html = () => render('https://stxsigners.org/#/');
 
   it('offers both wallets, Leather first', () => {
     // Not alphabetical and not an accident: Leather has no WalletConnect and
@@ -41,10 +41,10 @@ describe('the two ways in', () => {
     // Leather's own scheme, and the app link Xverse verifies rather than the
     // xverse:// one its documentation calls deprecated.
     expect(page).toContain(
-      'href="leather://browser?url=https%3A%2F%2Fsigner-guide.fastpool.org%2F%23%2F"',
+      'href="leather://browser?url=https%3A%2F%2Fstxsigners.org%2F%23%2F"',
     );
     expect(page).toContain(
-      'href="https://connect.xverse.app/browser?url=https%3A%2F%2Fsigner-guide.fastpool.org%2F%23%2F"',
+      'href="https://connect.xverse.app/browser?url=https%3A%2F%2Fstxsigners.org%2F%23%2F"',
     );
   });
 
@@ -63,13 +63,13 @@ describe('the two ways in', () => {
     // The hash is the route on this site. Unescaped it ends the query string
     // and the wallet opens on the front page instead.
     const page = render(
-      'https://signer-guide.fastpool.org/#/signer/SP1N8F8B.signer-manager',
+      'https://stxsigners.org/#/signer/SP1N8F8B.signer-manager',
     );
     expect(page).toContain('%23%2Fsigner%2FSP1N8F8B.signer-manager');
   });
 
   it('speaks the language the page is in', () => {
-    expect(render('https://signer-guide.fastpool.org/', 'ko')).toContain(
+    expect(render('https://stxsigners.org/', 'ko')).toContain(
       'Xverse에서 열기',
     );
   });

@@ -1,7 +1,7 @@
 # Signer Guide
 
 A plain-language guide for people choosing where to stake their STX, at
-[signer-guide.fastpool.org](https://signer-guide.fastpool.org).
+[stxsigners.org](https://stxsigners.org).
 
 Made by [Fast Pool](https://fastpool.org), which runs some of the pools it
 lists. They get the same treatment as everyone else's — described by the same

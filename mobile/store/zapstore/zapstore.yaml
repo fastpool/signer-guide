@@ -64,7 +64,7 @@ description: |
   Staking locks your STX for the period you choose, and you can end it earlier without penalty. Rewards depend on what the protocol earns and how much STX is staked against it; the rates shown are estimates from recent payouts, not promises. Nothing here is financial advice.
 
 license: 'MIT'
-website: 'https://signer-guide.fastpool.org'
+website: 'https://stxsigners.org'
 tags: [bitcoin, stacks, stx, staking, sbtc, wallet, defi]
 
 icon: ../../assets/icon.png

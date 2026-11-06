@@ -134,7 +134,7 @@ export default function DataStatusScreen(_: ScreenProps<'DataStatus'>) {
         title={t('data.openWeb')}
         kind='quiet'
         onPress={() =>
-          void Linking.openURL('https://signer-guide.fastpool.org')
+          void Linking.openURL('https://stxsigners.org')
         }
       />
       <Note tone='faint'>{t('data.madeBy')}</Note>

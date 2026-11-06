@@ -39,7 +39,7 @@ it. That address is already public — it is on a public blockchain — but the
 fact that _this phone_ asked about _that address at this moment_ is visible to
 Hiro, under [Hiro's privacy policy](https://www.hiro.so/privacy). If you would
 rather not, point the app at your own node with
-`EXPO_PUBLIC_STACKS_API_URL`, or run the [web guide](https://signer-guide.fastpool.org)
+`EXPO_PUBLIC_STACKS_API_URL`, or run the [web guide](https://stxsigners.org)
 against one.
 
 **A WalletConnect relay** — only when you connect a wallet, and only to carry

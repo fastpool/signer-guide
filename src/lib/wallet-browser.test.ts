@@ -35,7 +35,7 @@ describe('walletBrowserUrl', () => {
    * the front page instead of the pool somebody was reading.
    */
   it('escapes the page, which carries characters a query string would eat', () => {
-    const page = 'https://signer-guide.fastpool.org/#/signer/SP1.a?b=c';
+    const page = 'https://stxsigners.org/#/signer/SP1.a?b=c';
     const link = walletBrowserUrl('leather', page)!;
     expect(link).not.toContain('#');
     expect(link).not.toContain('?b=');

@@ -318,7 +318,7 @@ def build(args):
 
     # Where it came from, so a clip reposted without its note still says.
     source = text(
-        'signer-guide.fastpool.org', 0.2, '#fdf8f3', (-5.2, -0.6, -1.28)
+        'stxsigners.org', 0.2, '#fdf8f3', (-5.2, -0.6, -1.28)
     )
     source.scale = (0.0,) * 3
 

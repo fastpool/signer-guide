@@ -16,7 +16,7 @@ const SW_SOURCE = readFileSync(
   'utf8',
 );
 
-const ORIGIN = 'https://signer-guide.fastpool.org';
+const ORIGIN = 'https://stxsigners.org';
 
 type Handlers = Record<string, (event: Record<string, unknown>) => void>;
 

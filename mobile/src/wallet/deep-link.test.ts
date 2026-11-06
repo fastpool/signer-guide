@@ -49,7 +49,7 @@ describe('watchAddressFromUrl', () => {
     expect(watchAddressFromUrl(`signerguide://stake/${ADDRESS}`)).toBeNull();
     expect(watchAddressFromUrl(`signerguide://connect/${ADDRESS}`)).toBeNull();
     expect(
-      watchAddressFromUrl(`https://signer-guide.fastpool.org/watch/${ADDRESS}`),
+      watchAddressFromUrl(`https://stxsigners.org/watch/${ADDRESS}`),
     ).toBeNull();
     expect(watchAddressFromUrl(`wc://watch/${ADDRESS}`)).toBeNull();
   });

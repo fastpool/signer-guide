@@ -254,7 +254,7 @@ Things a person has to do, that no file here can:
       set the content rating questionnaire, and declare the app category
       (Finance).
 - [ ] **Play**: host `privacy-policy.md` at the URL the listing claims —
-      `signer-guide.fastpool.org/privacy`. A privacy policy URL that 404s is
+      `stxsigners.org/privacy`. A privacy policy URL that 404s is
       the single most common rejection.
 - [ ] **Play**: financial-app rules apply. Play treats a wallet-adjacent app in
       Finance as needing a declaration; this one holds no keys and takes no
