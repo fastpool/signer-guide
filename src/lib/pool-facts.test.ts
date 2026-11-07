@@ -92,8 +92,10 @@ describe('short figures', () => {
 describe('freshness', () => {
   const now = Date.parse('2026-11-03T12:00:00Z');
 
-  it('is fresh within a few hours of the refresh, and stale after', () => {
+  it('is fresh within a day of the refresh, and stale after', () => {
     expect(freshness('2026-11-03T11:00:00Z', now).state).toBe('fresh');
+    // The page says "refreshed daily", so hours old is not worth a warning.
+    expect(freshness('2026-11-03T03:00:00Z', now).state).toBe('fresh');
     expect(
       freshness(new Date(now - STALE_AFTER_MS - 1).toISOString(), now).state,
     ).toBe('stale');

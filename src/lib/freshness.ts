@@ -1,15 +1,15 @@
 /**
  * How old the data on screen is, and whether that is worth saying.
  *
- * The refresh runs hourly, so data a couple of hours old is normal. Data a day
- * old means the refresh has stopped, and every "estimated in about 3 days"
+ * The page promises a daily refresh, so data some hours old is normal. Data
+ * more than a day old means the refresh has stopped, and every "estimated in about 3 days"
  * and "cycle 147 so far" on the page is then a statement about a moment that
  * has passed. Before this, the page said "Last update: 26 October" on the
  * third of November in the same quiet grey it uses when all is well.
  */
 
 /** Past this, the page says the data is old rather than just how old. */
-export const STALE_AFTER_MS = 3 * 60 * 60 * 1000;
+export const STALE_AFTER_MS = 26 * 60 * 60 * 1000;
 
 export type Freshness =
   | { state: 'fresh'; ageMs: number }

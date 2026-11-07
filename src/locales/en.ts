@@ -598,7 +598,7 @@ const messages = {
   'stake.disconnect': 'Disconnect',
   'stake.checking': 'Just a moment…',
   'walletBanner.label': 'Open this page in a wallet',
-  'walletBanner.title': 'On a phone? Open this page in your wallet.',
+  'walletBanner.title': 'Open in',
   'walletBanner.open': 'Open in {wallet}',
   'walletBanner.dismiss': 'Hide this',
 
@@ -776,7 +776,7 @@ const messages = {
   'home.you.staked': '{who}: {amount} staked with',
   'home.you.open': 'details →',
   'home.you.forget': 'Forget this address',
-  'home.stat.staked': 'Staked in cycle {cycle}',
+  'home.stat.staked': 'Staked',
   'home.stat.nextFilling': 'Cycle {cycle}: {amount} so far',
   'home.stat.nextLocked': 'Cycle {cycle} locked in: {amount}',
   'home.stat.rewards': 'STX-only rewards',
@@ -796,7 +796,7 @@ const messages = {
 
   'pools.heading.one': '{count} pool to stake with',
   'pools.heading.other': '{count} pools to stake with',
-  'home.cycleHeading': 'The network now',
+  'home.cycleHeading': 'The network in cycle {cycle}',
   'pools.hiddenEmpty.one': '{count} empty pool hidden ·',
   'pools.hiddenEmpty.other': '{count} empty pools hidden ·',
   'pools.showEmpty': 'show',

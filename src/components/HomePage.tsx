@@ -74,12 +74,12 @@ export default function HomePage({
           id='cycle-heading'
           className='text-xs font-bold tracking-wide text-muted uppercase'
         >
-          {t('home.cycleHeading')}
+          {t('home.cycleHeading', { cycle: totals.cycle })}
         </h2>
-        <div className='mt-2 grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-3'>
+        <div className='mt-2 grid grid-cols-3 gap-x-3 sm:gap-x-4'>
           <StatTile
             bare
-            label={t('home.stat.staked', { cycle: totals.cycle })}
+            label={t('home.stat.staked')}
             value={staked === null ? '—' : (stxCompact(staked, locale) ?? '—')}
           >
             {stakedUsd !== null && (

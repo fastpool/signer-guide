@@ -80,10 +80,10 @@ export function WalletBrowserBar({
     <div
       role='region'
       aria-label={t('walletBanner.label')}
-      className='flex flex-wrap items-center justify-center gap-x-3 gap-y-2 bg-grape-soft px-4 py-2.5 text-sm'
-      style={{ paddingTop: 'calc(0.625rem + env(safe-area-inset-top))' }}
+      className='flex items-center justify-center gap-2 bg-grape-soft px-4 py-1.5 text-sm whitespace-nowrap'
+      style={{ paddingTop: 'calc(0.375rem + env(safe-area-inset-top))' }}
     >
-      <span className='font-semibold text-grape'>
+      <span className='min-w-0 truncate font-semibold text-grape'>
         {t('walletBanner.title')}
       </span>
 
@@ -100,9 +100,12 @@ export function WalletBrowserBar({
           <a
             key={id}
             href={link}
-            className='rounded-full bg-card px-3 py-1 font-semibold text-grape shadow-lift'
+            aria-label={t('walletBanner.open', {
+              wallet: BROWSER_WALLET_NAMES[id],
+            })}
+            className='shrink-0 rounded-full bg-card px-2.5 py-0.5 font-semibold text-grape shadow-lift'
           >
-            {t('walletBanner.open', { wallet: BROWSER_WALLET_NAMES[id] })}
+            {BROWSER_WALLET_NAMES[id]}
           </a>
         );
       })}
@@ -111,7 +114,7 @@ export function WalletBrowserBar({
         type='button'
         onClick={onClose}
         aria-label={t('walletBanner.dismiss')}
-        className='ml-auto rounded-full px-2 py-1 text-base leading-none text-muted'
+        className='shrink-0 rounded-full px-1.5 py-0.5 text-base leading-none text-muted'
       >
         ×
       </button>

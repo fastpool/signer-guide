@@ -658,7 +658,7 @@ export const ko: LocaleBundle = {
     'stake.disconnect': '연결 해제',
     'stake.checking': '잠시만 기다려 주세요…',
     'walletBanner.label': '지갑에서 이 페이지 열기',
-    'walletBanner.title': '휴대폰인가요? 지갑에서 이 페이지를 열어 보세요.',
+    'walletBanner.title': '지갑으로 열기',
     'walletBanner.open': '{wallet}에서 열기',
     'walletBanner.dismiss': '숨기기',
 
@@ -834,7 +834,7 @@ export const ko: LocaleBundle = {
     'home.you.staked': '{who}: {amount} 스테이킹 중 —',
     'home.you.open': '자세히 →',
     'home.you.forget': '이 주소 잊기',
-    'home.stat.staked': '사이클 {cycle} 스테이킹',
+    'home.stat.staked': '스테이킹',
     'home.stat.nextFilling': '사이클 {cycle}: 지금까지 {amount}',
     'home.stat.nextLocked': '사이클 {cycle} 확정: {amount}',
     'home.stat.rewards': 'STX 전용 보상',
@@ -854,7 +854,7 @@ export const ko: LocaleBundle = {
 
     'pools.heading.one': '스테이킹할 수 있는 풀 {count}개',
     'pools.heading.other': '스테이킹할 수 있는 풀 {count}개',
-    'home.cycleHeading': '현재 네트워크',
+    'home.cycleHeading': '사이클 {cycle}의 네트워크',
     'pools.hiddenEmpty.one': '빈 풀 {count}개 숨김 ·',
     'pools.hiddenEmpty.other': '빈 풀 {count}개 숨김 ·',
     'pools.showEmpty': '보기',

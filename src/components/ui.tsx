@@ -59,10 +59,16 @@ export function StatTile({
       }
     >
       <div className='text-xs font-semibold text-muted'>{label}</div>
-      <div className='mt-0.5 text-xl font-extrabold tabular-nums sm:text-2xl'>
+      <div
+        className={`mt-0.5 font-extrabold tabular-nums sm:text-2xl ${bare ? 'text-lg' : 'text-xl'}`}
+      >
         {value}
         {unit && (
-          <span className='ml-1 text-sm font-bold text-muted'>{unit}</span>
+          <span
+            className={`text-sm font-bold text-muted ${bare ? 'block sm:ml-1 sm:inline' : 'ml-1'}`}
+          >
+            {unit}
+          </span>
         )}
       </div>
       {children && (

@@ -83,7 +83,7 @@ describe('the page as a reader sees it', () => {
     const html = renderToStaticMarkup(<App />);
     expect(html).toContain('8.2M STX');
     expect(html).toContain('253 STX');
-    expect(html).toContain('Staked in cycle 142');
+    expect(html).toContain('The network in cycle 142');
   });
 
   it('counts only the pools somebody could choose in the list heading', () => {
