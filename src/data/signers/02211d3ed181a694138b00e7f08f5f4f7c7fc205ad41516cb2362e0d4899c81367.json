@@ -7,13 +7,13 @@
     {
       "cycle": 148,
       "ustx": {
-        "SP13W6DKAAHWQERQH9NDKPHSWZBAQKYSXEA7DJYAK.blueprint-signer-manager": "0"
+        "SP13W6DKAAHWQERQH9NDKPHSWZBAQKYSXEA7DJYAK.blueprint-signer-manager": "2000000000000"
       },
-      "memberCount": 0,
+      "memberCount": 1,
       "membersAddUp": true,
       "walks": 0,
-      "walkedAt": "2026-11-06T02:34:45.916Z",
-      "walkedUstx": "0",
+      "walkedAt": "2026-11-06T23:16:33.261Z",
+      "walkedUstx": "2000000000000",
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": false,
@@ -134,5 +134,5 @@
     }
   ],
   "currentCycle": 147,
-  "generatedAt": "2026-11-06T11:06:22.946Z"
+  "generatedAt": "2026-11-07T16:54:53.348Z"
 }

@@ -7,13 +7,13 @@
     {
       "cycle": 148,
       "ustx": {
-        "SP17994R8ZY6J30Q6BMYHQXAQS52NAHQX1YEBNQS6.signer-manager-validation-cloud": "0"
+        "SP17994R8ZY6J30Q6BMYHQXAQS52NAHQX1YEBNQS6.signer-manager-validation-cloud": "1000000000000"
       },
-      "memberCount": 0,
+      "memberCount": 1,
       "membersAddUp": true,
       "walks": 0,
-      "walkedAt": "2026-11-06T02:34:45.916Z",
-      "walkedUstx": "0",
+      "walkedAt": "2026-11-06T18:05:55.978Z",
+      "walkedUstx": "1000000000000",
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": false,
@@ -134,5 +134,5 @@
     }
   ],
   "currentCycle": 147,
-  "generatedAt": "2026-11-06T11:06:23.005Z"
+  "generatedAt": "2026-11-07T16:54:53.390Z"
 }
