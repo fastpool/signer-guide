@@ -43,14 +43,21 @@ export function StatTile({
   value,
   unit,
   children,
+  bare,
 }: {
   label: ReactNode;
   value: ReactNode;
   unit?: ReactNode;
   children?: ReactNode;
+  /** No card of its own: it sits in a panel with others. */
+  bare?: boolean;
 }) {
   return (
-    <div className='rounded-2xl bg-card p-3 shadow-lift sm:p-4'>
+    <div
+      className={
+        bare ? 'min-w-0' : 'rounded-2xl bg-card p-3 shadow-lift sm:p-4'
+      }
+    >
       <div className='text-xs font-semibold text-muted'>{label}</div>
       <div className='mt-0.5 text-xl font-extrabold tabular-nums sm:text-2xl'>
         {value}

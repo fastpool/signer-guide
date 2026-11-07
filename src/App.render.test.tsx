@@ -86,11 +86,11 @@ describe('the page as a reader sees it', () => {
     expect(html).toContain('Staked in cycle 142');
   });
 
-  it('counts only the pools somebody could choose in the opening line', () => {
+  it('counts only the pools somebody could choose in the list heading', () => {
     // "There are N pools to choose from today" used to count every registered
     // signer, a third of which hold nothing and never have — and which the
     // default filter then took straight back out of the list underneath. The
-    // sentence is about choosing, so it counts what can be chosen.
+    // heading is about choosing, so it counts what can be chosen.
     const html = renderToStaticMarkup(<App />);
     const totals = mockedTotals as LockedTotals;
     const choosable = LIVE.filter((signer) => inUse(signer, totals));
@@ -99,17 +99,9 @@ describe('the page as a reader sees it', () => {
     // amounts is the one the count has to leave out.
     expect(choosable.length).toBeLessThan(LIVE.length);
     expect(html).toMatch(
-      new RegExp(`Pools to choose from</div><div[^>]*>${choosable.length}<`),
-    );
-
-    // And the contracts are the ones those pools run, not every type on file.
-    const running = new Set(choosable.map((s) => s.profileId));
-    const types = buildTemplates((signers as SignerData).signers).filter(
-      (template) =>
-        !template.profile.archived && running.has(template.profile.id),
-    );
-    expect(html).toContain(
-      `on ${types.length} contract type${types.length === 1 ? '' : 's'}`,
+      new RegExp(
+        `id="pools-heading"[^>]*>${choosable.length} pools? to stake with<`,
+      ),
     );
   });
 
@@ -323,7 +315,7 @@ describe('the page as a reader sees it', () => {
       scrollTo: () => {},
     });
     const html = renderToStaticMarkup(<App />);
-    expect(html).toContain('All pools');
+    expect(html).toContain('id="pools-heading"');
     expect(html).not.toContain('Signer key');
   });
 
@@ -458,7 +450,7 @@ describe('the page as a reader sees it', () => {
     const html = renderToStaticMarkup(<App />);
     const stamp = /\d+ \w+ \d{4}, \d{2}:\d{2} UTC/;
     expect(html).toMatch(stamp);
-    expect(html.search(stamp)).toBeLessThan(html.indexOf('id="pools-heading"'));
+    expect(html.search(stamp)).toBeLessThan(html.indexOf('<table'));
   });
 
   it('leaves no English behind for a Korean reader', () => {

@@ -275,7 +275,6 @@ export const ko: LocaleBundle = {
     'app.stxOnlyFaq.q.promise': '여기 있는 수치가 보장되나요?',
     'app.stxOnlyFaq.a.promise':
       '아닙니다. 이 페이지에서 확정된 값은 직전 지급 실적뿐이며, 기록된 모든 지급은 지급 내역 페이지에 있습니다. 나머지는 pox-5에 들어오는 금액과 거기에 스테이킹된 STX 총량에 따라 움직이고, APY는 STX 가격에 따라서도 달라집니다.',
-    'app.allPools': '전체 풀',
     'app.whatMatters': '어떤 기준이 중요한가요?',
     'app.showingAll': '전체 {total}개 풀 표시 중',
     'app.showingSome': '{total}개 중 {shown}개 풀이 조건과 일치',
@@ -838,10 +837,6 @@ export const ko: LocaleBundle = {
     'home.stat.staked': '사이클 {cycle} 스테이킹',
     'home.stat.nextFilling': '사이클 {cycle}: 지금까지 {amount}',
     'home.stat.nextLocked': '사이클 {cycle} 확정: {amount}',
-    'home.stat.pools': '선택할 수 있는 풀',
-    'home.stat.types.one': '컨트랙트 유형 {count}개 ·',
-    'home.stat.types.other': '컨트랙트 유형 {count}개 ·',
-    'home.stat.compare': '비교하기 →',
     'home.stat.rewards': 'STX 전용 보상',
     'home.stat.rewardsUnit': 'sats / 1000 STX',
     'home.stat.apy': '연 ≈ {apy}% ·',
@@ -857,8 +852,9 @@ export const ko: LocaleBundle = {
     'home.footer.fees':
       '수수료는 각 풀의 컨트랙트에서 읽으며, 대부분의 풀은 언제든 바꿀 수 있습니다 — ⛉는 코드로 정한 상한, ◷는 인상 전 대기 기간입니다.',
 
-    'pools.count.one': '풀 {count}개',
-    'pools.count.other': '풀 {count}개',
+    'pools.heading.one': '스테이킹할 수 있는 풀 {count}개',
+    'pools.heading.other': '스테이킹할 수 있는 풀 {count}개',
+    'home.cycleHeading': '현재 네트워크',
     'pools.hiddenEmpty.one': '빈 풀 {count}개 숨김 ·',
     'pools.hiddenEmpty.other': '빈 풀 {count}개 숨김 ·',
     'pools.showEmpty': '보기',

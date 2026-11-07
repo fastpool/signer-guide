@@ -1,13 +1,7 @@
-import { useMemo } from 'react';
-import { inUse } from '../lib/activity';
 import { stxCompact, sumUstx, usdCompact } from '../lib/amounts';
 import { pricesFrom, ustxInUsd } from '../lib/prices';
 import { translator, type Locale } from '../lib/i18n';
-import {
-  contractsHref,
-  stxOnlyHistoryHref,
-  stxOnlyRewardsHref,
-} from '../lib/route';
+import { stxOnlyHistoryHref, stxOnlyRewardsHref } from '../lib/route';
 import { stxOnlySummary } from '../lib/stx-only-summary';
 import type {
   LockedTotals,
@@ -15,7 +9,6 @@ import type {
   SignerData,
   StxOnlyCalculations,
 } from '../lib/types';
-import type { Template } from '../lib/templates';
 import CycleTimeline from './CycleTimeline';
 import Freshness from './Freshness';
 import PoolList from './PoolList';
@@ -26,16 +19,15 @@ import { Meter, Page, StatTile } from './ui';
  * The pool list, which is the page most people come for.
  *
  * It used to open with four paragraphs, a rewards box and nine contract-type
- * tiles, so on a phone the first pool was nearly four screens down. Now four
- * tiles say what the paragraphs said — what is staked, how many pools on how
- * many kinds of contract, what STX-only staking pays and when — and the list
- * follows straight after. The contract types have a page of their own, and
- * the tile that counts them links there.
+ * tiles, so on a phone the first pool was nearly four screens down. Then four
+ * tiles and a timeline, each its own card, which left the list looking like
+ * one more box among them. Now what the network is doing sits in one quiet
+ * panel, and the list has a heading of its own that says how many pools there
+ * are and how old the figures are.
  */
 export default function HomePage({
   signerData,
   live,
-  liveTemplates,
   totals,
   stxOnlyCalculations,
   savedCopy,
@@ -44,29 +36,12 @@ export default function HomePage({
   signerData: SignerData;
   /** Pools not on an archived contract type. */
   live: Signer[];
-  liveTemplates: Template[];
   totals: LockedTotals;
   stxOnlyCalculations: StxOnlyCalculations;
   savedCopy: boolean;
   locale: Locale;
 }) {
   const t = translator(locale);
-
-  /*
-   * "N pools to choose from" counts what somebody could choose: pools in use,
-   * on contract types nobody has replaced. The contract types are counted off
-   * those same pools, because the tile says these pools run that many kinds of
-   * contract — which is only true of the kinds they actually run.
-   */
-  const choosable = useMemo(
-    () => live.filter((signer) => inUse(signer, totals)),
-    [live, totals],
-  );
-  const typeCount = useMemo(() => {
-    const running = new Set(choosable.map((signer) => signer.profileId));
-    return liveTemplates.filter((template) => running.has(template.profile.id))
-      .length;
-  }, [choosable, liveTemplates]);
 
   const contractIds = live.map((signer) => signer.contractId);
   const staked = sumUstx(contractIds, totals.ustx);
@@ -89,122 +64,131 @@ export default function HomePage({
 
       <YourStake signers={signerData.signers} locale={locale} />
 
-      <div className='mt-3 grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4'>
-        <StatTile
-          label={t('home.stat.staked', { cycle: totals.cycle })}
-          value={staked === null ? '—' : (stxCompact(staked, locale) ?? '—')}
+      {/* What the network is doing now, as one quiet panel rather than five
+          cards: context for the list below, not a rival to it. */}
+      <section
+        aria-labelledby='cycle-heading'
+        className='mt-5 mb-8 rounded-2xl bg-card-raised p-4 sm:p-5'
+      >
+        <h2
+          id='cycle-heading'
+          className='text-xs font-bold tracking-wide text-muted uppercase'
         >
-          {stakedUsd !== null && (
-            <>
-              {t('amount.usdAbout', { usd: usdCompact(stakedUsd, locale) })}
-              {' · '}
-            </>
-          )}
-          {stakedNext !== null &&
-            totals.next &&
-            t(
-              totals.next.lockedIn
-                ? 'home.stat.nextLocked'
-                : 'home.stat.nextFilling',
-              {
-                cycle: totals.next.cycle,
-                amount: stxCompact(stakedNext, locale) ?? '—',
-              },
+          {t('home.cycleHeading')}
+        </h2>
+        <div className='mt-2 grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-3'>
+          <StatTile
+            bare
+            label={t('home.stat.staked', { cycle: totals.cycle })}
+            value={staked === null ? '—' : (stxCompact(staked, locale) ?? '—')}
+          >
+            {stakedUsd !== null && (
+              <>
+                {t('amount.usdAbout', { usd: usdCompact(stakedUsd, locale) })}
+                {' · '}
+              </>
             )}
-        </StatTile>
+            {stakedNext !== null &&
+              totals.next &&
+              t(
+                totals.next.lockedIn
+                  ? 'home.stat.nextLocked'
+                  : 'home.stat.nextFilling',
+                {
+                  cycle: totals.next.cycle,
+                  amount: stxCompact(stakedNext, locale) ?? '—',
+                },
+              )}
+          </StatTile>
 
-        <StatTile label={t('home.stat.pools')} value={choosable.length}>
-          {t.plural('home.stat.types', typeCount)}{' '}
-          <a
-            href={contractsHref()}
-            className='font-bold whitespace-nowrap text-grape'
+          <StatTile
+            bare
+            label={t('home.stat.rewards')}
+            value={
+              rewards
+                ? rewards.rateSatsPer1000Stx.toLocaleString(t.bundle.intlLocale)
+                : '—'
+            }
+            unit={rewards ? t('home.stat.rewardsUnit') : undefined}
           >
-            {t('home.stat.compare')}
-          </a>
-        </StatTile>
+            {rewards?.apy != null &&
+              t('home.stat.apy', { apy: rewards.apy.toFixed(2) })}{' '}
+            <a
+              href={stxOnlyRewardsHref()}
+              className='font-bold whitespace-nowrap text-grape'
+            >
+              {t('home.stat.howWorkedOut')}
+            </a>
+          </StatTile>
 
-        <StatTile
-          label={t('home.stat.rewards')}
-          value={
-            rewards
-              ? rewards.rateSatsPer1000Stx.toLocaleString(t.bundle.intlLocale)
-              : '—'
-          }
-          unit={rewards ? t('home.stat.rewardsUnit') : undefined}
-        >
-          {rewards?.apy != null &&
-            t('home.stat.apy', { apy: rewards.apy.toFixed(2) })}{' '}
-          <a
-            href={stxOnlyRewardsHref()}
-            className='font-bold whitespace-nowrap text-grape'
+          <StatTile
+            bare
+            label={t('home.stat.payout')}
+            value={
+              !rewards || !rewards.dueAt
+                ? '—'
+                : rewards.overdue
+                  ? t('home.stat.payoutDue')
+                  : t.plural(
+                      'home.stat.payoutDays',
+                      Math.max(
+                        1,
+                        Math.round(
+                          (rewards.dueAt.getTime() - Date.now()) / 86_400_000,
+                        ),
+                      ),
+                    )
+            }
           >
-            {t('home.stat.howWorkedOut')}
-          </a>
-        </StatTile>
+            {rewards && (
+              <>
+                <Meter
+                  percent={rewards.progressPercent}
+                  label={t('app.stxOnlyEstimate.progressLabel')}
+                />
+                <span className='mt-1 block'>
+                  {rewards.overdue
+                    ? t('home.stat.payoutOverdue')
+                    : t('home.stat.payoutBlocks', {
+                        done: rewards.blocksIntoCycle.toLocaleString(
+                          t.bundle.intlLocale,
+                        ),
+                        total: rewards.cycleBlocks.toLocaleString(
+                          t.bundle.intlLocale,
+                        ),
+                      })}{' '}
+                  <a
+                    href={stxOnlyHistoryHref()}
+                    className='font-bold whitespace-nowrap text-grape'
+                  >
+                    {t('home.stat.history')}
+                  </a>
+                </span>
+              </>
+            )}
+          </StatTile>
+        </div>
 
-        <StatTile
-          label={t('home.stat.payout')}
-          value={
-            !rewards || !rewards.dueAt
-              ? '—'
-              : rewards.overdue
-                ? t('home.stat.payoutDue')
-                : t.plural(
-                    'home.stat.payoutDays',
-                    Math.max(
-                      1,
-                      Math.round(
-                        (rewards.dueAt.getTime() - Date.now()) / 86_400_000,
-                      ),
-                    ),
-                  )
-          }
-        >
-          {rewards && (
-            <>
-              <Meter
-                percent={rewards.progressPercent}
-                label={t('app.stxOnlyEstimate.progressLabel')}
-              />
-              <span className='mt-1 block'>
-                {rewards.overdue
-                  ? t('home.stat.payoutOverdue')
-                  : t('home.stat.payoutBlocks', {
-                      done: rewards.blocksIntoCycle.toLocaleString(
-                        t.bundle.intlLocale,
-                      ),
-                      total: rewards.cycleBlocks.toLocaleString(
-                        t.bundle.intlLocale,
-                      ),
-                    })}{' '}
-                <a
-                  href={stxOnlyHistoryHref()}
-                  className='font-bold whitespace-nowrap text-grape'
-                >
-                  {t('home.stat.history')}
-                </a>
-              </span>
-            </>
-          )}
-        </StatTile>
-      </div>
-
-      <CycleTimeline calculations={stxOnlyCalculations} locale={locale} />
-
-      <div className='mt-3 mb-5'>
-        <Freshness
-          generatedAt={signerData.generatedAt}
-          savedCopy={savedCopy}
+        <CycleTimeline
+          calculations={stxOnlyCalculations}
           locale={locale}
-          variant='inline'
+          bare
         />
-      </div>
+      </section>
 
       <PoolList
         signers={live}
         totals={totals}
         calculations={stxOnlyCalculations}
         locale={locale}
+        aside={
+          <Freshness
+            generatedAt={signerData.generatedAt}
+            savedCopy={savedCopy}
+            locale={locale}
+            variant='inline'
+          />
+        }
       />
 
       <p className='mt-8 text-sm text-muted'>{t('home.footer.fees')}</p>

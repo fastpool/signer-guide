@@ -222,7 +222,6 @@ export default function App() {
       <HomePage
         signerData={signerData}
         live={live}
-        liveTemplates={liveTemplates}
         totals={totals}
         stxOnlyCalculations={stxOnlyCalculations}
         savedCopy={stale}

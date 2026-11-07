@@ -211,7 +211,6 @@ const messages = {
   'app.stxOnlyFaq.q.promise': 'Is any of this a promise?',
   'app.stxOnlyFaq.a.promise':
     'No. The only settled figure on this page is what the last payout paid, and every payout on record is listed on the history page. Everything else moves with what reaches pox-5, with how much STX is staked against it, and — for the APY — with the price of STX.',
-  'app.allPools': 'All pools',
   'app.whatMatters': 'What matters to you?',
   'app.showingAll': 'Showing all {total} pools',
   'app.showingSome': '{shown} of {total} pools match',
@@ -780,10 +779,6 @@ const messages = {
   'home.stat.staked': 'Staked in cycle {cycle}',
   'home.stat.nextFilling': 'Cycle {cycle}: {amount} so far',
   'home.stat.nextLocked': 'Cycle {cycle} locked in: {amount}',
-  'home.stat.pools': 'Pools to choose from',
-  'home.stat.types.one': 'on {count} contract type ·',
-  'home.stat.types.other': 'on {count} contract types ·',
-  'home.stat.compare': 'compare them →',
   'home.stat.rewards': 'STX-only rewards',
   'home.stat.rewardsUnit': 'sats / 1k STX',
   'home.stat.apy': '≈ {apy}% a year ·',
@@ -799,8 +794,9 @@ const messages = {
   'home.footer.fees':
     'Fees are read from each pool’s contract, and most pools can change theirs at any time — ⛉ marks a cap set in code, ◷ a wait before a rise.',
 
-  'pools.count.one': '{count} pool',
-  'pools.count.other': '{count} pools',
+  'pools.heading.one': '{count} pool to stake with',
+  'pools.heading.other': '{count} pools to stake with',
+  'home.cycleHeading': 'The network now',
   'pools.hiddenEmpty.one': '{count} empty pool hidden ·',
   'pools.hiddenEmpty.other': '{count} empty pools hidden ·',
   'pools.showEmpty': 'show',

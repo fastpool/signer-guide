@@ -23,9 +23,12 @@ import type { StxOnlyCalculations } from '../lib/types';
 export default function CycleTimeline({
   calculations,
   locale,
+  bare,
 }: {
   calculations: StxOnlyCalculations;
   locale: Locale;
+  /** Inside a panel that is already a card: a rule above instead of a box. */
+  bare?: boolean;
 }) {
   const t = translator(locale);
   const timing = cycleTiming(calculations);
@@ -35,7 +38,11 @@ export default function CycleTimeline({
   return (
     <section
       aria-label={t('timing.label')}
-      className='mt-3 rounded-2xl bg-card p-4 shadow-lift'
+      className={
+        bare
+          ? 'mt-4 border-t border-hairline pt-4'
+          : 'mt-3 rounded-2xl bg-card p-4 shadow-lift'
+      }
     >
       <div className='flex flex-col gap-x-6 gap-y-2 sm:flex-row sm:items-start sm:justify-between'>
         {timing && <Timing timing={timing} t={t} />}

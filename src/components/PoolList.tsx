@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, type ReactNode } from 'react';
 import { inUse, isNewSigner } from '../lib/activity';
 import { stxCompact } from '../lib/amounts';
 import { translator, type Locale, type MessageKey } from '../lib/i18n';
@@ -111,12 +111,15 @@ export default function PoolList({
   totals,
   calculations,
   locale,
+  aside,
 }: {
   signers: Signer[];
   totals: LockedTotals;
   /** The rate and the STX price the yield column is worked out from. */
   calculations: StxOnlyCalculations;
   locale: Locale;
+  /** Beside the heading: on the home page, how old the list is. */
+  aside?: ReactNode;
 }) {
   const t = translator(locale);
   const rate = useMemo(() => {
@@ -253,11 +256,46 @@ export default function PoolList({
 
   return (
     <section aria-labelledby='pools-heading'>
-      <h2 id='pools-heading' className='sr-only'>
-        {t('app.allPools')}
-      </h2>
+      {/* The list is what most people come for, so it is named in words a
+          sighted reader sees too, with how many there are and how old they
+          are beside the name rather than in loose lines above it. */}
+      <div className='flex flex-wrap items-end justify-between gap-x-6 gap-y-1'>
+        <div>
+          <h2
+            id='pools-heading'
+            className='text-2xl font-extrabold tracking-tight'
+            aria-live='polite'
+          >
+            {t.plural('pools.heading', shown.length)}
+          </h2>
+          <p className='mt-0.5 text-sm text-muted'>
+            {hiddenEmpty > 0 && (
+              <>
+                {t.plural('pools.hiddenEmpty', hiddenEmpty)}{' '}
+                <button
+                  type='button'
+                  onClick={() => toggle('inUse')}
+                  className='font-semibold text-grape underline underline-offset-2'
+                >
+                  {t('pools.showEmpty')}
+                </button>
+              </>
+            )}
+            {!active.has('inUse') && (
+              <button
+                type='button'
+                onClick={() => toggle('inUse')}
+                className='font-semibold text-grape underline underline-offset-2'
+              >
+                {t('pools.hideEmpty')}
+              </button>
+            )}
+          </p>
+        </div>
+        {aside}
+      </div>
 
-      <div className='flex flex-wrap items-center gap-2'>
+      <div className='mt-3 flex flex-wrap items-center gap-2'>
         <div
           ref={chips}
           style={chipFade}
@@ -287,37 +325,9 @@ export default function PoolList({
         </div>
       </div>
 
-      <div className='mt-3 mb-2 flex flex-wrap items-baseline justify-between gap-2 text-sm'>
-        <p className='font-bold' aria-live='polite'>
-          {t.plural('pools.count', shown.length)}
-          {hiddenEmpty > 0 && (
-            <span className='font-normal text-muted'>
-              {' · '}
-              {t.plural('pools.hiddenEmpty', hiddenEmpty)}{' '}
-              <button
-                type='button'
-                onClick={() => toggle('inUse')}
-                className='font-semibold text-grape underline underline-offset-2'
-              >
-                {t('pools.showEmpty')}
-              </button>
-            </span>
-          )}
-          {!active.has('inUse') && (
-            <span className='font-normal text-muted'>
-              {' · '}
-              <button
-                type='button'
-                onClick={() => toggle('inUse')}
-                className='font-semibold text-grape underline underline-offset-2'
-              >
-                {t('pools.hideEmpty')}
-              </button>
-            </span>
-          )}
-        </p>
+      <div className='mt-3 mb-2 flex justify-end text-sm lg:hidden'>
         {/* On a phone there are no column heads to sort by. */}
-        <label className='flex items-center gap-2 text-muted lg:hidden'>
+        <label className='flex items-center gap-2 text-muted'>
           {t('pools.sortBy')}
           <select
             value={sort}
@@ -341,7 +351,7 @@ export default function PoolList({
 
       {shown.length > 0 && (
         <>
-          <div className='hidden overflow-x-auto rounded-2xl bg-card shadow-lift lg:block'>
+          <div className='hidden overflow-x-auto rounded-2xl bg-card shadow-lift lg:mt-3 lg:block'>
             <table className='w-full border-collapse text-sm'>
               <thead className='border-b border-hairline'>
                 <tr>
