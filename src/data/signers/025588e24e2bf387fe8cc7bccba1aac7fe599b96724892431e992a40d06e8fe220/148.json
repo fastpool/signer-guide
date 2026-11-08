@@ -513,6 +513,11 @@
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
+      "staker": "SP35GN1BXT4KVSEW732Z28SXPMV8T69GJPQJHXNP2",
+      "ustx": "3290000000",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
+    },
+    {
       "staker": "SPVT4DPDA1GSM6P6ACBFVBWQMQEHRFW7MJADTHXQ",
       "ustx": "3210000000",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
@@ -525,11 +530,6 @@
     {
       "staker": "SPMX76VFT9C2CTH970BTJR0WQ4CQNVSM96RA7DQ4",
       "ustx": "3020000000",
-      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
-    },
-    {
-      "staker": "SP2VWHR2NKTCGFKQBDYNT1DD45MF409987HP9GBT5",
-      "ustx": "3006552535",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager"
     },
     {
