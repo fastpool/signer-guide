@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-11-09T08:05:57.778Z",
+  "generatedAt": "2026-11-09T18:55:59.470Z",
   "cycle": 147,
-  "burnHeight": 975147,
+  "burnHeight": 975207,
   "firstBondPeriodCycle": 141,
   "gapCycles": 2,
   "lengthCycles": 12,
@@ -17,7 +17,7 @@
     "stxValueRatio": "275260",
     "minUstxRatio": 500,
     "allowlistedSats": "100511350000",
-    "registeredSats": "100511000000",
+    "registeredSats": "100510990000",
     "allowlistComplete": true,
     "stakers": [
       {
@@ -47,7 +47,7 @@
       {
         "staker": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.sbtc-bond-staker-v1-3",
         "maxSats": "500000000",
-        "registeredSats": "500000000",
+        "registeredSats": "499990000",
         "amountUstx": "68815000003",
         "isL1Lock": false,
         "signer": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1"
