@@ -7,7 +7,7 @@
     {
       "cycle": 148,
       "ustx": {
-        "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager": "74051706956005"
+        "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager": "74056268632296"
       },
       "memberCount": 391,
       "membersAddUp": true,
@@ -17,12 +17,7 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": false,
-      "cycleFinal": false,
-      "bondUstx": {
-        "SPMPMA1V6P430M8C91QS1G9XJ95S59JS1TZFZ4Q4.fastpool-max500-signer-manager": {
-          "1": "77461646805"
-        }
-      }
+      "cycleFinal": false
     },
     {
       "cycle": 147,
@@ -158,5 +153,5 @@
     }
   ],
   "currentCycle": 147,
-  "generatedAt": "2026-11-11T06:42:01.220Z"
+  "generatedAt": "2026-11-11T15:24:24.020Z"
 }

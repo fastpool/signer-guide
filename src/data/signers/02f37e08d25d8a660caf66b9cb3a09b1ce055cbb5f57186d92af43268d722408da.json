@@ -7,7 +7,7 @@
     {
       "cycle": 148,
       "ustx": {
-        "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-3": "22265158848639"
+        "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-3": "22268656848639"
       },
       "memberCount": 766,
       "membersAddUp": true,
@@ -17,12 +17,7 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": false,
-      "cycleFinal": false,
-      "bondUstx": {
-        "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-3": {
-          "2": "294122400045"
-        }
-      }
+      "cycleFinal": false
     },
     {
       "cycle": 147,
@@ -150,5 +145,5 @@
     }
   ],
   "currentCycle": 147,
-  "generatedAt": "2026-11-11T06:42:00.988Z"
+  "generatedAt": "2026-11-11T15:24:23.923Z"
 }
