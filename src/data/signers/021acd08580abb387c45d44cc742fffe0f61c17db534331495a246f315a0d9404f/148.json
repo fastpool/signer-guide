@@ -265,8 +265,7 @@
     {
       "staker": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.sbtc-bond-staker-v1-3",
       "ustx": "68815000003",
-      "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1",
-      "bondIndex": 3
+      "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1"
     },
     {
       "staker": "SP3FBTQ1NKJSB37ZTQVVGS9GZKCJAGRFYWSM41Q7",
@@ -2164,6 +2163,11 @@
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1"
     },
     {
+      "staker": "SPVBCY6GPEBBVY20RKC4C3ERP89XJWDGCXWSE381",
+      "ustx": "2196000000",
+      "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1"
+    },
+    {
       "staker": "SP3PVSKE2QTJ0SN2V7F1K075JWRQ4KSHEWSPBVMP2",
       "ustx": "2171731805",
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1"
@@ -2406,11 +2410,6 @@
     {
       "staker": "SPZF63H6TMFTYFTZGPEBMRHAAXRTAA4ZVVC395P2",
       "ustx": "1585300000",
-      "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1"
-    },
-    {
-      "staker": "SPVBCY6GPEBBVY20RKC4C3ERP89XJWDGCXWSE381",
-      "ustx": "1577000000",
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1"
     },
     {
