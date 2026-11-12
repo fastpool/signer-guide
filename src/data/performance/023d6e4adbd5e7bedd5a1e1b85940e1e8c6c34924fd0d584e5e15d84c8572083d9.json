@@ -3,11 +3,11 @@
   "cycles": [
     {
       "cycle": 147,
-      "accepted": 41100,
-      "rejected": 682,
-      "missed": 1171,
-      "responseMs": 5877,
-      "lastSeen": "2026-11-11T22:49:15.351Z",
+      "accepted": 42513,
+      "rejected": 720,
+      "missed": 1217,
+      "responseMs": 5906,
+      "lastSeen": "2026-11-12T03:53:54.074Z",
       "weight": 576,
       "weightPercent": 14.4,
       "final": false
