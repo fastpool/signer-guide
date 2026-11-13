@@ -153,6 +153,11 @@
       "contractId": "SP3ZA8J49HPS7M3KD7EB01Y0ZAJS7VJS2NG87MDGN.planbetter-signer-manager"
     },
     {
+      "staker": "SP1SQF98GKT4DGXHAB62SEDBVHAQH5JSZX05YR71",
+      "ustx": "3745000000",
+      "contractId": "SP3ZA8J49HPS7M3KD7EB01Y0ZAJS7VJS2NG87MDGN.planbetter-signer-manager"
+    },
+    {
       "staker": "SP2Z4P263WJAM2NCX84T11MV5SJ4GGBQ99N16B214",
       "ustx": "3698000000",
       "contractId": "SP3ZA8J49HPS7M3KD7EB01Y0ZAJS7VJS2NG87MDGN.planbetter-signer-manager"
