@@ -118,5 +118,15 @@
     "bondSats": "44097565",
     "reserveSats": "57516712",
     "stxStakerSats": "325928035"
+  },
+  {
+    "cursor": "9485541:3",
+    "block": 9485541,
+    "cycle": 147,
+    "calculationHeight": 975799,
+    "grossSats": "430445092",
+    "bondSats": "104116159",
+    "reserveSats": "48949339",
+    "stxStakerSats": "277379594"
   }
 ]
