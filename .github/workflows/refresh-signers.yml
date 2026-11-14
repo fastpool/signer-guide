@@ -203,6 +203,13 @@ jobs:
           HIRO_API_KEY: ${{ secrets.HIRO_API_KEY }}
         run: pnpm generate:performance
 
+      - name: Fetch the pool's frozen member lists
+        # fastpool-data, over plain git from its grasp server. Only ever a
+        # candidate: a list is used when it adds up to the chain's amounts and
+        # ignored otherwise, so a missing or wrong copy changes nothing.
+        continue-on-error: true
+        run: git clone --depth 1 https://relay.ngit.dev/npub1hlw2enn647n0dc04l4tydv44n4s7z83f9vhz6dpe4qzfwq39jp8swu9ecz/fastpool-data.git "$RUNNER_TEMP/fastpool-data"
+
       - name: Read each signer's cycles, and who was in them
         # The data behind the page for one pool: what its signer held each
         # cycle and who held it. Much the most expensive thing here — a member
@@ -239,6 +246,7 @@ jobs:
           HIRO_API_KEY: ${{ secrets.HIRO_API_KEY }}
           SECONDLAYER_API_KEY: ${{ secrets.SECONDLAYER_API_KEY }}
           AMOUNTS_FROM_TOTALS: ${{ steps.totals.outcome == 'success' && '--amounts-from-totals' || '' }}
+          FASTPOOL_DATA_DIR: ${{ runner.temp }}/fastpool-data
         run: pnpm generate:history --budget 2000 $AMOUNTS_FROM_TOTALS
 
       - name: Build the network overview, cycle by cycle
