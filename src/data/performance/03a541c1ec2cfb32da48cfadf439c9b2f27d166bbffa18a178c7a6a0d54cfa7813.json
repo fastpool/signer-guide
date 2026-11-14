@@ -5,7 +5,7 @@
       "cycle": 147,
       "accepted": 50781,
       "rejected": 1051,
-      "missed": 7378,
+      "missed": 9878,
       "responseMs": 5687,
       "lastSeen": "2026-11-13T07:49:39.589Z",
       "weight": 12,
