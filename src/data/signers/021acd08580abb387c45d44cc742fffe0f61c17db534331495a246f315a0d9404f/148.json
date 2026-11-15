@@ -359,6 +359,11 @@
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1"
     },
     {
+      "staker": "SP47Y1HDJ5PDBJRMQDX6VSP19F3DXZSA698N346N",
+      "ustx": "50098000000",
+      "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1"
+    },
+    {
       "staker": "SP1CDPJ255EX4NHTW7788Q2F78XXKZZY8BM4ZZSJ5",
       "ustx": "50056000000",
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1"
@@ -406,11 +411,6 @@
     {
       "staker": "SP2ZWD3TWR5BG91HHNRMYR9440AGZBM9N44DANDNX",
       "ustx": "47755000000",
-      "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1"
-    },
-    {
-      "staker": "SP47Y1HDJ5PDBJRMQDX6VSP19F3DXZSA698N346N",
-      "ustx": "46338000000",
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1"
     },
     {
@@ -1479,6 +1479,11 @@
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1"
     },
     {
+      "staker": "SP2VBTC8AYWBR3NT8CB909BQHWDCTE9DNV6ECR0M1",
+      "ustx": "5657000000",
+      "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1"
+    },
+    {
       "staker": "SP1FJKZRGKENSWNTMSJ919T3AXFSSTMHFV4AK1V9G",
       "ustx": "5650000000",
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1"
@@ -1735,7 +1740,7 @@
     },
     {
       "staker": "SP3D8KDXAM8PZY22CV3CRK7Y1JK89H3NH4MXWYZSH",
-      "ustx": "4005000000",
+      "ustx": "4025650000",
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1"
     },
     {
@@ -1761,11 +1766,6 @@
     {
       "staker": "SPPGSSV4VK02HN68AXPAAK56651HJ91PF42DMT2H",
       "ustx": "4000000000",
-      "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1"
-    },
-    {
-      "staker": "SP2VBTC8AYWBR3NT8CB909BQHWDCTE9DNV6ECR0M1",
-      "ustx": "3980000000",
       "contractId": "SP8HK160YD5GHXP69VGA0TC7AQJ1X4CDW3XVERSE.xverse-signer-manager-1"
     },
     {
