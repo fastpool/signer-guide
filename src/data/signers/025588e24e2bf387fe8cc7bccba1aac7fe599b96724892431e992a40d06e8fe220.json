@@ -7,13 +7,13 @@
     {
       "cycle": 148,
       "ustx": {
-        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager": "51346810190469"
+        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager": "51334810190469"
       },
-      "memberCount": 197,
+      "memberCount": 196,
       "membersAddUp": true,
       "walks": 0,
-      "walkedAt": "2026-11-14T19:17:54.360Z",
-      "walkedUstx": "51346810190469",
+      "walkedAt": "2026-11-15T17:49:37.493Z",
+      "walkedUstx": "51334810190469",
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": false,
@@ -134,5 +134,5 @@
     }
   ],
   "currentCycle": 147,
-  "generatedAt": "2026-11-15T11:11:13.352Z"
+  "generatedAt": "2026-11-15T17:49:37.602Z"
 }
