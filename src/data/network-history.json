@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-17T04:39:22.229Z",
+  "generatedAt": "2026-11-17T14:37:33.533Z",
   "cycles": [
     {
       "cycle": 148,
-      "stakedUstx": "453670790792470",
+      "stakedUstx": "521179213509748",
       "bondUstx": "24156674220429",
-      "signers": 35,
+      "signers": 40,
       "pools": 35,
       "rewardsPerUstx": null,
       "stxOnlyRewardsSats": null,
