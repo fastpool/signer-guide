@@ -3,11 +3,6 @@
   "cycle": 148,
   "members": [
     {
-      "staker": "SP3VR0QZKCZ8XRCYMQMF2Z487AEDH0SQRZGXAP8T0",
-      "ustx": "304290507243",
-      "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"
-    },
-    {
       "staker": "SP37A7Q6NE3B33HA098QQQ80C0HXC73RDPZDA30WM",
       "ustx": "259410000000",
       "contractId": "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager"

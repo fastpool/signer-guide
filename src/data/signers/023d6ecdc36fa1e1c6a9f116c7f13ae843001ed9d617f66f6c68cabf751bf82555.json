@@ -7,13 +7,13 @@
     {
       "cycle": 148,
       "ustx": {
-        "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager": "1011108360843"
+        "SP21YTSM60CAY6D011EZVEVNKXVW8FVZE198XEFFP.fastpool-1-signer-manager": "706817853600"
       },
-      "memberCount": 15,
+      "memberCount": 14,
       "membersAddUp": true,
       "walks": 0,
-      "walkedAt": "2026-11-06T02:34:45.916Z",
-      "walkedUstx": "1011108360843",
+      "walkedAt": "2026-11-19T03:39:57.469Z",
+      "walkedUstx": "706817853600",
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": false,
@@ -134,5 +134,5 @@
     }
   ],
   "currentCycle": 147,
-  "generatedAt": "2026-11-18T22:06:44.995Z"
+  "generatedAt": "2026-11-19T03:39:57.779Z"
 }
