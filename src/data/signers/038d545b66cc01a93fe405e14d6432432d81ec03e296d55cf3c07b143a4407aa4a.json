@@ -8,14 +8,14 @@
     {
       "cycle": 148,
       "ustx": {
-        "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-sbtc-signer": "55238370819",
+        "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-sbtc-signer": "55239470819",
         "SPV9K21TBFAK4KNRJXF5DFP8N7W46G4V9RCJDC22.juice-pool-stx-signer": "1040699471130"
       },
-      "memberCount": 39,
+      "memberCount": 40,
       "membersAddUp": true,
       "walks": 0,
-      "walkedAt": "2026-11-19T13:27:30.970Z",
-      "walkedUstx": "1095937841949",
+      "walkedAt": "2026-11-19T22:17:02.848Z",
+      "walkedUstx": "1095938941949",
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": false,
@@ -143,5 +143,5 @@
     }
   ],
   "currentCycle": 147,
-  "generatedAt": "2026-11-19T13:27:31.073Z"
+  "generatedAt": "2026-11-19T22:17:03.036Z"
 }
