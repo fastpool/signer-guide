@@ -106,10 +106,7 @@ function Timing({ timing, t }: { timing: CycleTiming; t: Translator }) {
       >
         <strong>
           {timing.inPrepare
-            ? t('timing.inPrepare', {
-                next: timing.cycle + 1,
-                joins,
-              })
+            ? t('timing.inPrepare', { joins })
             : t('timing.closes', {
                 next: timing.cycle + 1,
                 countdown: left ? countdown(left, t) : t('timing.soon'),
@@ -118,6 +115,7 @@ function Timing({ timing, t }: { timing: CycleTiming; t: Translator }) {
         <span className='text-muted'>
           {timing.inPrepare
             ? t('timing.inPrepareWhen', {
+                next: timing.cycle + 1,
                 countdown: left ? countdown(left, t) : t('timing.soon'),
               })
             : t('timing.closesWhen', { after: timing.cycle + 2 })}
