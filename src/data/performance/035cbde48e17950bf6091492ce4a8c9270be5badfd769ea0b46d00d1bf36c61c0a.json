@@ -1,0 +1,16 @@
+{
+  "signerKey": "035cbde48e17950bf6091492ce4a8c9270be5badfd769ea0b46d00d1bf36c61c0a",
+  "cycles": [
+    {
+      "cycle": 148,
+      "accepted": 2468,
+      "rejected": 39,
+      "missed": 131,
+      "responseMs": 5378,
+      "lastSeen": "2026-11-21T11:21:44.726Z",
+      "weight": 8,
+      "weightPercent": 0.2,
+      "final": false
+    }
+  ]
+}

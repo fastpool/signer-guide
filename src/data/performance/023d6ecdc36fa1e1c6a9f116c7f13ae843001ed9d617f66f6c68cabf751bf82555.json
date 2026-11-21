@@ -2,15 +2,26 @@
   "signerKey": "023d6ecdc36fa1e1c6a9f116c7f13ae843001ed9d617f66f6c68cabf751bf82555",
   "cycles": [
     {
+      "cycle": 148,
+      "accepted": 2475,
+      "rejected": 32,
+      "missed": 289,
+      "responseMs": 6040,
+      "lastSeen": "2026-11-21T11:21:45.236Z",
+      "weight": 5,
+      "weightPercent": 0.125,
+      "final": false
+    },
+    {
       "cycle": 147,
-      "accepted": 105731,
-      "rejected": 2228,
-      "missed": 9511,
-      "responseMs": 7363,
-      "lastSeen": "2026-11-21T02:32:12.726Z",
+      "accepted": 106469,
+      "rejected": 2244,
+      "missed": 9620,
+      "responseMs": 7378,
+      "lastSeen": "2026-11-21T05:14:19.927Z",
       "weight": 8,
       "weightPercent": 0.2,
-      "final": false
+      "final": true
     },
     {
       "cycle": 146,

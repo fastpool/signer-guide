@@ -5,6 +5,22 @@
   ],
   "cycles": [
     {
+      "cycle": 149,
+      "ustx": {
+        "SP13W6DKAAHWQERQH9NDKPHSWZBAQKYSXEA7DJYAK.blueprint-signer-manager": "2000000000000"
+      },
+      "memberCount": 1,
+      "membersAddUp": true,
+      "walks": 0,
+      "walkedAt": "2026-11-21T11:21:50.261Z",
+      "walkedUstx": "2000000000000",
+      "fileFinal": false,
+      "cycleFinal": false,
+      "bondUstx": {},
+      "eventsWalked": true,
+      "membersFrom": "events"
+    },
+    {
       "cycle": 148,
       "ustx": {
         "SP13W6DKAAHWQERQH9NDKPHSWZBAQKYSXEA7DJYAK.blueprint-signer-manager": "2000000000000"
@@ -17,7 +33,7 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": false,
-      "cycleFinal": false,
+      "cycleFinal": true,
       "bondUstx": {}
     },
     {
@@ -32,7 +48,7 @@
       "walkedUstx": "0",
       "eventsWalked": true,
       "membersFrom": "events",
-      "fileFinal": false,
+      "fileFinal": true,
       "cycleFinal": true,
       "bondUstx": {}
     },
@@ -133,6 +149,6 @@
       "bondUstx": {}
     }
   ],
-  "currentCycle": 147,
-  "generatedAt": "2026-11-21T02:32:27.810Z"
+  "currentCycle": 148,
+  "generatedAt": "2026-11-21T11:21:50.278Z"
 }

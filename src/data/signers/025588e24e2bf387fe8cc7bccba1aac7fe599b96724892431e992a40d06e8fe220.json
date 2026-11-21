@@ -5,6 +5,22 @@
   ],
   "cycles": [
     {
+      "cycle": 149,
+      "ustx": {
+        "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager": "51487067310404"
+      },
+      "memberCount": 197,
+      "membersAddUp": true,
+      "walks": 0,
+      "walkedAt": "2026-11-21T11:21:50.261Z",
+      "walkedUstx": "51487067310404",
+      "fileFinal": false,
+      "cycleFinal": false,
+      "bondUstx": {},
+      "eventsWalked": true,
+      "membersFrom": "events"
+    },
+    {
       "cycle": 148,
       "ustx": {
         "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager": "51471424310404"
@@ -17,7 +33,7 @@
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": false,
-      "cycleFinal": false,
+      "cycleFinal": true,
       "bondUstx": {}
     },
     {
@@ -32,7 +48,7 @@
       "walkedUstx": "51522591825569",
       "eventsWalked": true,
       "membersFrom": "events",
-      "fileFinal": false,
+      "fileFinal": true,
       "cycleFinal": true,
       "bondUstx": {}
     },
@@ -133,6 +149,6 @@
       "bondUstx": {}
     }
   ],
-  "currentCycle": 147,
-  "generatedAt": "2026-11-21T02:32:28.023Z"
+  "currentCycle": 148,
+  "generatedAt": "2026-11-21T11:21:50.514Z"
 }
