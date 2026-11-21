@@ -609,10 +609,11 @@ export interface SignerCycleSummary {
   eventsWalked?: boolean;
   /**
    * Where the member list came from: replayed from the pox-5 event copy and
-   * checked against each contract's total on chain, or walked one staker at a
-   * time. The generator's business. Absent in files written before either.
+   * checked against each contract's total on chain, taken from the pool's own
+   * frozen list (`fastpool-data`) under the same check, or walked one staker
+   * at a time. The generator's business. Absent in files written before either.
    */
-  membersFrom?: 'events' | 'walk';
+  membersFrom?: 'events' | 'pool' | 'walk';
   /**
    * True once **this record** is finished: the generator will not read the
    * cycle from the chain again.

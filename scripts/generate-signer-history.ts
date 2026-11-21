@@ -126,6 +126,7 @@ import {
   membersOf,
   type MembershipState,
 } from './pox5-membership.js';
+import { membersFromPool, readPoolMembersFile } from './pool-members.js';
 import { groupName, matchGroups } from './signer-members.js';
 
 const DATA = path.join(
@@ -767,6 +768,30 @@ async function updateGroup(
       continue;
     }
     if (replayed) result.disagreed += 1;
+
+    /*
+     * Then the pool's own frozen list, where there is one for this signer and
+     * it adds up contract by contract -- the same test the event copy had to
+     * pass. It costs a file read, which is why it comes before a walk.
+     */
+    const fromPool =
+      total === null
+        ? null
+        : membersFromPool(readPoolMembersFile(cycle), contractIds, ustx);
+    if (fromPool && total !== null) {
+      summary.bondUstx = bondSplitOf(fromPool);
+      const changed = writeMembers(slug, node.signerKey, cycle, fromPool);
+      summary.memberCount = fromPool.length;
+      summary.membersAddUp = true;
+      summary.membersFrom = 'pool';
+      summary.walkedUstx = total.toString();
+      if (changed || !summary.walkedAt) {
+        summary.walkedAt = new Date(now).toISOString();
+      }
+      if (changed) result.rewritten += 1;
+      cycles.push(summary);
+      continue;
+    }
 
     if (membersWorthWalking(before, total, fileFinal, now, eventsAvailable)) {
       const walked = await walkCycle(node, slug, cycle, total, spend);
