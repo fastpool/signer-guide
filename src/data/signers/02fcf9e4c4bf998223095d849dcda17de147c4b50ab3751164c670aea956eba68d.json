@@ -14,11 +14,11 @@
       "walks": 0,
       "walkedAt": "2026-11-21T11:21:50.261Z",
       "walkedUstx": "90379290000000",
+      "eventsWalked": true,
+      "membersFrom": "events",
       "fileFinal": false,
       "cycleFinal": false,
-      "bondUstx": {},
-      "eventsWalked": true,
-      "membersFrom": "events"
+      "bondUstx": {}
     },
     {
       "cycle": 148,
@@ -150,5 +150,5 @@
     }
   ],
   "currentCycle": 148,
-  "generatedAt": "2026-11-21T11:21:50.440Z"
+  "generatedAt": "2026-11-23T14:24:19.871Z"
 }
