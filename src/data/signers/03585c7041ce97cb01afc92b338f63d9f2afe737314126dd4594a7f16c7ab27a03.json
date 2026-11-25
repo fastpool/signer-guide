@@ -7,13 +7,13 @@
     {
       "cycle": 149,
       "ustx": {
-        "SP3DHX7ZHNTCE1WQHJH0T0HY9NNSVT4SWTY2FRCCT.hiro-contract": "9999999000000"
+        "SP3DHX7ZHNTCE1WQHJH0T0HY9NNSVT4SWTY2FRCCT.hiro-contract": "0"
       },
-      "memberCount": 1,
+      "memberCount": 0,
       "membersAddUp": true,
       "walks": 0,
-      "walkedAt": "2026-11-21T11:21:50.261Z",
-      "walkedUstx": "9999999000000",
+      "walkedAt": "2026-11-25T19:25:25.377Z",
+      "walkedUstx": "0",
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": false,
@@ -150,5 +150,5 @@
     }
   ],
   "currentCycle": 148,
-  "generatedAt": "2026-11-25T08:48:20.531Z"
+  "generatedAt": "2026-11-25T19:25:25.591Z"
 }
