@@ -431,6 +431,11 @@
       "staker": "SPHZGKJ90J004HEW6342EVT2JWZ947YYN4ZRKRJD",
       "ustx": "1000000",
       "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2"
+    },
+    {
+      "staker": "SP2NBBES0651JCTGPTGTBMEGX914JTHTBBT20MX7N",
+      "ustx": "707138",
+      "contractId": "SP4SZE494VC2YC5JYG7AYFQ44F5Q4PYV7DVMDPBG.native-pool-signer-manager-v2"
     }
   ]
 }
