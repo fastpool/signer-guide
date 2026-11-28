@@ -87,6 +87,12 @@
       "bondIndex": 1
     },
     {
+      "staker": "SM18F7NSN0YZY1R0D14QCR23TTF4KP0FSJDDKMTH4",
+      "ustx": "12000000",
+      "contractId": "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs",
+      "bondIndex": 4
+    },
+    {
       "staker": "SM1W3KT1CD969BHPS3CCHZATMJHYPTZXJRA76RATX",
       "ustx": "8000000",
       "contractId": "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs",

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-28T08:00:29.827Z",
+  "generatedAt": "2026-11-28T16:58:38.177Z",
   "cycle": 148,
   "blocks": 50,
   "slots": 4000,
@@ -25,7 +25,7 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:24.959Z"
+        "observedAt": "2026-11-28T16:49:07.848Z"
       },
       "behaviour": {
         "participationRate": 1,
@@ -55,14 +55,14 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:44.759Z"
+        "observedAt": "2026-11-28T16:49:07.848Z"
       },
       "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
+        "participationRate": 0.98,
+        "degradationRate": 0.02,
+        "signedCount": 49,
+        "missedCount": 1,
+        "acceptedCount": 49,
         "rejectedCount": 0,
         "preCommitRate": 1
       }
@@ -85,7 +85,7 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:24.959Z"
+        "observedAt": "2026-11-28T16:49:07.848Z"
       },
       "behaviour": {
         "participationRate": 1,
@@ -115,7 +115,7 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:27.276Z"
+        "observedAt": "2026-11-28T16:48:58.474Z"
       },
       "behaviour": {
         "participationRate": 1,
@@ -147,16 +147,16 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:25.070Z"
+        "observedAt": "2026-11-28T16:49:07.848Z"
       },
       "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
+        "participationRate": 0.96,
+        "degradationRate": 0.04,
+        "signedCount": 48,
+        "missedCount": 2,
+        "acceptedCount": 48,
         "rejectedCount": 0,
-        "preCommitRate": 1
+        "preCommitRate": 0.98
       }
     },
     {
@@ -177,7 +177,7 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:34.450Z"
+        "observedAt": "2026-11-28T16:49:00.309Z"
       },
       "behaviour": {
         "participationRate": 1,
@@ -207,14 +207,14 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:22.063Z"
+        "observedAt": "2026-11-28T16:49:02.797Z"
       },
       "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
+        "participationRate": 0.98,
+        "degradationRate": 0.02,
+        "signedCount": 49,
+        "missedCount": 1,
+        "acceptedCount": 49,
         "rejectedCount": 0,
         "preCommitRate": 1
       }
@@ -237,16 +237,16 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:31.877Z"
+        "observedAt": "2026-11-28T16:49:10.421Z"
       },
       "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
-        "rejectedCount": 0,
-        "preCommitRate": 1
+        "participationRate": 0.98,
+        "degradationRate": 0.12,
+        "signedCount": 49,
+        "missedCount": 1,
+        "acceptedCount": 44,
+        "rejectedCount": 5,
+        "preCommitRate": 0.98
       }
     },
     {
@@ -265,7 +265,7 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:23.743Z"
+        "observedAt": "2026-11-28T16:49:07.848Z"
       },
       "behaviour": {
         "participationRate": 1,
@@ -295,7 +295,7 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:22.063Z"
+        "observedAt": "2026-11-28T16:49:05.222Z"
       },
       "behaviour": {
         "participationRate": 1,
@@ -351,7 +351,7 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:24.959Z"
+        "observedAt": "2026-11-28T16:49:07.848Z"
       },
       "behaviour": {
         "participationRate": 1,
@@ -381,7 +381,7 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:26.421Z"
+        "observedAt": "2026-11-28T16:49:07.848Z"
       },
       "behaviour": {
         "participationRate": 1,
@@ -411,7 +411,7 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:25.070Z"
+        "observedAt": "2026-11-28T16:49:07.848Z"
       },
       "behaviour": {
         "participationRate": 1,
@@ -439,14 +439,14 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:27.276Z"
+        "observedAt": "2026-11-28T16:49:10.421Z"
       },
       "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
+        "participationRate": 0.98,
+        "degradationRate": 0.02,
+        "signedCount": 49,
+        "missedCount": 1,
+        "acceptedCount": 49,
         "rejectedCount": 0,
         "preCommitRate": 1
       }
@@ -467,14 +467,14 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:20.737Z"
+        "observedAt": "2026-11-28T16:49:02.797Z"
       },
       "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
+        "participationRate": 0.98,
+        "degradationRate": 0.02,
+        "signedCount": 49,
+        "missedCount": 1,
+        "acceptedCount": 49,
         "rejectedCount": 0,
         "preCommitRate": 1
       }
@@ -495,7 +495,7 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:20.737Z"
+        "observedAt": "2026-11-28T16:49:02.797Z"
       },
       "behaviour": {
         "participationRate": 1,
@@ -525,7 +525,7 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:19.367Z"
+        "observedAt": "2026-11-28T16:49:00.309Z"
       },
       "behaviour": {
         "participationRate": 1,
@@ -553,7 +553,7 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:26.421Z"
+        "observedAt": "2026-11-28T16:49:07.848Z"
       },
       "behaviour": {
         "participationRate": 1,
@@ -581,14 +581,14 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:27.276Z"
+        "observedAt": "2026-11-28T16:49:07.848Z"
       },
       "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
+        "participationRate": 0.98,
+        "degradationRate": 0.02,
+        "signedCount": 49,
+        "missedCount": 1,
+        "acceptedCount": 49,
         "rejectedCount": 0,
         "preCommitRate": 1
       }
@@ -610,14 +610,14 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:28.798Z"
+        "observedAt": "2026-11-28T16:48:58.474Z"
       },
       "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
+        "participationRate": 0.98,
+        "degradationRate": 0.02,
+        "signedCount": 49,
+        "missedCount": 1,
+        "acceptedCount": 49,
         "rejectedCount": 0,
         "preCommitRate": 1
       }
@@ -638,7 +638,7 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:26.421Z"
+        "observedAt": "2026-11-28T16:49:07.848Z"
       },
       "behaviour": {
         "participationRate": 1,
@@ -669,7 +669,7 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:22.063Z"
+        "observedAt": "2026-11-28T16:49:05.222Z"
       },
       "behaviour": {
         "participationRate": 1,
@@ -697,7 +697,7 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:30.232Z"
+        "observedAt": "2026-11-28T16:49:10.421Z"
       },
       "behaviour": {
         "participationRate": 0.98,
@@ -706,7 +706,7 @@
         "missedCount": 1,
         "acceptedCount": 49,
         "rejectedCount": 0,
-        "preCommitRate": 1
+        "preCommitRate": 0.98
       }
     },
     {
@@ -725,7 +725,7 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:22.063Z"
+        "observedAt": "2026-11-28T16:49:05.222Z"
       },
       "behaviour": {
         "participationRate": 1,
@@ -753,7 +753,7 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:26.421Z"
+        "observedAt": "2026-11-28T16:49:07.848Z"
       },
       "behaviour": {
         "participationRate": 1,
@@ -781,7 +781,7 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:20.737Z"
+        "observedAt": "2026-11-28T16:49:02.797Z"
       },
       "behaviour": {
         "participationRate": 1,
@@ -809,7 +809,7 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:23.743Z"
+        "observedAt": "2026-11-28T16:49:05.222Z"
       },
       "behaviour": {
         "participationRate": 1,
@@ -838,16 +838,16 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:25.070Z"
+        "observedAt": "2026-11-28T16:49:05.222Z"
       },
       "behaviour": {
-        "participationRate": 0.98,
-        "degradationRate": 0.02,
-        "signedCount": 49,
-        "missedCount": 1,
-        "acceptedCount": 49,
+        "participationRate": 1,
+        "degradationRate": 0,
+        "signedCount": 50,
+        "missedCount": 0,
+        "acceptedCount": 50,
         "rejectedCount": 0,
-        "preCommitRate": 0.98
+        "preCommitRate": 1
       }
     },
     {
@@ -866,16 +866,16 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:28.044Z"
+        "observedAt": "2026-11-28T16:48:58.474Z"
       },
       "behaviour": {
         "participationRate": 1,
-        "degradationRate": 0.02,
+        "degradationRate": 0,
         "signedCount": 50,
         "missedCount": 0,
-        "acceptedCount": 49,
-        "rejectedCount": 1,
-        "preCommitRate": 0.98
+        "acceptedCount": 50,
+        "rejectedCount": 0,
+        "preCommitRate": 1
       }
     },
     {
@@ -894,7 +894,7 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:22.063Z"
+        "observedAt": "2026-11-28T16:49:07.848Z"
       },
       "behaviour": {
         "participationRate": 1,
@@ -922,7 +922,7 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:28.044Z"
+        "observedAt": "2026-11-28T16:49:07.848Z"
       },
       "behaviour": {
         "participationRate": 1,
@@ -950,7 +950,7 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:29.412Z"
+        "observedAt": "2026-11-28T16:49:12.945Z"
       },
       "behaviour": {
         "participationRate": 1,
@@ -979,16 +979,16 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:36.109Z"
+        "observedAt": "2026-11-28T16:49:07.848Z"
       },
       "behaviour": {
         "participationRate": 0.98,
-        "degradationRate": 0.26,
+        "degradationRate": 0.42,
         "signedCount": 49,
         "missedCount": 1,
-        "acceptedCount": 37,
-        "rejectedCount": 12,
-        "preCommitRate": 0.88
+        "acceptedCount": 29,
+        "rejectedCount": 20,
+        "preCommitRate": 0.92
       }
     },
     {
@@ -1007,16 +1007,16 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:17.669Z"
+        "observedAt": "2026-11-28T16:48:58.474Z"
       },
       "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
+        "participationRate": 0.98,
+        "degradationRate": 0.02,
+        "signedCount": 49,
+        "missedCount": 1,
+        "acceptedCount": 49,
         "rejectedCount": 0,
-        "preCommitRate": 1
+        "preCommitRate": 0.98
       }
     },
     {
@@ -1035,7 +1035,7 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:22.063Z"
+        "observedAt": "2026-11-28T16:49:02.797Z"
       },
       "behaviour": {
         "participationRate": 1,
@@ -1063,14 +1063,14 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:28.044Z"
+        "observedAt": "2026-11-28T16:49:07.848Z"
       },
       "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
+        "participationRate": 0.98,
+        "degradationRate": 0.02,
+        "signedCount": 49,
+        "missedCount": 1,
+        "acceptedCount": 49,
         "rejectedCount": 0,
         "preCommitRate": 1
       }
@@ -1093,14 +1093,14 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:24.959Z"
+        "observedAt": "2026-11-28T16:49:10.421Z"
       },
       "behaviour": {
-        "participationRate": 1,
-        "degradationRate": 0,
-        "signedCount": 50,
-        "missedCount": 0,
-        "acceptedCount": 50,
+        "participationRate": 0.98,
+        "degradationRate": 0.02,
+        "signedCount": 49,
+        "missedCount": 1,
+        "acceptedCount": 49,
         "rejectedCount": 0,
         "preCommitRate": 1
       }
@@ -1121,16 +1121,16 @@
       "version": {
         "local": 2,
         "active": 2,
-        "observedAt": "2026-11-28T07:08:23.743Z"
+        "observedAt": "2026-11-28T16:49:05.222Z"
       },
       "behaviour": {
         "participationRate": 1,
-        "degradationRate": 0.02,
+        "degradationRate": 0,
         "signedCount": 50,
         "missedCount": 0,
-        "acceptedCount": 49,
-        "rejectedCount": 1,
-        "preCommitRate": 0.98
+        "acceptedCount": 50,
+        "rejectedCount": 0,
+        "preCommitRate": 1
       }
     },
     {

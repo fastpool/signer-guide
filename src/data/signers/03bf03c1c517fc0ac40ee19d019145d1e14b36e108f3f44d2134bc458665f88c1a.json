@@ -7,13 +7,13 @@
     {
       "cycle": 149,
       "ustx": {
-        "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs": "14231373223325"
+        "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs": "14231385223325"
       },
-      "memberCount": 17,
+      "memberCount": 18,
       "membersAddUp": true,
       "walks": 0,
-      "walkedAt": "2026-11-25T19:25:25.377Z",
-      "walkedUstx": "14231373223325",
+      "walkedAt": "2026-11-28T16:58:41.812Z",
+      "walkedUstx": "14231385223325",
       "eventsWalked": true,
       "membersFrom": "events",
       "fileFinal": false,
@@ -22,7 +22,8 @@
         "SP3RX8RME63CY63G5WZ8XQWZNTYNETYJESQKE071E.stacks-labs": {
           "1": "465425303325",
           "2": "1336920000",
-          "3": "13764611000000"
+          "3": "13764611000000",
+          "4": "12000000"
         }
       }
     },
@@ -186,5 +187,5 @@
     }
   ],
   "currentCycle": 148,
-  "generatedAt": "2026-11-28T08:00:32.734Z"
+  "generatedAt": "2026-11-28T16:58:41.963Z"
 }
