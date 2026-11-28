@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-11-27T23:33:20.064Z",
+  "generatedAt": "2026-11-28T08:00:32.972Z",
   "cycles": [
     {
       "cycle": 149,
-      "stakedUstx": "430557466776983",
+      "stakedUstx": "430560552776983",
       "bondUstx": "24156674220429",
       "signers": 33,
       "pools": 33,
@@ -19,11 +19,19 @@
       "bondUstx": "24156674220429",
       "signers": 40,
       "pools": 35,
-      "rewardsPerUstx": null,
-      "stxOnlyRewardsSats": null,
-      "bondRewardsSats": null,
-      "foundationRewardsSats": null,
-      "payouts": []
+      "rewardsPerUstx": "576060575369",
+      "stxOnlyRewardsSats": "287353017",
+      "bondRewardsSats": "104116159",
+      "foundationRewardsSats": "50709356",
+      "payouts": [
+        {
+          "burnHeight": 977899,
+          "firstOfCycle": true,
+          "rateSatsPer1000Stx": "576",
+          "stxPriceSats": "441",
+          "btcPriceUsd": 59795
+        }
+      ]
     },
     {
       "cycle": 147,
